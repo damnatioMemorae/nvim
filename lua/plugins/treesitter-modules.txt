@@ -1,0 +1,33 @@
+return {
+        "MeanderingProgrammer/treesitter-modules.nvim",
+        enabled = false,
+        lazy    = false,
+        opts    = {
+                ensure_installed      = { "all" },
+                ignore_install        = { "comment" },
+                highlight             = {
+                        enable  = true,
+                        disable = function(lang, buf)
+                                local max_filesize = 100 * 1024
+                                local ok, stats    = pcall(vim.loop.fs_stat,
+                                                           vim.api.nvim_buf_get_name(buf))
+                                if ok and stats and stats.size > max_filesize then
+                                        return true
+                                end
+                        end,
+                },
+                incremental_selection = {
+                        enable  = true,
+                        keymaps = {
+                                init_selection    = ",v",
+                                node_incremental  = "<CR>",
+                                scope_incremental = ",v",
+                                node_decremental  = "<Backspace>",
+                        },
+                },
+                indent                = {
+                        enable  = false,
+                        disable = false,
+                },
+        },
+}

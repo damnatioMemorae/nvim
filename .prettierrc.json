@@ -1,0 +1,7 @@
+{
+        "trailingComma": "none",
+        "tabWidth": 8,
+        "semi": false,
+        "singleQuote": false,
+        "max_line_length": 180
+}

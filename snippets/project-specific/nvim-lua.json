@@ -1,0 +1,181 @@
+{
+  "map": {
+    "body": [
+      "vin.keymap.set(\"${1:mode}\", {",
+      "\tdesc = \"User: $0\",",
+      "\tcallback = function()",
+      "",
+      "\tend,",
+      "})"
+    ],
+    "prefix": "autocmd"
+  },
+  "autocmd": {
+    "body": [
+      "vim.api.nvim_create_autocmd(\"${1:event}\", {",
+      "\tdesc = \"User: $0\",",
+      "\tcallback = function()",
+      "",
+      "\tend,",
+      "})"
+    ],
+    "prefix": "autocmd"
+  },
+  "autocmd (Filetype)": {
+    "body": [
+      "vim.api.nvim_create_autocmd(\"FileType\", {",
+      "\tdesc = \"User: $0\",",
+      "\tpattern = \"${1:ft}\",",
+      "\tcallback = function()",
+      "",
+      "\tend,",
+      "})"
+    ],
+    "prefix": "autocmd (Filetype)"
+  },
+  "cast (LuaDoc)": {
+    "body": "--[[@as ${1:string}]]",
+    "prefix": [
+      "@cast (LuaDoc)",
+      "@as (LuaDoc)"
+    ]
+  },
+  "check if on macOS": {
+    "body": "jit.os == \"OSX\"",
+    "prefix": "check if on macOS"
+  },
+  "colorize ansi codes": {
+    "body": "vim.api.nvim_chan_send(vim.api.nvim_open_term(bufnr, {}), table.concat(lines, \"\\r\\n\"))",
+    "prefix": "colorize ansi codes"
+  },
+  "create new window": {
+    "body": [
+      "local content = {}",
+      "local width = 30",
+      "local height = 5",
+      "local title = \"\"",
+      "",
+      "-- create window",
+      "local bufnr = vim.api.nvim_create_buf(false, true)",
+      "vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, content)",
+      "local winid = vim.api.nvim_open_win(bufnr, true, {",
+      "\trelative = \"editor\",",
+      "\trow = math.floor((vim.o.lines - height) / 2), ",
+      "\tcol = math.floor((vim.o.columns - width) / 2),",
+      "\twidth = width,",
+      "\theight = height,",
+      "\ttitle = \" \" .. title .. \" \",",
+      "\tborder = \"single\",",
+      "\tstyle = \"minimal\",",
+      "})",
+      "vim.wo[winid].winfixbuf = true",
+      "vim.wo[winid].statuscolumn = \" \" -- = left-padding",
+      "vim.bo[bufnr].modifiable = false",
+      "vim.bo[bufnr].filetype = \"text\"",
+      "",
+      "-- keymaps",
+      "local function map(lhs, rhs) vim.keymap.set(\"n\", lhs, rhs, { buffer = bufnr, nowait = true }) end",
+      "",
+      "for _, key in ipairs({ \"q\", \"<Esc>\" }) do",
+      "\tmap(key, function() vim.cmd.bwipeout(bufnr) end)",
+      "end",
+      "",
+      "-- unmount",
+      "vim.api.nvim_create_autocmd(\"WinLeave\", {",
+      "\tcallback = function()",
+      "\t\tlocal curWin = vim.api.nvim_get_current_win()",
+      "\t\tif curWin == winid then ",
+      "\t\t\tvim.cmd.bwipeout(bufnr)",
+      "\t\t\treturn true -- deletes this autocmd",
+      "\t\tend",
+      "\tend,",
+      "})"
+    ],
+    "prefix": "create new nvim window"
+  },
+  "current line": {
+    "body": "local line = vim.api.nvim_get_current_line()",
+    "prefix": "get current line"
+  },
+  "cword + cursor word": {
+    "body": "vim.fn.expand(\"<cword>\")",
+    "prefix": [
+      "cword",
+      "cursor word"
+    ]
+  },
+  "defer": {
+    "body": [
+      "vim.defer_fn(function ()",
+      "\t$1",
+      "end, ${2:1})"
+    ],
+    "prefix": "defer"
+  },
+  "get buffer lines": {
+    "body": "local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)",
+    "prefix": "get buffer lines"
+  },
+  "get selection": {
+    "body": "vim.fn.getregion(vim.fn.getpos(\".\"), vim.fn.getpos(\"v\"), { type = vim.fn.mode() })",
+    "prefix": "get selection"
+  },
+  "get visual selection": {
+    "body": [
+      "local startLn, startCol = unpack(vim.api.nvim_buf_get_mark(0, \"<\"))",
+      "local endLn, endCol = unpack(vim.api.nvim_buf_get_mark(0, \">\"))",
+      "local selection = vim.api.nvim_buf_get_text(0, startLn - 1, startCol, endLn - 1, endCol + 1, {})",
+      "local text = table.concat(selection, \"\\n\")"
+    ],
+    "prefix": "get visual selection"
+  },
+  "minimum version requirement": {
+    "body": [
+      "local version = vim.version()",
+      "if version.major == 0 and version.minor < ${2:10} then",
+      "\tvim.notify('\"${1:plugin_name}\" requires at least nvim 0.${2:10}.', vim.log.levels.WARN)",
+      "\treturn",
+      "end"
+    ],
+    "prefix": "minimum version requirement"
+  },
+  "normal": {
+    "body": "vim.cmd.normal { \"${1:keys}\", bang = true }",
+    "prefix": ":normal"
+  },
+  "select + vim.ui.select": {
+    "body": [
+      "vim.ui.select(items, {",
+      "\tprompt = \"${1:prompt_text}\",",
+      "\tformat_item = function(item) return ${2:item} end,",
+      "}, function (selection)",
+      "\tif not selection then return end",
+      "\t$0",
+      "end)"
+    ],
+    "prefix": [
+      "ui.select",
+      "vim.ui.select"
+    ]
+  },
+  "set current line": {
+    "body": "vim.api.nvim_set_current_line($0)",
+    "prefix": "set current line"
+  },
+  "vim.notify": {
+    "body": "vim.notify(${1:msg}, vim.log.levels.${2:level}, { title = ${3:title}, icon = ${4:icon} })",
+    "prefix": "vim.notify"
+  },
+  "vim.ui.input + ui.input": {
+    "body": [
+      "vim.ui.input({ prompt = \"${1:text}\" }, function(input)",
+      "\tif not input or input == \"\" then return end",
+      "\t$0",
+      "end)"
+    ],
+    "prefix": [
+      "vim.ui.input",
+      "ui.input"
+    ]
+  }
+}
