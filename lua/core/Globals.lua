@@ -77,7 +77,6 @@ Icons.diagnostics = {
         infoMd  = "󰀨 ",
         hintMd  = "󰁨 ",
 
-        lightbulb = "󱠀",
 }
 
 ---@enum NOTIFIER
@@ -297,6 +296,9 @@ Icons.misc = {
         package    = "󰏗",
         newPackage = "󱧕",
         quit       = "󰈆",
+
+        lightbulb = "󱠀",
+        quickfix  = "󰏪",
 
         Bug            = "",
         ellipsis       = "…",

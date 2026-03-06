@@ -234,9 +234,11 @@ map(n, "<A-D>", function()
 map(n, "K", vim.lsp.buf.hover,          { desc = "󰏪 Hover Documentation" })
 map(n, "J", vim.lsp.buf.signature_help, { desc = "󰏪 Signature Help" })
 
-map(n, Config.prefix .. "f", "gF",                    { desc = "Goto File", silent = true })
-map(n, Config.prefix .. "q", vim.lsp.buf.code_action, { desc = "󱠀 Code Action Picker" })
-map(n, Config.prefix .. "e", function()
+map(n, Config.prefix .. "f", "gF", { desc = "Goto File", silent = true })
+-- map(n, Config.prefix .. "q", vim.lsp.buf.code_action, { desc = "󱠀 Code Action Picker" })
+map(n, Config.prefix .. "q", function() require("tiny-code-action").code_action() end,
+        { desc = "󱠀 Code Action Picker", remap = false, silent = true })
+map(n, "<leader>k", function()
             vim.diagnostic.config({ virtual_lines = { current_line = true }, virtual_text = false })
 
             vim.api.nvim_create_autocmd("CursorMoved", {
@@ -278,16 +280,11 @@ map(n, "<leader>ih", vim.show_pos,                { desc = " Position at curs
 map(n, "<leader>it", vim.treesitter.inspect_tree, { desc = " TS tree", silent = true })
 map(n, "<leader>iq", vim.treesitter.query.edit,   { desc = " TS query", silent = true })
 
-map(n, "<leader>il", function() eval.lspCapabilities() end,
-    { desc = "󱈄 LSP capabilities", silent = true })
-map(n, "<leader>in", function() eval.nodeAtCursor() end,
-    { desc = " Node at cursor", silent = true })
-map(n, "<leader>ib", function() eval.bufferInfo() end,
-    { desc = "󰽙 Buffer info", silent = true })
-map(nx, "<leader>ie", function() eval.evalNvimLua() end,
-    { desc = " Eval", silent = true })
-map(n, "<leader><leader>x", function() eval.runFile() end,
-    { desc = "󰜎 Run file", silent = true })
+map(n,  "<leader>il",        function() eval.lspCapabilities() end, { desc = "󱈄 LSP capabilities", silent = true })
+map(n,  "<leader>in",        function() eval.nodeAtCursor() end,    { desc = " Node at cursor", silent = true })
+map(n,  "<leader>ib",        function() eval.bufferInfo() end,      { desc = "󰽙 Buffer info", silent = true })
+map(nx, "<leader>ie",        function() eval.evalNvimLua() end,     { desc = " Eval", silent = true })
+map(n,  "<leader><leader>x", function() eval.runFile() end,         { desc = "󰜎 Run file", silent = true })
 
 ------------------------------------------------------------------------------------------------------------------------
 -- WINDOWS

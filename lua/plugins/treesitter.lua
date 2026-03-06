@@ -23,7 +23,7 @@ return {
                                 select      = { lookahead = true, include_surrounding_whitespace = false },
                         },
                         incremental_selection = {
-                                enable  = false,
+                                enable  = true,
                                 keymaps = {
                                         init_selection    = ",v",
                                         node_incremental  = "<CR>",

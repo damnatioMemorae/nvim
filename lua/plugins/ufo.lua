@@ -87,26 +87,6 @@ return {
                         "<A-C-left>",
                         function()
                                 require("ufo").closeAllFolds()
-                                -- local msg = require("ufo.main").inspectBuf()[6]
-                                -- vim.notify(msg[2], vim.log.levels.DEBUG)
-                                --[[
-                                require("ufo").openFoldsExceptKinds{
-                                        "region",
-                                        "table_constructor",
-                                        "function_definition",
-                                        "arguments",
-                                        "function_declaration",
-                                        "for_statement",
-                                        -- "if_statement",
-                                        -- "case_statement",
-                                        -- "comment",
-                                        -- "class_specifier",
-                                        -- "array",
-                                        -- "object",
-                                        -- "pair",
-                                        -- "rule_set",
-                                }
-                                --]]
                                 cmd()
                         end,
                         mode = modes,

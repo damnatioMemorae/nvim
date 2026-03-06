@@ -176,53 +176,65 @@ return { -- treesitter-based textobjs
                 --]]
 
                 ---[[ TEXT OBJECT SELECT
-                { -- `/` REGEX OUTER
+                { -- `a/` REGEX OUTER
                         "a/",
                         "<cmd>TSTextobjectSelect @regex.outer<CR>",
                         mode = { "x", "o" },
                         desc = Icons.symbolKinds.Regex .. "outer regex",
                 },
-                { -- `/` REGEX INNER
+                { -- `i/` REGEX INNER
                         "i/",
                         "<cmd>TSTextobjectSelect @regex.inner<CR>",
                         mode = { "x", "o" },
                         desc = Icons.symbolKinds.Regex .. "inner regex",
                 },
-                { -- `f` FUNCTION OUTER
+                { -- `af` FUNCTION OUTER
                         "a" .. textObj.func,
                         "<cmd>TSTextobjectSelect @function.outer<CR>",
                         mode = { "x", "o" },
                         desc = Icons.symbolKinds.Function .. "outer function",
                 },
-                { -- `f` FUNCTION INNER
+                { -- `if` FUNCTION INNER
                         "i" .. textObj.func,
                         "<cmd>TSTextobjectSelect @function.inner<CR>",
                         mode = { "x", "o" },
                         desc = Icons.symbolKinds.Function .. "inner function",
                 },
-                { -- `o` CONDITION OUTER
+                { -- `ao` CONDITION OUTER
                         "a" .. textObj.condition,
                         "<cmd>TSTextobjectSelect @condition.outer<CR>",
                         mode = { "x", "o" },
                         desc = Icons.symbolKinds.IfStatement .. "outer condition",
                 },
-                { -- `o` CONDITION INNER
+                { -- `io` CONDITION INNER
                         "i" .. textObj.condition,
                         "<cmd>TSTextobjectSelect @condition.outer<CR>",
                         mode = { "x", "o" },
                         desc = Icons.symbolKinds.IfStatement .. "inner condition",
                 },
-                { -- `l` CALL OUTER
+                { -- `al` CALL OUTER
                         "a" .. textObj.call,
                         "<cmd>TSTextobjectSelect @call.outer<CR>",
                         mode = { "x", "o" },
                         desc = Icons.symbolKinds.Call .. "outer call",
                 },
-                { -- `l` CALL INNER
+                { -- `il` CALL INNER
                         "i" .. textObj.call,
                         "<cmd>TSTextobjectSelect @call.inner<CR>",
                         mode = { "x", "o" },
                         desc = Icons.symbolKinds.Call .. "inner call",
+                },
+                { -- `aa` PARAMETER OUTER
+                        "aa",
+                        "<cmd>TSTextobjectSelect @parameter.outer<CR>",
+                        mode = { "x", "o" },
+                        desc = Icons.symbolKinds.Call .. "outer parameter",
+                },
+                { -- `ia` PARAMETER INNER
+                        "ia",
+                        "<cmd>TSTextobjectSelect @parameter.inner<CR>",
+                        mode = { "x", "o" },
+                        desc = Icons.symbolKinds.Call .. "inner parameter",
                 },
                 --]]
 

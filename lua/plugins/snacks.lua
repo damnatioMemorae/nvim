@@ -7,9 +7,9 @@ return {
         lazy     = false,
         priority = 1000,
         keys     = {
-                { "<C-n>",      function() require("Snacks").notifier.show_history() end, desc = "Notification History" },
-                { "<leader>fr", function() Snacks.rename.rename_file() end,               desc = "Rename File" },
-                { "<leader>lg", function() Snacks.lazygit() end,                          desc = "Lazygit" },
+                { "<C-n>",      function() Snacks.notifier.show_history() end, desc = "Notification History" },
+                { "<leader>fr", function() Snacks.rename.rename_file() end,    desc = "Rename File" },
+                { "<leader>lg", function() Snacks.lazygit() end,               desc = "Lazygit" },
                 { -- `Alt b` DELETE BUFFER
                         "<A-b>",
                         function() Snacks.bufdelete() end,
@@ -180,7 +180,7 @@ return {
                         },
                         animate = { enabled = false },
                         scope   = {
-                                enabled      = true,
+                                enabled      = false,
                                 char         = "▏",
                                 underline    = true,
                                 only_current = true,
@@ -288,7 +288,7 @@ return {
                         win       = {
                                 input = {
                                         keys = {
-                                                ["<Right>"] = { "confirm", mode = { "n", "i" } },
+                                                -- ["<Right>"] = { "confirm", mode = { "n", "i" } },
                                                 ["<Esc>"]   = { "close", mode = { "i", "n" } },
                                                 ["h"]       = { "toggle_hidden", mode = { "n" } },
                                                 ["l"]       = { "confirm", mode = { "n" } },

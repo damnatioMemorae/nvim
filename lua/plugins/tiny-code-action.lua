@@ -1,23 +1,28 @@
 return {
         "rachartier/tiny-code-action.nvim",
-        enabled = false,
+        enabled      = true,
         event        = "LspAttach",
         dependencies = { "nvim-lua/plenary.nvim" },
         opts         = {
-                -- backend        = "delta",
+                backend        = "vim",
                 picker         = {
-                        "snacks",
+                        "buffer",
                         opts = {
+                                winborder    = Config.borderStyle,
                                 auto_preview = true,
                                 hotkeys      = true,
                                 hotkeys_mode = "text_based",
+                                auto_accept  = true,
+                                custom_keys  = {
+                                        ["e"] = "Extract Method",
+                                },
                         },
                 },
                 backend_opts   = {
                         delta = {
                                 header_lines_to_remove = 4,
                                 line_numbers           = true,
-                                layout_strategy        = "vertical"
+                                layout_strategy        = "vertical",
                         },
                 },
                 telescope_opts = {
@@ -33,8 +38,8 @@ return {
                         },
                 },
                 signs          = {
-                        quickfix                   = { "󰁨", { link = "DiagnosticInfo" } },
-                        others                     = { "?", { link = "DiagnosticWarning" } },
+                        quickfix                   = { Icons.misc.quickfix, { link = "DiagnosticInfo" } },
+                        others                     = { Icons.misc.offSpec, { link = "DiagnosticWarning" } },
                         refactor                   = { "", { link = "DiagnosticWarning" } },
                         ["refactor.move"]          = { "", { link = "DiagnosticInfo" } },
                         ["refactor.extract"]       = { "", { link = "DiagnosticError" } },
@@ -42,8 +47,7 @@ return {
                         ["source.fixAll"]          = { "", { link = "TelescopeResultVariable" } },
                         ["source"]                 = { "", { link = "DiagnosticError" } },
                         ["rename"]                 = { "", { link = "DiagnosticWarning" } },
-                        ["codeAction"]             = { "", { link = "DiagnosticError" } },
+                        ["codeAction"]             = { Icons.misc.lightbulb, { link = "DiagnosticError" } },
                 },
-                -- filters        = { kind = "refactor", str = "Wrap" },
-        }
+        },
 }

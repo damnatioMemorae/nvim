@@ -2,11 +2,11 @@ return {
         "YaroSpace/dev-tools.nvim",
         enabled = false,
         lazy = true,
-        dependencies = {
-                "nvim-treesitter/nvim-treesitter",
-                "folke/snacks.nvim",
-                "ThePrimeagen/refactoring.nvim",
-        },
+        -- dependencies = {
+        --         "nvim-treesitter/nvim-treesitter",
+        --         "folke/snacks.nvim",
+        --         "ThePrimeagen/refactoring.nvim",
+        -- },
         opts         = {
                 actions          = {},
                 filetypes        = {

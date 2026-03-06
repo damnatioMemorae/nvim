@@ -39,7 +39,7 @@ return {
                         hint          = { enable = true, setType = true, arrayIndex = "Disable", semicolon = "Disable" },
                         semantic      = { enable = false, annotation = true, keyword = false, variable = true },
                         typeFormat    = { config = { auto_complete_end = true, auto_complete_table_sep = true, format_line = true } },
-                        codeLens      = { enable = false },
+                        codeLens      = { enable = true },
                         signatureHelp = { enable = true },
                         format        = { enable = true },
                         telemetry     = { enable = false },
