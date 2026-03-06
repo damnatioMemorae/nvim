@@ -16,6 +16,7 @@ local lspServers = {
         "gopls",
         "jsonls",
         "just-lsp",
+        "jdtls",
         -- "kakehashi",
         "kotlin_lsp",
         "lua_ls",
@@ -185,13 +186,13 @@ vim.api.nvim_create_autocmd("LspProgress", {
                 local msg           = {}
                 progress[client.id] = vim.tbl_filter(function(v) return table.insert(msg, v.msg) or not v.done end, p)
 
-                local spinner = icons.spinner.dots
+                local spinner = Icons.spinner.dots
 
                 vim.notify(table.concat(msg, "\n"), "info", { ---@diagnostic disable-line: param-type-mismatch
                         id    = "lsp_progress",
                         title = client.name,
                         opts  = function(notif)
-                                notif.icon = #progress[client.id] == 0 and icons.notifier.info
+                                notif.icon = #progress[client.id] == 0 and Icons.notifier.info
                                            or spinner[math.floor(vim.uv.hrtime() / (1e6 * 80)) % #spinner + 1]
                         end,
                 })
@@ -199,7 +200,7 @@ vim.api.nvim_create_autocmd("LspProgress", {
 })
 --]]
 
----[[
+--[[
 vim.api.nvim_create_autocmd("LspProgress", {
         callback = function(ev)
                 local value = ev.data.params.value or {}

@@ -188,6 +188,7 @@ map(x, "<A-Space>", '"_d',   { desc = "󰬞 delete selection", silent = true })
 
 map(nx, "q",  "^zzgc",  { desc = "󰆈 Comment operator", remap = true, silent = true })
 map(n,  "qq", "gcc^zz", { desc = "󰆈 Comment line", remap = true, silent = true })
+
 do
         map(o, "u",   "gc",  { desc = "󰆈 Multiline comment", remap = true })
         map(n, "guu", "guu") -- prevent `omap u` above from overwriting `guu`
@@ -235,9 +236,9 @@ map(n, "K", vim.lsp.buf.hover,          { desc = "󰏪 Hover Documentation" })
 map(n, "J", vim.lsp.buf.signature_help, { desc = "󰏪 Signature Help" })
 
 map(n, Config.prefix .. "f", "gF", { desc = "Goto File", silent = true })
--- map(n, Config.prefix .. "q", vim.lsp.buf.code_action, { desc = "󱠀 Code Action Picker" })
-map(n, Config.prefix .. "q", function() require("tiny-code-action").code_action() end,
-        { desc = "󱠀 Code Action Picker", remap = false, silent = true })
+map(n, Config.prefix .. "q", vim.lsp.buf.code_action, { desc = "󱠀 Code Action Picker" })
+-- map(n, Config.prefix .. "q", function() require("tiny-code-action").code_action() end,
+--     { desc = "󱠀 Code Action Picker", remap = false, silent = true })
 map(n, "<leader>k", function()
             vim.diagnostic.config({ virtual_lines = { current_line = true }, virtual_text = false })
 
@@ -251,13 +252,13 @@ map(n, "<leader>k", function()
     end, { desc = "■ Diagnostic Lines" })
 
 --[[ GOTO
-map(n, prefixLsp .. "D", vim.lsp.buf.declaration, { desc = " Goto Declaration" })
-map(n, prefixLsp .. "d", vim.lsp.buf.definition, { desc = " Goto Definition" })
-map(n, prefixLsp .. "i", vim.lsp.buf.implementation, { desc = " Goto Implementation" })
-map(n, prefixLsp .. "r", vim.lsp.buf.references, { desc = " Goto Implementation" })
-map(n, prefixLsp .. "I", vim.lsp.buf.incoming_calls, { desc = "Incoming calls" })
-map(n, prefixLsp .. "c", vim.lsp.buf.code_action, { desc = "󱠀 Code Action" })
-map(n, prefixLsp .. "F", vim.lsp.buf.format, { desc = "LSP Format" })
+map(n, Config.prefix .. "D", vim.lsp.buf.declaration,    { desc = " Goto Declaration" })
+map(n, Config.prefix .. "d", vim.lsp.buf.definition,     { desc = " Goto Definition" })
+map(n, Config.prefix .. "i", vim.lsp.buf.implementation, { desc = " Goto Implementation" })
+map(n, Config.prefix .. "r", vim.lsp.buf.references,     { desc = " Goto Implementation" })
+map(n, Config.prefix .. "I", vim.lsp.buf.incoming_calls, { desc = "Incoming calls" })
+map(n, Config.prefix .. "c", vim.lsp.buf.code_action,    { desc = "󱠀 Code Action" })
+map(n, Config.prefix .. "F", vim.lsp.buf.format,         { desc = "LSP Format" })
 --]]
 
 ------------------------------------------------------------------------------------------------------------------------

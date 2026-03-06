@@ -1,3 +1,4 @@
+--[[
 augroup diffcolors
     autocmd!
     autocmd Colorscheme * call s:SetDiffHighlights()
@@ -16,3 +17,12 @@ function! s:SetDiffHighlights()
         highlight DiffText gui=bold guifg=none guibg=lightpink
     endif
 endfunction
+--]]
+
+vim.api.nvim_create_augroup("diffcolors", { clear = true })
+
+vim.api.nvim_create_autocmd("ColorScheme", {
+        pattern = "*",
+        callback  = function ()
+        end
+})

@@ -7,16 +7,16 @@ return {
         config       = function()
                 local theme = {
                         normal   = {
-                                a = { fg = colors.text, bg = colors.base, bold = true },
+                                a = { fg = colors.text, bg = colors.crust, bold = true },
                                 b = { fg = colors.text, bg = colors.crust },
                                 c = { fg = colors.surface1, bg = colors.crust },
                                 x = { fg = colors.text, bg = colors.crust },
                                 y = { fg = colors.text, bg = colors.crust },
                                 z = { fg = colors.text, bg = colors.crust },
                         },
-                        insert   = { a = { fg = colors.teal, bg = colors.base, bold = true } },
-                        visual   = { a = { fg = colors.yellow, bg = colors.base, bold = true } },
-                        replace  = { a = { fg = colors.red, bg = colors.base, bold = true } },
+                        insert   = { a = { fg = colors.teal, bg = colors.crust, bold = true } },
+                        visual   = { a = { fg = colors.yellow, bg = colors.crust, bold = true } },
+                        replace  = { a = { fg = colors.red, bg = colors.crust, bold = true } },
                         inactive = {
                                 a = { fg = colors.surface1, bg = colors.crust },
                                 b = { fg = colors.text, bg = colors.crust },
@@ -36,7 +36,7 @@ return {
                         sections           = {
                                 lualine_a = { { "mode", fmt = function(str) return str:sub(1, 1) end } },
                                 lualine_b = {
-                                        { "branch", icon = "", color = { fg = Colors.teal } },
+                                        { "branch", icon = "", color = { fg = colors.teal } },
                                         {
                                                 "diff",
                                                 colored    = true,
@@ -45,18 +45,33 @@ return {
                                                 source     = nil,
                                         },
                                 },
-                                lualine_c = { { "filename", file_status = false } },
-                                lualine_x = {},
-                                lualine_y = {
-                                        {
+                                lualine_c = {
+                                        { "filename", file_status = false },
+                                        { -- SAVED
                                                 function()
                                                         local saved = vim.bo.modified and "*" or ""
                                                         return saved
                                                 end,
+                                                color = { fg = colors.text },
                                         },
                                 },
+                                lualine_x = {},
+                                lualine_y = {},
                                 lualine_z = {
-                                        {
+                                        { -- LSP STATUS
+                                                "lsp_status",
+                                                icon      = "",
+                                                color     = { fg = colors.spark, bg = colors.none },
+                                                symbols   = {
+                                                        spinner = Icons.spinner.dots,
+                                                        done    = "🬁",
+                                                        -- done    = "&",
+                                                        -- done    = "#",
+                                                        -- done    = "λ",
+                                                },
+                                                show_name = false,
+                                        },
+                                        { -- DIAGNOSTICS
                                                 "diagnostics",
                                                 sources           = { "nvim_diagnostic", "coc" },
                                                 sections          = { "error", "warn", "info" },

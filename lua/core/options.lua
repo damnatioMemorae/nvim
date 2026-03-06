@@ -1,11 +1,11 @@
-local opt    = vim.opt
-local o      = vim.o
+local opt = vim.opt
+local o   = vim.o
 
 ------------------------------------------------------------------------------------------------------------------------
 -- GENERAL
 
 vim.schedule(function()
-        opt.clipboard = "unnamedplus"
+        o.clipboard = "unnamedplus"
 end)
 
 vim.cmd("filetype plugin indent on")
@@ -16,44 +16,45 @@ end
 opt.whichwrap:append("<>[]hl")
 opt.iskeyword:append("@,48-57,_,-,192-255")
 opt.spelloptions:append("noplainbuffer")
-opt.undofile    = true
-opt.undolevels  = 10000
-opt.swapfile    = false
-opt.backup      = false
-opt.writebackup = false
-opt.spell       = false
-opt.spelllang   = "en_us"
-opt.splitright  = true
-opt.splitbelow  = true
-opt.cursorline  = true
-opt.signcolumn  = "yes"
-opt.wrap          = false
-opt.breakindent   = true
-opt.report        = 9901
-opt.autowrite     = false
-opt.autowriteall  = false
-opt.jumpoptions   = "view"
-opt.startofline   = true
-opt.scrolloff     = 14
-opt.sidescrolloff = 4
-opt.shortmess     = "ltToOCFIc"
--- opt.messagesopt   = { "wait:0", "history:1000" }
-opt.nrformats     = "bin,hex,blank"
 
--- opt.statuscolumn  = "%s%l%C"
+o.undofile      = true
+o.undolevels    = 10000
+o.swapfile      = false
+o.backup        = false
+o.writebackup   = false
+o.spell         = false
+o.spelllang     = "en_us"
+o.splitright    = true
+o.splitbelow    = true
+o.cursorline    = true
+o.signcolumn    = "yes"
+o.wrap          = false
+o.breakindent   = true
+o.report        = 9901
+o.autowrite     = false
+o.autowriteall  = false
+o.jumpoptions   = "view"
+o.startofline   = true
+o.scrolloff     = 14
+o.sidescrolloff = 4
+o.shortmess     = "ltToOCFIc"
+-- o.messagesopt   = { "wait:0", "history:1000" }
+o.nrformats     = "bin,hex,blank"
+
+-- o.statuscolumn  = "%s%l%C"
 
 ------------------------------------------------------------------------------------------------------------------------
 -- EDITOR
 
-opt.textwidth   = 120
-opt.expandtab   = true
--- opt.tabstop = 3
-opt.shiftwidth  = 8
-opt.shiftround  = true
-opt.smartindent = true
-opt.autoindent  = true
-opt.breakindent = true
-opt.copyindent  = true
+o.textwidth     = 120
+o.expandtab     = true
+-- o.tabstop = 3
+o.shiftwidth    = 8
+o.shiftround    = true
+o.smartindent   = true
+o.autoindent    = true
+o.breakindent   = true
+o.copyindent    = true
 o.concealcursor = "nv"
 
 ------------------------------------------------------------------------------------------------------------------------
@@ -73,18 +74,19 @@ vim.filetype.add{
 ------------------------------------------------------------------------------------------------------------------------
 -- SEARCH & CMDLINE
 
-opt.ignorecase = true
-opt.smartcase  = true
-opt.hlsearch   = false
-opt.inccommand = "split"
-opt.cmdheight  = 0
+o.ignorecase = true
+o.smartcase  = true
+o.hlsearch   = false
+o.inccommand = "split"
+o.cmdheight  = 0
 
 ------------------------------------------------------------------------------------------------------------------------
 -- INVISIBLE CHARS
 
-opt.foldtext     = "v:lua.custom_foldtext()"
-opt.list         = true
-opt.conceallevel = 2
+o.foldtext     = "v:lua.custom_foldtext()"
+o.list         = true
+o.conceallevel = 2
+
 opt.fillchars:append{
         fold      = " ",
         vert      = "▕",
@@ -104,50 +106,53 @@ opt.listchars = {
         tab        = "  ",
 }
 
-opt.winborder      = "none"
-opt.mousemoveevent = true
-opt.completeopt    = "menu,menuone,noselect"
-opt.confirm        = true
-opt.grepformat     = "%f:%l:%c:%m"
-opt.grepprg        = "rg --vimgrep"
-opt.inccommand     = "nosplit"
-opt.incsearch      = true
-opt.linebreak      = false
-opt.list           = true
-opt.mouse          = "a"
-opt.number         = true
-opt.pumblend       = 0
-opt.pumheight      = 20
-opt.relativenumber = true
+o.winborder        = "none"
+o.mousemoveevent   = true
+o.completeopt      = "menu,menuone,noselect"
+o.confirm          = true
+o.grepformat       = "%f:%l:%c:%m"
+o.grepprg          = "rg --vimgrep"
+o.inccommand       = "nosplit"
+o.incsearch        = true
+o.linebreak        = false
+o.list             = true
+o.mouse            = "a"
+o.number           = true
+o.pumblend         = 0
+o.pumheight        = 20
+o.relativenumber   = true
+-- o.sessionoptions = { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp", "folds" }
 opt.sessionoptions = { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp", "folds" }
-opt.showmode       = false
-opt.termguicolors  = true
-opt.termsync       = true
-opt.updatetime     = 200
-opt.virtualedit    = "block"
-opt.wildmode       = "longest:full,full"
-opt.winminwidth    = 5
-opt.wrapmargin     = 120
-opt.smoothscroll   = true
+o.showmode         = false
+o.termguicolors    = true
+o.termsync         = false
+o.updatetime       = 200
+o.virtualedit      = "block"
+o.wildmode         = ""
+o.winminwidth      = 5
+o.wrapmargin       = 120
+o.smoothscroll     = true
 o.hidden           = true
 
-
-vim.cmd("autocmd BufEnter * set fo-=c fo-=r fo-=o")
-
-for _, plugin in pairs({
-        "netrwFileHandler",
-        "getscript",
-        "getscriptPlugin",
-        "vimball",
-        "vimballPlugin",
-        "2html_plugin",
-        "logipat",
-        "rrhelper",
-        "spellfile_plugin",
-        "matchit",
-}) do
-        vim.g["loaded_" .. plugin] = 1
-end
+vim.api.nvim_create_autocmd("BufEnter", {
+        pattern  = "*",
+        callback = function()
+                for _, plugin in pairs({
+                        "netrwFileHandler",
+                        "getscript",
+                        "getscriptPlugin",
+                        "vimball",
+                        "vimballPlugin",
+                        "2html_plugin",
+                        "logipat",
+                        "rrhelper",
+                        "spellfile_plugin",
+                        "matchit",
+                }) do
+                        vim.g["loaded_" .. plugin] = 1
+                end
+        end,
+})
 
 local function fold_virt_text(result, s, lnum, coloff)
         if not coloff then

@@ -37,23 +37,8 @@ return {
                 end,
         },
         --]]
-        { -- NODE ACTIONS
-                "ckolkey/ts-node-action",
-                enabled = false,
-                dependencies = { "nvim-treesitter/nvim-treesitter" },
-                event        = "VeryLazy",
-                config       = function()
-                        require("ts-node-action").setup({})
-                        local tsn     = require("ts-node-action.actions")
-                        local map     = vim.keymap.set
-                        local formats = { "snake_case", "pascal_case", "screaming_snake_case", "camel_case" }
-                        -- local formats = { "snake_case", "Pascal_case", "SCREAMING_SNAKE_CASE", "camelCase" }
-                        map("n", ">", function() tsn.cycle_case(formats) end)
-                end,
-        },
         { -- CONTEXT
                 "nvim-treesitter/nvim-treesitter-context",
-                dependencies = { "nvim-treesitter/nvim-treesitter" },
                 event        = "VeryLazy",
                 config       = function()
                         require("treesitter-context").setup{
@@ -78,29 +63,8 @@ return {
                                        end, { silent = true })
                 end,
         },
-        { -- TREEWALKER
-                "aaronik/treewalker.nvim",
-                enabled = false,
-                event   = "VeryLazy",
-                keys    = {
-                        { "<A-H>", "<cmd>Treewalker Left<CR>",      mode = { "n", "v", "x", "o" } },
-                        { "<A-J>", "<cmd>Treewalker Down<CR>",      mode = { "n", "v", "x", "o" } },
-                        { "<A-K>", "<cmd>Treewalker Up<CR>",        mode = { "n", "v", "x", "o" } },
-                        { "<A-L>", "<cmd>Treewalker Right<CR>",     mode = { "n", "v", "x", "o" } },
-
-                        { "<A-A>", "<cmd>Treewalker SwapLeft<CR>",  mode = { "n", "v", "x", "o" } },
-                        { "<A-S>", "<cmd>Treewalker SwapUp<CR>",    mode = { "n", "v", "x", "o" } },
-                        { "<A-D>", "<cmd>Treewalker SwapDown<CR>",  mode = { "n", "v", "x", "o" } },
-                        { "<A-F>", "<cmd>Treewalker SwapRight<CR>", mode = { "n", "v", "x", "o" } },
-                },
-                opts    = {
-                        highlight_duration = 400,
-                        highlight_group    = "Visual",
-                },
-        },
         { -- HYPR
                 "theRealCarneiro/hyprland-vim-syntax",
-                dependencies = { "nvim-treesitter/nvim-treesitter" },
                 event        = "VeryLazy",
                 ft           = "hypr",
         },

@@ -230,7 +230,7 @@ return {
                         window  = { scrollbar = false, show_documentation = false },
                 },
         },
-        opts_extend  = { "sources.default" },
+        opts_extend  = { "sources.default", "sources.compat", "sources.completion.enabled_provider" },
         config       = function(_, opts)
                 require("blink-cmp").setup(opts)
         end,

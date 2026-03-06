@@ -3,7 +3,6 @@ return {
         enabled      = true,
         -- event        = "VeryLazy",
         lazy        = false,
-        dependencies = { "nvim-lua/plenary.nvim", "nvim-treesitter/nvim-treesitter" },
         config       = function()
                 require("refactoring").setup({
                         prompt_func_return_type = {

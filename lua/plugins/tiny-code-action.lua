@@ -1,6 +1,6 @@
 return {
         "rachartier/tiny-code-action.nvim",
-        enabled      = true,
+        enabled = false,
         event        = "LspAttach",
         dependencies = { "nvim-lua/plenary.nvim" },
         opts         = {
@@ -13,28 +13,6 @@ return {
                                 hotkeys      = true,
                                 hotkeys_mode = "text_based",
                                 auto_accept  = true,
-                                custom_keys  = {
-                                        ["e"] = "Extract Method",
-                                },
-                        },
-                },
-                backend_opts   = {
-                        delta = {
-                                header_lines_to_remove = 4,
-                                line_numbers           = true,
-                                layout_strategy        = "vertical",
-                        },
-                },
-                telescope_opts = {
-                        layout_strategy = "vertical",
-                        layout_config   = {
-                                vertical = {
-                                        preview_cutoff = 1,
-                                        preview_height = function(_, _, max_lines)
-                                                local h = math.floor(max_lines * 0.6)
-                                                return math.max(h, 10)
-                                        end,
-                                },
                         },
                 },
                 signs          = {

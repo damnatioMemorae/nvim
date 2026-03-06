@@ -2,12 +2,11 @@ local textObj = require("core.utils").extraTextobjMaps
 
 local modes   = { "n", "v", "x", "o" }
 
-return { -- treesitter-based textobjs
+return {
         "nvim-treesitter/nvim-treesitter-textobjects",
         branch       = "master",
-        dependencies = "nvim-treesitter",
         event        = "VeryLazy",
-        cmd          = { -- commands need to be defined, since used in various utility functions
+        cmd          = {
                 "TSTextobjectSelect",
                 "TSTextobjectSwapNext",
                 "TSTextobjectSwapPrevious",
@@ -24,7 +23,7 @@ return { -- treesitter-based textobjs
                 { -- COMMENT SINGLE
                         "q",
                         "<cmd>TSTextobjectSelect @comment.inner<CR>",
-                        mode = "o", -- only operator-pending to not conflict with selection-commenting
+                        mode = "o",
                         desc = "󰆈 Single Comment",
                 },
                 { -- COMMENT STICKY DELETE
