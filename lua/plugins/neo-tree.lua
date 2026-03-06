@@ -66,16 +66,16 @@ return {
                                 expander_expanded  = " ",
                         },
                         icon        = {
-                                folder_closed = Config.Icons.symbolKinds.Folder,
-                                folder_open   = Config.Icons.misc.folderOpen,
-                                folder_empty  = Config.Icons.misc.folderEmpty,
+                                folder_closed = Icons.symbolKinds.Folder,
+                                folder_open   = Icons.misc.folderOpen,
+                                folder_empty  = Icons.misc.folderEmpty,
                         },
                         diagnostics = {
                                 symbols    = {
-                                        hint  = Config.Icons.diagnostics.HINT,
-                                        info  = Config.Icons.diagnostics.INFO,
-                                        warn  = Config.Icons.diagnostics.WARN,
-                                        error = Config.Icons.diagnostics.ERROR,
+                                        hint  = Icons.diagnostics.HINT,
+                                        info  = Icons.diagnostics.INFO,
+                                        warn  = Icons.diagnostics.WARN,
+                                        error = Icons.diagnostics.ERROR,
                                 },
                                 highlights = {
                                         hint  = "DiagnosticSignHint",
@@ -85,7 +85,7 @@ return {
                                 },
                         },
                         modified    = {
-                                symbol    = Config.Icons.git.Modified,
+                                symbol    = Icons.git.Modified,
                                 highlight = "NeoTreeModified",
                         },
                 },

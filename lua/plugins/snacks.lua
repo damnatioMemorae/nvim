@@ -1,6 +1,5 @@
 local button       = "Function"
 local label        = "Comment"
-local snacks       = require("snacks")
 local insertOnShow = function() vim.cmd.stopinsert() end
 
 return {
@@ -8,72 +7,72 @@ return {
         lazy     = false,
         priority = 1000,
         keys     = {
-                { "<C-n>",      function() require("snacks").notifier.show_history() end, desc = "Notification History" },
-                { "<leader>fr", function() snacks.rename.rename_file() end,               desc = "Rename File" },
-                { "<leader>lg", function() snacks.lazygit() end,                          desc = "Lazygit" },
+                { "<C-n>",      function() require("Snacks").notifier.show_history() end, desc = "Notification History" },
+                { "<leader>fr", function() Snacks.rename.rename_file() end,               desc = "Rename File" },
+                { "<leader>lg", function() Snacks.lazygit() end,                          desc = "Lazygit" },
                 { -- `Alt b` DELETE BUFFER
                         "<A-b>",
-                        function() snacks.bufdelete() end,
+                        function() Snacks.bufdelete() end,
                         desc = "Delete Buffer",
                 },
                 { -- `spc spc spc` MAIN
                         "<leader><leader><leader>",
-                        function() snacks.picker({ layout = "vscode" }) end,
+                        function() Snacks.picker({ layout = "vscode" }) end,
                         desc = "Main Picker",
                         mode = { "n" },
                 },
                 { -- `spc spc f` FILES
                         "<leader><leader>f",
-                        function() snacks.picker.files({ layout = "vertical", hidden = true }) end,
+                        function() Snacks.picker.files({ layout = "vertical", hidden = true }) end,
                         desc = "File Picker",
                         mode = { "n" },
                 },
                 { -- `spc spc k` KEYMAPS
                         "<leader><leader>k",
-                        function() snacks.picker.keymaps({ layout = "dropdown" }) end,
+                        function() Snacks.picker.keymaps({ layout = "dropdown" }) end,
                         desc = "Keymap Picker",
                         mode = { "n" },
                 },
                 { -- `spc spc w` GREP
                         "<leader><leader>w",
-                        function() snacks.picker.grep({ layout = "vertical" }) end,
+                        function() Snacks.picker.grep({ layout = "vertical" }) end,
                         desc = "Grep Picker",
                         mode = { "n" },
                 },
                 { -- `spc spc W` GREP WORD
                         "<leader><leader>W",
-                        function() snacks.picker.grep_word({ layout = "vertical" }) end,
+                        function() Snacks.picker.grep_word({ layout = "vertical" }) end,
                         desc = "Grep Word",
                         mode = { "n" },
                 },
                 { -- `spc spc B` GREP BUFFERS
                         "<leader><leader>B",
-                        function() snacks.picker.grep_buffers({ layout = "vertical" }) end,
+                        function() Snacks.picker.grep_buffers({ layout = "vertical" }) end,
                         desc = "Grep Word",
                         mode = { "n" },
                 },
                 { -- `spc spc R` REGISTERS
                         "<leader><leader>R",
-                        function() snacks.picker.registers({ layout = "vertical" }) end,
+                        function() Snacks.picker.registers({ layout = "vertical" }) end,
                         desc = "Register Picker",
                         mode = { "n" },
                 },
                 { -- `spc spc h` HIGHLIGHTS
                         "<leader><leader>h",
-                        function() snacks.picker.highlights({ layout = "default" }) end,
+                        function() Snacks.picker.highlights({ layout = "default" }) end,
                         desc = "Highlight Picker",
                         mode = { "n" },
                 },
                 { -- `spc spc l` LAZY
                         "<leader><leader>l",
-                        function() snacks.picker.lazy({ layout = "dropdown" }) end,
+                        function() Snacks.picker.lazy({ layout = "dropdown" }) end,
                         desc = "Lazy Picker",
                         mode = { "n" },
                 },
                 { -- `spc spc b` BUFFERS `!10`
                         "<leader><leader>b",
                         function()
-                                snacks.picker.buffers({
+                                Snacks.picker.buffers({
                                         on_show = insertOnShow,
                                         layout  = "vscode",
                                         format  = "buffer",
@@ -87,7 +86,7 @@ return {
                 { -- `spc spc u` UNDO
                         "<leader><leader>u",
                         function()
-                                snacks.picker.undo({
+                                Snacks.picker.undo({
                                         on_show = insertOnShow,
                                         layout  = "default",
                                         format  = "buffer",
@@ -101,7 +100,7 @@ return {
                 { -- `spc spc j` JUMPS
                         "<leader><leader>j",
                         function()
-                                snacks.picker.jumps({
+                                Snacks.picker.jumps({
                                         on_show = insertOnShow,
                                         layout  = "default",
                                         format  = "buffer",
@@ -114,7 +113,7 @@ return {
                 },
                 { -- `spc spc e` EXPLORER
                         "<leader><leader>e",
-                        function() snacks.explorer({ layout = { preset = "sidebar", preview = false, input = false } }) end,
+                        function() Snacks.explorer({ layout = { preset = "sidebar", preview = false, input = false } }) end,
                         desc = "Buffer Picker",
                         mode = { "n" },
                 },
@@ -122,49 +121,49 @@ return {
                 -- LSP PICKERS
                 { -- `spc spc r` REFERENCES
                         Config.prefix .. "r",
-                        function() snacks.picker.lsp_references({ layout = "vertical", on_show = insertOnShow }) end,
+                        function() Snacks.picker.lsp_references({ layout = "vertical", on_show = insertOnShow }) end,
                         desc = "Show References",
                         mode = { "n" },
                 },
                 { -- `spc spc i` IMPLEMENTATIONS
                         Config.prefix .. "i",
-                        function() snacks.picker.lsp_implementations({ layout = "vertical", on_show = insertOnShow }) end,
+                        function() Snacks.picker.lsp_implementations({ layout = "vertical", on_show = insertOnShow }) end,
                         desc = "Show Implementations",
                         mode = { "n" },
                 },
                 { -- `spc spc d` DEFINITIONS
                         Config.prefix .. "d",
-                        function() snacks.picker.lsp_definitions({ layout = "vertical", on_show = insertOnShow }) end,
+                        function() Snacks.picker.lsp_definitions({ layout = "vertical", on_show = insertOnShow }) end,
                         desc = "Show Definitions",
                         mode = { "n" },
                 },
                 { -- `spc spc D` DECLARATIONS
                         Config.prefix .. "D",
-                        function() snacks.picker.lsp_declarations({ layout = "vertical", on_show = insertOnShow }) end,
+                        function() Snacks.picker.lsp_declarations({ layout = "vertical", on_show = insertOnShow }) end,
                         desc = "Show Declarations",
                         mode = { "n" },
                 },
                 { -- `spc spc s` SYMBOLS
                         "<leader><leader>s",
-                        function() snacks.picker.lsp_symbols({ layout = "vertical", on_show = insertOnShow }) end,
+                        function() Snacks.picker.lsp_symbols({ layout = "vertical", on_show = insertOnShow }) end,
                         desc = "Show LSP Symbols",
                         mode = { "n" },
                 },
                 { -- `spc spc S` WORKSPACE SYMBOLS
                         "<leader><leader>S",
-                        function() snacks.picker.lsp_workspace_symbols({ layout = "vertical", on_show = insertOnShow }) end,
+                        function() Snacks.picker.lsp_workspace_symbols({ layout = "vertical", on_show = insertOnShow }) end,
                         desc = "Show Workspace Symbols",
                         mode = { "n" },
                 },
                 { -- `spc spc d` DIAGNOSTICS BUFFER
                         "<leader><leader>d",
-                        function() snacks.picker.diagnostics_buffer({ layout = "vertical", on_show = insertOnShow }) end,
+                        function() Snacks.picker.diagnostics_buffer({ layout = "vertical", on_show = insertOnShow }) end,
                         desc = "Show Buffer Diagnostics",
                         mode = { "n" },
                 },
                 { -- `spc spc D` DIAGNOSTICS WORKSPACE
                         "<leader><leader>D",
-                        function() snacks.picker.diagnostics({ layout = "vertical", on_show = insertOnShow }) end,
+                        function() Snacks.picker.diagnostics({ layout = "vertical", on_show = insertOnShow }) end,
                         desc = "Show Workspace Symbols",
                         mode = { "n" },
                 },
@@ -173,6 +172,50 @@ return {
                 quickfile    = { enabled = true },
                 lazygit      = { enabled = true },
                 input        = { enabled = true },
+                indent       = {
+                        indent  = {
+                                enabled    = false,
+                                char       = "",
+                                only_scope = true,
+                        },
+                        animate = { enabled = false },
+                        scope   = {
+                                enabled      = true,
+                                char         = "▏",
+                                underline    = true,
+                                only_current = true,
+                                hl           = "Function",
+                        },
+                        chunk   = {
+                                enabled      = false,
+                                only_current = false,
+                        },
+                },
+                scope        = {
+                        enabled    = true,
+                        min_size   = 2,
+                        cursor     = false,
+                        siblings   = false,
+                        treesitter = {
+                                enabled      = true,
+                                injections   = true,
+                                blocks       = {
+                                        enabled = true,
+                                        "function_declaration",
+                                        "function_definition",
+                                        "method_declaration",
+                                        "method_definition",
+                                        "class_declaration",
+                                        "class_definition",
+                                        "do_statement",
+                                        "while_statement",
+                                        "repeat_statement",
+                                        "if_statement",
+                                        "for_statement",
+                                },
+                                field_blocks = { "local_declaration" },
+                        },
+                },
                 win          = {
                         border = Config.borderStyle,
                         wo     = {
@@ -200,7 +243,7 @@ return {
                                 title    = "",
                                 titlepos = "left",
                                 fg       = "markdown",
-                                bo       = { filetype = "snacks_notif_history", modifiable = false },
+                                bo       = { filetype = "Snacks.notif_history", modifiable = false },
                                 wo       = { winhighlight = "Normal:SnacksNotifierHistory,FloatBorder:SnacksNotifierHistoryBorder" },
                         },
                         input                = {
@@ -216,7 +259,7 @@ return {
                         notification         = {
                                 border  = Config.borderStyle,
                                 wo      = { winblend = 40 },
-                                icons   = Config.Icons.notifier,
+                                icons   = Icons.notifier,
                                 enabled = true,
                                 timeout = 2000,
                                 style   = "minimal",
@@ -230,7 +273,7 @@ return {
                         },
                 },
                 notifier     = {
-                        icons   = Config.Icons.notifier,
+                        icons   = Icons.notifier,
                         style   = "minimal",
                         enabled = true,
                         timeout = 2000,
@@ -257,8 +300,8 @@ return {
                                 },
                         },
                         icons     = {
-                                diagnostics = Config.Icons.diagnostics,
-                                kinds       = Config.Icons.symbolKinds,
+                                diagnostics = Icons.diagnostics,
+                                kinds       = Icons.symbolKinds,
                                 tree        = {
                                         vertical = " ",
                                         middle   = " ",
@@ -266,18 +309,18 @@ return {
                                 },
                                 files       = {
                                         enabled  = true,
-                                        dir      = Config.Icons.symbolKinds.Folder,
-                                        dir_open = Config.Icons.misc.folderOpen,
-                                        file     = Config.Icons.symbolKinds.File,
+                                        dir      = Icons.symbolKinds.Folder,
+                                        dir_open = Icons.misc.folderOpen,
+                                        file     = Icons.symbolKinds.File,
                                 },
                                 ui          = {
-                                        selected   = Config.Icons.diagnostics.HINT .. " ",
+                                        selected   = Icons.diagnostics.HINT .. " ",
                                         unselected = "",
                                 },
                                 git         = {
-                                        added     = Config.Icons.git.Added,
-                                        deleted   = Config.Icons.git.Deleted,
-                                        modified  = Config.Icons.git.Modified,
+                                        added     = Icons.git.Added,
+                                        deleted   = Icons.git.Deleted,
+                                        modified  = Icons.git.Modified,
                                         enabled   = true,
                                         commit    = "󰜘 ",
                                         staged    = "●",
@@ -415,7 +458,7 @@ return {
                                 spell          = false,
                                 statuscolumn   = "",
                         },
-                        cache    = vim.fn.stdpath("cache") .. "/snacks/image",
+                        cache    = vim.fn.stdpath("cache") .. "/Snacks.image",
                         debug    = {
                                 request   = false,
                                 convert   = false,
@@ -497,11 +540,11 @@ return {
                                 },
                                 { -- NEW FILE
                                         text    = {
-                                                { "󰻭  ", hl = button },
-                                                { "New file", hl = label, width = 45 },
-                                                { "[", hl = button },
-                                                { "n", hl = label },
-                                                { "]", hl = button },
+                                                { Icons.misc.newFile .. "  ", hl = button },
+                                                { "New file",                 hl = label, width = 45 },
+                                                { "[",                        hl = button },
+                                                { "n",                        hl = label },
+                                                { "]",                        hl = button },
                                         },
                                         key     = "n",
                                         action  = "<cmd> enew <BAR> startinsert <CR>",
@@ -510,50 +553,50 @@ return {
                                 },
                                 { -- RECENT FILES
                                         text    = {
-                                                { "󰕁  ", hl = button },
-                                                { "Recent files", hl = label, width = 45 },
-                                                { "[", hl = button },
-                                                { "r", hl = label },
-                                                { "]", hl = button },
+                                                { Icons.misc.recentFile .. "  ", hl = button },
+                                                { "Recent files",                hl = label, width = 45 },
+                                                { "[",                           hl = button },
+                                                { "r",                           hl = label },
+                                                { "]",                           hl = button },
                                         },
                                         key     = "r",
-                                        action  = function() snacks.picker.recent({ layout = "vertical" }) end,
+                                        action  = function() Snacks.picker.recent({ layout = "vertical" }) end,
                                         padding = 1,
                                         align   = "center",
                                 },
                                 { -- FIND FILE
                                         text    = {
-                                                { "󰱽  ", hl = button },
-                                                { "Find file", hl = label, width = 45 },
-                                                { "[", hl = button },
-                                                { "f", hl = label },
-                                                { "]", hl = button },
+                                                { Icons.misc.findFile .. "  ", hl = button },
+                                                { "Find file",                 hl = label, width = 45 },
+                                                { "[",                         hl = button },
+                                                { "f",                         hl = label },
+                                                { "]",                         hl = button },
                                         },
-                                        action  = function() snacks.picker.files({ layout = "vertical" }) end,
+                                        action  = function() Snacks.picker.files({ layout = "vertical" }) end,
                                         key     = "f",
                                         padding = 1,
                                         align   = "center",
                                 },
                                 { -- FIND TEXT
                                         text    = {
-                                                { "󰦪  ", hl = button },
-                                                { "Find text", hl = label, width = 45 },
-                                                { "[", hl = button },
-                                                { "w", hl = label },
-                                                { "]", hl = button },
+                                                { Icons.misc.findText .. "  ", hl = button },
+                                                { "Find text",                 hl = label, width = 45 },
+                                                { "[",                         hl = button },
+                                                { "w",                         hl = label },
+                                                { "]",                         hl = button },
                                         },
-                                        action  = function() snacks.picker.grep({ layout = "vertical" }) end,
+                                        action  = function() Snacks.picker.grep({ layout = "vertical" }) end,
                                         key     = "w",
                                         padding = 1,
                                         align   = "center",
                                 },
                                 { -- YAZI
                                         text    = {
-                                                { "󰦪  ", hl = button },
-                                                { "Yazi", hl = label, width = 45 },
-                                                { "[", hl = button },
-                                                { "y", hl = label },
-                                                { "]", hl = button },
+                                                { Icons.symbolKinds.Folder .. "  ", hl = button },
+                                                { "Yazi",                           hl = label, width = 45 },
+                                                { "[",                              hl = button },
+                                                { "y",                              hl = label },
+                                                { "]",                              hl = button },
                                         },
                                         action  = "<cmd>Yazi<CR>",
                                         key     = "y",
@@ -562,11 +605,11 @@ return {
                                 },
                                 { -- RESTORE SESSION
                                         text    = {
-                                                { "󰦛  ", hl = button },
-                                                { "Restore session", hl = label, width = 45 },
-                                                { "[", hl = button },
-                                                { "s", hl = label },
-                                                { "]", hl = button },
+                                                { Icons.misc.restore .. "  ", hl = button },
+                                                { "Restore session",          hl = label, width = 45 },
+                                                { "[",                        hl = button },
+                                                { "s",                        hl = label },
+                                                { "]",                        hl = button },
                                         },
                                         key     = "s",
                                         action  = [[<cmd> lua require("persistence").load({ last  = false }) <cr>]],
@@ -575,24 +618,24 @@ return {
                                 },
                                 { -- CONFIG
                                         text    = {
-                                                { "󱤸  ", hl = button },
-                                                { "Config", hl = label, width = 45 },
-                                                { "[", hl = button },
-                                                { "c", hl = label },
-                                                { "]", hl = button },
+                                                { Icons.misc.config .. "  ", hl = button },
+                                                { "Config",                  hl = label, width = 45 },
+                                                { "[",                       hl = button },
+                                                { "c",                       hl = label },
+                                                { "]",                       hl = button },
                                         },
                                         key     = "c",
-                                        action  = function() snacks.picker.files() end,
+                                        action  = function() Snacks.picker.files() end,
                                         padding = 1,
                                         align   = "center",
                                 },
                                 { -- LAZY
                                         text    = {
-                                                { "󰏗  ", hl = button },
-                                                { "Lazy", hl = label, width = 45 },
-                                                { "[", hl = button },
-                                                { "l", hl = label },
-                                                { "]", hl = button },
+                                                { Icons.misc.package .. "  ", hl = button },
+                                                { "Lazy",                     hl = label, width = 45 },
+                                                { "[",                        hl = button },
+                                                { "l",                        hl = label },
+                                                { "]",                        hl = button },
                                         },
                                         key     = "l",
                                         action  = "<cmd> Lazy <CR>",
@@ -601,11 +644,11 @@ return {
                                 },
                                 { -- UPDATE
                                         text    = {
-                                                { "󱧕  ", hl = button },
-                                                { "Update plugins", hl = label, width = 45 },
-                                                { "[", hl = button },
-                                                { "u", hl = label },
-                                                { "]", hl = button },
+                                                { Icons.misc.newPackage .. "  ", hl = button },
+                                                { "Update plugins",              hl = label, width = 45 },
+                                                { "[",                           hl = button },
+                                                { "u",                           hl = label },
+                                                { "]",                           hl = button },
                                         },
                                         key     = "u",
                                         action  = "<cmd> Lazy update <CR>",
@@ -614,11 +657,11 @@ return {
                                 },
                                 { -- QUIT
                                         text    = {
-                                                { "󰈆  ", hl = button },
-                                                { "Quit", hl = label, width = 45 },
-                                                { "[", hl = button },
-                                                { "q", hl = label },
-                                                { "]", hl = button },
+                                                { Icons.misc.quit .. "  ", hl = button },
+                                                { "Quit",                  hl = label, width = 45 },
+                                                { "[",                     hl = button },
+                                                { "q",                     hl = label },
+                                                { "]",                     hl = button },
                                         },
                                         key     = "q",
                                         action  = "<cmd> qa <CR>",

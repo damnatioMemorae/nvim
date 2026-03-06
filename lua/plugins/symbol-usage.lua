@@ -53,17 +53,17 @@ return {
 
                         if symbol.definition then
                                 if #res > 0 then table.insert(res, { " ", "NonText" }) end
-                                insert(Config.Icons.misc.definiton, symbol.definition, "Def")
+                                insert(Icons.misc.definiton, symbol.definition, "Def")
                         end
 
                         if symbol.references then
                                 if #res > 0 then table.insert(res, { " ", "NonText" }) end
-                                insert(Config.Icons.misc.reference, symbol.definition, "Ref")
+                                insert(Icons.misc.reference, symbol.definition, "Ref")
                         end
 
                         if symbol.implementation then
                                 if #res > 0 then table.insert(res, { " ", "NonText" }) end
-                                insert(Config.Icons.misc.implementation, symbol.implementation, "Impl")
+                                insert(Icons.misc.implementation, symbol.implementation, "Impl")
                         end
 
                         if stacked_functions_content ~= "" then

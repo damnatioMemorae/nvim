@@ -108,10 +108,10 @@ return {
                 icons   = {
                         enable = true,
                         ui     = {
-                                bar  = { separator = " " .. Config.Icons.arrows.rightArrow .. " ", extends = " " .. Config.Icons.misc.ellipsis .. " " },
-                                menu = { separator = " ", indicator = Config.Icons.misc.squareFilled .. " " },
+                                bar  = { separator = " " .. Icons.arrows.rightArrow .. " ", extends = " " .. Icons.misc.ellipsis .. " " },
+                                menu = { separator = " ", indicator = Icons.misc.squareFilled .. " " },
                         },
-                        kinds  = { symbols = addSpace(Config.Icons.symbolKinds) },
+                        kinds  = { symbols = addSpace(Icons.symbolKinds) },
                 },
         },
 }

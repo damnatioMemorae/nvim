@@ -162,7 +162,7 @@ local templateDir       = fn.stdpath("config") .. "/templates"
 local homeDir           = os.getenv("HOME")
 local globToTemplateMap = {
         [homeDir .. "/.local/share/bin/lua/*.lua"]       = "script.lua",
-        [Config.localRepos .. "/**/*.lua"]                    = "module.lua",
+        [Config.localRepos .. "/**/*.lua"]               = "module.lua",
         [fn.stdpath("config") .. "/lua/functions/*.lua"] = "module.lua",
         [fn.stdpath("config") .. "/lua/plugins/*.lua"]   = "plugin-spec.lua",
         [fn.stdpath("config") .. "/lsp/*.lua"]           = "lsp.lua",
@@ -274,13 +274,25 @@ autocmd("LspAttach", {
                                 callback = lsp.buf.clear_references,
                         })
                 end
+
+                --[[
+                if fn.has("nvim-0.10") == 1 and client:supports_method("textDocument/inlayHint") then
+                        local hint_augroup = augroup("lsp-inlay-hint", { clear = false })
+                        autocmd({ "CursorHold", "CursorMoved" }, {
+                                buffer   = args.buf,
+                                group    = hint_augroup,
+                                callback = function() lsp.inlay_hint.enable(false) end,
+                        })
+                end
+                --]]
+
                 if fn.has("nvim-0.12") == 1 and client:supports_method("textDocument/documentColor") then
                         local color_augroup = augroup("lsp-color", { clear = false })
                         autocmd({ "CursorHold", "CursorMoved" }, {
                                 buffer   = args.buf,
                                 group    = color_augroup,
-                                callback = function() lsp.document_color.enable(true, 0, { style = "virtual" }) end,
-                                -- callback = function() lsp.document_color.enable(false) end,
+                                -- callback = function() lsp.document_color.enable(true, 0, { style = "virtual" }) end,
+                                callback = function() lsp.document_color.enable(false) end,
                         })
                 end
         end,

@@ -96,7 +96,7 @@ handlers[methods["textDocument_rename"]] = function(err, result, ctx, config)
         if #changedFiles > 1 then
                 msg = ("**%s in [%d] files**\n%s"):format(msg, #changedFiles, table.concat(changedFiles, "\n"))
         end
-        vim.notify(msg, nil, { title = "Renamed with LSP", icon = Config.Icons.symbolKinds.Parameter })
+        vim.notify(msg, nil, { title = "Renamed with LSP", icon = Icons.symbolKinds.Parameter })
 
         if #changedFiles > 1 then vim.cmd.wall() end
 end
@@ -116,7 +116,7 @@ local hover       = vim.lsp.buf.hover
 vim.lsp.buf.hover = function()
         return hover{
                 border      = Config.borderStyle,
-                title       = Config.Icons.symbolKinds.Parameter .. " " .. "Hover",
+                title       = Icons.symbolKinds.Parameter .. " " .. "Hover",
                 title_pos   = title_pos,
                 anchor_bias = anchor_bias,
                 relative    = relative,
@@ -131,7 +131,7 @@ local signature_help       = vim.lsp.buf.signature_help
 vim.lsp.buf.signature_help = function()
         return signature_help{
                 border      = Config.borderStyle,
-                title       = Config.Icons.symbolKinds.Function .. " " .. "Signature Help",
+                title       = Icons.symbolKinds.Function .. " " .. "Signature Help",
                 title_pos   = title_pos,
                 anchor_bias = anchor_bias,
                 relative    = relative,
@@ -146,7 +146,7 @@ local float               = vim.diagnostic.open_float
 vim.diagnostic.open_float = function()
         return float{
                 title_pos     = "left",
-                title         = Config.Icons.diagnostics.ERROR .. " " .. "Diagnostics",
+                title         = Icons.diagnostics.ERROR .. " " .. "Diagnostics",
                 border        = Config.borderStyle,
                 scope         = "cursor",
                 severity_sort = true,

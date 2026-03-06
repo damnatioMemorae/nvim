@@ -222,7 +222,7 @@ return {
                 appearance = {
                         nerd_font_variant = "normal",
                         -- kind_icons        = require("core.icons").symbolKinds,
-                        kind_icons        = Config.Icons.symbolKinds
+                        kind_icons        = Icons.symbolKinds
                 },
                 signature  = {
                         enabled = true,

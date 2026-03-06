@@ -1,4 +1,4 @@
-local C = require("core.colors").catppuccin
+local colors = Colors.Darkppuccin
 
 return {
         "nvim-lualine/lualine.nvim",
@@ -7,23 +7,23 @@ return {
         config       = function()
                 local theme = {
                         normal   = {
-                                a = { fg = C.text, bg = C.base, bold = true },
-                                b = { fg = C.text, bg = C.crust },
-                                c = { fg = C.surface1, bg = C.crust },
-                                x = { fg = C.text, bg = C.crust },
-                                y = { fg = C.text, bg = C.crust },
-                                z = { fg = C.text, bg = C.crust },
+                                a = { fg = colors.text, bg = colors.base, bold = true },
+                                b = { fg = colors.text, bg = colors.crust },
+                                c = { fg = colors.surface1, bg = colors.crust },
+                                x = { fg = colors.text, bg = colors.crust },
+                                y = { fg = colors.text, bg = colors.crust },
+                                z = { fg = colors.text, bg = colors.crust },
                         },
-                        insert   = { a = { fg = C.teal, bg = C.base, bold = true } },
-                        visual   = { a = { fg = C.yellow, bg = C.base, bold = true } },
-                        replace  = { a = { fg = C.red, bg = C.base, bold = true } },
+                        insert   = { a = { fg = colors.teal, bg = colors.base, bold = true } },
+                        visual   = { a = { fg = colors.yellow, bg = colors.base, bold = true } },
+                        replace  = { a = { fg = colors.red, bg = colors.base, bold = true } },
                         inactive = {
-                                a = { fg = C.surface1, bg = C.crust },
-                                b = { fg = C.text, bg = C.crust },
-                                c = { fg = C.text, bg = C.crust },
-                                x = { fg = C.text, bg = C.crust },
-                                y = { fg = C.text, bg = C.crust },
-                                z = { fg = C.text, bg = C.crust },
+                                a = { fg = colors.surface1, bg = colors.crust },
+                                b = { fg = colors.text, bg = colors.crust },
+                                c = { fg = colors.text, bg = colors.crust },
+                                x = { fg = colors.text, bg = colors.crust },
+                                y = { fg = colors.text, bg = colors.crust },
+                                z = { fg = colors.text, bg = colors.crust },
                         },
                 }
                 require("lualine").setup({
@@ -36,7 +36,7 @@ return {
                         sections           = {
                                 lualine_a = { { "mode", fmt = function(str) return str:sub(1, 1) end } },
                                 lualine_b = {
-                                        { "branch", icon = "", color = { fg = C.teal } },
+                                        { "branch", icon = "", color = { fg = Colors.teal } },
                                         {
                                                 "diff",
                                                 colored    = true,

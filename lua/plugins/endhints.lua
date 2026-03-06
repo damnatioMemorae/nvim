@@ -4,9 +4,9 @@ return {
         keys  = { { "<leader>oh", function() require("lsp-endhints").toggle() end, desc = "LSP Inlay Hints - Toggle" } },
         opts  = {
                 icons = {
-                        type      = Config.Icons.symbolKindsAlt.Type .. " ",
-                        parameter = Config.Icons.symbolKinds.Parameter .. " ",
-                        offspec   = Config.Icons.misc.offSpec .. " ",
+                        type      = Icons.symbolKindsAlt.Type .. " ",
+                        parameter = Icons.symbolKinds.Parameter .. " ",
+                        offspec   = Icons.misc.offSpec .. " ",
                         unknown   = "?" .. " ",
                 },
                 label = {

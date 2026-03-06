@@ -5,7 +5,7 @@ return {
                 signs   = {
                         left         = "",
                         right        = "",
-                        diag         = Config.Icons.diagnostics.ERROR,
+                        diag         = Icons.diagnostics.ERROR,
                         arrow        = "",
                         up_arrow     = " ",
                         vertical     = " │",

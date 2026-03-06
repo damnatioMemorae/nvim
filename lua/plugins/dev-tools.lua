@@ -1,5 +1,6 @@
 return {
         "YaroSpace/dev-tools.nvim",
+        enabled = false,
         lazy = true,
         dependencies = {
                 "nvim-treesitter/nvim-treesitter",
