@@ -61,13 +61,10 @@ return {
                                         { -- LSP STATUS
                                                 "lsp_status",
                                                 icon      = "",
-                                                color     = { fg = colors.spark, bg = colors.none },
+                                                color     = { fg = colors.spark, bg = colors.crust },
                                                 symbols   = {
                                                         spinner = Icons.spinner.dots,
                                                         done    = "🬁",
-                                                        -- done    = "&",
-                                                        -- done    = "#",
-                                                        -- done    = "λ",
                                                 },
                                                 show_name = false,
                                         },

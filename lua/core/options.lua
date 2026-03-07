@@ -134,6 +134,7 @@ o.wrapmargin       = 120
 o.smoothscroll     = true
 o.hidden           = true
 
+---[[
 vim.api.nvim_create_autocmd("BufEnter", {
         pattern  = "*",
         callback = function()
@@ -153,6 +154,7 @@ vim.api.nvim_create_autocmd("BufEnter", {
                 end
         end,
 })
+--]]
 
 local function fold_virt_text(result, s, lnum, coloff)
         if not coloff then

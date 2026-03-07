@@ -288,7 +288,6 @@ return {
                         win       = {
                                 input = {
                                         keys = {
-                                                -- ["<Right>"] = { "confirm", mode = { "n", "i" } },
                                                 ["<Esc>"]   = { "close", mode = { "i", "n" } },
                                                 ["h"]       = { "toggle_hidden", mode = { "n" } },
                                                 ["l"]       = { "confirm", mode = { "n" } },

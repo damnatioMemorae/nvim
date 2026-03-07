@@ -7,18 +7,18 @@ return {
         },
         opts  = {
                 buffer   = {
+                        result_prefix    = ">>> ",
                         autosave         = false,
                         load_on_start    = false,
                         strip_local      = false,
                         preserve_context = false,
                 },
-                window = {
+                window   = {
                         border = Config.borderStyle,
                         height = 0.4,
                 },
                 mappings = {
                         quit = "<Esc>",
-                        -- quit = "q",
                         open = ",f",
                 },
         },

@@ -312,6 +312,32 @@ autocmd("ModeChanged", {
 })
 
 ------------------------------------------------------------------------------------------------------------------------
+-- SHOW WHITESPACES
+
+autocmd({ "ModeChanged" }, {
+        pattern  = "*:*",
+        callback = function()
+                local mode = fn.mode()
+                if mode == "n" or mode == "\22" then
+                        vim.opt.listchars = {
+                                multispace = " ",
+                                lead       = " ",
+                                trail      = " ",
+                                tab        = "  ",
+                        }
+                end
+                if mode == "v" or mode == "V" then
+                        vim.opt.listchars = {
+                                multispace = ".",
+                                lead       = ".",
+                                trail      = ".",
+                                tab        = "..",
+                        }
+                end
+        end,
+})
+
+------------------------------------------------------------------------------------------------------------------------
 -- SWITCH BETWEEN `rlnu` and `lnu`
 
 autocmd({ "BufEnter", "FocusGained", "InsertLeave", "WinEnter" }, {
@@ -349,7 +375,7 @@ autocmd({ "BufReadPost", "BufReadPre", "BufWinEnter" }, {
 })
 
 ------------------------------------------------------------------------------------------------------------------------
--- CLEAR TRAILING WHITESPACE
+-- TRIM TRAILING WHITESPACE
 
 autocmd({ "BufWritePre" }, {
         desc     = "Remove trailing whitespace",

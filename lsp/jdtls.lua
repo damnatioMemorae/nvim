@@ -36,8 +36,8 @@ local handlers = require"vim.lsp.handlers"
 
 local env = {
         HOME           = vim.uv.os_homedir(),
-        XDG_CACHE_HOME = os.getenv"XDG_CACHE_HOME",
-        JDTLS_JVM_ARGS = os.getenv"JDTLS_JVM_ARGS",
+        XDG_CACHE_HOME = os.getenv("XDG_CACHE_HOME"),
+        JDTLS_JVM_ARGS = os.getenv("JDTLS_JVM_ARGS"),
 }
 
 local function get_cache_dir()

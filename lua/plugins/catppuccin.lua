@@ -98,7 +98,7 @@ local customCol = function(C)
                 Type                       = { link = "Keyword" },
                 -- Underlined                    = { fg = colors., underline = true },
                 VertSplit                  = { link = "NonText" },
-                Visual                     = { fg = colors.none, bg = colors.none, bold = true },
+                Visual                     = {  bg = colors.crust, bold = true },
                 WarningMsg                 = { fg = colors.yellow },
                 WildMenu                   = { bg = colors.mantle },
                 WinSeparator               = { link = "LineNr" },
@@ -109,12 +109,12 @@ local customCol = function(C)
                 --------------------------------------------------------------------------------------------------------
                 -- TREESITTER
 
-                ["@comment.todo"]               = { fg = colors.crust, bg = colors.rosewater, italic = true, bold = true }, -- TODO
-                ["@comment.note"]               = { fg = colors.crust, bg = colors.blue, italic = true, bold = true },      -- NOTE
-                ["@comment.hint"]               = { fg = colors.crust, bg = colors.sky, italic = true, bold = true },       -- HINT
-                ["@comment.warning"]            = { fg = colors.crust, bg = colors.yellow, italic = true, bold = true },    -- WARNING
-                ["@comment.error"]              = { fg = colors.crust, bg = colors.red, italic = true, bold = true },       -- ERROR
-                ["@comment.code"]               = { fg = colors.teal, bg = colors.base, italic = false, bold = false },     -- code
+                ["@comment.todo"]               = { fg = colors.crust, bg = colors.rosewater, italic = false, bold = true }, -- TODO
+                ["@comment.note"]               = { fg = colors.crust, bg = colors.blue, italic = false, bold = true },      -- NOTE
+                ["@comment.hint"]               = { fg = colors.crust, bg = colors.sky, italic = false, bold = true },       -- HINT
+                ["@comment.warning"]            = { fg = colors.crust, bg = colors.yellow, italic = false, bold = true },    -- WARNING
+                ["@comment.error"]              = { fg = colors.crust, bg = colors.red, italic = false, bold = true },       -- ERROR
+                ["@comment.code"]               = { fg = colors.teal, bg = colors.base, italic = false, bold = false },      -- code
                 ["@annotation"]                 = { fg = colors.yellow },
                 ["@attribute"]                  = { fg = colors.teal },
                 ["@boolean"]                    = { fg = colors.peach },
