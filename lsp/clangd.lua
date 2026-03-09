@@ -1,4 +1,4 @@
-local function switch_source_header(bufnr)
+local function switchSourceHeader(bufnr)
         local method_name = "textDocument/switchSourceHeader"
         local client      = vim.lsp.get_clients({ bufnr = bufnr, name = "clangd" })[1]
         if not client then
@@ -20,7 +20,7 @@ local function switch_source_header(bufnr)
                        end, bufnr)
 end
 
-local function symbol_info()
+local function symbolInfo()
         local bufnr         = vim.api.nvim_get_current_buf()
         local clangd_client = vim.lsp.get_clients({ bufnr = bufnr, name = "clangd" })[1]
         ---@diagnostic disable-next-line: unknown-diag-code
@@ -69,7 +69,7 @@ local cmd = {
         "--fallback-style=llvm",
         "--function-arg-placeholders=0",
         "--header-insertion-decorators",
-        "--header-insertion=iwyu",
+        -- "--header-insertion=iwyu",
         "--import-insertions",
         "-j=8",
         "--limit-references=0",
@@ -168,10 +168,10 @@ return {
         end,
         on_attach          = function(_, bufnr)
                 vim.api.nvim_buf_create_user_command(bufnr, "LspClangdSwitchSourceHeader", function()
-                                                             switch_source_header(bufnr)
+                                                             switchSourceHeader(bufnr)
                                                      end, { desc = "Switch between source/header" })
                 vim.api.nvim_buf_create_user_command(bufnr, "LspClangdShowSymbolInfo", function()
-                                                             symbol_info()
+                                                             symbolInfo()
                                                      end, { desc = "Show symbol info" })
         end,
         workspace_required = false,

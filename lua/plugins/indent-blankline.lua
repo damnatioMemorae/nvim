@@ -1,19 +1,31 @@
 return {
         "lukas-reineke/indent-blankline.nvim",
-        enabled = true,
         event  = "VeryLazy",
         main   = "ibl",
-        keys   = { { "<leader>oi", "<cmd>IBLToggle<CR>", desc = "󰖶 Indent guides", mode = { "n" } } },
+        keys   = {
+                {
+                        "<leader>oi",
+                        function()
+                                local ibl = require("ibl")
+
+                                Config.indent_line = not Config.indent_line
+                                local str          = Icons.symbolKinds.Parameter .. " " .. "Indent Lines"
+
+                                if Config.indent_line then
+                                        ibl.update({ enabled = true })
+                                        vim.notify(str .. "Enabled",   vim.log.levels.INFO)
+                                else
+                                        ibl.update({ enabled = false })
+                                        vim.notify(str .. "Disabled",   vim.log.levels.INFO)
+                                end
+                        end,
+                        desc = "Indent Lines - Toggle",
+                },
+        },
         config = function()
                 require("ibl").setup({
-                        indent     = {
-                                char     = " ",
-                                tab_char = " ",
-                                priority = 4,
-                        },
-                        whitespace = {
-                                remove_blankline_trail = true,
-                        },
+                        indent     = { char = " ", tab_char = " ", priority = 4 },
+                        whitespace = { remove_blankline_trail = true },
                         scope      = {
                                 show_start = true,
                                 show_end   = false,

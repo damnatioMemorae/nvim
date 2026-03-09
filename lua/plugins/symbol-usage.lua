@@ -1,14 +1,25 @@
 return {
         "Wansmer/symbol-usage.nvim",
-        enabled = true,
-        event   = "VeryLazy",
-        keys    = {
+        event  = "VeryLazy",
+        keys   = {
                 { "<leader>os", function()
-                        require("symbol-usage").toggle_globally()
-                        require("symbol-usage").refresh()
+                        local symbol = require("symbol-usage")
+
+                        Config.code_lens = not Config.code_lens
+                        local str       = Icons.diagnostics.INFO .. " " .. "codeLens - "
+
+                        if Config.code_lens then
+                                symbol.toggle_globally()
+                                symbol.refresh()
+                                vim.notify(str .. "Enabled", vim.log.levels.INFO)
+                        else
+                                symbol.toggle_globally()
+                                symbol.refresh()
+                                vim.notify(str .. "Disabled", vim.log.levels.INFO)
+                        end
                 end },
         },
-        config  = function()
+        config = function()
                 local bg        = {}
                 -- local bg        = "LspInlayHint"
                 local groupsCol = { ---@diagnostic disable-line: unused-local

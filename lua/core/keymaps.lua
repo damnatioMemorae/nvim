@@ -5,6 +5,7 @@ local comments = require("functions.comment")
 local nano     = require("functions.nano-plugins")
 local eval     = require("functions.inspect-and-eval")
 local map      = utils.uniqueKeymap
+local prefix   = Config.prefix
 
 
 local n, i, c, v, o, x, t = "n", "i", "c", "v", "o", "x", "t"
@@ -235,10 +236,10 @@ map(n, "<A-D>", function()
 map(n, "K", vim.lsp.buf.hover,          { desc = "󰏪 Hover Documentation" })
 map(n, "J", vim.lsp.buf.signature_help, { desc = "󰏪 Signature Help" })
 
-map(n, Config.prefix .. "f", "gF", { desc = "Goto File", silent = true })
-map(n, Config.prefix .. "q", vim.lsp.buf.code_action, { desc = "󱠀 Code Action Picker" })
--- map(n, Config.prefix .. "q", function() require("tiny-code-action").code_action() end,
---     { desc = "󱠀 Code Action Picker", remap = false, silent = true })
+map(n, prefix .. "f", "gF", { desc = "Goto File", silent = true })
+-- map(n, prefix .. "q", vim.lsp.buf.code_action, { desc = "󱠀 Code Action Picker" })
+map(n, prefix .. "q", function() require("tiny-code-action").code_action() end,
+    { desc = "󱠀 Code Action Picker", remap = false, silent = true })
 map(n, "<leader>k", function()
             vim.diagnostic.config({ virtual_lines = { current_line = true }, virtual_text = false })
 
@@ -252,13 +253,13 @@ map(n, "<leader>k", function()
     end, { desc = "■ Diagnostic Lines" })
 
 --[[ GOTO
-map(n, Config.prefix .. "D", vim.lsp.buf.declaration,    { desc = " Goto Declaration" })
-map(n, Config.prefix .. "d", vim.lsp.buf.definition,     { desc = " Goto Definition" })
-map(n, Config.prefix .. "i", vim.lsp.buf.implementation, { desc = " Goto Implementation" })
-map(n, Config.prefix .. "r", vim.lsp.buf.references,     { desc = " Goto Implementation" })
-map(n, Config.prefix .. "I", vim.lsp.buf.incoming_calls, { desc = "Incoming calls" })
-map(n, Config.prefix .. "c", vim.lsp.buf.code_action,    { desc = "󱠀 Code Action" })
-map(n, Config.prefix .. "F", vim.lsp.buf.format,         { desc = "LSP Format" })
+map(n, prefix .. "D", vim.lsp.buf.declaration,    { desc = " Goto Declaration" })
+map(n, prefix .. "d", vim.lsp.buf.definition,     { desc = " Goto Definition" })
+map(n, prefix .. "i", vim.lsp.buf.implementation, { desc = " Goto Implementation" })
+map(n, prefix .. "r", vim.lsp.buf.references,     { desc = " Goto Implementation" })
+map(n, prefix .. "I", vim.lsp.buf.incoming_calls, { desc = "Incoming calls" })
+map(n, prefix .. "c", vim.lsp.buf.code_action,    { desc = "󱠀 Code Action" })
+map(n, prefix .. "F", vim.lsp.buf.format,         { desc = "LSP Format" })
 --]]
 
 ------------------------------------------------------------------------------------------------------------------------
@@ -325,9 +326,9 @@ end
 
 map(n, "<leader>fd", ":global //d<Left><Left>", { desc = " delete matching lines", silent = true })
 
-map(n, Config.prefix .. "n", vim.lsp.buf.rename, { desc = "󰑕 LSP rename", silent = true })
+map(n, prefix .. "n", vim.lsp.buf.rename, { desc = "󰑕 LSP rename", silent = true })
 
-map(n, Config.prefix .. "m", function() nano.camelSnakeLspRename() end,
+map(n, prefix .. "m", function() nano.camelSnakeLspRename() end,
     { desc = "󰑕 LSP rename: camel/snake", silent = true })
 
 map(nx, "<leader>qq", function()
@@ -356,11 +357,11 @@ if loaded then
         Snacks.toggle.option("relativenumber", { name = " Relative Line Number", global = true }):map("<leader>or")
         Snacks.toggle.option("number", { name = " Line Number", global = true }):map("<leader>on")
         Snacks.toggle.option("wrap", { name = "󰖶 Wrap", global = true }):map("<leader>ow")
-        Snacks.toggle.option("conceallevel",
-                             { off = 0, on = vim.o.conceallevel > 0 and vim.o.conceallevel or 2, name = "󰈉 Conceal", global = true,
-                             }):map("<leader>oc")
         Snacks.toggle.treesitter({ name = " Treesitter Highlight" }):map("<leader>ot")
+        Snacks.toggle.option("conceallevel", { off = 0, on = vim.o.conceallevel > 0 and vim.o.conceallevel or 2 })
+                   :map("<leader>oc")
         Snacks.toggle.diagnostics({ name = "󰨓 LSP Diagnostics" }):map("<leader>od")
+        -- Snacks.toggle.inlay_hints():map("<leader>oh")
         Snacks.toggle.words():map("<leader>ol")
 end
 

@@ -42,8 +42,8 @@ return {
                                 cycle     = { from_bottom = true, from_top = true },
                         },
                         menu          = {
-                                -- max_height         = 40,
-                                max_height         = 90,
+                                max_height         = 40,
+                                -- max_height         = 90,
                                 -- border             = Config.borderEmpty,
                                 border             = Config.borderStyle,
                                 -- border             = Config.borderRight,

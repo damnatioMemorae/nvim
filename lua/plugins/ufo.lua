@@ -6,7 +6,6 @@ local modes = { "n", "x" }
 
 return {
         "kevinhwang91/nvim-ufo",
-        enabled      = true,
         dependencies = "kevinhwang91/promise-async",
         event        = "BufEnter",
         keys         = {

@@ -1,4 +1,3 @@
----@diagnostic disable: unknown-diag-code
 return {
         "mfussenegger/nvim-dap",
         enabled      = false,

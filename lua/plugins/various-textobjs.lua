@@ -32,8 +32,7 @@ return {
                 { "in", function() require("various-textobjs").number("inner") end, mode = { "x", "o" }, desc = " inner number" },
                 { "an", function() require("various-textobjs").number("outer") end, mode = { "x", "o" }, desc = " outer number" },
 
-                -- { "ii", function()  require('various-textobjs').indentation('inner', 'inner')end, mode = { "x", "o" }, desc = "󰉶 inner indent" },
-                { "ii", function() require("various-textobjs").indentation("inner") end, mode = { "x", "o" }, desc = "󰉶 inner indent" },
+                { "ii", function() require("various-textobjs").indentation("inner", "inner") end, mode = { "x", "o" }, desc = "󰉶 inner indent" },
                 { "ai", function() require("various-textobjs").indentation("outer", "outer") end, mode = { "x", "o" }, desc = "󰉶 outer indent" },
                 { "aj", function() require("various-textobjs").indentation("outer", "inner") end, mode = { "x", "o" }, desc = "󰉶 top-border indent" },
                 { "ig", function() require("various-textobjs").greedyOuterIndentation("inner") end, mode = { "x", "o" }, desc = "󰉶 inner greedy indent" },

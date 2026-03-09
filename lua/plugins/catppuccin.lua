@@ -16,7 +16,10 @@ local customCol = function(C)
                 DiagnosticInfo             = { bg = colors.crust },
                 DiagnosticHint             = { bg = colors.crust },
                 --]]
-                DapBreakpoint              = { link = "DiagnosticUnderlineError" },
+                debugBreakpoint            = { link = "DapBreakpoint" },
+                DapBreakpoint              = { link = "debugBreakpoint" },
+                DapBreakpointConition      = { link = "debugBreakpoint" },
+                DapBreakpointRejected      = { link = "debugBreakpoint" },
                 DiagnosticUnderlineError   = { fg = colors.overlay1, bg = "#30212c" },
                 DiagnosticUnderlineWarn    = { fg = colors.overlay1, bg = "#312e2d" },
                 DiagnosticUnderlineInfo    = { fg = colors.overlay1, bg = "#202d36" },
@@ -34,7 +37,7 @@ local customCol = function(C)
                 CurSearch                  = { fg = colors.teal, bg = colors.base },
                 -- CursorColumn                  = { bg = colors.},
                 -- Cursor                           = { fg = colors.crust, bg = colors.red },
-                CursorLine                 = { bg = colors.none },
+                CursorLine                 = { link = "Visual" },
                 CursorLineNr               = { fg = colors.ivory },
                 Define                     = { fg = colors.pink },
                 Directory                  = { fg = colors.ivory },
@@ -98,7 +101,7 @@ local customCol = function(C)
                 Type                       = { link = "Keyword" },
                 -- Underlined                    = { fg = colors., underline = true },
                 VertSplit                  = { link = "NonText" },
-                Visual                     = {  bg = colors.crust, bold = true },
+                Visual                     = { bg = "none", bold = true },
                 WarningMsg                 = { fg = colors.yellow },
                 WildMenu                   = { bg = colors.mantle },
                 WinSeparator               = { link = "LineNr" },
@@ -464,7 +467,7 @@ local customCol = function(C)
                 --------------------------------------------------------------------------------------------------------
                 -- SNACKS
 
-                SnacksBackdrop              = { bg = colors.none },
+                SnacksBackdrop              = { bg = "none" },
                 SnacksTitle                 = { link = "DiagnosticError" },
                 SnacksPickerTitle           = { link = "DiagnosticError" },
                 SnacksPicker                = { link = "Normal" },
@@ -487,8 +490,8 @@ local customCol = function(C)
                 SnacksNotifierError         = { link = "TinyInlineDiagnosticVirtualTextError" },
                 -- SnacksPickerFile                             = { fg = colors.teal },
                 SnacksNotifierHistoryBorder = { fg = colors.spark },
-                SnacksIndent                = { fg = colors.none },
-                SnacksIndentBlank           = { fg = colors.none },
+                -- SnacksIndent                = { fg = "none" },
+                -- SnacksIndentBlank           = { fg = "none" },
 
                 --------------------------------------------------------------------------------------------------------
                 -- NEOTREE

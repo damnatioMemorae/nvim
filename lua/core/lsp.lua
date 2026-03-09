@@ -1,9 +1,8 @@
 ------------------------------------------------------------------------------------------------------------------------
 -- LSP SERVERS
 
-local lspServers = {
+local lsp_servers = {
         "asm_lsp",
-        -- "basedpyright",
         "bashls",
         "biome",
         "clangd",
@@ -12,29 +11,27 @@ local lspServers = {
         "emmet",
         "emmet-language-server",
         "glslls",
-        -- "glsl_analyzer",
         "gopls",
         "jsonls",
         "just-lsp",
         "jdtls",
-        -- "kakehashi",
         "kotlin_lsp",
         "lua_ls",
-        -- "pylsp",
-        -- "ruff",
         "rust_analyzer",
         "superhtml",
         "ts_ls",
         "yamlls",
+        "hover-ls",
 }
 
-vim.lsp.config("*",        { root_markers = { ".git" } })
-vim.lsp.enable(lspServers)
+vim.lsp.config("*", { root_markers = { ".git" } })
+
+vim.lsp.enable(lsp_servers)
 
 ------------------------------------------------------------------------------------------------------------------------
 -- DIAGNOSTICS
 
-local hl      = "VirtualText"
+local hl      = "DiagnosticVirtualText"
 local numbers = {
         text  = {
                 [vim.diagnostic.severity.ERROR] = "",
@@ -43,10 +40,10 @@ local numbers = {
                 [vim.diagnostic.severity.HINT]  = "",
         },
         numhl = {
-                [vim.diagnostic.severity.ERROR] = "Diagnostic" .. hl .. "Error",
-                [vim.diagnostic.severity.WARN]  = "Diagnostic" .. hl .. "Warn",
-                [vim.diagnostic.severity.INFO]  = "Diagnostic" .. hl .. "Info",
-                [vim.diagnostic.severity.HINT]  = "Diagnostic" .. hl .. "Hint",
+                [vim.diagnostic.severity.ERROR] = hl .. "Error",
+                [vim.diagnostic.severity.WARN]  = hl .. "Warn",
+                [vim.diagnostic.severity.INFO]  = hl .. "Info",
+                [vim.diagnostic.severity.HINT]  = hl .. "Hint",
         },
 }
 
@@ -82,24 +79,24 @@ handlers[methods["textDocument_rename"]] = function(err, result, ctx, config)
         originalRenameHandler(err, result, ctx, config)
         if err or not result then return end
 
-        local changes      = result.changes or result.documentChanges or {}
-        local changedFiles = vim.iter(vim.tbl_keys(changes))
+        local changes       = result.changes or result.documentChanges or {}
+        local changed_files = vim.iter(vim.tbl_keys(changes))
                    :filter(function(file) return #changes[file] > 0 end)
                    :map(function(file) return "- " .. vim.fs.basename(file) end)
                    :totable()
-        local changeCount  = 0
+        local change_count  = 0
         for _, change in pairs(changes) do
-                changeCount = changeCount + #(change.edits or change)
+                change_count = change_count + #(change.edits or change)
         end
 
-        local pluralS = changeCount > 1 and "s" or ""
-        local msg     = ("[%d] instance%s"):format(changeCount, pluralS)
-        if #changedFiles > 1 then
-                msg = ("**%s in [%d] files**\n%s"):format(msg, #changedFiles, table.concat(changedFiles, "\n"))
+        local plural = change_count > 1 and "s" or ""
+        local msg    = ("[%d] instance%s"):format(change_count, plural)
+        if #changed_files > 1 then
+                msg = ("**%s in [%d] files**\n%s"):format(msg, #changed_files, table.concat(changed_files, "\n"))
         end
         vim.notify(msg, nil, { title = "Renamed with LSP", icon = Icons.symbolKinds.Parameter })
 
-        if #changedFiles > 1 then vim.cmd.wall() end
+        if #changed_files > 1 then vim.cmd.wall() end
 end
 
 ------------------------------------------------------------------------------------------------------------------------
@@ -109,15 +106,16 @@ local title_pos   = "left"
 local anchor_bias = "below"
 local relative    = "cursor"
 local wrap        = true
-local max_height  = math.floor(vim.o.lines * 0.5)
-local max_width   = math.floor(vim.o.columns * 0.6)
+local max_height  = math.floor(vim.o.lines * 0.7)
+local max_width   = math.floor(vim.o.columns * 0.8)
 
 local hover       = vim.lsp.buf.hover
 ---@diagnostic disable-next-line: duplicate-set-field
 vim.lsp.buf.hover = function()
         return hover{
                 border      = Config.borderStyle,
-                title       = Icons.symbolKinds.Parameter .. " " .. "Hover",
+                -- title       = Icons.symbolKinds.Parameter .. " " .. "Hover",
+                title       = "",
                 title_pos   = title_pos,
                 anchor_bias = anchor_bias,
                 relative    = relative,
@@ -132,7 +130,8 @@ local signature_help       = vim.lsp.buf.signature_help
 vim.lsp.buf.signature_help = function()
         return signature_help{
                 border      = Config.borderStyle,
-                title       = Icons.symbolKinds.Function .. " " .. "Signature Help",
+                -- title       = Icons.symbolKinds.Function .. " " .. "Signature Help",
+                title       = "",
                 title_pos   = title_pos,
                 anchor_bias = anchor_bias,
                 relative    = relative,
@@ -147,7 +146,8 @@ local float               = vim.diagnostic.open_float
 vim.diagnostic.open_float = function()
         return float{
                 title_pos     = "left",
-                title         = Icons.diagnostics.ERROR .. " " .. "Diagnostics",
+                -- title         = Icons.diagnostics.ERROR .. " " .. "Diagnostics",
+                title         = "",
                 border        = Config.borderStyle,
                 scope         = "cursor",
                 severity_sort = true,
@@ -155,7 +155,7 @@ vim.diagnostic.open_float = function()
         }
 end
 
-------------------------------------------------------------------------------------------------------------------------
+--
 --[[ LSP PROGRESS
 
 local progress = vim.defaulttable()

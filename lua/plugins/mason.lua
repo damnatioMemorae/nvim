@@ -78,7 +78,7 @@ return {
                         ui = {
                                 border   = Config.borderStyle,
                                 height   = 0.9,
-                                width    = 0.6,
+                                width    = 0.8,
                                 backdrop = Config.backdrop,
                                 icons    = {
                                         package_installed   = "󱧕",

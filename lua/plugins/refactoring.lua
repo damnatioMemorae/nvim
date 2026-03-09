@@ -1,9 +1,7 @@
 return {
         "ThePrimeagen/refactoring.nvim",
-        enabled      = true,
-        -- event        = "VeryLazy",
-        lazy        = false,
-        config       = function()
+        lazy   = false,
+        config = function()
                 require("refactoring").setup({
                         prompt_func_return_type = {
                                 go   = true,

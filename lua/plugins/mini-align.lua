@@ -1,11 +1,13 @@
+local prefix = Config.prefix
+
 return {
         "echasnovski/mini.align",
         version = false,
         event   = "VeryLazy",
         opts    = {
                 mappings = {
-                        start              = Config.prefix .. "a",
-                        start_with_preview = Config.prefix .. "A",
+                        start              = prefix .. "a",
+                        start_with_preview = prefix .. "A",
                 },
                 options = {
                         split_pattern   = "",

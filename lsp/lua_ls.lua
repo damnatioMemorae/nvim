@@ -16,10 +16,6 @@ return {
 
                 if path == vim.fn.stdpath("config") then
                         client.config.settings.Lua = vim.tbl_deep_extend("force", client.config.settings.Lua, {
-                                runtime   = {
-                                        version = "LuaJIT",
-                                        path    = { "lua/?.lua", "lua/?/?.lua", "lua/?/init.lua" },
-                                },
                                 workspace = { library = { "$VIMRUNTIME", "${3rd}/luv/library" } },
                         })
                 end
@@ -33,6 +29,10 @@ return {
                                 workspaceWord  = true,
                                 postfix        = "@",
                                 autoRequire    = false,
+                        },
+                        runtime       = {
+                                version = "LuaJIT",
+                                path    = { "lua/?.lua", "lua/?/?.lua", "lua/?/init.lua" },
                         },
                         diagnostics   = { disable = { "trailing-space", "unused-function", "lowercase-global" } },
                         hover         = { enable = true, enumsLimit = 999, previewFields = 99 },

@@ -1,4 +1,4 @@
-local M   = {}
+local M = {}
 ------------------------------------------------------------------------------------------------------------------------
 
 local api = vim.api
@@ -53,16 +53,16 @@ end
 -- craftzdog/utils.lua
 -- https://github.com/EmmanuelOga/columns/blob/master/utils/color.lua
 
-local hexChars = "0123456789abcdef"
+local hex_chars = "0123456789abcdef"
 
-function M.hex_to_rgb(hex)
+function M.hexToRgb(hex)
         hex       = string.lower(hex)
         local ret = {}
         for i = 0, 2 do
                 local char1  = string.sub(hex, i * 2 + 2, i * 2 + 2)
                 local char2  = string.sub(hex, i * 2 + 3, i * 2 + 3)
-                local digit1 = string.find(hexChars, char1) - 1
-                local digit2 = string.find(hexChars, char2) - 1
+                local digit1 = string.find(hex_chars, char1) - 1
+                local digit2 = string.find(hex_chars, char2) - 1
                 ret[i + 1]   = (digit1 * 16 + digit2) / 255.0
         end
         return ret
@@ -166,7 +166,7 @@ end
 
 function M.hexToHSL(hex)
         -- local hsluv   = require("solarized-osaka.hsluv")
-        local rgb     = M.hex_to_rgb(hex)
+        local rgb     = M.hexToRgb(hex)
         local h, s, l = M.rgbToHsl(rgb[1], rgb[2], rgb[3])
 
         return string.format("hsl(%d, %d, %d)", math.floor(h + 0.5), math.floor(s + 0.5), math.floor(l + 0.5))
@@ -187,7 +187,7 @@ end
 ---@param node TSNode
 ---@param bufnr number | nil
 ---@return number, number, number, number
-local get_node_range = function(node, bufnr)
+local function getNodeRange(node, bufnr)
         local bufnr          = bufnr or 0
         local sr, sc, er, ec = node:range()
         local last_row       = vim.api.nvim_buf_line_count(bufnr) - 1
@@ -204,17 +204,17 @@ end
 ---@param node TSNode
 ---@param type string
 ---@return TSNode | nil
-M.find_parent_node = function(node, type)
+function M.findParentNode(node, type)
         if (node == node:root()) then return nil end
         if (node:type() == type) then return node end
-        return M.find_parent_node(node:parent(), type)
+        return M.findParentNode(node:parent(), type)
 end
 
 --- Find child node of given type.
 ---@param node TSNode
 ---@param type string
 ---@return TSNode | nil
-M.find_child_node = function(node, type)
+function M.findChildNode(node, type)
         local child = node:child(0)
         while child do
                 if (child:type() == type) then return child end
@@ -227,8 +227,8 @@ end
 ---@param node TSNode
 ---@param text string | table
 ---@param bufnr number | nil
-M.set_node_text = function(node, text, bufnr)
-        local sr, sc, er, ec = get_node_range(node, bufnr)
+function M.setNodeText(node, text, bufnr)
+        local sr, sc, er, ec = getNodeRange(node, bufnr)
         local content        = { text }
         if (type(text) == "table") then content = text end
         vim.api.nvim_buf_set_text(bufnr or 0, sr, sc, er, ec, content)
@@ -238,8 +238,8 @@ end
 ---@param node TSNode
 ---@param bufnr number | nil
 ---@return string[]
-M.get_node_text = function(node, bufnr)
-        local sr, sc, er, ec = get_node_range(node, bufnr)
+function M.getNodeText(node, bufnr)
+        local sr, sc, er, ec = getNodeRange(node, bufnr)
         return vim.api.nvim_buf_get_text(bufnr or 0, sr, sc, er, ec, {})
 end
 

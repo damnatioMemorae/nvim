@@ -13,6 +13,28 @@ Config.blend        = 0
 Config.winblend     = 0
 Config.localRepos   = vim.fs.normalize("$HOME/deeznuts/")
 
+Config.code_lens   = true
+Config.inlay_hints = true
+Config.indent_line = true
+
+------------------------------------------------------------------------------------------------------------------------
+-- FUNCTION
+
+_G.Functions = {}
+
+---@param option? any
+---@param msg? string
+Functions.toggle = function(option, msg)
+        option = not option
+        msg    = Icons.diagnostics.INFO .. " " .. msg
+
+        if option then
+                vim.notify(msg .. " - " .. "Enabled")
+        else
+                vim.notify(msg .. " - " .. "Disabled")
+        end
+end
+
 ------------------------------------------------------------------------------------------------------------------------
 -- BORDERS
 

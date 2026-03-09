@@ -56,6 +56,8 @@ o.autoindent    = true
 o.breakindent   = true
 o.copyindent    = true
 o.concealcursor = "nv"
+o.formatoptions = ""
+o.exrc          = true
 
 ------------------------------------------------------------------------------------------------------------------------
 -- FILETYPES
@@ -149,6 +151,7 @@ vim.api.nvim_create_autocmd("BufEnter", {
                         "rrhelper",
                         "spellfile_plugin",
                         "matchit",
+                        "matchParen",
                 }) do
                         vim.g["loaded_" .. plugin] = 1
                 end

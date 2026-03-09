@@ -1,5 +1,6 @@
 local button       = "Function"
 local label        = "Comment"
+local prefix       = Config.prefix
 local insertOnShow = function() vim.cmd.stopinsert() end
 
 return {
@@ -120,25 +121,25 @@ return {
 
                 -- LSP PICKERS
                 { -- `spc spc r` REFERENCES
-                        Config.prefix .. "r",
+                        prefix .. "r",
                         function() Snacks.picker.lsp_references({ layout = "vertical", on_show = insertOnShow }) end,
                         desc = "Show References",
                         mode = { "n" },
                 },
                 { -- `spc spc i` IMPLEMENTATIONS
-                        Config.prefix .. "i",
+                        prefix .. "i",
                         function() Snacks.picker.lsp_implementations({ layout = "vertical", on_show = insertOnShow }) end,
                         desc = "Show Implementations",
                         mode = { "n" },
                 },
                 { -- `spc spc d` DEFINITIONS
-                        Config.prefix .. "d",
+                        prefix .. "d",
                         function() Snacks.picker.lsp_definitions({ layout = "vertical", on_show = insertOnShow }) end,
                         desc = "Show Definitions",
                         mode = { "n" },
                 },
                 { -- `spc spc D` DECLARATIONS
-                        Config.prefix .. "D",
+                        prefix .. "D",
                         function() Snacks.picker.lsp_declarations({ layout = "vertical", on_show = insertOnShow }) end,
                         desc = "Show Declarations",
                         mode = { "n" },
@@ -257,8 +258,10 @@ return {
                                 },
                         },
                         notification         = {
-                                border  = Config.borderStyle,
-                                wo      = { winblend = 40 },
+                                border  = Config.borderRight,
+                                wo      = {
+                                        winblend = Config.blend,
+                                },
                                 icons   = Icons.notifier,
                                 enabled = true,
                                 timeout = 2000,
@@ -288,13 +291,13 @@ return {
                         win       = {
                                 input = {
                                         keys = {
-                                                ["<Esc>"]   = { "close", mode = { "i", "n" } },
-                                                ["h"]       = { "toggle_hidden", mode = { "n" } },
-                                                ["l"]       = { "confirm", mode = { "n" } },
-                                                ["J"]       = { "preview_scroll_down", mode = { "i", "n" } },
-                                                ["K"]       = { "preview_scroll_up", mode = { "i", "n" } },
-                                                ["H"]       = { "preview_scroll_left", mode = { "i", "n" } },
-                                                ["L"]       = { "preview_scroll_right", mode = { "i", "n" } },
+                                                ["<Esc>"] = { "close", mode = { "i", "n" } },
+                                                ["h"]     = { "toggle_hidden", mode = { "n" } },
+                                                ["l"]     = { "confirm", mode = { "n" } },
+                                                ["J"]     = { "preview_scroll_down", mode = { "i", "n" } },
+                                                ["K"]     = { "preview_scroll_up", mode = { "i", "n" } },
+                                                ["H"]     = { "preview_scroll_left", mode = { "i", "n" } },
+                                                ["L"]     = { "preview_scroll_right", mode = { "i", "n" } },
                                         },
                                 },
                         },

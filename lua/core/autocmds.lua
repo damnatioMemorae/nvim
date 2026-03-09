@@ -318,7 +318,7 @@ autocmd({ "ModeChanged" }, {
         pattern  = "*:*",
         callback = function()
                 local mode = fn.mode()
-                if mode == "n" or mode == "\22" then
+                if mode == "n" or mode == "\22" or mode == "i" then
                         vim.opt.listchars = {
                                 multispace = " ",
                                 lead       = " ",
