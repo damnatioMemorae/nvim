@@ -19,7 +19,7 @@ return { -- Better input/selection fields
         opts = {
                 input  = {
                         trim_prompt  = true,
-                        -- border       = Config.borderStyle,
+                        -- border       = Border.borderStyle,
                         relative     = "editor",
                         prefer_width = 45,
                         min_width    = 0.4,
@@ -30,7 +30,7 @@ return { -- Better input/selection fields
                         trim_prompt = true,
                         builtin     = {
                                 show_numbers = false,
-                                -- border       = Config.borderStyle,
+                                -- border       = Border.borderStyle,
                                 relative     = "editor",
                                 max_width    = 80,
                                 min_width    = 20,

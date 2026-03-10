@@ -14,7 +14,7 @@ return {
                         preserve_context = false,
                 },
                 window   = {
-                        border = Config.borderStyle,
+                        border = Border.borderStyle,
                         height = 0.4,
                 },
                 mappings = {

@@ -24,7 +24,7 @@ require("lazy").setup({
                 title       = " lazy.nvim ",
                 wrap        = true,
                 backdrop    = Config.backdrop,
-                border      = Config.borderStyle,
+                border      = Border.borderStyle,
                 pills       = false,
                 size        = { width = 0.80, height = 0.9 },
                 custom_keys = {

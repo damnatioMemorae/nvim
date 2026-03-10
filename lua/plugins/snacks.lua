@@ -1,6 +1,15 @@
 local button       = "Function"
 local label        = "Comment"
+
 local prefix       = Config.prefix
+
+local border       = Border.borderStyle
+local none         = Border.borderStyleNone
+local right        = Border.borderRight
+local top          = Border.borderTop
+local bot          = Border.borderBottom
+local bot_empty    = Border.borderBottomEmpty
+
 local insertOnShow = function() vim.cmd.stopinsert() end
 
 return {
@@ -218,7 +227,7 @@ return {
                         },
                 },
                 win          = {
-                        border = Config.borderStyle,
+                        border = border,
                         wo     = {
                                 signcolumn     = "no",
                                 statuscolumn   = " ",
@@ -238,7 +247,7 @@ return {
                 },
                 styles       = {
                         notification_history = {
-                                border   = Config.borderRight,
+                                border   = right,
                                 height   = 0.9,
                                 width    = 0.9,
                                 title    = "",
@@ -249,7 +258,7 @@ return {
                         },
                         input                = {
                                 backdrop = true,
-                                border   = Config.borderStyle,
+                                border   = border,
                                 row      = math.ceil(vim.o.lines / 2) - 8,
                                 wo       = {
                                         cursorline   = false,
@@ -258,11 +267,11 @@ return {
                                 },
                         },
                         notification         = {
-                                border  = Config.borderRight,
+                                border  = right,
                                 wo      = {
                                         winblend = Config.blend,
                                 },
-                                icons   = Icons.notifier,
+                                icons   = Icons.Notifier,
                                 enabled = true,
                                 timeout = 2000,
                                 style   = "minimal",
@@ -271,12 +280,12 @@ return {
                                 backdrop = true,
                                 width    = 0.6,
                                 height   = 0.6,
-                                border   = Config.borderStyle,
+                                border   = border,
                                 title    = " 󰆽 Git blame ",
                         },
                 },
                 notifier     = {
-                        icons   = Icons.notifier,
+                        icons   = Icons.Notifier,
                         style   = "minimal",
                         enabled = true,
                         timeout = 2000,
@@ -302,8 +311,8 @@ return {
                                 },
                         },
                         icons     = {
-                                diagnostics = Icons.diagnostics,
-                                kinds       = Icons.symbolKinds,
+                                Diagnostics = Icons.Diagnostics,
+                                kinds       = Icons.Kinds,
                                 tree        = {
                                         vertical = " ",
                                         middle   = " ",
@@ -311,18 +320,18 @@ return {
                                 },
                                 files       = {
                                         enabled  = true,
-                                        dir      = Icons.symbolKinds.Folder,
-                                        dir_open = Icons.misc.folderOpen,
-                                        file     = Icons.symbolKinds.File,
+                                        dir      = Icons.Kinds.Folder,
+                                        dir_open = Icons.Misc.folderOpen,
+                                        file     = Icons.Kinds.File,
                                 },
                                 ui          = {
-                                        selected   = Icons.diagnostics.HINT .. " ",
+                                        selected   = Icons.Diagnostics.HINT .. " ",
                                         unselected = "",
                                 },
                                 git         = {
-                                        added     = Icons.git.Added,
-                                        deleted   = Icons.git.Deleted,
-                                        modified  = Icons.git.Modified,
+                                        added     = Icons.Git.Added,
+                                        deleted   = Icons.Git.Deleted,
+                                        modified  = Icons.Git.Modified,
                                         enabled   = true,
                                         commit    = "󰜘 ",
                                         staged    = "●",
@@ -341,11 +350,11 @@ return {
                                                 width     = 0.3,
                                                 height    = 0.45,
                                                 min_width = 60,
-                                                border    = "none",
+                                                border    = none,
                                                 box       = "vertical",
-                                                { win = "input",   height = 1,          border = "rounded", title = "{title} {live} {flags}", title_pos = "center" },
-                                                { win = "list",    border = "bottom" },
-                                                { win = "preview", title = "{preview}", border = "rounded" },
+                                                { win = "input",   height = 1,          border = border,  title = "{title} {live} {flags}", title_pos = "center" },
+                                                { win = "list",    border = bot_empty },
+                                                { win = "preview", title = "{preview}", border = border },
                                         },
                                 },
                                 select   = {
@@ -357,12 +366,12 @@ return {
                                                 height     = 0.4,
                                                 min_height = 10,
                                                 box        = "vertical",
-                                                border     = "rounded",
+                                                border     = border,
                                                 title      = "{title}",
                                                 title_pos  = "center",
-                                                { win = "input",   height = 1,          border = "bottom" },
-                                                { win = "list",    border = "none" },
-                                                { win = "preview", title = "{preview}", height = 0.4,     border = "top" },
+                                                { win = "input",   height = 1,          border = bot },
+                                                { win = "list",    border = none },
+                                                { win = "preview", title = "{preview}", height = 0.4, border = top },
                                         },
                                 },
                                 vertical = {
@@ -373,12 +382,12 @@ return {
                                                 min_width  = 70,
                                                 min_height = 30,
                                                 box        = "vertical",
-                                                border     = "single",
+                                                border     = border,
                                                 title      = "{title} {live} {flags}",
                                                 title_pos  = "center",
-                                                { win = "list",    border = "none" },
-                                                { win = "input",   height = 1,          border = "bottom" },
-                                                { win = "preview", title = "{preview}", height = 0.6,     border = "top" },
+                                                { win = "list",    border = none },
+                                                { win = "input",   height = 1,          border = bot },
+                                                { win = "preview", title = "{preview}", height = 0.6, border = top },
                                         },
                                 },
                                 default  = {
@@ -389,12 +398,12 @@ return {
                                                 height    = 0.9,
                                                 {
                                                         box    = "vertical",
-                                                        border = "rounded",
+                                                        border = border,
                                                         title  = "{title} {live} {flags}",
-                                                        { win = "input", height = 1,     border = "bottom" },
-                                                        { win = "list",  border = "none" },
+                                                        { win = "input", height = 1,   border = bot },
+                                                        { win = "list",  border = none },
                                                 },
-                                                { win = "preview", title = "{preview}", border = "rounded", width = 0.7 },
+                                                { win = "preview", title = "{preview}", border = border, width = 0.7 },
                                         },
                                 },
                                 dropdown = {
@@ -403,16 +412,16 @@ return {
                                                 width     = 0.9,
                                                 height    = 0.9,
                                                 min_width = 80,
-                                                border    = "none",
+                                                border    = none,
                                                 box       = "vertical",
                                                 {
                                                         box       = "vertical",
-                                                        border    = "rounded",
+                                                        border    = border,
                                                         title     = "{title} {live} {flags}",
                                                         title_pos = "center",
-                                                        { win = "input", height = 1,     border = "bottom" },
-                                                        { win = "list",  border = "none" },
-                                                        -- { win  = "preview", title  = "{preview}", height  = 0.6,     border  = "rounded" },
+                                                        { win = "input", height = 1,   border = bot },
+                                                        { win = "list",  border = none },
+                                                        -- { win  = "preview", title  = "{preview}", height  = 0.6, border  = border },
                                                 },
                                         },
                                 },
@@ -424,10 +433,10 @@ return {
                                                 min_width = 20,
                                                 height    = 0,
                                                 position  = "right",
-                                                border    = "none",
+                                                border    = none,
                                                 box       = "vertical",
-                                                { win = "list",    border = "none" },
-                                                { win = "preview", title = "{preview}", height = 0.4, border = "top" },
+                                                { win = "list",    border = none },
+                                                { win = "preview", title = "{preview}", height = 0.4, border = top },
                                         },
                                 },
                         },
@@ -542,7 +551,7 @@ return {
                                 },
                                 { -- NEW FILE
                                         text    = {
-                                                { Icons.misc.newFile .. "  ", hl = button },
+                                                { Icons.Misc.newFile .. "  ", hl = button },
                                                 { "New file",                 hl = label, width = 45 },
                                                 { "[",                        hl = button },
                                                 { "n",                        hl = label },
@@ -555,7 +564,7 @@ return {
                                 },
                                 { -- RECENT FILES
                                         text    = {
-                                                { Icons.misc.recentFile .. "  ", hl = button },
+                                                { Icons.Misc.recentFile .. "  ", hl = button },
                                                 { "Recent files",                hl = label, width = 45 },
                                                 { "[",                           hl = button },
                                                 { "r",                           hl = label },
@@ -568,7 +577,7 @@ return {
                                 },
                                 { -- FIND FILE
                                         text    = {
-                                                { Icons.misc.findFile .. "  ", hl = button },
+                                                { Icons.Misc.findFile .. "  ", hl = button },
                                                 { "Find file",                 hl = label, width = 45 },
                                                 { "[",                         hl = button },
                                                 { "f",                         hl = label },
@@ -581,7 +590,7 @@ return {
                                 },
                                 { -- FIND TEXT
                                         text    = {
-                                                { Icons.misc.findText .. "  ", hl = button },
+                                                { Icons.Misc.findText .. "  ", hl = button },
                                                 { "Find text",                 hl = label, width = 45 },
                                                 { "[",                         hl = button },
                                                 { "w",                         hl = label },
@@ -594,11 +603,11 @@ return {
                                 },
                                 { -- YAZI
                                         text    = {
-                                                { Icons.symbolKinds.Folder .. "  ", hl = button },
-                                                { "Yazi",                           hl = label, width = 45 },
-                                                { "[",                              hl = button },
-                                                { "y",                              hl = label },
-                                                { "]",                              hl = button },
+                                                { Icons.Kinds.Folder .. "  ", hl = button },
+                                                { "Yazi",                     hl = label, width = 45 },
+                                                { "[",                        hl = button },
+                                                { "y",                        hl = label },
+                                                { "]",                        hl = button },
                                         },
                                         action  = "<cmd>Yazi<CR>",
                                         key     = "y",
@@ -607,7 +616,7 @@ return {
                                 },
                                 { -- RESTORE SESSION
                                         text    = {
-                                                { Icons.misc.restore .. "  ", hl = button },
+                                                { Icons.Misc.restore .. "  ", hl = button },
                                                 { "Restore session",          hl = label, width = 45 },
                                                 { "[",                        hl = button },
                                                 { "s",                        hl = label },
@@ -620,7 +629,7 @@ return {
                                 },
                                 { -- CONFIG
                                         text    = {
-                                                { Icons.misc.config .. "  ", hl = button },
+                                                { Icons.Misc.config .. "  ", hl = button },
                                                 { "Config",                  hl = label, width = 45 },
                                                 { "[",                       hl = button },
                                                 { "c",                       hl = label },
@@ -633,7 +642,7 @@ return {
                                 },
                                 { -- LAZY
                                         text    = {
-                                                { Icons.misc.package .. "  ", hl = button },
+                                                { Icons.Misc.package .. "  ", hl = button },
                                                 { "Lazy",                     hl = label, width = 45 },
                                                 { "[",                        hl = button },
                                                 { "l",                        hl = label },
@@ -646,7 +655,7 @@ return {
                                 },
                                 { -- UPDATE
                                         text    = {
-                                                { Icons.misc.newPackage .. "  ", hl = button },
+                                                { Icons.Misc.newPackage .. "  ", hl = button },
                                                 { "Update plugins",              hl = label, width = 45 },
                                                 { "[",                           hl = button },
                                                 { "u",                           hl = label },
@@ -659,7 +668,7 @@ return {
                                 },
                                 { -- QUIT
                                         text    = {
-                                                { Icons.misc.quit .. "  ", hl = button },
+                                                { Icons.Misc.quit .. "  ", hl = button },
                                                 { "Quit",                  hl = label, width = 45 },
                                                 { "[",                     hl = button },
                                                 { "q",                     hl = label },

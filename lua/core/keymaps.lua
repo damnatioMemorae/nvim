@@ -360,8 +360,6 @@ if loaded then
         Snacks.toggle.treesitter({ name = " Treesitter Highlight" }):map("<leader>ot")
         Snacks.toggle.option("conceallevel", { off = 0, on = vim.o.conceallevel > 0 and vim.o.conceallevel or 2 })
                    :map("<leader>oc")
-        Snacks.toggle.diagnostics({ name = "󰨓 LSP Diagnostics" }):map("<leader>od")
-        -- Snacks.toggle.inlay_hints():map("<leader>oh")
         Snacks.toggle.words():map("<leader>ol")
 end
 

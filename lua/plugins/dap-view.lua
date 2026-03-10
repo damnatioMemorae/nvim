@@ -8,7 +8,7 @@ return {
                                 sections          = { "watches", "scopes", "exceptions", "breakpoints", "threads", "repl", "disassembly" },
                         },
                         windows = { size = 0.3, position = "right" },
-                        help    = { border = Config.borderStyle },
+                        help    = { border = Border.borderStyle },
                         icons   = {
                                 collapsed  = "󰅂 ",
                                 disabled   = "",

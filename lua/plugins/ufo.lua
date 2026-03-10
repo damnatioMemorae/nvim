@@ -151,7 +151,7 @@ return {
                 },
                 preview                 = {
                         win_config = {
-                                border       = Config.borderStyle,
+                                border       = Border.borderStyle,
                                 winblend     = 0,
                                 winhighlight = "NormalFloat:NormalFloat",
                         },

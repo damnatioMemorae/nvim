@@ -1,53 +1,116 @@
 local squareFilled = "■"
 local squareEmpty  = "󰝣"
 
-_G.Config = {}
+_G.Config  = {}
+_G.Toggle  = {}
+_G.Icons   = {}
+_G.Colors  = {}
+_G.Border  = {}
+_G.Spinner = {}
 
 ------------------------------------------------------------------------------------------------------------------------
 -- VARIABLES
 
-Config.prefix       = ","
-Config.projects_dir = vim.env.HOME .. "/deeznuts/"
-Config.backdrop     = 80
-Config.blend        = 0
-Config.winblend     = 0
-Config.localRepos   = vim.fs.normalize("$HOME/deeznuts/")
+Config.prefix      = ","
+Config.projectsDir = vim.env.HOME .. "/deeznuts/"
+Config.backdrop    = 80
+Config.blend       = 0
+Config.winblend    = 0
+Config.localRepos  = vim.fs.normalize("$HOME/deeznuts/")
 
-Config.code_lens   = true
-Config.inlay_hints = true
-Config.indent_line = true
-
-------------------------------------------------------------------------------------------------------------------------
--- FUNCTION
-
-_G.Functions = {}
-
----@param option? any
----@param msg? string
-Functions.toggle = function(option, msg)
-        option = not option
-        msg    = Icons.diagnostics.INFO .. " " .. msg
-
-        if option then
-                vim.notify(msg .. " - " .. "Enabled")
-        else
-                vim.notify(msg .. " - " .. "Disabled")
-        end
-end
+Config.codeLens    = true
+Config.diagnostics = true
+Config.inlayHints  = true
+Config.indentLine  = true
 
 ------------------------------------------------------------------------------------------------------------------------
 -- BORDERS
 
-Config.borderStyle       = { " ", " ", " ", " ", " ", " ", " ", " " }
-Config.borderTop         = { "▔", "▔", "▔", " ", " ", " ", " ", " " }
-Config.borderBottom      = { " ", " ", " ", " ", "▂", "▂", "▂", " " }
-Config.borderLeft        = { "▌", " ", " ", " ", " ", " ", "▌", "▌" }
-Config.borderRight       = { " ", " ", "🮉", "🮉", "🮉", " ", " ", " " }
-Config.borderTopEmpty    = { "", "", "", "", "", "", "", "" }
-Config.borderBottomEmpty = { "", "", "", "", "▂", "▂", "▂", "" }
-Config.borderLeftEmpty   = { "▌", "", "", "", "", "", "▌", "▌" }
-Config.borderRightEmpty  = { "", "", "🮉", "🮉", "🮉", "", "", "" }
-Config.borderStyleNone   = "none"
+Border.borderStyle       = { " ", " ", " ", " ", " ", " ", " ", " " }
+Border.borderTop         = { "▔", "▔", "▔", " ", " ", " ", " ", " " }
+Border.borderBottom      = { " ", " ", " ", " ", "▂", "▂", "▂", " " }
+Border.borderLeft        = { "▌", " ", " ", " ", " ", " ", "▌", "▌" }
+Border.borderRight       = { " ", " ", "🮉", "🮉", "🮉", " ", " ", " " }
+Border.borderTopEmpty    = { "", "", "", "", "", "", "", "" }
+Border.borderBottomEmpty = { "", "", "", "", "▂", "▂", "▂", "" }
+Border.borderLeftEmpty   = { "▌", "", "", "", "", "", "▌", "▌" }
+Border.borderRightEmpty  = { "", "", "🮉", "🮉", "🮉", "", "", "" }
+Border.borderStyleNone   = "none"
+
+------------------------------------------------------------------------------------------------------------------------
+-- SPINNERS
+
+Spinner.dots     = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" }
+Spinner.vertical = { "▁", "▂", "▃", "▄", "▅", "▆", "▇", "█" }
+
+------------------------------------------------------------------------------------------------------------------------
+-- TOGGLES
+
+function Toggle.codeLens()
+        local loaded, symbol = pcall(require, "symbol-usage")
+
+        Config.codeLens = not Config.codeLens
+        local msg       = Icons.Misc.reference .. " " .. "CodeLens - "
+
+        if loaded and Config.codeLens then
+                symbol.toggle_globally()
+                symbol.refresh()
+                vim.notify(msg .. "Enabled", vim.log.levels.INFO)
+        else
+                symbol.toggle_globally()
+                symbol.refresh()
+                vim.notify(msg .. "Disabled", vim.log.levels.INFO)
+        end
+end
+
+function Toggle.inlayHints()
+        local loaded, endhints = pcall(require, "lsp-endhints")
+
+        Config.inlayHints = not Config.inlayHints
+        local msg         = Icons.Kinds.Parameter .. " " .. "Inlay Hints - "
+
+        if loaded and Config.inlayHints then
+                endhints.enable()
+                vim.lsp.inlay_hint.enable(Config.inlayHints)
+                vim.notify(msg .. "Enabled", vim.log.levels.INFO)
+        else
+                endhints.disable()
+                vim.lsp.inlay_hint.enable(Config.inlayHints)
+                vim.notify(msg .. "Disabled", vim.log.levels.INFO)
+        end
+end
+
+function Toggle.indentLine()
+        local loaded, ibl = pcall(require, "ibl")
+
+        Config.indentLine = not Config.indentLine
+        local msg         = Icons.Misc.verticalBar .. " " .. "Indent Lines - "
+
+        if loaded and Config.indentLine then
+                ibl.update({ enabled = Config.indentLine })
+                vim.notify(msg .. "Enabled",                vim.log.levels.INFO)
+        else
+                ibl.update({ enabled = Config.indentLine })
+                vim.notify(msg .. "Disabled",               vim.log.levels.INFO)
+        end
+end
+
+function Toggle.diagnostics()
+        local loaded, diagnostics = pcall(require, "tiny-inline-diagnostic")
+
+        Config.diagnostics = not Config.diagnostics
+        local msg          = Icons.Diagnostics.ERROR .. " " .. "Diagnostics - "
+
+        if loaded and Config.diagnostics then
+                diagnostics.enable()
+                vim.diagnostic.enable(Config.diagnostics)
+                vim.notify(msg .. "Enabled", vim.log.levels.INFO)
+        else
+                diagnostics.disable()
+                vim.diagnostic.enable(Config.diagnostics)
+                vim.notify(msg .. "Disabled", vim.log.levels.INFO)
+        end
+end
 
 ------------------------------------------------------------------------------------------------------------------------
 --[[ TREESITTER
@@ -80,10 +143,7 @@ vim.o.findfunc = "v:lua.fuzzySearch"
 ------------------------------------------------------------------------------------------------------------------------
 -- ICONS
 
-_G.Icons = {}
-
----@enum DIAGNOSTICS
-Icons.diagnostics = {
+Icons.Diagnostics = {
         ERROR = squareFilled,
         WARN  = squareFilled,
         INFO  = squareFilled,
@@ -101,8 +161,7 @@ Icons.diagnostics = {
 
 }
 
----@enum NOTIFIER
-Icons.notifier = {
+Icons.Notifier = {
         error = squareFilled,
         warn  = squareFilled,
         info  = squareFilled,
@@ -110,8 +169,7 @@ Icons.notifier = {
         trace = squareFilled,
 }
 
----@enum FOLDING
-Icons.arrows = {
+Icons.Arrows = {
         close      = "+",
         open       = "-",
         right      = "",
@@ -122,8 +180,7 @@ Icons.arrows = {
         rightArrow = ">",
 }
 
----@enum LSP KINDS
-Icons.symbolKinds = {
+Icons.Kinds = {
         Array             = "󰅪",
         Boolean           = "",
         BreakStatement    = "󰙧",
@@ -202,8 +259,7 @@ Icons.symbolKinds = {
         WhileStatement    = "󰑖",
 }
 
----@enum LSP2 KINDS
-Icons.symbolKindsAlt = {
+Icons.KindsAlt = {
         Text          = "󰉿",
         Method        = "󰊕",
         Function      = "󰊕",
@@ -233,8 +289,7 @@ Icons.symbolKindsAlt = {
 
 }
 
----@enum DEVICONS
-Icons.devicons = {
+Icons.Devicons = {
         Array             = "󰅪 ",
         Boolean           = " ",
         BreakStatement    = "󰙧 ",
@@ -307,8 +362,7 @@ Icons.devicons = {
         WhileStatement    = "󰑖 ",
 }
 
----@enum MISC
-Icons.misc = {
+Icons.Misc = {
         newFile    = "󰻭",
         recentFile = "󰕁",
         findFile   = "󰱽",
@@ -338,14 +392,7 @@ Icons.misc = {
         squareEmpty    = squareEmpty,
 }
 
----@enum SPINNER
-Icons.spinner = {
-        dots     = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" },
-        vertical = { "▁", "▂", "▃", "▄", "▅", "▆", "▇", "█" },
-}
-
----@enum GIT
-Icons.git = {
+Icons.Git = {
         Git      = "",
         Added    = squareFilled,
         Modified = squareEmpty,
@@ -354,8 +401,6 @@ Icons.git = {
 
 ------------------------------------------------------------------------------------------------------------------------
 -- COLORS
-
-_G.Colors = {}
 
 Colors.Darkppuccin = {
         ivory     = "#dce0e8",

@@ -25,7 +25,7 @@ return {
                 jump   = { nohlsearch = true },
                 prompt = {
                         win_config = {
-                                border = Config.borderStyle,
+                                border = Border.borderStyle,
                                 row    = -3,
                         },
                 },

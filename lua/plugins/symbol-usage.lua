@@ -1,24 +1,7 @@
 return {
         "Wansmer/symbol-usage.nvim",
         event  = "VeryLazy",
-        keys   = {
-                { "<leader>os", function()
-                        local symbol = require("symbol-usage")
-
-                        Config.code_lens = not Config.code_lens
-                        local str       = Icons.diagnostics.INFO .. " " .. "codeLens - "
-
-                        if Config.code_lens then
-                                symbol.toggle_globally()
-                                symbol.refresh()
-                                vim.notify(str .. "Enabled", vim.log.levels.INFO)
-                        else
-                                symbol.toggle_globally()
-                                symbol.refresh()
-                                vim.notify(str .. "Disabled", vim.log.levels.INFO)
-                        end
-                end },
-        },
+        keys   = { { "<leader>os", Toggle.codeLens, desc = "LSP Codelens - Toggle" } },
         config = function()
                 local bg        = {}
                 -- local bg        = "LspInlayHint"
@@ -64,17 +47,17 @@ return {
 
                         if symbol.definition then
                                 if #res > 0 then table.insert(res, { " ", "NonText" }) end
-                                insert(Icons.misc.definiton, symbol.definition, "Def")
+                                insert(Icons.Misc.definiton, symbol.definition, "Def")
                         end
 
                         if symbol.references then
                                 if #res > 0 then table.insert(res, { " ", "NonText" }) end
-                                insert(Icons.misc.reference, symbol.definition, "Ref")
+                                insert(Icons.Misc.reference, symbol.definition, "Ref")
                         end
 
                         if symbol.implementation then
                                 if #res > 0 then table.insert(res, { " ", "NonText" }) end
-                                insert(Icons.misc.implementation, symbol.implementation, "Impl")
+                                insert(Icons.Misc.implementation, symbol.implementation, "Impl")
                         end
 
                         if stacked_functions_content ~= "" then
@@ -92,11 +75,8 @@ return {
 
                 require("symbol-usage").setup({
                         text_format    = text_format,
-                        -- text_format    = drawSymbol,
-                        -- vt_position    = "textwidth",
                         vt_position    = "end_of_line",
-                        -- vt_position    = "above",
-                        vt_priority    = 1000,
+                        vt_priority    = 2000,
                         references     = { enabled = true, include_declaration = false },
                         definition     = { enabled = true },
                         implementation = { enabled = true },

@@ -21,9 +21,9 @@ return {
                         accept        = { auto_brackets = { enabled = false } },
                         documentation = {
                                 auto_show          = true,
-                                auto_show_delay_ms = 50,
+                                auto_show_delay_ms = 1,
                                 window             = {
-                                        border    = Config.borderStyle,
+                                        border    = Border.borderStyle,
                                         scrollbar = false,
                                 },
                         },
@@ -44,9 +44,8 @@ return {
                         menu          = {
                                 max_height         = 40,
                                 -- max_height         = 90,
-                                -- border             = Config.borderEmpty,
-                                border             = Config.borderStyle,
-                                -- border             = Config.borderRight,
+                                border             = Border.borderEmpty,
+                                -- border             = Border.borderStyle,
                                 winblend           = Config.blend,
                                 scrolloff          = 4,
                                 scrollbar          = false,
@@ -222,7 +221,7 @@ return {
                 appearance = {
                         nerd_font_variant = "normal",
                         -- kind_icons        = require("core.icons").symbolKinds,
-                        kind_icons        = Icons.symbolKinds
+                        kind_icons        = Icons.Kinds
                 },
                 signature  = {
                         enabled = true,

@@ -8,14 +8,14 @@ return {
                 validate_config = "always",
                 sign            = {
                         enabled   = true,
-                        text      = Icons.misc.lightbulb,
-                        lens_text = Icons.diagnostics.Info,
+                        text      = Icons.Misc.lightbulb,
+                        lens_text = Icons.Diagnostics.Info,
                         hl        = "LightBulbSign",
                 },
                 virtual_text    = {
                         enabled   = false,
-                        text      = " " .. Icons.misc.lightbulb,
-                        lens_text = Icons.diagnostics.Info,
+                        text      = " " .. Icons.Misc.lightbulb,
+                        lens_text = Icons.Diagnostics.Info,
                         pos       = "eol",
                         hl_mode   = "combine",
                         hl        = "LightBulbSign",

@@ -49,5 +49,5 @@ return {
                 }
         end,
 
-        filetypes = { "lua", "markdown" },
+        filetypes = { "lua" },
 }

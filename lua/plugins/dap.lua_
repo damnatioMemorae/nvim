@@ -28,7 +28,7 @@ return {
                 ui.setup({
                         expand_lines = true,
                         -- controls       = { enabled   = false },
-                        floating     = { border = "single" },
+                        floating     = { border = Border.borderStyle },
                         render       = {
                                 max_type_length = 60,
                                 max_value_lines = 200,

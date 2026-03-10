@@ -17,7 +17,7 @@ return {
         opts = {
                 popupWin        = {
                         title                   = "",
-                        border                  = Config.borderStyle,
+                        border                  = Border.borderStyle,
                         position                = "top",
                         hideSearchReplaceLabels = true,
                         hideKeymapHints         = true,

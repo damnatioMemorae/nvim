@@ -52,7 +52,7 @@ return {
                         min_width    = 30,
                         height       = 50,
                         min_height   = 10,
-                        border       = Config.borderStyle,
+                        border       = Border.borderStyle,
                         winhl        = "NormalFloat:NormalFloat",
                         winblend     = Config.blend,
                         live         = true,

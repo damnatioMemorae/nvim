@@ -63,7 +63,7 @@ return {
                                                 icon      = "",
                                                 color     = { fg = colors.spark, bg = colors.crust },
                                                 symbols   = {
-                                                        spinner = Icons.spinner.dots,
+                                                        spinner = Spinner.dots,
                                                         done    = "🬁",
                                                 },
                                                 show_name = false,

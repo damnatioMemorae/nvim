@@ -76,7 +76,7 @@ return {
                         --         "github:mason-org/mason-registry",
                         -- },
                         ui = {
-                                border   = Config.borderStyle,
+                                border   = Border.borderStyle,
                                 height   = 0.9,
                                 width    = 0.8,
                                 backdrop = Config.backdrop,

@@ -19,7 +19,7 @@ return {
                         },
                         indent                = { enable = true, disable = { "markdown" } },
                         textobjects           = {
-                                lsp_interop = { enable = true, border = Config.borderStyle },
+                                lsp_interop = { enable = true, border = Border.borderStyle },
                                 select      = { lookahead = true, include_surrounding_whitespace = false },
                         },
                         incremental_selection = {

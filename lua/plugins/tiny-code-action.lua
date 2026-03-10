@@ -7,7 +7,7 @@ return {
                 picker  = {
                         "buffer",
                         opts = {
-                                winborder    = Config.borderStyle,
+                                winborder    = Border.borderStyle,
                                 auto_preview = false,
                                 auto_accept  = true,
                                 hotkeys      = true,
@@ -16,8 +16,8 @@ return {
                 },
                 notify  = { enabled = false },
                 signs   = {
-                        quickfix                   = { Icons.misc.quickfix, { link = "DiagnosticInfo" } },
-                        others                     = { Icons.misc.offSpec, { link = "DiagnosticWarning" } },
+                        quickfix                   = { Icons.Misc.quickfix, { link = "DiagnosticInfo" } },
+                        others                     = { Icons.Misc.offSpec, { link = "DiagnosticWarning" } },
                         refactor                   = { "", { link = "DiagnosticWarning" } },
                         ["refactor.move"]          = { "", { link = "DiagnosticInfo" } },
                         ["refactor.extract"]       = { "", { link = "DiagnosticError" } },
@@ -25,7 +25,7 @@ return {
                         ["source.fixAll"]          = { "", { link = "TelescopeResultVariable" } },
                         ["source"]                 = { "", { link = "DiagnosticError" } },
                         ["rename"]                 = { "", { link = "DiagnosticWarning" } },
-                        ["codeAction"]             = { Icons.misc.lightbulb, { link = "DiagnosticError" } },
+                        ["codeAction"]             = { Icons.Misc.lightbulb, { link = "DiagnosticError" } },
                 },
         },
 }

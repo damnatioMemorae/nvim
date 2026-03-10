@@ -21,7 +21,7 @@ local lsp_servers = {
         "superhtml",
         "ts_ls",
         "yamlls",
-        "hover-ls",
+        -- "hover-ls",
 }
 
 vim.lsp.config("*", { root_markers = { ".git" } })
@@ -94,7 +94,7 @@ handlers[methods["textDocument_rename"]] = function(err, result, ctx, config)
         if #changed_files > 1 then
                 msg = ("**%s in [%d] files**\n%s"):format(msg, #changed_files, table.concat(changed_files, "\n"))
         end
-        vim.notify(msg, nil, { title = "Renamed with LSP", icon = Icons.symbolKinds.Parameter })
+        vim.notify(msg, nil, { title = "Renamed with LSP", icon = Icons.Kinds.Parameter })
 
         if #changed_files > 1 then vim.cmd.wall() end
 end
@@ -107,13 +107,13 @@ local anchor_bias = "below"
 local relative    = "cursor"
 local wrap        = true
 local max_height  = math.floor(vim.o.lines * 0.7)
-local max_width   = math.floor(vim.o.columns * 0.8)
+local max_width   = math.floor(vim.o.columns * 0.6)
 
 local hover       = vim.lsp.buf.hover
 ---@diagnostic disable-next-line: duplicate-set-field
 vim.lsp.buf.hover = function()
         return hover{
-                border      = Config.borderStyle,
+                border      = Border.borderStyle,
                 -- title       = Icons.symbolKinds.Parameter .. " " .. "Hover",
                 title       = "",
                 title_pos   = title_pos,
@@ -129,7 +129,7 @@ local signature_help       = vim.lsp.buf.signature_help
 ---@diagnostic disable-next-line: duplicate-set-field
 vim.lsp.buf.signature_help = function()
         return signature_help{
-                border      = Config.borderStyle,
+                border      = Border.borderStyle,
                 -- title       = Icons.symbolKinds.Function .. " " .. "Signature Help",
                 title       = "",
                 title_pos   = title_pos,
@@ -148,14 +148,14 @@ vim.diagnostic.open_float = function()
                 title_pos     = "left",
                 -- title         = Icons.diagnostics.ERROR .. " " .. "Diagnostics",
                 title         = "",
-                border        = Config.borderStyle,
+                border        = Border.borderStyle,
                 scope         = "cursor",
                 severity_sort = true,
                 source        = true,
         }
 end
 
---
+------------------------------------------------------------------------------------------------------------------------
 --[[ LSP PROGRESS
 
 local progress = vim.defaulttable()
@@ -186,7 +186,7 @@ vim.api.nvim_create_autocmd("LspProgress", {
                 local msg           = {}
                 progress[client.id] = vim.tbl_filter(function(v) return table.insert(msg, v.msg) or not v.done end, p)
 
-                local spinner = Icons.spinner.dots
+                local spinner = Spinner.dots
 
                 vim.notify(table.concat(msg, "\n"), "info", { ---@diagnostic disable-line: param-type-mismatch
                         id    = "lsp_progress",
