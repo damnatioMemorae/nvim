@@ -1,9 +1,7 @@
-local hl = "DiagnosticVirtualText"
-
 return {
         "rachartier/tiny-inline-diagnostic.nvim",
         event    = "VeryLazy",
-        priority = 2001,
+        priority = 8000,
         keys     = { { "<leader>od", Toggle.diagnostics, desc = "LSP Diagnostics - Toggle" } },
         opts     = {
                 signs   = {
@@ -16,14 +14,6 @@ return {
                         vertical_end = " └",
                 },
                 blend   = { factor = 0.25 },
-                hi      = {
-                        error = hl .. "Error",
-                        warn  = hl .. "Warn",
-                        info  = hl .. "Info",
-                        hint  = hl .. "Hint",
-                        -- background   = "NormalFloat",
-                        -- mixing_color = "NormalFloat",
-                },
                 options = {
                         show_source                  = true,
                         throttle                     = 0,
@@ -34,20 +24,37 @@ return {
                         enable_on_select             = false,
                         overwrite_events             = nil,
                         override_open_float          = true,
-                        add_messages                 = { messages = false, display_count = true, show_multiple_glyphs = true },
+                        add_messages                 = { messages = true, display_count = false, show_multiple_glyphs = true },
                         multilines                   = { enabled = true, trim_whitespaces = true },
                         show_related                 = { enabled = true, max_count = 5 },
                         overflow                     = { mode = "wrap" },
                         break_line                   = { enabled = false, after = 40 },
-                        virt_texts                   = { priority = 2001 },
+                        virt_texts                   = { priority = 8000 },
                         experimental                 = { use_window_local_extmarks = true },
                         format                       = function(diag)
-                                return diag.message:sub(1, -2)
+                                -- return diag.message:sub(1, -2)
+                                return diag.message:sub(1, -2) .. " " .. "[" .. diag.source:sub(1, -2) .. "]"
                         end,
                 },
         },
         config   = function(_, opts)
                 require("tiny-inline-diagnostic").setup(opts)
                 vim.diagnostic.config({ virtual_text = false })
+
+                local name = { "Error", "Warn", "Info", "Hint" }
+                for _, hl in pairs(name) do
+                        local tiny      = "TinyInlineDiagnosticVirtualText" .. hl
+                        local diag      = "DiagnosticVirtualText" .. hl
+                        local underline = "DiagnosticUnderline" .. hl
+                        local bg        = vim.api.nvim_get_hl(0, { name = diag }).bg
+
+                        vim.api.nvim_set_hl(0, tiny, { link = diag })
+
+                        vim.api.nvim_set_hl(0, underline, { bg = bg })
+
+                        for _, mix in pairs(name) do
+                                vim.api.nvim_set_hl(0, tiny .. "Mix" .. mix, { link = diag })
+                        end
+                end
         end,
 }

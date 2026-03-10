@@ -76,7 +76,7 @@ return {
                 { -- OPEN ALL
                         "<A-C-right>",
                         function()
-                                require("ufo").openFoldsExceptKinds{}
+                                require("ufo").openFoldsExceptKinds({})
                                 cmd()
                         end,
                         mode = modes,

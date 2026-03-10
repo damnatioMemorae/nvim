@@ -50,6 +50,12 @@ function M.supportsMethod(client)
         end
 end
 
+---@param name string
+function M.getHl(name)
+        return vim.api.nvim_get_hl(0, { name = name })
+end
+
+
 -- craftzdog/utils.lua
 -- https://github.com/EmmanuelOga/columns/blob/master/utils/color.lua
 
