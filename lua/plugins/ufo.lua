@@ -1,4 +1,5 @@
-local mode = { "n", "x" }
+local mode = { "n", "x", "o", "v" }
+
 function cmd()
         vim.cmd.normal("^zz")
 end
@@ -8,120 +9,54 @@ return {
         lazy         = false,
         dependencies = "kevinhwang91/promise-async",
         keys         = {
-                { "<leader>if", function() require("ufo").inspect() end, cmd(), desc = " Fold Info" },
+                { "<leader>if", function() require("ufo").inspect() end, desc = " Fold Info" },
                 { -- 0
                         "<A-0>",
-                        function()
-                                require("ufo").closeFoldsWith(0)
-                                cmd()
-                        end,
+                        function() require("ufo").closeFoldsWith(0) end,
                         mode = mode,
                         desc = " Close L0 Folds",
                 },
                 { -- 1
                         "<A-1>",
-                        function()
-                                require("ufo").closeFoldsWith(1)
-                                cmd()
-                        end,
+                        function() require("ufo").closeFoldsWith(1) end,
                         mode = mode,
                         desc = "d Close L1 Folds",
                 },
                 { -- 2
                         "<A-2>",
-                        function()
-                                require("ufo").closeFoldsWith(2)
-                                cmd()
-                        end,
+                        function() require("ufo").closeFoldsWith(2) end,
                         mode = mode,
                         desc = " Close L2 Folds",
                 },
                 { -- 3
                         "<A-3>",
-                        function()
-                                require("ufo").closeFoldsWith(3)
-                                cmd()
-                        end,
+                        function() require("ufo").closeFoldsWith(3) end,
                         mode = mode,
                         desc = " Close L3 Folds",
                 },
                 { -- 4
                         "<A-4>",
-                        function()
-                                require("ufo").closeFoldsWith(4)
-                                cmd()
-                        end,
+                        function() require("ufo").closeFoldsWith(4) end,
                         mode = mode,
                         desc = " Close L4 Folds",
                 },
                 { -- 5
                         "<A-5>",
-                        function()
-                                require("ufo").closeFoldsWith(5)
-                                cmd()
-                        end,
+                        function() require("ufo").closeFoldsWith(5) end,
                         mode = mode,
                         desc = " Close L5 Folds",
                 },
                 { -- 6
                         "<A-6>",
-                        function()
-                                require("ufo").closeFoldsWith(6)
-                                cmd()
-                        end,
+                        function() require("ufo").closeFoldsWith(6) end,
                         mode = mode,
                         desc = " Close L5 Folds",
                 },
-                { -- CLOSE ALL FOLDS
-                        "<A-H>",
-                        "zM^zz",
-                        mode = "n",
-                        desc = " Close All Folds",
-                },
-                { -- OPEN ALL FOLDS
-                        "<A-L>",
-                        "zR^zz",
-                        mode = "n",
-                        desc = " Open All Folds",
-                },
-                { -- CLOSE FOLD
-                        "<A-Left>",
-                        "zc^zz",
-                        mode = "n",
-                        desc = "Close Fold",
-                },
-                { -- OPEN FOLD
-                        "<A-Right>",
-                        "zo^zz",
-                        mode = "n",
-                        desc = "Open Fold",
-                },
-                { -- FOLD MORE
-                        "<A-,>",
-                        "zm^zz",
-                        mode = "n",
-                        desc = "Close Fold",
-                },
-                { -- REDUCE FOLD
-                        "<A-.>",
-                        "zr^zz",
-                        mode = "n",
-                        desc = "Close Fold",
-                },
                 { -- GOTO PREVIOUS FOLD START
                         "<A-Up>",
-                        function()
-                                require("ufo").goPreviousStartFold()
-                                cmd()
-                        end,
+                        function() require("ufo").goPreviousStartFold() end,
                         mode = mode,
                         desc = " Goto Previous Fold",
-                },
-                { -- GOTO NEXT FOLD
-                        "<A-Down>",
-                        "zj^zz",
-                        mode = mode,
-                        desc = "Goto Next Fold",
                 },
                 { -- FOLD PREVIEW
                         "<A-p>",

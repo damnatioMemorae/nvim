@@ -42,7 +42,7 @@ local customCol = function(C)
                 CurSearch                  = { fg = colors.teal, bg = colors.base },
                 -- CursorColumn                  = { bg = colors.},
                 -- Cursor                           = { fg = colors.crust, bg = colors.red },
-                CursorLine                 = { link = "Visual" },
+                CursorLine                 = { fg = "none", bg = "none" },
                 CursorLineNr               = { fg = colors.ivory },
                 Define                     = { fg = colors.pink },
                 Directory                  = { fg = colors.ivory },
