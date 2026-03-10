@@ -52,6 +52,18 @@ return {
                         mode = mode,
                         desc = " Close L5 Folds",
                 },
+                { -- CLOSE ALL FOLDS
+                        "<A-C-Left>",
+                        function() require("ufo").closeAllFolds() end,
+                        mode = mode,
+                        desc = " Close L5 Folds",
+                },
+                { -- OPEN ALL FOLDS
+                        "<A-C-Right>",
+                        function() require("ufo").openAllFolds() end,
+                        mode = mode,
+                        desc = " Close L5 Folds",
+                },
                 { -- GOTO PREVIOUS FOLD START
                         "<A-Up>",
                         function() require("ufo").goPreviousStartFold() end,
@@ -72,7 +84,7 @@ return {
                 vim.opt.foldcolumn     = "0"
                 vim.opt.foldlevel      = 99
                 vim.opt.foldlevelstart = 99
-                vim.opt.foldenable     = true
+                vim.opt.foldenable     = false
         end,
         opts         = {
                 open_fold_hl_timeout    = 0,

@@ -80,8 +80,8 @@ require("lazy.view.config").keys.details = "<Tab>"
 
 local map = require("core.utils").uniqueKeymap
 
-map("n", "<leader>pp", require("lazy").sync, { desc = "󰒲 Lazy Sync" })
-map("n", "<leader>pl", require("lazy").home, { desc = "󰒲 Lazy Home" })
+map("n", "<leader>pp", require("lazy").sync,    { desc = "󰒲 Lazy Sync" })
+map("n", "<leader>pl", require("lazy").home,    { desc = "󰒲 Lazy Home" })
 map("n", "<leader>pi", require("lazy").install, { desc = "󰒲 Lazy Install" })
 
 local pluginTypeIcons = {
