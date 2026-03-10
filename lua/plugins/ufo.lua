@@ -1,13 +1,12 @@
+local mode = { "n", "x" }
 function cmd()
         vim.cmd.normal("^zz")
 end
 
-local modes = { "n", "x" }
-
 return {
         "kevinhwang91/nvim-ufo",
+        lazy         = false,
         dependencies = "kevinhwang91/promise-async",
-        event        = "BufEnter",
         keys         = {
                 { "<leader>if", function() require("ufo").inspect() end, cmd(), desc = " Fold Info" },
                 { -- 0
@@ -16,7 +15,7 @@ return {
                                 require("ufo").closeFoldsWith(0)
                                 cmd()
                         end,
-                        mode = modes,
+                        mode = mode,
                         desc = " Close L0 Folds",
                 },
                 { -- 1
@@ -25,7 +24,7 @@ return {
                                 require("ufo").closeFoldsWith(1)
                                 cmd()
                         end,
-                        mode = modes,
+                        mode = mode,
                         desc = "d Close L1 Folds",
                 },
                 { -- 2
@@ -34,7 +33,7 @@ return {
                                 require("ufo").closeFoldsWith(2)
                                 cmd()
                         end,
-                        mode = modes,
+                        mode = mode,
                         desc = " Close L2 Folds",
                 },
                 { -- 3
@@ -43,7 +42,7 @@ return {
                                 require("ufo").closeFoldsWith(3)
                                 cmd()
                         end,
-                        mode = modes,
+                        mode = mode,
                         desc = " Close L3 Folds",
                 },
                 { -- 4
@@ -52,7 +51,7 @@ return {
                                 require("ufo").closeFoldsWith(4)
                                 cmd()
                         end,
-                        mode = modes,
+                        mode = mode,
                         desc = " Close L4 Folds",
                 },
                 { -- 5
@@ -61,7 +60,7 @@ return {
                                 require("ufo").closeFoldsWith(5)
                                 cmd()
                         end,
-                        mode = modes,
+                        mode = mode,
                         desc = " Close L5 Folds",
                 },
                 { -- 6
@@ -70,35 +69,44 @@ return {
                                 require("ufo").closeFoldsWith(6)
                                 cmd()
                         end,
-                        mode = modes,
+                        mode = mode,
                         desc = " Close L5 Folds",
                 },
-                { -- OPEN ALL
-                        "<A-C-right>",
-                        function()
-                                require("ufo").openFoldsExceptKinds({})
-                                cmd()
-                        end,
-                        mode = modes,
-                        desc = " Open All Folds",
-                },
-                { -- CLOSE ALL
-                        "<A-C-left>",
-                        function()
-                                require("ufo").closeAllFolds()
-                                cmd()
-                        end,
-                        mode = modes,
+                { -- CLOSE ALL FOLDS
+                        "<A-H>",
+                        "zM^zz",
+                        mode = "n",
                         desc = " Close All Folds",
                 },
-                { -- FOLD PREVIEW
+                { -- OPEN ALL FOLDS
+                        "<A-L>",
+                        "zR^zz",
+                        mode = "n",
+                        desc = " Open All Folds",
+                },
+                { -- CLOSE FOLD
+                        "<A-Left>",
+                        "zc^zz",
+                        mode = "n",
+                        desc = "Close Fold",
+                },
+                { -- OPEN FOLD
+                        "<A-Right>",
+                        "zo^zz",
+                        mode = "n",
+                        desc = "Open Fold",
+                },
+                { -- FOLD MORE
                         "<A-,>",
-                        function()
-                                local winid = require("ufo").peekFoldedLinesUnderCursor()
-                                if not winid then vim.lsp.buf.hover() end
-                                cmd()
-                        end,
-                        desc = " Fold Preview",
+                        "zm^zz",
+                        mode = "n",
+                        desc = "Close Fold",
+                },
+                { -- REDUCE FOLD
+                        "<A-.>",
+                        "zr^zz",
+                        mode = "n",
+                        desc = "Close Fold",
                 },
                 { -- GOTO PREVIOUS FOLD START
                         "<A-Up>",
@@ -106,26 +114,23 @@ return {
                                 require("ufo").goPreviousStartFold()
                                 cmd()
                         end,
-                        mode = modes,
+                        mode = mode,
                         desc = " Goto Previous Fold",
                 },
                 { -- GOTO NEXT FOLD
                         "<A-Down>",
                         "zj^zz",
-                        mode = modes,
+                        mode = mode,
                         desc = "Goto Next Fold",
                 },
-                { -- CLOSE FOLD
-                        "<A-Left>",
-                        "zc^zz",
-                        mode = modes,
-                        desc = "Close Fold",
-                },
-                { -- OPEN FOLD
-                        "<A-Right>",
-                        "zo^zz",
-                        mode = modes,
-                        desc = "Open Fold",
+                { -- FOLD PREVIEW
+                        "<A-p>",
+                        function()
+                                local winid = require("ufo").peekFoldedLinesUnderCursor()
+                                if not winid then vim.lsp.buf.hover() end
+                                cmd()
+                        end,
+                        desc = " Fold Preview",
                 },
         },
         init         = function()
