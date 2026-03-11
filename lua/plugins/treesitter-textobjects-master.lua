@@ -5,7 +5,6 @@ local modes   = { "n", "v", "x", "o" }
 return {
         "nvim-treesitter/nvim-treesitter-textobjects",
         branch       = "master",
-        event        = "VeryLazy",
         cmd          = {
                 "TSTextobjectSelect",
                 "TSTextobjectSwapNext",

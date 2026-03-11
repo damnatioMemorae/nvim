@@ -1,6 +1,6 @@
 return {
         "saghen/blink.cmp",
-        lazy         = false,
+        event        = "LspAttach",
         build        = "cargo build --release",
         dependencies = {
                 { "niuiic/blink-cmp-rg.nvim" },
@@ -43,9 +43,7 @@ return {
                         },
                         menu          = {
                                 max_height         = 40,
-                                -- max_height         = 90,
                                 border             = Border.borderEmpty,
-                                -- border             = Border.borderStyle,
                                 winblend           = Config.blend,
                                 scrolloff          = 4,
                                 scrollbar          = false,
@@ -73,7 +71,6 @@ return {
                                                         text = function(ctx)
                                                                 if ctx.source_id == "cmdline" then return end
                                                                 return ctx.source_name:sub(1, 4)
-                                                                -- return "[" .. ctx.source_name:sub(1, 4) .. "]"
                                                         end,
                                                 },
                                         },
@@ -124,7 +121,6 @@ return {
                                                 use_show_condition    = true,
                                                 use_label_description = true,
                                         },
-                                        -- score_offset = 140,
                                         score_offset = -1,
                                 },
                                 lsp      = {
@@ -220,8 +216,7 @@ return {
                 },
                 appearance = {
                         nerd_font_variant = "normal",
-                        -- kind_icons        = require("core.icons").symbolKinds,
-                        kind_icons        = Icons.Kinds
+                        kind_icons        = Icons.Kinds,
                 },
                 signature  = {
                         enabled = true,

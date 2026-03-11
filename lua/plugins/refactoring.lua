@@ -1,6 +1,6 @@
 return {
         "ThePrimeagen/refactoring.nvim",
-        lazy   = false,
+        event  = "VeryLazy",
         config = function()
                 require("refactoring").setup({
                         prompt_func_return_type = {
@@ -33,15 +33,16 @@ return {
                 local map      = vim.keymap.set
                 local refactor = require("refactoring")
                 local opts     = { expr = true }
-                local modes    = { "n", "x" }
+                local mode     = { "n", "x" }
 
-                map(modes, "<leader>fi", function() return refactor.refactor("Inline Variable") end,               opts)
-                map(modes, "<leader>fe", function() return refactor.refactor("Extract Variable") end,              opts)
-                map(modes, "<leader>fu", function() return refactor.refactor("Extract Function") end,              opts)
-                map(modes, "<leader>fU", function() return refactor.refactor("Extract Function To File") end,      opts)
-                map(modes, ",z",         function() return refactor.select_refactor({ prefer_ex_cmd = true }) end)
-                map("n",   "<leader>rp", function() return refactor.debug.printf({ below = false }) end)
-                map(modes, "<leader>rv", function() return refactor.debug.print_var() end)
-                map("n",   "<leader>rc", function() return refactor.debug.cleanup() end)
+                map(mode, "<leader>fi", function() return refactor.refactor("Inline Variable") end,          opts)
+                map(mode, "<leader>fe", function() return refactor.refactor("Extract Variable") end,         opts)
+                map(mode, "<leader>fu", function() return refactor.refactor("Extract Function") end,         opts)
+                map(mode, "<leader>fU", function() return refactor.refactor("Extract Function To File") end, opts)
+
+                map(mode, ",z",         function() return refactor.select_refactor({ prefer_ex_cmd = true }) end)
+                map("n",  "<leader>rp", function() return refactor.debug.printf({ below = false }) end)
+                map(mode, "<leader>rv", function() return refactor.debug.print_var() end)
+                map("n",  "<leader>rc", function() return refactor.debug.cleanup() end)
         end,
 }

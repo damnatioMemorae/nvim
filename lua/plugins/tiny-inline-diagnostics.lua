@@ -1,6 +1,6 @@
 return {
         "rachartier/tiny-inline-diagnostic.nvim",
-        event    = "VeryLazy",
+        event    = "LspAttach",
         priority = 8000,
         keys     = { { "<leader>od", Toggle.diagnostics, desc = "LSP Diagnostics - Toggle" } },
         opts     = {
@@ -32,7 +32,6 @@ return {
                         virt_texts                   = { priority = 8000 },
                         experimental                 = { use_window_local_extmarks = true },
                         format                       = function(diag)
-                                -- return diag.message:sub(1, -2)
                                 return diag.message:sub(1, -2) .. " " .. "[" .. diag.source:sub(1, -2) .. "]"
                         end,
                 },

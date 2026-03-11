@@ -38,8 +38,7 @@ local types = {
 
 return {
         "Bekaboo/dropbar.nvim",
-        enabled      = true,
-        event        = "VeryLazy",
+        event        = "LspAttach",
         dependencies = { "nvim-telescope/telescope-fzf-native.nvim" },
         keys         = { { ",w", function() require("dropbar.api").pick() end, desc = "Toggle dropbar", mode = { "n" } } },
         opts         = {
@@ -48,6 +47,8 @@ return {
                         pick          = { pivots = "hjklfdsa" },
                         update_events = {
                                 win = {
+                                        "CursorHold",
+                                        "CursorHoldI",
                                         "BufModifiedSet",
                                         "CursorMoved",
                                         "CursorMovedI",
@@ -59,6 +60,8 @@ return {
                                         "WinResized",
                                 },
                                 buf = {
+                                        "CursorHold",
+                                        "CursorHoldI",
                                         "BufModifiedSet",
                                         "FileChangedShellPost",
                                         "LspAttach",

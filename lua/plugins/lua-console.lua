@@ -1,6 +1,5 @@
 return {
         "yarospace/lua-console.nvim",
-        event = "VeryLazy",
         keys  = {
                 { "`",         desc = "Lua Console - Toggle" },
                 { "<leader>`", desc = "Lua Console - Attach to buffer" },

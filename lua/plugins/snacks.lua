@@ -1,14 +1,34 @@
-local button       = "Function"
-local label        = "Comment"
+vim.api.nvim_set_hl(0, "SnacksTitle",                { link = "DiagnosticError" })
+vim.api.nvim_set_hl(0, "SnacksPickerTitle",          { link = "DiagnosticError" })
+vim.api.nvim_set_hl(0, "SnacksPicker",               { link = "Normal" })
+vim.api.nvim_set_hl(0, "SnacksPickerBorder",         { link = "borderStyle" })
+vim.api.nvim_set_hl(0, "SnacksPickerListCursorLine", { link = "Visual" })
+vim.api.nvim_set_hl(0, "SnacksPickerCursorLine",     { link = "TinyInlineDiagnosticVirtualTextError" })
+vim.api.nvim_set_hl(0, "SnacksPickerSelected",       { link = "Error" })
+vim.api.nvim_set_hl(0, "SnacksPickerIconFile",       { link = "BlinkCmpKindFile" })
+vim.api.nvim_set_hl(0, "SnacksNotifierBorderInfo",   { link = "TinyInlineDiagnosticVirtualTextInfo" })
+vim.api.nvim_set_hl(0, "SnacksNotifierBorderWarn",   { link = "TinyInlineDiagnosticVirtualTextWarn" })
+vim.api.nvim_set_hl(0, "SnacksNotifierBorderError",  { link = "TinyInlineDiagnosticVirtualTextError" })
+vim.api.nvim_set_hl(0, "SnacksNotifierFooterInfo",   { link = "TinyInlineDiagnosticVirtualTextInfo" })
+vim.api.nvim_set_hl(0, "SnacksNotifierFooterWarn",   { link = "TinyInlineDiagnosticVirtualTextWarn" })
+vim.api.nvim_set_hl(0, "SnacksNotifierFooterError",  { link = "TinyInlineDiagnosticVirtualTextError" })
+vim.api.nvim_set_hl(0, "SnacksNotifierTitleInfo",    { link = "TinyInlineDiagnosticVirtualTextInfo" })
+vim.api.nvim_set_hl(0, "SnacksNotifierTitleWarn",    { link = "TinyInlineDiagnosticVirtualTextWarn" })
+vim.api.nvim_set_hl(0, "SnacksNotifierTitleError",   { link = "TinyInlineDiagnosticVirtualTextError" })
+vim.api.nvim_set_hl(0, "SnacksNotifierInfo",         { link = "TinyInlineDiagnosticVirtualTextInfo" })
+vim.api.nvim_set_hl(0, "SnacksNotifierWarn",         { link = "TinyInlineDiagnosticVirtualTextWarn" })
+vim.api.nvim_set_hl(0, "SnacksNotifierError",        { link = "TinyInlineDiagnosticVirtualTextError" })
 
-local prefix       = Config.prefix
+local button = "Function"
+local label  = "Comment"
 
-local border       = Border.borderStyle
-local none         = Border.borderStyleNone
-local right        = Border.borderRight
-local top          = Border.borderTop
-local bot          = Border.borderBottom
-local bot_empty    = Border.borderBottomEmpty
+local prefix = Config.prefix
+
+local border    = Border.borderStyle
+local none      = Border.borderStyleNone
+local right     = Border.borderRight
+local top       = Border.borderTop
+local bot       = Border.borderBottom
 
 local insertOnShow = function() vim.cmd.stopinsert() end
 
@@ -247,7 +267,7 @@ return {
                 },
                 styles       = {
                         notification_history = {
-                                border   = right,
+                                border   = border,
                                 height   = 0.9,
                                 width    = 0.9,
                                 title    = "",
@@ -352,8 +372,8 @@ return {
                                                 min_width = 60,
                                                 border    = none,
                                                 box       = "vertical",
-                                                { win = "input",   height = 1,          border = border,  title = "{title} {live} {flags}", title_pos = "center" },
-                                                { win = "list",    border = bot_empty },
+                                                { win = "input",   height = 1,          border = border, title = "{title} {live} {flags}", title_pos = "center" },
+                                                { win = "list",    border = border },
                                                 { win = "preview", title = "{preview}", border = border },
                                         },
                                 },

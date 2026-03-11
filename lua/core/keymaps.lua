@@ -88,16 +88,16 @@ map(n, "f", function() nano.fF("f") end, { desc = "f", silent = true })
 map(n, "F", function() nano.fF("F") end, { desc = "F", silent = true })
 
 ------------------------------------------------------------------------------------------------------------------------
----[[ FOLDS
+--[[ FOLDS
 
-map(nxvo, "<A-,>",       "zm", { desc = "Fold more", silent = true })
-map(nxvo, "<A-.>",       "zr", { desc = "Reduce fold", silent = true })
--- map(nxvo, "<A-C-Left>",  "zM", { desc = "Close all folds", silent = true })
--- map(nxvo, "<A-C-Right>", "zR", { desc = "Open all folds", silent = true })
-map(nxvo, "<A-Left>",    "zc", { desc = "Close current fold", silent = true })
-map(nxvo, "<A-Right>",   "zo", { desc = "Open current fold", silent = true })
-map(nxvo, "<A-Down>",    "zj", { desc = "Goto next fold", silent = true })
--- map(nxvo, "<A-Up>",      "zk^zz", { desc = "Goto prev fold", silent = true })
+map(nxvo, "<A-,>",       "zm^",    { desc = "Fold more", silent = true })
+map(nxvo, "<A-.>",       "zr^",    { desc = "Reduce fold", silent = true })
+map(nxvo, "<A-C-Left>",  "zM^",    { desc = "Close all folds", silent = true })
+map(nxvo, "<A-C-Right>", "zR^",    { desc = "Open all folds", silent = true })
+map(nxvo, "<A-Left>",    "zc^",    { desc = "Close current fold", silent = true })
+map(nxvo, "<A-Right>",   "zo^",    { desc = "Open current fold", silent = true })
+map(nxvo, "<A-Down>",    "zj^",    { desc = "Goto next fold", silent = true })
+map(nxvo, "<A-Up>",      "zk^zz",  { desc = "Goto prev fold", silent = true })
 --]]
 
 -- center Ctrl-o

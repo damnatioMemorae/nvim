@@ -4,7 +4,6 @@ end
 
 return {
         "mrjones2014/smart-splits.nvim",
-        event = "VeryLazy",
         keys  = {
                 { -- MOVE LEFT
                         "<C-h>",
