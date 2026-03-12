@@ -1,3 +1,16 @@
+local style   = {
+        local_name_style             = "snake_case",
+        function_param_name_style    = "snake_case",
+        function_name_style          = "camel_case",
+        local_function_name_style    = "camel_case",
+        global_variable_name_style   = "camel_case",
+        module_name_style            = "upper_snake_case",
+        module_local_name_style      = { "camel_case", "snake_case" },
+        require_module_name_style    = "upper_snake_case",
+        class_name_style             = "upper_snake_case",
+        constant_variable_name_style = "camel_case",
+        table_field_name_style       = { "snake_case", "camel_case", "pascal_case" },
+}
 local format  = {
         indent_style = "space",
         indent_size  = "8",
@@ -67,19 +80,6 @@ local format  = {
         ignore_space_after_colon                 = "false",
         remove_call_expression_list_finish_comma = "false",
         end_statement_with_semicolon             = "keep",
-}
-local style   = {
-        local_name_style             = "camel_case",
-        function_param_name_style    = "snake_case",
-        function_name_style          = "camel_case",
-        local_function_name_style    = "camel_case",
-        global_variable_name_style   = "camel_case",
-        module_name_style            = "upper_snake_case",
-        module_local_name_style      = "snake_case",
-        require_module_name_style    = "upper_snake_case",
-        class_name_style             = "upper_snake_case",
-        constant_variable_name_style = "camel_case",
-        table_field_name_style       = { "camel_case", "pascal_case" },
 }
 local on_init = function(client)
         local path = vim.uv.cwd()

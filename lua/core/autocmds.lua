@@ -74,23 +74,23 @@ autocmd("FocusGained", {
 autocmd("FocusGained", {
         desc     = "User: Close all non-existing buffers on `FocusGained`.",
         callback = function()
-                local closedBuffers = {}
-                local allBufs       = fn.getbufinfo{ buflisted = 1 }
-                vim.iter(allBufs):each(function(buf)
+                local closed_buffers = {}
+                local all_bufs       = fn.getbufinfo{ buflisted = 1 }
+                vim.iter(all_bufs):each(function(buf)
                         if not api.nvim_buf_is_valid(buf.bufnr) then return end
-                        local stillExists   = vim.uv.fs_stat(buf.name) ~= nil
-                        local specialBuffer = vim.bo[buf.bufnr].buftype ~= ""
-                        local newBuffer     = buf.name == ""
-                        if stillExists or specialBuffer or newBuffer then return end
-                        table.insert(closedBuffers, vim.fs.basename(buf.name))
+                        local still_exists   = vim.uv.fs_stat(buf.name) ~= nil
+                        local special_buffer = vim.bo[buf.bufnr].buftype ~= ""
+                        local new_buffer     = buf.name == ""
+                        if still_exists or special_buffer or new_buffer then return end
+                        table.insert(closed_buffers, vim.fs.basename(buf.name))
                         api.nvim_buf_delete(buf.bufnr, { force = false })
                 end)
-                if #closedBuffers == 0 then return end
+                if #closed_buffers == 0 then return end
 
-                if #closedBuffers == 1 then
-                        vim.notify(closedBuffers[1], nil, { title = "Buffer closed", icon = "󰅗" })
+                if #closed_buffers == 1 then
+                        vim.notify(closed_buffers[1], nil, { title = "Buffer closed", icon = "󰅗" })
                 else
-                        local text = "- " .. table.concat(closedBuffers, "\n- ")
+                        local text = "- " .. table.concat(closed_buffers, "\n- ")
                         vim.notify(text, nil, { title = "Buffers closed", icon = "󰅗" })
                 end
 
@@ -111,10 +111,10 @@ autocmd("FocusGained", {
 
 ---@param mode? "clear"
 local function searchCountIndicator(mode)
-        local signColumnPlusScrollbarWidth = 2 + 3
+        local sign_column_plus_scrollbar_width = 2 + 3
 
-        local countNs = api.nvim_create_namespace("searchCounter")
-        api.nvim_buf_clear_namespace(0, countNs, 0, -1)
+        local count_ns = api.nvim_create_namespace("searchCounter")
+        api.nvim_buf_clear_namespace(0, count_ns, 0, -1)
         if mode == "clear" then return end
 
         local row   = api.nvim_win_get_cursor(0)[1]
@@ -122,12 +122,12 @@ local function searchCountIndicator(mode)
         if count.total == 0 then return end
         local text     = (" %d/%d "):format(count.current, count.total)
         local line     = api.nvim_get_current_line():gsub("\t", (" "):rep(vim.bo.shiftwidth))
-        local lineFull = #line + signColumnPlusScrollbarWidth >= api.nvim_win_get_width(0)
-        local margin   = { (" "):rep(lineFull and signColumnPlusScrollbarWidth or 0) }
+        local line_full = #line + sign_column_plus_scrollbar_width >= api.nvim_win_get_width(0)
+        local margin   = { (" "):rep(line_full and sign_column_plus_scrollbar_width or 0) }
 
-        api.nvim_buf_set_extmark(0, countNs, row - 1, 0, {
+        api.nvim_buf_set_extmark(0, count_ns, row - 1, 0, {
                 virt_text     = { { text, "IncSearch" }, margin },
-                virt_text_pos = lineFull and "right_align" or "eol",
+                virt_text_pos = line_full and "right_align" or "eol",
                 priority      = 200,
         })
 end
@@ -136,21 +136,21 @@ end
 ---@diagnostic disable-next-line: unused-local
 vim.on_key(function(key, _typed)
                    key                   = fn.keytrans(key)
-                   local isCmdlineSearch = fn.getcmdtype():find("[/?]") ~= nil
-                   local isNormalMode    = api.nvim_get_mode().mode == "n"
-                   local searchStarted   = (key == "/" or key == "?") and isNormalMode
-                   local searchConfirmed = (key == "<CR>" and isCmdlineSearch)
-                   local searchCancelled = (key == "<Esc>" and isCmdlineSearch)
-                   if not (searchStarted or searchConfirmed or searchCancelled or isNormalMode) then return end
+                   local is_cmdline_search = fn.getcmdtype():find("[/?]") ~= nil
+                   local is_normal_mode    = api.nvim_get_mode().mode == "n"
+                   local search_started   = (key == "/" or key == "?") and is_normal_mode
+                   local search_confirmed = (key == "<CR>" and is_cmdline_search)
+                   local search_cancelled = (key == "<Esc>" and is_cmdline_search)
+                   if not (search_started or search_confirmed or search_cancelled or is_normal_mode) then return end
 
                    -- works for RHS, therefore no need to consider remaps
-                   local searchMovement = vim.tbl_contains({ "n", "N", "*", "#" }, key)
-                   local shortPattern   = fn.getreg("/"):gsub([[\V\C]], ""):len() <= 1 -- for `fF` function
+                   local search_movement = vim.tbl_contains({ "n", "N", "*", "#" }, key)
+                   local short_pattern   = fn.getreg("/"):gsub([[\V\C]], ""):len() <= 1 -- for `fF` function
 
-                   if searchCancelled or (not searchMovement and not searchConfirmed) then
+                   if search_cancelled or (not search_movement and not search_confirmed) then
                            vim.opt.hlsearch = false
                            searchCountIndicator("clear")
-                   elseif (searchMovement and not shortPattern) or searchConfirmed or searchStarted then
+                   elseif (search_movement and not short_pattern) or search_confirmed or search_started then
                            vim.opt.hlsearch = true
                            vim.defer_fn(searchCountIndicator, 1)
                    end
@@ -159,10 +159,10 @@ vim.on_key(function(key, _typed)
 ------------------------------------------------------------------------------------------------------------------------
 -- SKELETONS (TEMPLATES)
 
-local templateDir       = fn.stdpath("config") .. "/templates"
-local homeDir           = os.getenv("HOME")
-local globToTemplateMap = {
-        [homeDir .. "/.local/share/bin/lua/*.lua"]       = "script.lua",
+local template_dir       = fn.stdpath("config") .. "/templates"
+local home_dir           = os.getenv("HOME")
+local glob_to_template_map = {
+        [home_dir .. "/.local/share/bin/lua/*.lua"]       = "script.lua",
         [Config.localRepos .. "/**/*.lua"]               = "module.lua",
         [fn.stdpath("config") .. "/lua/functions/*.lua"] = "module.lua",
         [fn.stdpath("config") .. "/lua/plugins/*.lua"]   = "plugin-spec.lua",
@@ -182,23 +182,23 @@ autocmd({ "BufNewFile", "BufReadPost" }, {
                                 if not stats or stats.size > 10 then return end
                                 local filepath, bufnr = ctx.file, ctx.buf
 
-                                local matchedGlob = vim.iter(globToTemplateMap):find(function(glob)
-                                        local globMatchesFilename = vim.glob.to_lpeg(glob):match(filepath)
-                                        return globMatchesFilename
+                                local matched_glob = vim.iter(glob_to_template_map):find(function(glob)
+                                        local glob_matches_filename = vim.glob.to_lpeg(glob):match(filepath)
+                                        return glob_matches_filename
                                 end)
-                                if not matchedGlob then return end
-                                local templateFile = globToTemplateMap[matchedGlob]
-                                local templatePath = vim.fs.normalize(templateDir .. "/" .. templateFile)
-                                if not vim.uv.fs_stat(templatePath) then return end
+                                if not matched_glob then return end
+                                local template_file = glob_to_template_map[matched_glob]
+                                local template_path = vim.fs.normalize(template_dir .. "/" .. template_file)
+                                if not vim.uv.fs_stat(template_path) then return end
 
                                 local content = {}
                                 local cursor
                                 local row     = 1
-                                for line in io.lines(templatePath) do
-                                        local placeholderPos = line:find("%$0")
-                                        if placeholderPos then
+                                for line in io.lines(template_path) do
+                                        local placeholder_pos = line:find("%$0")
+                                        if placeholder_pos then
                                                 line   = line:gsub("%$0", "")
-                                                cursor = { row, placeholderPos - 1 }
+                                                cursor = { row, placeholder_pos - 1 }
                                         end
                                         table.insert(content, line)
                                         row = row + 1
@@ -206,9 +206,9 @@ autocmd({ "BufNewFile", "BufReadPost" }, {
                                 api.nvim_buf_set_lines(0, 0, -1, false, content)
                                 if cursor then api.nvim_win_set_cursor(0, cursor) end
 
-                                local newFt = vim.filetype.match{ buf = bufnr }
+                                local new_ft = vim.filetype.match{ buf = bufnr }
                                 ---@diagnostic disable-next-line: assign-type-mismatch
-                                if vim.bo[bufnr].ft ~= newFt then vim.bo[bufnr].ft = newFt end
+                                if vim.bo[bufnr].ft ~= new_ft then vim.bo[bufnr].ft = new_ft end
                         end, 100)
         end,
 })
@@ -236,14 +236,14 @@ autocmd({ "CursorMoved", "CursorMovedI", "WinScrolled" }, {
 })
 
 -- FIX: for some reason `scrolloff` sometimes being set to `0` on new buffers
-local originalScrolloff = o.scrolloff
+local original_scrolloff = o.scrolloff
 autocmd({ "BufReadPost", "BufNew" }, {
         desc     = "User: FIX scrolloff on entering new buffer",
         callback = function(ctx)
                 vim.defer_fn(function()
                                      if not api.nvim_buf_is_valid(ctx.buf) or vim.bo[ctx.buf].buftype ~= "" then return end
                                      if vim.o.scrolloff == 0 then
-                                             o.scrolloff = originalScrolloff
+                                             o.scrolloff = original_scrolloff
                                              vim.notify("Triggered by [" .. ctx.event .. "]", nil,
                                                         { title = "Scrolloff fix" })
                                      end
@@ -422,12 +422,12 @@ autocmd("FileType", {
         pattern  = { "help" },
         callback = function()
                 if vim.o.filetype ~= "help" or "qf" then return end
-                local function has_diffview_in_current_tab()
+                local function hasDiffviewInCurrentTab()
                         return vim.tbl_contains(
                                 vim.tbl_map(function(win) return vim.bo[vim.api.nvim_win_get_buf(win)].filetype end,
                                             vim.api.nvim_tabpage_list_wins(0)), "DiffviewFiles")
                 end
-                if has_diffview_in_current_tab() then return end
+                if hasDiffviewInCurrentTab() then return end
                 vim.cmd.wincmd("L")
         end,
 })
@@ -478,12 +478,12 @@ vim.api.nvim_create_autocmd({ "FileType", "FocusGained", "BufWinEnter" }, {
         desc     = "Add backdrop to windows",
         pattern  = { "dropbar_menu" },
         callback = function(ctx)
-                local backdropName = "MasonBackdrop"
-                local masonBufnr   = ctx.buf
-                local masonZindex  = 10
+                local backdrop_name = "MasonBackdrop"
+                local mason_bufnr   = ctx.buf
+                local mason_zindex  = 10
 
-                local backdropBufnr = vim.api.nvim_create_buf(false, true)
-                local winnr         = vim.api.nvim_open_win(backdropBufnr, false, {
+                local backdrop_bufnr = vim.api.nvim_create_buf(false, true)
+                local winnr         = vim.api.nvim_open_win(backdrop_bufnr, false, {
                         relative  = "editor",
                         row       = 0,
                         col       = 0,
@@ -491,21 +491,21 @@ vim.api.nvim_create_autocmd({ "FileType", "FocusGained", "BufWinEnter" }, {
                         height    = vim.o.lines,
                         focusable = false,
                         style     = "minimal",
-                        zindex    = masonZindex - 1,
+                        zindex    = mason_zindex - 1,
                 })
 
-                vim.api.nvim_set_hl(0, backdropName, { link = "SnacksBackdrop" })
-                vim.wo[winnr].winhighlight    = "Normal:" .. backdropName
+                vim.api.nvim_set_hl(0, backdrop_name, { link = "SnacksBackdrop" })
+                vim.wo[winnr].winhighlight    = "Normal:" .. backdrop_name
                 vim.wo[winnr].winblend        = 40
-                vim.bo[backdropBufnr].buftype = "nofile"
+                vim.bo[backdrop_bufnr].buftype = "nofile"
 
                 vim.api.nvim_create_autocmd({ "WinClosed" }, {
                         once     = true,
-                        buffer   = masonBufnr,
+                        buffer   = mason_bufnr,
                         callback = function()
                                 if vim.api.nvim_win_is_valid(winnr) then vim.api.nvim_win_close(winnr, true) end
-                                if vim.api.nvim_buf_is_valid(backdropBufnr) then
-                                        vim.api.nvim_buf_delete(backdropBufnr, { force = true })
+                                if vim.api.nvim_buf_is_valid(backdrop_bufnr) then
+                                        vim.api.nvim_buf_delete(backdrop_bufnr, { force = true })
                                 end
                         end,
                 })
