@@ -125,7 +125,7 @@ o.mouse            = "a"
 o.number           = true
 o.pumblend         = 0
 o.pumheight        = 20
-o.relativenumber   = true
+o.relativenumber   = false
 -- o.sessionoptions = { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp", "folds" }
 opt.sessionoptions = { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp", "folds" }
 o.showmode         = false
@@ -162,7 +162,7 @@ vim.api.nvim_create_autocmd("BufEnter", {
 })
 --]]
 
-local function fold_virt_text(result, s, lnum, coloff)
+local function foldVirtText(result, s, lnum, coloff)
         if not coloff then
                 coloff = 0
         end
@@ -171,8 +171,8 @@ local function fold_virt_text(result, s, lnum, coloff)
         for i = 1, #s do
                 local char = s:sub(i, i)
                 local hls  = vim.treesitter.get_captures_at_pos(0, lnum, coloff + i - 1)
-                local _hl  = hls[#hls]
-                if _hl then
+                local hl_  = hls[#hls]
+                if hl_ then
                         -- local new_hl = "@" .. _hl.capture
                         local new_hl = "LspInlayHint"
                         if new_hl ~= hl then
@@ -189,14 +189,14 @@ local function fold_virt_text(result, s, lnum, coloff)
         table.insert(result, { text, hl })
 end
 
-function _G.custom_foldtext()
+function _G.customFoldtext()
         local start   = vim.fn.getline(vim.v.foldstart):gsub("\t", string.rep(" ", o.tabstop))
         local end_str = vim.fn.getline(vim.v.foldend + 1)
         local end_    = vim.trim(end_str)
         local result  = {}
-        fold_virt_text(result, start, vim.v.foldstart - 1)
+        foldVirtText(result, start, vim.v.foldstart - 1)
         -- table.insert(result, { "...", "Comment" })
         table.insert(result, { "...", "LspInlayHint" })
-        fold_virt_text(result, end_, vim.v.foldend - 1, #(end_str:match("^(%s+)") or ""))
+        foldVirtText(result, end_, vim.v.foldend - 1, #(end_str:match("^(%s+)") or ""))
         return result
 end

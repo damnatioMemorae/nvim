@@ -366,7 +366,7 @@ autocmd({ "ModeChanged" }, {
 })
 
 ------------------------------------------------------------------------------------------------------------------------
--- SWITCH BETWEEN `rlnu` and `lnu`
+--[[ SWITCH BETWEEN `rlnu` and `lnu`
 
 autocmd({ "BufEnter", "FocusGained", "InsertLeave", "WinEnter" }, {
         desc     = "Enable relative line numbers in active window",
@@ -388,6 +388,7 @@ autocmd({ "BufLeave", "FocusLost", "InsertEnter", "WinLeave" }, {
                 end
         end,
 })
+--]]
 
 ------------------------------------------------------------------------------------------------------------------------
 -- RESTORE CURSOR POSITION
