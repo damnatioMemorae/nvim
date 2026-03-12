@@ -5,6 +5,6 @@
                 "trailing-space",
                 "unused-function",
                 "lowercase-global",
-                "spell-check"
+        "spell-check"
         ]
 }

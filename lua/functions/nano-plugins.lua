@@ -3,16 +3,16 @@ local M = {}
 
 ---1. start/stop with just one keypress
 ---2. add notification & sound for recording
----@param toggleKey string key used to trigger this function
+---@param toggle_key string key used to trigger this function
 ---@param reg string vim register (single letter)
-function M.startOrStopRecording(toggleKey, reg)
-        local notRecording = vim.fn.reg_recording() == ""
+function M.startOrStopRecording(toggle_key, reg)
+        local not_recording = vim.fn.reg_recording() == ""
 
-        if notRecording then
+        if not_recording then
                 vim.cmd.normal{ "q" .. reg, bang = true }
         else
                 vim.cmd.normal{ "q", bang = true }
-                local macro = vim.fn.getreg(reg):sub(1, -(#toggleKey + 1))
+                local macro = vim.fn.getreg(reg):sub(1, -(#toggle_key + 1))
                 if macro ~= "" then
                         vim.fn.setreg(reg, macro)
                         local msg = vim.fn.keytrans(macro)
@@ -24,11 +24,11 @@ function M.startOrStopRecording(toggleKey, reg)
 end
 
 function M.editMacro(reg)
-        local macroContent = vim.fn.getreg(reg)
-        local title        = ("Edit macro [%s]"):format(reg)
-        local icon         = "󰃽"
+        local macro_content = vim.fn.getreg(reg)
+        local title         = ("Edit macro [%s]"):format(reg)
+        local icon          = "󰃽"
 
-        vim.ui.input({ prompt = icon .. " " .. title, default = macroContent }, function(input)
+        vim.ui.input({ prompt = icon .. " " .. title, default = macro_content }, function(input)
                 if not input then return end
                 vim.fn.setreg(reg, input)
                 vim.notify(input, nil, { title = title, icon = icon })
@@ -39,15 +39,15 @@ end
 
 -- Simplified implementation of coerce.nvim
 function M.camelSnakeToggle()
-        local cword        = vim.fn.expand("<cword>")
-        local newWord
-        local snakePattern = "_(%w)"
-        local camelPattern = "([%l%d])(%u)"
+        local cword         = vim.fn.expand("<cword>")
+        local new_word
+        local snake_pattern = "_(%w)"
+        local camel_pattern = "([%l%d])(%u)"
 
-        if cword:find(snakePattern) then
-                newWord = cword:gsub(snakePattern, function(capture) return capture:upper() end)
-        elseif cword:find(camelPattern) then
-                newWord = cword:gsub(camelPattern, function(c1, c2) return c1 .. "_" .. c2:lower() end)
+        if cword:find(snake_pattern) then
+                new_word = cword:gsub(snake_pattern, function(capture) return capture:upper() end)
+        elseif cword:find(camel_pattern) then
+                new_word = cword:gsub(camel_pattern, function(c1, c2) return c1 .. "_" .. c2:lower() end)
         else
                 vim.notify("Neither a snake_case nor camelCase", vim.log.levels.WARN)
                 return
@@ -62,14 +62,14 @@ function M.camelSnakeToggle()
                 if start <= col and ending >= col then break end
         end
 
-        local newLine = line:sub(1, start - 1) .. newWord .. line:sub(ending + 1)
-        vim.api.nvim_set_current_line(newLine)
+        local new_line = line:sub(1, start - 1) .. new_word .. line:sub(ending + 1)
+        vim.api.nvim_set_current_line(new_line)
 end
 
 -- UPPER -> lower -> Title -> UPPER -> …
 function M.toggleWordCasing()
-        local prevCursor = vim.api.nvim_win_get_cursor(0)
-        local cword      = vim.fn.expand("<cword>")
+        local prev_cursor = vim.api.nvim_win_get_cursor(0)
+        local cword       = vim.fn.expand("<cword>")
         local cmd
 
         if cword == cword:upper() then
@@ -81,22 +81,22 @@ function M.toggleWordCasing()
         end
 
         vim.cmd.normal{ cmd, bang = true }
-        vim.api.nvim_win_set_cursor(0, prevCursor)
+        vim.api.nvim_win_set_cursor(0, prev_cursor)
 end
 
 ------------------------------------------------------------------------------------------------------------------------
 
 -- Simplified implementation of `coerce.nvim`
 function M.camelSnakeLspRename()
-        local cword        = vim.fn.expand("<cword>")
-        local snakePattern = "_(%w)"
-        local camelPattern = "([%l%d])(%u)"
+        local cword         = vim.fn.expand("<cword>")
+        local snake_pattern = "_(%w)"
+        local camel_pattern = "([%l%d])(%u)"
 
-        if cword:find(snakePattern) then
-                local camelCased = cword:gsub(snakePattern, function(c1) return c1:upper() end)
-                vim.lsp.buf.rename(camelCased)
-        elseif cword:find(camelPattern) then
-                local snake_cased = cword:gsub(camelPattern, "%1_%2"):lower()
+        if cword:find(snake_pattern) then
+                local camel_cased = cword:gsub(snake_pattern, function(c1) return c1:upper() end)
+                vim.lsp.buf.rename(camel_cased)
+        elseif cword:find(camel_pattern) then
+                local snake_cased = cword:gsub(camel_pattern, "%1_%2"):lower()
                 vim.lsp.buf.rename(snake_cased)
         else
                 local msg = "Neither snake_case nor camelCase: " .. cword
@@ -105,11 +105,11 @@ function M.camelSnakeLspRename()
 end
 
 function M.toggleTitleCase()
-        local prevCursor = vim.api.nvim_win_get_cursor(0)
-        local cword      = vim.fn.expand("<cword>")
-        local cmd        = cword == cword:lower() and "guiwgUl" or "guiw"
+        local prev_cursor = vim.api.nvim_win_get_cursor(0)
+        local cword       = vim.fn.expand("<cword>")
+        local cmd         = cword == cword:lower() and "guiwgUl" or "guiw"
         vim.cmd.normal{ cmd, bang = true }
-        vim.api.nvim_win_set_cursor(0, prevCursor)
+        vim.api.nvim_win_set_cursor(0, prev_cursor)
 end
 
 ------------------------------------------------------------------------------------------------------------------------
@@ -151,10 +151,10 @@ function M.smartDuplicate()
         vim.api.nvim_buf_set_lines(0, row, row, false, { line })
 
         -- move cursor down, and to value/field (if any)
-        local _, luadocFieldPos = line:find("%-%-%-@%w+ ")
-        local _, valuePos       = line:find("[:=] ")
-        local targetCol         = luadocFieldPos or valuePos or col
-        vim.api.nvim_win_set_cursor(0, { row + 1, targetCol })
+        local _, luadoc_field_pos = line:find("%-%-%-@%w+ ")
+        local _, value_pos        = line:find("[:=] ")
+        local target_col          = luadoc_field_pos or value_pos or col
+        vim.api.nvim_win_set_cursor(0, { row + 1, target_col })
 end
 
 ------------------------------------------------------------------------------------------------------------------------
@@ -172,15 +172,15 @@ end
 ------------------------------------------------------------------------------------------------------------------------
 
 function M.formatWithFallback()
-        local formattingLsps = vim.lsp.get_clients{ method = "textDocument/formatting", bufnr = 0 }
+        local formatting_lsp = vim.lsp.get_clients{ method = "textDocument/formatting", bufnr = 0 }
 
-        if #formattingLsps > 0 then
+        if #formatting_lsp > 0 then
                 -- save for efm-formatters that don't use stdin
                 if vim.bo.ft == "markdown" then
                         -- saving with explicit name prevents issues when changing `cwd`
                         -- `:update!` suppresses "The file has been changed since reading it!!!"
-                        local vimCmd = ("silent update! %q"):format(vim.api.nvim_buf_get_name(0))
-                        vim.cmd(vimCmd)
+                        local vim_cmd = ("silent update! %q"):format(vim.api.nvim_buf_get_name(0))
+                        vim.cmd(vim_cmd)
                 end
                 vim.lsp.buf.format()
         else
