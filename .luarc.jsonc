@@ -1,0 +1,10 @@
+{
+        "$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
+        "diagnostics.globals": ["Snacks"],
+        "diagnostics.disable": [
+                "trailing-space",
+                "unused-function",
+                "lowercase-global",
+                "spell-check"
+        ]
+}

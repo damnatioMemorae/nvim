@@ -1,5 +1,5 @@
-local squareFilled = "■"
-local squareEmpty  = "󰝣"
+local square_filled = "■"
+local square_empty  = "󰝣"
 
 _G.Config  = {}
 _G.Toggle  = {}
@@ -137,15 +137,15 @@ vim.o.findfunc = "v:lua.fuzzySearch"
 ----ICONS---------------------------------------------------------------------------------------------------------------
 
 Icons.Diagnostics = {
-        ERROR = squareFilled,
-        WARN  = squareFilled,
-        INFO  = squareFilled,
-        HINT  = squareFilled,
+        ERROR = square_filled,
+        WARN  = square_filled,
+        INFO  = square_filled,
+        HINT  = square_filled,
 
-        Error = squareFilled,
-        Warn  = squareFilled,
-        Info  = squareFilled,
-        Hint  = squareFilled,
+        Error = square_filled,
+        Warn  = square_filled,
+        Info  = square_filled,
+        Hint  = square_filled,
 
         errorMd = "󰅙 ",
         warnMd  = " ",
@@ -155,11 +155,11 @@ Icons.Diagnostics = {
 }
 
 Icons.Notifier = {
-        error = squareFilled,
-        warn  = squareFilled,
-        info  = squareFilled,
-        debug = squareFilled,
-        trace = squareFilled,
+        error = square_filled,
+        warn  = square_filled,
+        info  = square_filled,
+        debug = square_filled,
+        trace = square_filled,
 }
 
 Icons.Arrows = {
@@ -379,17 +379,17 @@ Icons.Misc = {
         reference      = "󰘷",
         implementation = "󰃐",
         offSpec        = "",
-        dashedBar      = squareFilled,
-        definiton      = squareFilled,
-        squareFilled   = squareFilled,
-        squareEmpty    = squareEmpty,
+        dashedBar      = square_filled,
+        definiton      = square_filled,
+        squareFilled   = square_filled,
+        squareEmpty    = square_empty,
 }
 
 Icons.Git = {
         Git      = "",
-        Added    = squareFilled,
-        Modified = squareEmpty,
-        Deleted  = squareEmpty,
+        Added    = square_filled,
+        Modified = square_empty,
+        Deleted  = square_empty,
 }
 
 ----COLORS--------------------------------------------------------------------------------------------------------------

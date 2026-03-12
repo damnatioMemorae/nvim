@@ -38,7 +38,7 @@ local function attach()
 
                 -- ignore & deal with "press enter to continue" prompts
                 local kind, content, _replace, _history = ... -- for `msg_show` only https://neovim.io/doc/user/ui.html#ui-messages
-                if kind == "return_prompt" then  -- SIC we're still being blocked, thus need to feedkey `<CR>`
+                if kind == "return_prompt" then               -- SIC we're still being blocked, thus need to feedkey `<CR>`
                         local esc = vim.api.nvim_replace_termcodes("<CR>", true, true, true)
                         vim.api.nvim_feedkeys(esc, "n", false)
                 end

@@ -75,9 +75,11 @@ local style   = {
         local_function_name_style    = "camel_case",
         global_variable_name_style   = "camel_case",
         module_name_style            = "upper_snake_case",
+        module_local_name_style      = "snake_case",
         require_module_name_style    = "upper_snake_case",
         class_name_style             = "upper_snake_case",
         constant_variable_name_style = "camel_case",
+        table_field_name_style       = { "camel_case", "pascal_case" },
 }
 local on_init = function(client)
         local path = vim.uv.cwd()
@@ -141,7 +143,7 @@ return {
                         nameStyle     = { config = style },
                         diagnostics   = {
                                 disable            = { "trailing-space", "unused-function", "lowercase-global" },
-                                neededFileStatus   = { ["codestyle-check"] = "Any!" },
+                                groupFileStatus    = { ["codestyle"] = "Any" },
                                 unusedLocalExclude = { "_*" },
                                 workspaceDelay     = 10000,
                                 workspaceEvent     = "OnSave",
