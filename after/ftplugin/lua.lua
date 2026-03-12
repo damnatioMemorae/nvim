@@ -1,7 +1,7 @@
 local bkeymap = require("core.utils").bufKeymap
 local abbr    = require("core.utils").bufAbbrev
 
---------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
 -- FIXES HABITS FROM WRITING TOO MUCH IN OTHER LANGUAGES
 
 abbr("//", "--")
@@ -31,7 +31,7 @@ end
 bkeymap("i", "+", function() plusPlusMinusMinus("+") end, { desc = "i++  i = i + 1" })
 bkeymap("i", "-", function() plusPlusMinusMinus("-") end, { desc = "i--  i = i - 1" })
 
---------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
 -- AUTO-COMMA FOR TABLES
 
 vim.api.nvim_create_autocmd("TextChangedI", {
@@ -47,7 +47,7 @@ vim.api.nvim_create_autocmd("TextChangedI", {
         end,
 })
 
---------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
 -- REQUIRE MODULE FROM CWD
 
 -- lightweight version of `telescope-import.nvim` import (just for lua)
@@ -100,7 +100,7 @@ bkeymap("n", "<leader>ci", function()
                 end)
         end, { desc = "󰢱 Import module" })
 
---------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------
 -- YANK MODULE NAME
 
 bkeymap("n", "<leader>ym", function()
@@ -111,3 +111,22 @@ bkeymap("n", "<leader>ym", function()
                 vim.fn.setreg("+", req)
                 vim.notify(req, nil, { icon = "󰅍", title = "Copied", ft = "lua" })
         end, { desc = "󰢱 Module (require)" })
+
+----------------------------------------------------------------------------------------------------------------
+--[[ SEMANTIC TOKENS
+
+vim.api.nvim_create_autocmd("LspTokenUpdate", {
+        callback = function(args)
+                local token = args.data.token
+                if
+                           token.type == "variable"
+                           and token.modifiers.globalScope
+                           and not token.modifiers.readonly
+                           and not token.modifiers.defaultLibrary
+                then
+                        vim.lsp.semantic_tokens.highlight_token(
+                                token, args.buf, args.data.client_id, "varGlobScope")
+                end
+        end,
+})
+--]]

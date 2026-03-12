@@ -32,6 +32,7 @@ autocmd("VimEnter", {
 -- `q` and `Esc`
 
 autocmd("FileType", {
+        desc     = "Quit windows with both `Esc` and `q`",
         group    = augroup("Close with <q>", { clear = true }),
         pattern  = {
                 "checkhealth",
@@ -254,28 +255,33 @@ autocmd({ "BufReadPost", "BufNew" }, {
 -- LSP
 
 autocmd("LspAttach", {
+        desc     = "LSP stuff",
         group    = augroup("lsp-attach", { clear = true }),
         callback = function(args)
                 local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
                 local lsp    = vim.lsp
 
+                ---[[ HIGHLIGHT
                 if fn.has("nvim-0.11") == 1 and client:supports_method("textDocument/documentHighlight", 0) then
                         local buf               = args.buf
                         local highlight_augroup = augroup("lsp-highlight", { clear = false })
 
                         autocmd({ "CursorHold", "CursorHoldI", "CursorMoved", "CursorMovedI" }, {
+                                desc     = "Highlight LSP symbol under cursor",
                                 buffer   = buf,
                                 group    = highlight_augroup,
                                 callback = lsp.buf.document_highlight,
                         })
                         autocmd({ "CursorMoved", "CursorMovedI" }, {
+                                desc     = "Clear LSP symbol highlight",
                                 buffer   = buf,
                                 group    = highlight_augroup,
                                 callback = lsp.buf.clear_references,
                         })
                 end
+                --]]
 
-                --[[
+                --[[ INLAY HINTS
                 if fn.has("nvim-0.10") == 1 and client:supports_method("textDocument/inlayHint") then
                         local hint_augroup = augroup("lsp-inlay-hint", { clear = false })
                         autocmd({ "CursorHold", "CursorMoved" }, {
@@ -286,15 +292,35 @@ autocmd("LspAttach", {
                 end
                 --]]
 
+                ---[[ COLOR
                 if fn.has("nvim-0.12") == 1 and client:supports_method("textDocument/documentColor") then
                         local color_augroup = augroup("lsp-color", { clear = false })
                         autocmd({ "CursorHold", "CursorMoved" }, {
+                                desc     = "LSP colors",
                                 buffer   = args.buf,
                                 group    = color_augroup,
                                 -- callback = function() lsp.document_color.enable(true, 0, { style = "virtual" }) end,
                                 callback = function() lsp.document_color.enable(false) end,
                         })
                 end
+                --]]
+
+                --[[ CODELENSE
+                if fn.has("nvim-0.11") == 1 and client:supports_method("textDocument/codeLens") then
+                        local codelens_augroup = augroup("lsd-codelens", { clear = false })
+                        autocmd({ "BufEnter", "FocusGained", "LspAttach", "LspProgress" }, {
+                                desc     = "Enable LSP codelenses",
+                                callback = function(ctx)
+                                        local lsp_progress_end = ctx.event == "LspProgress"
+                                            and ctx.data.params.value.kind == "end"
+                                            and ctx.data.params.value.title == "Loading Workspace"
+                                        if ctx.event == "LspProgress" and not lsp_progress_end then return end
+                                        vim.lsp.codelens.refresh({ bufnr = ctx.buf })
+                                        vim.keymap.set("n", ",l", vim.lsp.codelens.run)
+                                end
+                        })
+                end
+                --]]
         end,
 })
 
@@ -302,6 +328,7 @@ autocmd("LspAttach", {
 -- SMART VIRTUAL EDITING
 
 autocmd("ModeChanged", {
+        desc     = "Move cursor everywhere",
         pattern  = "*:*",
         callback = function()
                 local mode = fn.mode()
@@ -315,6 +342,7 @@ autocmd("ModeChanged", {
 -- SHOW WHITESPACES
 
 autocmd({ "ModeChanged" }, {
+        desc     = "Show whitespace chars in selection",
         pattern  = "*:*",
         callback = function()
                 local mode = fn.mode()
@@ -341,6 +369,7 @@ autocmd({ "ModeChanged" }, {
 -- SWITCH BETWEEN `rlnu` and `lnu`
 
 autocmd({ "BufEnter", "FocusGained", "InsertLeave", "WinEnter" }, {
+        desc     = "Enable relative line numbers in active window",
         pattern  = "*",
         callback = function()
                 if wo.number and api.nvim_get_mode().mode ~= "i" then
@@ -350,6 +379,7 @@ autocmd({ "BufEnter", "FocusGained", "InsertLeave", "WinEnter" }, {
         end,
 })
 autocmd({ "BufLeave", "FocusLost", "InsertEnter", "WinLeave" }, {
+        desc     = "Disable relative line numbers in inactive window",
         pattern  = "*",
         callback = function()
                 if wo.number then
@@ -365,12 +395,9 @@ autocmd({ "BufLeave", "FocusLost", "InsertEnter", "WinLeave" }, {
 autocmd({ "BufReadPost", "BufReadPre", "BufWinEnter" }, {
         desc     = "Restore cursor position",
         pattern  = "*",
-        callback = function(args)
-                local mark       = api.nvim_buf_get_mark(args.buf, '"')
-                local line_count = api.nvim_buf_line_count(args.buf)
-                if mark[1] > 0 and mark[1] <= line_count then
-                        api.nvim_buf_call(args.buf, function() vim.cmd('normal! g`"zz') end)
-                end
+        callback = function(ctx)
+                if vim.bo[ctx.buf].buftype ~= "" then return end
+                vim.cmd([[silent! normal! g`"]])
         end,
 })
 
@@ -391,8 +418,8 @@ autocmd({ "BufWritePre" }, {
 -- SPLITS
 
 autocmd("FileType", {
-        pattern  = { "help" },
         desc     = "Automatically split help buffers to the right",
+        pattern  = { "help" },
         callback = function()
                 if vim.o.filetype ~= "help" or "qf" then return end
                 local function has_diffview_in_current_tab()
@@ -405,7 +432,7 @@ autocmd("FileType", {
         end,
 })
 autocmd("VimResized", {
-        desc    = "Automatically resize splits, when terminal window is moved",
+        desc    = "Automatically resize splits",
         command = "wincmd =",
 })
 
@@ -413,6 +440,7 @@ autocmd("VimResized", {
 -- QUICKFIX
 
 autocmd("FileType", {
+        desc     = "Open quickfix window in vertical split",
         pattern  = "qf",
         callback = function()
                 vim.cmd("wincmd L")
@@ -422,6 +450,7 @@ autocmd("FileType", {
         end,
 })
 autocmd("FileType", {
+        desc     = "Show quickfix results interactively",
         pattern  = "qf",
         callback = function(event)
                 local opts = { buffer = event.buf, silent = true }
@@ -435,6 +464,7 @@ autocmd("FileType", {
 
 opt.wildmode = "noselect"
 autocmd("CmdlineChanged", {
+        desc     = "Add fuzzy completion for command line",
         pattern  = { ":", "/", "!", "?" },
         callback = function()
                 vim.fn.wildtrigger()
@@ -445,6 +475,7 @@ autocmd("CmdlineChanged", {
 -- BACKDROP
 
 vim.api.nvim_create_autocmd({ "FileType", "FocusGained", "BufWinEnter" }, {
+        desc     = "Add backdrop to windows",
         pattern  = { "dropbar_menu" },
         callback = function(ctx)
                 local backdropName = "MasonBackdrop"
@@ -479,4 +510,12 @@ vim.api.nvim_create_autocmd({ "FileType", "FocusGained", "BufWinEnter" }, {
                         end,
                 })
         end,
+})
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+-- SNIPPET
+
+autocmd("WinScrolled", {
+        desc     = "Exit snippet on window scroll",
+        callback = function() vim.snippet.stop() end,
 })

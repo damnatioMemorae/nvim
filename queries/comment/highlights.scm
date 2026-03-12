@@ -76,3 +76,6 @@
         (#lua-match? @number "^#[0-9]+$"))
 
 (uri) @string.special.url @nospell
+
+("text" @comment.bold
+  (#lua-match? @comment.bold "^%u[%u%d_]+$")) ; at least 2 uppercase chars

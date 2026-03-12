@@ -14,12 +14,23 @@ M.extraTextobjMaps = {
 
 ---ensures unique keymaps https://www.reddit.com/r/neovim/comments/16h2lla/can_you_make_neovim_warn_you_if_your_config_maps/
 ---@param mode string|string[]
----@param lhs string|string[]
+---@param lhs string
 ---@param rhs string|function
----@param opts? {desc?: string, unique?: boolean, buffer?: number|boolean, remap?: boolean, silent?: boolean, nowait?: boolean}
+---@param opts? vim.keymap.set.Opts
 function M.uniqueKeymap(mode, lhs, rhs, opts)
         if not opts then opts = {} end
+
         if opts.unique == nil then opts.unique = true end
+
+        local success, _ = pcall(vim.keymap.set, mode, lhs, rhs, opts)
+        if not success then
+                local modes = type(mode) == "table" and table.concat(mode, ", ") or mode
+                local msg   = ("**Duplicate keymap**\n[[%s]] %s"):format(modes, lhs)
+                vim.defer_fn(
+                        function()
+                                vim.notify(msg, vim.log.levels.WARN, { title = "Custom keymaps", timeout = false })
+                        end, 1000)
+        end
         pcall(vim.keymap.set, mode, lhs, rhs, opts)
 end
 
@@ -54,7 +65,6 @@ end
 function M.getHl(name)
         return vim.api.nvim_get_hl(0, { name = name })
 end
-
 
 -- craftzdog/utils.lua
 -- https://github.com/EmmanuelOga/columns/blob/master/utils/color.lua

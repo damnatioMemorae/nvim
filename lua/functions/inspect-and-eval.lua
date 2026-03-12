@@ -131,8 +131,8 @@ function M.runFile()
         local filepath   = api.nvim_buf_get_name(0)
         if bo.filetype == "lua" and filepath:find("nvim") then
                 cmd.source()
-        -- elseif bo.filetype == "lua" and fn.finddir("love2d", nil, nil) then
-        --         cmd("! love Game")
+                -- elseif bo.filetype == "lua" and fn.finddir("love2d", nil, nil) then
+                --         cmd("! love Game")
         elseif hasShebang then
                 cmd("! chmod +x %")
                 cmd("! %")
@@ -148,6 +148,18 @@ function M.runFile()
         else
                 notify("File has no shebang.", vim.log.levels.WARN, { title = "Run", icon = "󰜎" })
         end
+end
+
+function M.inspectNodeAncestors()
+        local node = vim.treesitter.get_node()
+        if not node then return vim.notify("No node under cursor.", vim.log.levels.WARN) end
+        local ancestors = {}
+        while node do
+                table.insert(ancestors, 1, node:type())
+                node = node:parent()
+        end
+        local out = "↑ " .. table.concat(ancestors, "\n| ")
+        vim.notify(out, nil, { title = "Node ancestors" })
 end
 
 ------------------------------------------------------------------------------------------------------------------------

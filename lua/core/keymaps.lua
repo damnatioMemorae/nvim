@@ -1,42 +1,39 @@
 ---@diagnostic disable: unused-local
 
-local utils    = require("core.utils")
-local comments = require("functions.comment")
-local nano     = require("functions.nano-plugins")
-local eval     = require("functions.inspect-and-eval")
-local map      = utils.uniqueKeymap
-local prefix   = Config.prefix
+local utils  = require("core.utils")
+local nano   = require("functions.nano-plugins")
+local eval   = require("functions.inspect-and-eval")
+local map    = utils.uniqueKeymap
+local prefix = Config.prefix
 
 
 local n, i, c, v, o, x, t = "n", "i", "c", "v", "o", "x", "t"
 
-local ni    = { n, i }
-local nx    = { n, x }
-local nc    = { n, c }
-local nv    = { n, v }
-local no    = { n, o }
-local nix   = { n, i, x }
-local nic   = { n, i, c }
-local niv   = { n, i, v }
-local nio   = { n, i, o }
-local nxvo  = { n, x, c, v, o }
-local nxcvo = { n, x, c, v, o }
+local ni    = { "n", "i" }
+local nx    = { "n", "x" }
+local nc    = { "n", "c" }
+local nv    = { "n", "v" }
+local no    = { "n", "o" }
+local nix   = { "n", "i", "x" }
+local nic   = { "n", "i", "c" }
+local niv   = { "n", "i", "v" }
+local nio   = { "n", "i", "o" }
+local nxvo  = { "n", "x", "c", "v", "o" }
+local nxcvo = { "n", "x", "c", "v", "o" }
 local opts  = { silent = true }
 
 local function cmd()
         vim.cmd.normal("^zz")
 end
 
-------------------------------------------------------------------------------------------------------------------------
--- META
+----META----------------------------------------------------------------------------------------------------------------
 
 map(n, "ZZ", "<cmd>qa<cr>", { desc = " Quit", silent = true })
 
 local pluginDir = vim.fn.stdpath("data") --[[@as string]]
 map(n, "<leader>pd", function() vim.ui.open(pluginDir) end, { desc = "󰝰 Plugin dir", silent = true })
 
-------------------------------------------------------------------------------------------------------------------------
--- NAVIGATION
+----NAVIGATION----------------------------------------------------------------------------------------------------------
 
 map(n, "_", "0")
 
@@ -44,6 +41,9 @@ map(nx, "{", "{zz", opts)
 map(nx, "}", "}zz", opts)
 map(nx, "(", "{zz", opts)
 map(nx, ")", "}zz", opts)
+
+map(n, "<C-o>", "<C-o>", { remap = true })
+map(n, "<C-i>", "<C-i>", { remap = true })
 
 -- j/k should on wrapped lines
 map(nx, "j", "gj")
@@ -63,7 +63,7 @@ map(n, "<C-b>", "<C-b>zz", opts)
 
 -- Search
 -- map(x,  "/",     fuzzySearch,                { desc = " Search in sel" })
-map(x,  "-",     "<Esc>/\\%V",               { desc = " Search in sel" })
+-- map(x,  "-",     "<Esc>/\\%V",               { desc = " Search in sel" })
 map(n,  "n",     "nzz",                      { desc = "Search next", silent = true })
 map(n,  "N",     "Nzz",                      { desc = "Search previous", silent = true })
 map(ni, "<esc>", "<cmd>nohlsearch<cr><esc>", { desc = "Escape and Clear hlsearch", silent = true })
@@ -83,12 +83,12 @@ map(n, "<A-x>", function()
             end
     end, { desc = " Open first URL in file", silent = true })
 
--- make `fF` use `nN` instead of `;,`
+--[[ make `fF` use `nN` instead of `;,`
 map(n, "f", function() nano.fF("f") end, { desc = "f", silent = true })
 map(n, "F", function() nano.fF("F") end, { desc = "F", silent = true })
+--]]
 
-------------------------------------------------------------------------------------------------------------------------
---[[ FOLDS
+--[[FOLDS---------------------------------------------------------------------------------------------------------------
 
 map(nxvo, "<A-,>",       "zm^",    { desc = "Fold more", silent = true })
 map(nxvo, "<A-.>",       "zr^",    { desc = "Reduce fold", silent = true })
@@ -100,11 +100,7 @@ map(nxvo, "<A-Down>",    "zj^",    { desc = "Goto next fold", silent = true })
 map(nxvo, "<A-Up>",      "zk^zz",  { desc = "Goto prev fold", silent = true })
 --]]
 
--- center Ctrl-o
-map(n, "<C-o>", "<C-o>zz", opts)
-
-------------------------------------------------------------------------------------------------------------------------
--- EDITING
+----EDITING-------------------------------------------------------------------------------------------------------------
 
 -- Undo
 map(n, "u",          "<cmd>silent undo<CR>zz",                       { desc = "󰜊 Silent undo", silent = true })
@@ -146,18 +142,15 @@ map({ "i", "c" }, "<C-d>", "<Backspace>", { desc = "Delete", silent = true })
 
 -- Save file
 vim.keymap.del(i, "<C-s>")
--- map(ni, "<C-s>", vim.cmd("write"), { desc = "Save File", silent = true })
-map(n, "<C-s>", "<cmd>w<CR><Esc>", { desc = "Save File", silent = true })
+map(n, "<C-s>", function() vim.cmd.write() end, { desc = "Save File", silent = true })
 
-------------------------------------------------------------------------------------------------------------------------
--- SURROUND
+----SURROUND------------------------------------------------------------------------------------------------------------
 
 map(n, "<A-`>", [[wBi`<Esc>ea`<Esc>b]],     { desc = " Inline Code cword", silent = true })
 map(x, "<A-`>", "<Esc>`<i`<Esc>`>la`<Esc>", { desc = " Inline Code selection", silent = true })
 map(i, "<A-`>", "``<Left>",                 { desc = " Inline Code", silent = true })
 
-------------------------------------------------------------------------------------------------------------------------
--- TEXTOBJECTS
+----TEXTOBJECTS---------------------------------------------------------------------------------------------------------
 
 local textobjRemaps = {
         { "c", "}", "", "curly" },
@@ -180,8 +173,7 @@ map(x, "<C-Space>", '"_c',   { desc = "󰒅 change selection", silent = true })
 map(n, "<A-Space>", '"_daw', { desc = "󰬞 delete word", silent = true })
 map(x, "<A-Space>", '"_d',   { desc = "󰬞 delete selection", silent = true })
 
-------------------------------------------------------------------------------------------------------------------------
--- COMMENTS
+----COMMENTS------------------------------------------------------------------------------------------------------------
 
 map(nx, "q",  "^zzgc",  { desc = "󰆈 Comment operator", remap = true, silent = true })
 map(n,  "qq", "gcc^zz", { desc = "󰆈 Comment line", remap = true, silent = true })
@@ -191,34 +183,23 @@ do
         map(n, "guu", "guu") -- prevent `omap u` above from overwriting `guu`
 end
 
-map(n, "qw", function()
-            comments.commentHr()
-            cmd()
-    end, { desc = "󰆈 Horizontal Divider", silent = true })
-map(n, "qy", function()
-            comments.duplicateLineAsComment()
-            cmd()
-    end, { desc = "󰆈 Duplicate Line as Comment", silent = true })
-map(n, "Q", function()
-            comments.addComment("eol")
-            vim.cmd.normal("zz")
-    end, { desc = "󰆈 Append Comment", silent = true })
-map(n, "qo", function()
-            comments.addComment("below")
-            vim.cmd.normal("zz")
-    end, { desc = "󰆈 Comment Below", silent = true })
-map(n, "qO", function()
-            comments.addComment("above")
-            vim.cmd.normal("zz")
-    end, { desc = "󰆈 Comment Above", silent = true })
-map(n, "dQ", function()
-            -- vim.cmd(("g/%s/d"):format(vim.fn.escape(vim.fn.substitute(vim.o.commentstring, "%s", "", "g"), "/.*[]~"),
-            --                           cmd()))
-            vim.cmd(("g/%s/d"):format(vim.fn.escape(vim.fn.substitute(vim.o.commentstring, "%s", "", "g"), "/.*[]~")))
-    end, { desc = "󰆈  Delete Comments", silent = true })
+do
+        local comments = require("functions.comment")
+        map(n, "qw", function() comments.commentHr("replaceMode") end,
+            { desc = "󰆈 Horizontal Divider + Label", silent = true })
+        map(n, "qy", function() comments.duplicateLineAsComment() end,
+            { desc = "󰆈 Duplicate Line as Comment", silent = true })
+        map(n, "Q",  function() comments.addComment("eol") end,   { desc = "󰆈 Append Comment", silent = true })
+        map(n, "qo", function() comments.addComment("below") end, { desc = "󰆈 Comment Below", silent = true })
+        map(n, "qO", function() comments.addComment("above") end, { desc = "󰆈 Comment Above", silent = true })
+        map(n, "dQ", function()
+                    vim.cmd(("g/%s/d"):format(vim.fn.escape(vim.fn.substitute(vim.o.commentstring, "%s", "", "g"),
+                                                            "/.*[]~")))
+            end, { desc = "󰆈  Delete Comments", silent = true })
+        comments.setupReplaceModeHelpersForComments()
+end
 
-------------------------------------------------------------------------------------------------------------------------
--- LSP
+----LSP-----------------------------------------------------------------------------------------------------------------
 
 map(n, "<A-d>", function()
             vim.diagnostic.jump({ count = 1, float = false })
@@ -229,7 +210,7 @@ map(n, "<A-D>", function()
             vim.cmd.normal("zz")
     end, { desc = "■ Diagnostic Prev" })
 
-map(n, "K", vim.lsp.buf.hover,          { desc = "󰏪 Hover Documentation" })
+map(n, "K", vim.lsp.buf.hover,          { desc = "󰏪 Hover Documentation", unique = false })
 map(n, "J", vim.lsp.buf.signature_help, { desc = "󰏪 Signature Help" })
 
 map(n, prefix .. "f", "gF", { desc = "Goto File", silent = true })
@@ -258,8 +239,7 @@ map(n, prefix .. "c", vim.lsp.buf.code_action,    { desc = "󱠀 Code Action" })
 map(n, prefix .. "F", vim.lsp.buf.format,         { desc = "LSP Format" })
 --]]
 
-------------------------------------------------------------------------------------------------------------------------
--- INSERT MODE
+----INSERT MODE---------------------------------------------------------------------------------------------------------
 
 map(n, "i", function()
             local lineEmpty = vim.trim(vim.api.nvim_get_current_line()) == ""
@@ -271,36 +251,44 @@ map(n, "<C-v>", "ggVG",  { desc = "select all", silent = true })
 map(x, "V",     "j",     { desc = "repeated `V` selects more lines", silent = true })
 map(x, "v",     "<C-v>", { desc = "`vv` starts visual block", silent = true })
 
-------------------------------------------------------------------------------------------------------------------------
--- INSPECT & EVAL
+----INSPECT & EVAL------------------------------------------------------------------------------------------------------
 
 map(n, "<leader>ih", vim.show_pos,                { desc = " Position at cursor", silent = true })
 map(n, "<leader>it", vim.treesitter.inspect_tree, { desc = " TS tree", silent = true })
 map(n, "<leader>iq", vim.treesitter.query.edit,   { desc = " TS query", silent = true })
 
-map(n,  "<leader>il",        function() eval.lspCapabilities() end, { desc = "󱈄 LSP capabilities", silent = true })
-map(n,  "<leader>in",        function() eval.nodeAtCursor() end,    { desc = " Node at cursor", silent = true })
-map(n,  "<leader>ib",        function() eval.bufferInfo() end,      { desc = "󰽙 Buffer info", silent = true })
-map(nx, "<leader>ie",        function() eval.evalNvimLua() end,     { desc = " Eval", silent = true })
-map(n,  "<leader><leader>x", function() eval.runFile() end,         { desc = "󰜎 Run file", silent = true })
+map(n,  "<leader>ia",        function() eval.inspectNodeAncestors() end, { desc = " Node ancestors" })
+map(n,  "<leader>il",        function() eval.lspCapabilities() end,      { desc = "󱈄 LSP capabilities", silent = true })
+map(n,  "<leader>in",        function() eval.nodeAtCursor() end,         { desc = " Node at cursor", silent = true })
+map(n,  "<leader>ib",        function() eval.bufferInfo() end,           { desc = "󰽙 Buffer info", silent = true })
+map(nx, "<leader>ie",        function() eval.evalNvimLua() end,          { desc = " Eval", silent = true })
+map(n,  "<leader><leader>x", function() eval.runFile() end,              { desc = "󰜎 Run file", silent = true })
 
-------------------------------------------------------------------------------------------------------------------------
--- WINDOWS
+map(n, "<leader>id", function()
+            local diag = vim.diagnostic.get_next()
+            vim.notify(vim.inspect(diag), nil, { ft = "lua" })
+    end, { desc = "󰋽 Next diagnostic" })
+
+map(nx, "<leader>ee", function()
+            local selection = vim.fn.mode() == "n" and "" or vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("v"))[1]
+            return ":lua = " .. selection
+    end, { expr = true, desc = "󰢱 Eval lua expr" })
+
+
+----WINDOWS-------------------------------------------------------------------------------------------------------------
 
 -- Create split
 map(n, "<A-w>",      "<C-W>czz", { desc = "Delete Window", silent = true })
 map(n, "<A-->",      "<C-W>szz", { desc = "Split Window Below", silent = true })
 map(n, "<A-Bslash>", "<C-W>vzz", { desc = "Split Window Right", silent = true })
 
-------------------------------------------------------------------------------------------------------------------------
--- BUFFERS & FILES
+----BUFFERS & FILES-----------------------------------------------------------------------------------------------------
 
 map(n, "<A-r>", vim.cmd.edit,         { desc = "󰽙 Reload buffer", silent = true })
 map(n, "H",     "<cmd>bprevious<cr>", { desc = "Prev Buffer", silent = true })
 map(n, "L",     "<cmd>bnext<cr>",     { desc = "Next Buffer", silent = true })
 
-------------------------------------------------------------------------------------------------------------------------
--- MACROS
+----MACROS--------------------------------------------------------------------------------------------------------------
 
 --[[
 do
@@ -317,8 +305,7 @@ do
 end
 ]]
 
-------------------------------------------------------------------------------------------------------------------------
--- REFACTORING
+----REFACTORING---------------------------------------------------------------------------------------------------------
 
 map(n, "<leader>fd", ":global //d<Left><Left>", { desc = " delete matching lines", silent = true })
 
@@ -344,8 +331,7 @@ end
 map(n, "<leader>f<Tab>",   function() retabber("tabs") end,   { desc = "󰌒 Use Tabs", silent = true })
 map(n, "<leader>f<Space>", function() retabber("spaces") end, { desc = "󱁐 Use Spaces", silent = true })
 
-------------------------------------------------------------------------------------------------------------------------
--- OPTION TOGGLING
+----OPTION TOGGLING-----------------------------------------------------------------------------------------------------
 
 local loaded, _ = pcall(require, "snacks")
 
@@ -356,11 +342,18 @@ if loaded then
         Snacks.toggle.treesitter({ name = " Treesitter Highlight" }):map("<leader>ot")
         Snacks.toggle.option("conceallevel", { off = 0, on = vim.o.conceallevel > 0 and vim.o.conceallevel or 2 })
                    :map("<leader>oc")
-        Snacks.toggle.words():map("<leader>ol")
 end
 
-------------------------------------------------------------------------------------------------------------------------
--- RELOAD PLUGINS
+map("n", "<leader>ol", function()
+            local clients = vim.lsp.get_clients{ bufnr = 0 }
+            local names   = vim.tbl_map(function(client) return client.name end, clients)
+            local list    = "- " .. table.concat(names, "\n- ")
+            vim.notify(list, nil, { title = "Restarting LSPs" })
+            vim.lsp.enable(names, false)
+            vim.lsp.enable(names, true)
+    end, { desc = "󰑓 LSP restart" })
+
+----RELOAD PLUGINS------------------------------------------------------------------------------------------------------
 
 map(n, "<leader>lr", function()
             local plugins      = require("lazy").plugins()

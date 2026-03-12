@@ -96,9 +96,7 @@ function M.camelSnakeLspRename()
                 local camelCased = cword:gsub(snakePattern, function(c1) return c1:upper() end)
                 vim.lsp.buf.rename(camelCased)
         elseif cword:find(camelPattern) then
-                local snake_cased = cword
-                           :gsub(camelPattern, function(c1, c2) return c1 .. "_" .. c2 end)
-                           :lower()
+                local snake_cased = cword:gsub(camelPattern, "%1_%2"):lower()
                 vim.lsp.buf.rename(snake_cased)
         else
                 local msg = "Neither snake_case nor camelCase: " .. cword
@@ -119,29 +117,42 @@ end
 function M.smartDuplicate()
         local row, col = unpack(vim.api.nvim_win_get_cursor(0))
         local line     = vim.api.nvim_get_current_line()
+        local ft       = vim.bo.filetype
 
-        -- FILETYPE-SPECIFIC TWEAKS
-        if vim.bo.ft == "css" then
-                local newLine = line
-                if line:find("top:") then newLine = line:gsub("top:", "bottom:") end
-                if line:find("bottom:") then newLine = line:gsub("bottom:", "top:") end
-                if line:find("right:") then newLine = line:gsub("right:", "left:") end
-                if line:find("left:") then newLine = line:gsub("left:", "right:") end
-                line = newLine
-        elseif vim.bo.ft == "lua" then
+        -- filetype-specific tweaks
+        if ft == "css" then
+                -- stylua: ignore
+                line = line:gsub("(%a+):", {
+                        top = "bottom:",
+                        bottom = "top:",
+                        right = "left:",
+                        left = "right:",
+                        light = "dark:",
+                        dark = "light:",
+                        width = "height:",
+                        height = "width:",
+                })
+        elseif ft == "javascript" or ft == "typescript" or ft == "swift" then
+                line = line:gsub("^(%s*)if(.+{)$", "%1} else if%2")
+        elseif ft == "lua" then
                 line = line:gsub("^(%s*)if( .* then)$", "%1elseif%2")
-        elseif vim.bo.ft == "zsh" or vim.bo.ft == "bash" then
+        elseif ft == "zsh" or ft == "bash" then
                 line = line:gsub("^(%s*)if( .* then)$", "%1elif%2")
-        elseif vim.bo.ft == "python" then
+        elseif ft == "python" then
                 line = line:gsub("^(%s*)if( .*:)$", "%1elif%2")
+        elseif ft == "markdown" then -- increment numbered list
+                line = line:gsub("^(%s*)(%d+)%. ", function(indent, num)
+                        local increment = tonumber(num) + 1
+                        return indent .. increment .. ". "
+                end)
         end
 
-        -- INSERT DUPLICATED LINE
+        -- insert duplicated line
         vim.api.nvim_buf_set_lines(0, row, row, false, { line })
 
-        -- MOVE CURSOR DOWN, AND TO VALUE/FIELD (IF EXISTS)
+        -- move cursor down, and to value/field (if any)
         local _, luadocFieldPos = line:find("%-%-%-@%w+ ")
-        local _, valuePos       = line:find("[:=][:=]? ")
+        local _, valuePos       = line:find("[:=] ")
         local targetCol         = luadocFieldPos or valuePos or col
         vim.api.nvim_win_set_cursor(0, { row + 1, targetCol })
 end

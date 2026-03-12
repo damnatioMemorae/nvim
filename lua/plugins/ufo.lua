@@ -3,7 +3,7 @@ local lvl  = vim.v.count
 
 return {
         "kevinhwang91/nvim-ufo",
-        -- lazy         = false,
+        lazy         = false,
         dependencies = "kevinhwang91/promise-async",
         keys         = {
                 { "<leader>if", function() require("ufo").inspect() end, desc = "Fold Info" },
@@ -152,7 +152,6 @@ return {
                         c        = { "comment" },
                         default  = { "comment" },
                         json     = { "array" },
-                        -- lua      = { "comment" },
                         lua      = {},
                         markdown = {},
                         python   = { "imports", "comment" },

@@ -1,10 +1,9 @@
-local colors     = Colors.Darkppuccin
+local colors = Colors.Darkppuccin
 
 local customCol = function(C)
         return {
 
-                --------------------------------------------------------------------------------------------------------
-                -- BUILTINS
+                ----BUILTINS--------------------------------------------------------------------------------------------
 
                 ---[[
                 DiagnosticVirtualTextError = { bg = colors.base },
@@ -113,15 +112,15 @@ local customCol = function(C)
                 Exception                  = { fg = colors.yellow },
                 markdownBlockquote         = { bg = colors.crust },
 
-                --------------------------------------------------------------------------------------------------------
-                -- TREESITTER
+                ----TREESITTER------------------------------------------------------------------------------------------
 
                 ["@comment.todo"]               = { fg = colors.crust, bg = colors.rosewater, italic = false, bold = true }, -- TODO
                 ["@comment.note"]               = { fg = colors.crust, bg = colors.blue, italic = false, bold = true },      -- NOTE
                 ["@comment.hint"]               = { fg = colors.crust, bg = colors.sky, italic = false, bold = true },       -- HINT
                 ["@comment.warning"]            = { fg = colors.crust, bg = colors.yellow, italic = false, bold = true },    -- WARNING
                 ["@comment.error"]              = { fg = colors.crust, bg = colors.red, italic = false, bold = true },       -- ERROR
-                ["@comment.code"]               = { fg = colors.teal, bg = colors.base, italic = false, bold = false },      -- code
+                ["@comment.code"]               = { fg = colors.teal, bg = colors.base, italic = false, bold = false },      -- `code`
+                ["@comment.bold"]               = { fg = colors.surface2, bold = true },                                     -- BOLD
                 ["@annotation"]                 = { fg = colors.yellow },
                 ["@attribute"]                  = { fg = colors.teal },
                 ["@boolean"]                    = { fg = colors.peach },
@@ -179,8 +178,7 @@ local customCol = function(C)
                 ["@variable.member"]            = { fg = colors.ivory },
                 ["@variable.parameter"]         = { fg = colors.red },
 
-                --------------------------------------------------------------------------------------------------------
-                -- SEMANTIC TOKENS
+                ----SEMANTIC TOKENS-------------------------------------------------------------------------------------
 
                 ["@module"]              = { fg = colors.yellow },
                 ["@operator"]            = { fg = colors.sapphire },
@@ -214,8 +212,7 @@ local customCol = function(C)
                 ["@struct"]              = { fg = colors.teal },
                 ["@typeParameter"]       = { fg = colors.yellow },
 
-                --------------------------------------------------------------------------------------------------------
-                -- C++
+                ----C ++ -----------------------------------------------------------------------------------------------
 
                 cType              = { fg = colors.mauve },
                 cppType            = { link = "cType" },
@@ -251,8 +248,7 @@ local customCol = function(C)
                 ["@lsp.typemod.variable.globalScope"]        = { link = "Function" },
                 ["@lsp.typemod.variable.functionScope.cpp"]  = { fg = colors.mauve },
 
-                --------------------------------------------------------------------------------------------------------
-                -- BLINK
+                ----BLINK-----------------------------------------------------------------------------------------------
 
                 BlinkCmpKindClass         = { link = "@lsp.type.class" },
                 BlinkCmpKindColor         = { link = "@define" },
@@ -303,15 +299,13 @@ local customCol = function(C)
                 BlinkCmpSignatureHelp       = { bg = colors.base },
                 BlinkCmpSignatureHelpBorder = { bg = colors.base },
 
-                --------------------------------------------------------------------------------------------------------
-                -- DROPBAR
+                ----DROPBAR---------------------------------------------------------------------------------------------
 
                 DropBarCurrentContext = { link = "Visual" },
                 DropBarFzfMatch       = { link = "DiagnosticErrorMsg" },
                 DropBarHover          = { link = "Visual" },
 
-                --------------------------------------------------------------------------------------------------------
-                -- DROPBAR ICON UI
+                ----DROPBAR ICON UI-------------------------------------------------------------------------------------
 
                 DropBarIconUiIndicator    = { link = "NonText" },
                 DropBarIconUiSeparator    = { link = "Comment" },
@@ -324,8 +318,7 @@ local customCol = function(C)
                 DropBarMenuSbar           = { link = "PmenuSbar" },
                 DropBarMenuThumb          = { link = "PmenuThumb" },
 
-                --------------------------------------------------------------------------------------------------------
-                -- DROPBAR KIND
+                ----DROPBAR KIND----------------------------------------------------------------------------------------
 
                 DropBarKindDefault           = { link = "Comment" },
                 DropBarKindArray             = { link = "Comment" },
@@ -396,8 +389,7 @@ local customCol = function(C)
                 DropBarKindVariable          = { link = "Comment" },
                 DropBarKindWhileStatement    = { link = "Comment" },
 
-                --------------------------------------------------------------------------------------------------------
-                -- DROPBAR ICON KIND
+                ----DROPBAR ICON KIND-----------------------------------------------------------------------------------
 
                 DropBarIconKindDefault           = { link = "@text" },
                 DropBarIconKindArray             = { link = "@string" },
@@ -468,8 +460,7 @@ local customCol = function(C)
                 DropBarIconKindVariable          = { link = "@lsp.type.variable" },
                 DropBarIconKindWhileStatement    = { link = "@keyword.repeat" },
 
-                --------------------------------------------------------------------------------------------------------
-                -- NEOTREE
+                ----NEOTREE---------------------------------------------------------------------------------------------
 
                 NeoTreeCursorLine    = { link = "Visual" },
                 NeoTreeFileName      = { link = "NonText" },
@@ -489,8 +480,7 @@ local customCol = function(C)
                 NeoTreeModified      = { link = "Normal" },
                 NeoTreeRootName      = { link = "CursorLineNr" },
 
-                --------------------------------------------------------------------------------------------------------
-                -- MINI-STATUSLINE
+                ----MINI-STATUSLINE-------------------------------------------------------------------------------------
 
                 MiniStatuslineModeNormal  = { bg = colors.text },
                 MiniStatuslineModeInsert  = { bg = colors.text },
@@ -503,16 +493,14 @@ local customCol = function(C)
                 MiniStatuslineFilename    = { fg = colors.surface0, bg = colors.crust },
                 MiniStatuslineInactive    = { fg = colors.text, bg = colors.crust },
 
-                --------------------------------------------------------------------------------------------------------
-                -- MINI-HIPATTERNS
+                ----MINI-HIPATTERNS-------------------------------------------------------------------------------------
 
                 MiniHipatternsNote  = { fg = colors.crust, bg = colors.sky, italic = true, bold = true },
                 MiniHipatternsTodo  = { fg = colors.crust, bg = colors.teal, italic = true, bold = true },
                 MiniHipatternsHack  = { fg = colors.crust, bg = colors.yellow, italic = true, bold = true },
                 MiniHipatternsFixme = { fg = colors.crust, bg = colors.red, italic = true, bold = true },
 
-                --------------------------------------------------------------------------------------------------------
-                -- NOICE
+                ----NOTICE----------------------------------------------------------------------------------------------
 
                 NoiceCmdline            = { link = "NormalFloat" },
                 NoiceConfirm            = { link = "NormalFloat" },
@@ -521,8 +509,7 @@ local customCol = function(C)
                 NoiceCmdlinePopupBorder = { link = "FloatBorder" },
                 NoiceCmdlineIcon        = { link = "Title" },
 
-                --------------------------------------------------------------------------------------------------------
-                -- MISC
+                ----MISC------------------------------------------------------------------------------------------------
 
                 YaziFloatBorder         = { fg = colors.crust, bg = colors.crust },
                 MoreMsg                 = { link = "DiagnosticHint" },

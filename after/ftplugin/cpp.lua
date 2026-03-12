@@ -4,6 +4,9 @@ vim.api.nvim_set_hl(0, "varFuncScope", { fg = "#f38ba8" })
 vim.api.nvim_set_hl(0, "varClassScope", { fg = "#74c7ec" })
 --]]
 
+------------------------------------------------------------------------------------------------------------------------
+-- SEMANTIC TOKENS
+
 ---[[ GLOBAL SCOPE
 vim.api.nvim_create_autocmd("LspTokenUpdate", {
         callback = function(args)

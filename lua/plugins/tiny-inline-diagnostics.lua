@@ -32,7 +32,8 @@ return {
                         virt_texts                   = { priority = 8000 },
                         experimental                 = { use_window_local_extmarks = true },
                         format                       = function(diag)
-                                return diag.message:sub(1, -2) .. " " .. "[" .. diag.source:sub(1, -2) .. "]"
+                                -- return diag.message:sub(1, -2) .. " " .. "[" .. diag.source:sub(1, -2) .. "]"
+                                return diag.message .. " " .. "[" .. diag.source .. "]"
                         end,
                 },
         },

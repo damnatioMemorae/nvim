@@ -18,6 +18,10 @@ return {
                 { "<C-x>",  function() return M.dial(false) end,       expr = true, desc = "Decrement", mode = { "n", "v" } },
                 { "g<C-a>", function() return M.dial(true, true) end,  expr = true, desc = "Increment", mode = { "n", "v" } },
                 { "g<C-x>", function() return M.dial(false, true) end, expr = true, desc = "Decrement", mode = { "n", "v" } },
+                { "+",      function() return M.dial(true) end,        expr = true, desc = "Increment", mode = { "n", "v" } },
+                { "-",      function() return M.dial(false) end,       expr = true, desc = "Decrement", mode = { "n", "v" } },
+                { "g+",     function() return M.dial(true, true) end,  expr = true, desc = "Increment", mode = { "n", "v" } },
+                { "g-",     function() return M.dial(false, true) end, expr = true, desc = "Decrement", mode = { "n", "v" } },
         },
         opts   = function()
                 local augend = require("dial.augend")
