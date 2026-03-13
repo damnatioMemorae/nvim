@@ -177,6 +177,15 @@
         "getline",
         "foldstart",
         "tabstop",
-        "foldend"
+        "foldend",
+        "luasnip",
+        "frecency",
+        "ripgrep",
+        "autosnippets",
+        "getcwd",
+        "bufnrs",
+        "omni",
+        "omnifunc",
+        "prefetch"
         ]
 }

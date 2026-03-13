@@ -1,6 +1,6 @@
 return {
         "saghen/blink.cmp",
-        event        = "LspAttach",
+        lazy         = false,
         build        = "cargo build --release",
         dependencies = {
                 { "niuiic/blink-cmp-rg.nvim" },
