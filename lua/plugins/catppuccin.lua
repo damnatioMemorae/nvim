@@ -1,6 +1,6 @@
 local colors = Colors.Darkppuccin
 
-local customCol = function(C)
+local customCol = function()
         return {
 
                 ----BUILTINS--------------------------------------------------------------------------------------------
@@ -280,18 +280,11 @@ local customCol = function(C)
                 BlinkCmpLabelDescription    = { link = "Comment" },
                 BlinkCmpLabelDetail         = { link = "Comment" },
                 BlinkCmpLabelMatch          = { link = "Normal" },
-                -- BlinkCmpMenu             = { bg = "#13131E" },
-                -- BlinkCmpMenu             = { bg = "#0e0e16" },
-                -- BlinkCmpMenuBorder       = { fg = colors.mantle, bg = colors.mantle },
                 BlinkCmpMenu                = { bg = colors.mantle },
-                -- BlinkCmpMenu             = { bg = "#11111b" },
-                -- BlinkCmpMenuBorder       = { fg = "#11111b", bg = "#11111b" },
                 BlinkCmpMenuBorder          = { fg = colors.surface0, bg = colors.mantle },
-                -- BlinkCmpMenuBorder       = { fg = colors.base, bg = colors.mantle },
                 BlinkCmpDoc                 = { bg = colors.base },
                 BlinkCmpDocBorder           = { bg = colors.base },
                 BlinkCmpDocSeparator        = { bg = colors.base },
-                -- BlinkCmpMenuSelection    = { link = "Visual" },
                 BlinkCmpMenuSelection       = { bg = colors.base, bold = false },
                 BlinkCmpSource              = { link = "Comment" },
                 BlinkCmpScrollBarThumb      = { link = "PmenuThumb" },
@@ -308,7 +301,7 @@ local customCol = function(C)
                 ----DROPBAR ICON UI-------------------------------------------------------------------------------------
 
                 DropBarIconUiIndicator    = { link = "NonText" },
-                DropBarIconUiSeparator    = { link = "Comment" },
+                DropBarIconUiSeparator    = { link = "NonText" },
                 DropBarMenuCurrentContext = { link = "Visual" },
                 DropBarMenuHoverEntry     = { link = "Visual" },
                 DropBarMenuHoverIcon      = { link = "IncSearch" },

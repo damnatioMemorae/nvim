@@ -9,29 +9,29 @@ local notify = vim.notify
 ------------------------------------------------------------------------------------------------------------------------
 
 function M.bufferInfo()
-        local pseudoTilde = "∼"
+        local pseudo_tilde = "∼"
 
         local clients     = lsp.get_clients{ bufnr = 0 }
-        local longestName = vim.iter(clients)
+        local longest_name = vim.iter(clients)
                    :fold(0, function(acc, client) return math.max(acc, #client.name) end)
         local lsps        = vim.tbl_map(function(client)
-                                                local pad = (" "):rep(math.min(longestName - #client.name)) .. " "
+                                                local pad = (" "):rep(math.min(longest_name - #client.name)) .. " "
                                                 local root = client.root_dir and
-                                                           client.root_dir:gsub("/Users/%w+", pseudoTilde)
+                                                           client.root_dir:gsub("/Users/%w+", pseudo_tilde)
                                                            or "*Single file mode*"
                                                 return ("[%s]%s%s"):format(client.name, pad, root)
                                         end, clients)
 
-        local indentType   = bo.expandtab and "spaces" or "tabs"
-        local indentAmount = bo.expandtab and bo.tabstop or bo.shiftwidth
+        local indent_type   = bo.expandtab and "spaces" or "tabs"
+        local indent_amount = bo.expandtab and bo.tabstop or bo.shiftwidth
 
         local out = {
                 "[bufnr]     " .. api.nvim_get_current_buf(),
                 "[winid]     " .. api.nvim_get_current_win(),
                 "[filetype]  " .. (bo.filetype == "" and '""' or bo.filetype),
                 "[buftype]   " .. (bo.buftype == "" and '""' or bo.buftype),
-                ("[indent]    %s (%s)"):format(indentType, indentAmount),
-                "[cwd]       " .. (vim.uv.cwd() or "nil"):gsub("/Users/%w+", pseudoTilde),
+                ("[indent]    %s (%s)"):format(indent_type, indent_amount),
+                "[cwd]       " .. (vim.uv.cwd() or "nil"):gsub("/Users/%w+", pseudo_tilde),
                 "",
         }
         if #lsps > 0 then
@@ -63,25 +63,25 @@ function M.nodeAtCursor()
         local msg   = table.concat(tree, "\n")
         notify(msg, vim.log.levels.DEBUG, { icon = "", title = "Node at cursor" })
 
-        local startRow, startCol = node:start()
-        local endRow, endCol     = node:end_()
+        local start_row, start_col = node:start()
+        local end_row, end_col     = node:end_()
         local ns                 = api.nvim_create_namespace("node-highlight")
-        if startRow == endRow then
-                api.nvim_buf_add_highlight(0, ns, config.hlGroup, startRow, startCol, endCol)
+        if start_row == end_row then
+                api.nvim_buf_add_highlight(0, ns, config.hlGroup, start_row, start_col, end_col)
         else
-                api.nvim_buf_add_highlight(0, ns, config.hlGroup, startRow, startCol, -1)
-                local lnum = startRow + 1
-                while lnum < endRow do
+                api.nvim_buf_add_highlight(0, ns, config.hlGroup, start_row, start_col, -1)
+                local lnum = start_row + 1
+                while lnum < end_row do
                         api.nvim_buf_add_highlight(0, ns, config.hlGroup, lnum, 0, -1)
                         lnum = lnum + 1
                 end
-                api.nvim_buf_add_highlight(0, ns, config.hlGroup, endRow, 0, endCol)
+                api.nvim_buf_add_highlight(0, ns, config.hlGroup, end_row, 0, end_col)
         end
         vim.defer_fn(function() api.nvim_buf_clear_namespace(0, ns, 0, -1) end, config.hlDuration)
 
         vim.defer_fn(function()
-                             local countNs = api.nvim_create_namespace("searchCounter")
-                             api.nvim_buf_clear_namespace(0, countNs, 0, -1)
+                             local count_ns = api.nvim_create_namespace("searchCounter")
+                             api.nvim_buf_clear_namespace(0, count_ns, 0, -1)
                      end, 1)
 end
 
@@ -127,13 +127,13 @@ end
 
 function M.runFile()
         cmd("silent update")
-        local hasShebang = api.nvim_buf_get_lines(0, 0, 1, false)[1]:find("^#!")
+        local has_shebang = api.nvim_buf_get_lines(0, 0, 1, false)[1]:find("^#!")
         local filepath   = api.nvim_buf_get_name(0)
         if bo.filetype == "lua" and filepath:find("nvim") then
                 cmd.source()
                 -- elseif bo.filetype == "lua" and fn.finddir("love2d", nil, nil) then
                 --         cmd("! love Game")
-        elseif hasShebang then
+        elseif has_shebang then
                 cmd("! chmod +x %")
                 cmd("! %")
         else
@@ -142,7 +142,7 @@ function M.runFile()
 
         if bo.filetype == "sh" and filepath:find("nvim") then
                 cmd.source()
-        elseif hasShebang then
+        elseif has_shebang then
                 cmd("! chmod +x %")
                 cmd("! ./%")
         else

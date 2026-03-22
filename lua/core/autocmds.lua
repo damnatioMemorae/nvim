@@ -17,7 +17,7 @@ autocmd("VimEnter", {
         desc     = "User: Auto-cd to project root",
         callback = function(ctx)
                 local root = vim.fs.root(ctx.buf, function(name, path)
-                        local parentName         = vim.fs.basename(vim.fs.dirname(path))
+                        local `parentName`         = vim.fs.basename(vim.fs.dirname(path))
                         local dirHasParentMarker = vim.tbl_contains(autoCdConfig.parentOfRoot, parentName)
                         local dirHasChildMarker  = vim.tbl_contains(autoCdConfig.childOfRoot, name)
                         return dirHasChildMarker or dirHasParentMarker
@@ -52,8 +52,9 @@ autocmd("FileType", {
                 "query",
         },
         callback = function(event)
-                -- local keys = { "q", "<Esc>" }
+                -- local keys = { "q" }
                 local keys = { "<Esc>" }
+                -- local keys = { "q", "<Esc>" }
                 for _, value in pairs(keys) do
                         vim.keymap.set("n", value, "<cmd>close<CR>", { buffer = event.buf, silent = true })
                 end

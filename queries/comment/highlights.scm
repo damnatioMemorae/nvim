@@ -1,81 +1,30 @@
-((tag
-        (name) @comment.code @nospell
-        ("(" @punctuation.bracket
-                (user) @constant
-                ")" @punctuation.bracket)?
-        ":" @punctuation.delimiter)
-        ; (#any-of? @comment.code "HINT" "WIP"))
-        (#match? @comment.code "'[^']*'"))
-
-("text" @comment.code @nospell
-        ; (#any-of? @comment.code "HINT" "WIP"))
-        (#match? @comment.code "'[^']*'"))
-
-; ("text" @comment.code
-        ; (#eq? @comment.code "!")
-        ; (#match? @issue "^[0-9]+$"))
-        ; (#match? @issue "'[^']*'"))
-
-((tag
-        (name) @comment.hint @nospell
-        ("(" @punctuation.bracket
-                (user) @constant
-                ")" @punctuation.bracket)?
-        ":" @punctuation.delimiter)
-        (#any-of? @comment.hint "HINT" "WIP"))
-
 ("text" @comment.hint @nospell
-        (#any-of? @comment.hint "HINT" "WIP"))
-
-((tag
-        (name) @comment.todo @nospell
-        ("(" @punctuation.bracket
-                (user) @constant
-                ")" @punctuation.bracket)?
-        ":" @punctuation.delimiter)
-        (#any-of? @comment.todo "TODO" "WIP"))
+        (#any-of? @comment.hint "HINT" "WIP")
+        (#set! "priority" 135 ))
 
 ("text" @comment.todo @nospell
-        (#any-of? @comment.todo "TODO" "WIP"))
-
-((tag
-        (name) @comment.note @nospell
-        ("(" @punctuation.bracket
-                (user) @constant
-                ")" @punctuation.bracket)?
-        ":" @punctuation.delimiter)
-        (#any-of? @comment.note "NOTE" "XXX" "INFO" "DOCS" "PERF" "TEST"))
+        (#any-of? @comment.todo "TODO" "WIP")
+        (#set! "priority" 135 ))
 
 ("text" @comment.note @nospell
-        (#any-of? @comment.note "NOTE" "XXX" "INFO" "DOCS" "PERF" "TEST"))
-
-((tag
-        (name) @comment.warning @nospell
-        ("(" @punctuation.bracket
-                (user) @constant
-                ")" @punctuation.bracket)?
-        ":" @punctuation.delimiter)
-        (#any-of? @comment.warning "HACK" "WARNING" "WARN" "FIX"))
+        (#any-of? @comment.note "NOTE" "XXX" "INFO" "DOCS" "PERF" "TEST")
+        (#set! "priority" 135 ))
 
 ("text" @comment.warning @nospell
-        (#any-of? @comment.warning "HACK" "WARNING" "WARN" "FIX"))
-
-((tag
-        (name) @comment.error @nospell
-        ("(" @punctuation.bracket
-                (user) @constant
-                ")" @punctuation.bracket)?
-        ":" @punctuation.delimiter)
-        (#any-of? @comment.error "FIXME" "BUG" "ERROR"))
+        (#any-of? @comment.warning "HACK" "WARNING" "WARN" "FIX")
+        (#set! "priority" 135 ))
 
 ("text" @comment.error @nospell
-        (#any-of? @comment.error "FIXME" "BUG" "ERROR"))
+        (#any-of? @comment.error "FIXME" "BUG" "ERROR")
+        (#set! "priority" 135 ))
 
-; Issue number (#123)
 ("text" @number
         (#lua-match? @number "^#[0-9]+$"))
 
 (uri) @string.special.url @nospell
 
 ("text" @comment.bold
-  (#lua-match? @comment.bold "^%u[%u%d_]+$")) ; at least 2 uppercase chars
+        (#lua-match? @comment.bold "^%u[%u%d_]+$"))
+
+("text" @comment.code @nospell
+        (#lua-match? @comment.code "`([^`]+)`"))

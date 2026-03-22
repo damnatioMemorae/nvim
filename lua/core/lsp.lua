@@ -1,34 +1,4 @@
 ------------------------------------------------------------------------------------------------------------------------
--- LSP SERVERS
-
-local lsp_servers = {
-        "asm_lsp",
-        "bashls",
-        "biome",
-        "clangd",
-        "cmake",
-        "css_variables",
-        "emmet",
-        "emmet-language-server",
-        "glslls",
-        "gopls",
-        "jsonls",
-        "just-lsp",
-        "jdtls",
-        "kotlin_lsp",
-        "lua_ls",
-        "rust_analyzer",
-        "superhtml",
-        "ts_ls",
-        "yamlls",
-        -- "hover-ls",
-}
-
-vim.lsp.config("*", { root_markers = { ".git" } })
-
-vim.lsp.enable(lsp_servers)
-
-------------------------------------------------------------------------------------------------------------------------
 -- DIAGNOSTICS
 
 local hl      = "DiagnosticVirtualText"
@@ -108,12 +78,13 @@ local relative    = "cursor"
 local wrap        = true
 local max_height  = math.floor(vim.o.lines * 0.7)
 local max_width   = math.floor(vim.o.columns * 0.6)
+local border      = Border.borderStyle
 
 local hover       = vim.lsp.buf.hover
 ---@diagnostic disable-next-line: duplicate-set-field
 vim.lsp.buf.hover = function()
         return hover{
-                border      = Border.borderStyle,
+                border      = border,
                 -- title       = Icons.symbolKinds.Parameter .. " " .. "Hover",
                 title       = "",
                 title_pos   = title_pos,
@@ -129,8 +100,7 @@ local signature_help       = vim.lsp.buf.signature_help
 ---@diagnostic disable-next-line: duplicate-set-field
 vim.lsp.buf.signature_help = function()
         return signature_help{
-                border      = Border.borderStyle,
-                -- title       = Icons.symbolKinds.Function .. " " .. "Signature Help",
+                border      = border,
                 title       = "",
                 title_pos   = title_pos,
                 anchor_bias = anchor_bias,
@@ -146,7 +116,6 @@ local float               = vim.diagnostic.open_float
 vim.diagnostic.open_float = function()
         return float{
                 title_pos     = "left",
-                -- title         = Icons.diagnostics.ERROR .. " " .. "Diagnostics",
                 title         = "",
                 border        = Border.borderStyle,
                 scope         = "cursor",

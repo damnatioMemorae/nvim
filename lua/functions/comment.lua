@@ -1,19 +1,19 @@
 local M = {}
 
 local config = {
-        formatterWantsPadding    = { "python", "swift", "toml" },
         hrChar                   = "-",
+        formatterWantsPadding    = { "python", "swift", "toml" },
         ignoreReplaceModeHelpers = { "markdown" },
 }
 
 ---@return string?
 local function getCommentstr()
-        local comStr = vim.bo.commentstring
-        if not comStr or comStr == "" then
+        local com_str = vim.bo.commentstring
+        if not com_str or com_str == "" then
                 vim.notify("No commentstring for " .. vim.bo.ft, vim.log.levels.WARN, { title = "Comment" })
                 return
         end
-        return comStr
+        return com_str
 end
 
 ------------------------------------------------------------------------------------------------------------------------
@@ -24,9 +24,9 @@ function M.setupReplaceModeHelpersForComments()
                 pattern  = "r:*", -- left replace-mode
                 callback = function(ctx)
                         if vim.list_contains(config.ignoreReplaceModeHelpers, vim.bo[ctx.buf].ft) then return end
-                        local line     = vim.api.nvim_get_current_line()
-                        local comChars = vim.trim(vim.bo.commentstring:format(""))
-                        if vim.startswith(vim.trim(line), comChars) then
+                        local line      = vim.api.nvim_get_current_line()
+                        local com_chars = vim.trim(vim.bo.commentstring:format(""))
+                        if vim.startswith(vim.trim(line), com_chars) then
                                 vim.api.nvim_set_current_line(line:upper())
                         end
                 end,
@@ -36,59 +36,22 @@ function M.setupReplaceModeHelpersForComments()
                 pattern  = "*:r", -- entered replace-mode
                 callback = function(ctx)
                         if vim.list_contains(config.ignoreReplaceModeHelpers, vim.bo[ctx.buf].ft) then return end
-                        local line     = vim.api.nvim_get_current_line()
-                        local comChars = vim.trim(vim.bo.commentstring:format(""))
-                        if vim.startswith(vim.trim(line), comChars) then
-                                vim.cmd.normal{ "^" .. #comChars + 1 .. "l", bang = true }
+                        local line      = vim.api.nvim_get_current_line()
+                        local com_chars = vim.trim(vim.bo.commentstring:format(""))
+                        if vim.startswith(vim.trim(line), com_chars) then
+                                vim.cmd.normal{ "^" .. #com_chars + 1 .. "l", bang = true }
                         end
                 end,
         })
 end
 
---
---[[
-function M.commentHr()
-        local comStr = getCommentstr()
-        if not comStr then return end
-        local startLn = vim.api.nvim_win_get_cursor(0)[1]
-
-        local ln = startLn
-        local line, indent
-        repeat
-                line   = vim.api.nvim_buf_get_lines(0, ln - 1, ln, true)[1]
-                indent = line:match("^%s*")
-                ln     = ln - 1
-        until line ~= "" or ln == 0
-
-        local indentLength = vim.bo.expandtab and #indent or #indent * vim.bo.tabstop
-        local comStrLength = #(comStr:format(""))
-        local textwidth    = vim.o.textwidth > 0 and vim.o.textwidth or 80
-        local hrLength     = textwidth - (indentLength + comStrLength)
-
-        local hrChar        = comStr:find("%-") and "-" or "─"
-        local hr            = hrChar:rep(hrLength)
-        local hrWithComment = comStr:format(hr)
-
-        local formatterWantPadding = { "python", "css", "scss" }
-        if not vim.tbl_contains(formatterWantPadding, vim.bo.ft) then
-                hrWithComment = hrWithComment:gsub(" ", hrChar)
-        end
-        local fullLine = indent .. hrWithComment
-        if vim.bo.ft == "markdown" then fullLine = "---" end
-
-        vim.api.nvim_buf_set_lines(0, startLn, startLn, true, { fullLine, "" })
-        vim.api.nvim_win_set_cursor(0, { startLn + 1, #indent })
-end
---]]
-
----[[
----@param replaceModeLabel? any
-function M.commentHr(replaceModeLabel)
+---@param replace_mode_label? any
+function M.commentHr(replace_mode_label)
         assert(vim.bo.commentstring ~= "", "Comment string not set for " .. vim.bo.ft)
-        local startLn = vim.api.nvim_win_get_cursor(0)[1]
+        local start_ln = vim.api.nvim_win_get_cursor(0)[1]
 
         -- determine indent
-        local ln = startLn
+        local ln = start_ln
         local line, indent
         repeat
                 line   = vim.api.nvim_buf_get_lines(0, ln - 1, ln, true)[1]
@@ -97,46 +60,44 @@ function M.commentHr(replaceModeLabel)
         until line ~= "" or ln == 0
 
         -- determine hr-length
-        local indentLength = vim.bo.expandtab and #indent or #indent * vim.bo.tabstop
-        local comStrLength = #(vim.bo.commentstring:format(""))
-        local textwidth    = vim.o.textwidth > 0 and vim.o.textwidth or 80
-        local hrLength     = textwidth - (indentLength + comStrLength)
+        local indent_length  = vim.bo.expandtab and #indent or #indent * vim.bo.tabstop
+        local com_str_length = #(vim.bo.commentstring:format(""))
+        local textwidth      = vim.o.textwidth > 0 and vim.o.textwidth or 80
+        local hr_length      = textwidth - (indent_length + com_str_length)
 
         -- construct HR
-        local hr            = config.hrChar:rep(hrLength)
-        local hrWithComment = vim.bo.commentstring:format(hr)
+        local hr              = config.hrChar:rep(hr_length)
+        local hr_with_comment = vim.bo.commentstring:format(hr)
 
         -- filetype-specific considerations
         if not vim.list_contains(config.formatterWantsPadding, vim.bo.ft) then
-                hrWithComment = hrWithComment:gsub(" ", config.hrChar)
+                hr_with_comment = hr_with_comment:gsub(" ", config.hrChar)
         end
-        local fullLine = indent .. hrWithComment
-        if vim.bo.ft == "markdown" then fullLine = "---" end
+        local full_line = indent .. hr_with_comment
+        if vim.bo.ft == "markdown" then full_line = "---" end
 
         -- append lines & move
-        vim.api.nvim_buf_set_lines(0, startLn, startLn, true, { fullLine })
-        if not replaceModeLabel then
-                vim.api.nvim_buf_set_lines(0, startLn + 1, startLn + 1, true, { "" })
+        vim.api.nvim_buf_set_lines(0, start_ln, start_ln, true, { full_line })
+        if not replace_mode_label then
+                vim.api.nvim_buf_set_lines(0, start_ln + 1, start_ln + 1, true, { "" })
         end
 
-        vim.api.nvim_win_set_cursor(0, { startLn + 1, #indent })
-        if replaceModeLabel then
-                vim.cmd.normal{ comStrLength + 1 .. "l", bang = true }
+        vim.api.nvim_win_set_cursor(0, { start_ln + 1, #indent })
+        if replace_mode_label then
+                vim.cmd.normal{ com_str_length + 1 .. "l", bang = true }
                 vim.cmd.startreplace()
         end
 end
 
---]]
-
 function M.duplicateLineAsComment()
-        local comStr = getCommentstr()
-        if not comStr then return end
+        local com_str = getCommentstr()
+        if not com_str then return end
 
         local lnum, col       = unpack(vim.api.nvim_win_get_cursor(0))
-        local curLine         = vim.api.nvim_get_current_line()
-        local indent, content = curLine:match("^(%s*)(.*)")
-        local commentedLine   = indent .. comStr:format(content)
-        vim.api.nvim_buf_set_lines(0, lnum - 1, lnum, false, { commentedLine, curLine })
+        local cur_line        = vim.api.nvim_get_current_line()
+        local indent, content = cur_line:match("^(%s*)(.*)")
+        local commented_line  = indent .. com_str:format(content)
+        vim.api.nvim_buf_set_lines(0, lnum - 1, lnum, false, { commented_line, cur_line })
         vim.api.nvim_win_set_cursor(0, { lnum + 1, col })
 end
 
@@ -187,35 +148,35 @@ function M.addComment(where)
         end
 
         -- determine comment behavior
-        local placeHolderAtEnd = vim.bo.commentstring:find("%%s$") ~= nil
-        local line             = vim.api.nvim_get_current_line()
+        local place_holder_at_end = vim.bo.commentstring:find("%%s$") ~= nil
+        local line                = vim.api.nvim_get_current_line()
 
         -- if empty line, add indent of first non-blank line after cursor
-        local indent    = ""
-        local emptyLine = line == ""
-        if emptyLine then
-                local i        = lnum
-                local lastLine = vim.api.nvim_buf_line_count(0)
-                while vim.fn.getline(i) == "" and i < lastLine do
+        local indent     = ""
+        local empty_line = line == ""
+        if empty_line then
+                local i         = lnum
+                local last_line = vim.api.nvim_buf_line_count(0)
+                while vim.fn.getline(i) == "" and i < last_line do
                         i = i + 1
                 end
                 indent = vim.fn.getline(i):match("^%s*")
         end
         local spacing = vim.list_contains(config.formatterWantsPadding, vim.bo.ft) and "  " or " "
-        local newLine = emptyLine and indent or line .. spacing
+        local new_line = empty_line and indent or line .. spacing
 
         -- write line
-        local comChars = vim.trim(vim.bo.commentstring:format(""))
-        if placeHolderAtEnd then comChars = comChars .. " " end
-        vim.api.nvim_set_current_line(newLine .. comChars)
+        local com_chars = vim.trim(vim.bo.commentstring:format(""))
+        if place_holder_at_end then com_chars = com_chars .. " " end
+        vim.api.nvim_set_current_line(new_line .. com_chars)
 
         -- move cursor
-        if placeHolderAtEnd then
+        if place_holder_at_end then
                 vim.cmd.startinsert{ bang = true }
         else
-                local placeholderPos = vim.bo.commentstring:find("%%s") - 1
-                local newCursorPos   = { lnum, #newLine + placeholderPos }
-                vim.api.nvim_win_set_cursor(0, newCursorPos)
+                local placeholder_pos = vim.bo.commentstring:find("%%s") - 1
+                local new_cursor_pos  = { lnum, #new_line + placeholder_pos }
+                vim.api.nvim_win_set_cursor(0, new_cursor_pos)
                 vim.cmd.startinsert()
         end
 end

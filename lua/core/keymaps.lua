@@ -30,8 +30,8 @@ end
 
 map(n, "ZZ", "<cmd>qa<cr>", { desc = " Quit", silent = true })
 
-local pluginDir = vim.fn.stdpath("data") --[[@as string]]
-map(n, "<leader>pd", function() vim.ui.open(pluginDir) end, { desc = "󰝰 Plugin dir", silent = true })
+local plugin_dir = vim.fn.stdpath("data") --[[@as string]]
+map(n, "<leader>pd", function() vim.ui.open(plugin_dir) end, { desc = "󰝰 Plugin dir", silent = true })
 
 ----NAVIGATION----------------------------------------------------------------------------------------------------------
 
@@ -117,8 +117,8 @@ map(n, "<", function() nano.toggleWordCasing() end, { desc = "󰬴 Toggle lower/
 map(n, ">", function() nano.camelSnakeToggle() end, { desc = "󰬴 Toggle camelCase and snake_case", silent = true })
 
 -- Append to EoL
-local trailChars = { ",", "\\", "[", "]", "{", "}", ")", ";", "." }
-for _, key in pairs(trailChars) do
+local trail_chars = { ",", "\\", "[", "]", "{", "}", ")", ";", "." }
+for _, key in pairs(trail_chars) do
         local pad = key == "\\" and " " or ""
         map(n, "<leader>" .. key, ("mzA%s%s<Esc>`z"):format(pad, key), opts)
 end
@@ -152,7 +152,7 @@ map(i, "<A-`>", "``<Left>",                 { desc = " Inline Code", silent =
 
 ----TEXTOBJECTS---------------------------------------------------------------------------------------------------------
 
-local textobjRemaps = {
+local textobj_remaps = {
         { "c", "}", "", "curly" },
         { "r", "]", "󰅪", "rectangular" },
         { "m", "W", "󰬞", "WORD" },
@@ -160,7 +160,7 @@ local textobjRemaps = {
         { "z", "'", "", "single" },
         { "e", "`", "", "backtick" },
 }
-for _, value in pairs(textobjRemaps) do
+for _, value in pairs(textobj_remaps) do
         local remap, original, icon, label = unpack(value)
         map({ "o", "x" }, "i" .. remap, "i" .. original, { desc = icon .. " inner " .. label })
         map({ "o", "x" }, "a" .. remap, "a" .. original, { desc = icon .. " outer " .. label })
@@ -175,8 +175,8 @@ map(x, "<A-Space>", '"_d',   { desc = "󰬞 delete selection", silent = true })
 
 ----COMMENTS------------------------------------------------------------------------------------------------------------
 
-map(nx, "q",  "^zzgc",  { desc = "󰆈 Comment operator", remap = true, silent = true })
-map(n,  "qq", "gcc^zz", { desc = "󰆈 Comment line", remap = true, silent = true })
+map(nx, "q",  "zzgc",  { desc = "󰆈 Comment operator", remap = true, silent = true })
+map(n,  "qq", "gcczz", { desc = "󰆈 Comment line", remap = true, silent = true })
 
 do
         map(o, "u",   "gc",  { desc = "󰆈 Multiline comment", remap = true })
@@ -242,8 +242,8 @@ map(n, prefix .. "F", vim.lsp.buf.format,         { desc = "LSP Format" })
 ----INSERT MODE---------------------------------------------------------------------------------------------------------
 
 map(n, "i", function()
-            local lineEmpty = vim.trim(vim.api.nvim_get_current_line()) == ""
-            return (lineEmpty and [["_cc]] or "i")
+            local line_empty = vim.trim(vim.api.nvim_get_current_line()) == ""
+            return (line_empty and [["_cc]] or "i")
     end, { expr = true, desc = "indented i on empty line", silent = true })
 
 -- VISUAL MODE
@@ -315,9 +315,9 @@ map(n, prefix .. "m", function() nano.camelSnakeLspRename() end,
     { desc = "󰑕 LSP rename: camel/snake", silent = true })
 
 map(nx, "<leader>qq", function()
-            local line        = vim.api.nvim_get_current_line()
-            local updatedLine = line:gsub("[\"']", function(q) return (q == [["]] and [[']] or [["]]) end)
-            vim.api.nvim_set_current_line(updatedLine)
+            local line         = vim.api.nvim_get_current_line()
+            local updated_line = line:gsub("[\"']", function(q) return (q == [["]] and [[']] or [["]]) end)
+            vim.api.nvim_set_current_line(updated_line)
     end, { desc = " Switch quotes in line", silent = true })
 
 ---@param use "spaces"|"tabs"
@@ -365,8 +365,6 @@ map(n, "<leader>lr", function()
             vim.ui.select(
                     plugin_names,
                     { title = "Reload plugin" },
-                    function(selected)
-                            require("lazy").reload({ plugins = { selected } })
-                    end
+                    function(selected) require("lazy").reload({ plugins = { selected } }) end
             )
     end, { desc = "Reload plugin", silent = true })

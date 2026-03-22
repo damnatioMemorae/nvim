@@ -1,6 +1,6 @@
 return {
         "saghen/blink.cmp",
-        lazy         = false,
+        event        = { "InsertEnter", "CmdlineEnter" },
         build        = "cargo build --release",
         dependencies = {
                 { "niuiic/blink-cmp-rg.nvim" },
@@ -21,7 +21,7 @@ return {
                         accept        = { auto_brackets = { enabled = false } },
                         documentation = {
                                 auto_show          = true,
-                                auto_show_delay_ms = 1,
+                                auto_show_delay_ms = 200,
                                 window             = {
                                         border    = Border.borderStyle,
                                         scrollbar = false,
@@ -29,6 +29,7 @@ return {
                         },
                         trigger       = {
                                 prefetch_on_insert                   = true,
+                                show_in_snippet                      = false,
                                 show_on_backspace                    = false,
                                 show_on_backspace_in_keyword         = false,
                                 show_on_backspace_after_accept       = false,
@@ -66,6 +67,38 @@ return {
                                                                 if ctx.source_id == "cmdline" then return end
                                                                 return ctx.kind_icon
                                                         end,
+                                                },
+                                                label       = {
+                                                        ellipsis = true,
+                                                        text     = function(ctx)
+                                                                return ctx.label
+                                                                -- .. ctx.label_detail
+                                                                -- .. (#ctx.label_description > 0 and " " .. ctx.label_description or "")
+                                                        end,
+                                                        -- highlight = function(ctx)
+                                                        --         local hls = {
+                                                        --                 { 0, #ctx.label_description, group = "BlinkCmpLabelDescription" },
+                                                        --                 { 0, #ctx.label,             group = "BlinkCmpLabelDescription" },
+                                                        --         }
+                                                        --
+                                                        --         -- local total_length = (#ctx.label + #ctx.label_detail)
+                                                        --         --            + (#ctx.label_description > 0 and #ctx.label_description + 1 or 0)
+                                                        --         -- local hls          = {
+                                                        --         --         { 0,          #ctx.label,   group = ctx.deprecated and "BlinkCmpLabelDeprecated" or "BlinkCmpLabel" },
+                                                        --         --         { #ctx.label, total_length, group = "BlinkCmpLabelDetail" },
+                                                        --         -- }
+                                                        --         -- for _, idx in ipairs(ctx.label_matched_indices) do
+                                                        --         --         table.insert(hls,
+                                                        --         --                      {
+                                                        --         --                              idx,
+                                                        --         --                              idx + 1,
+                                                        --         --                              group =
+                                                        --         --                              "BlinkCmpLabelMatch",
+                                                        --         --                      })
+                                                        --         -- end
+                                                        --
+                                                        --         return hls
+                                                        -- end,
                                                 },
                                                 source_name = {
                                                         text = function(ctx)
@@ -114,15 +147,6 @@ return {
                         per_filetype       = { ["rip-substitute"] = { "ripgrep", "buffer" } },
                         min_keyword_length = 0,
                         providers          = {
-                                snippets = {
-                                        name         = "Snip",
-                                        opts         = {
-                                                show_autosnippets     = true,
-                                                use_show_condition    = true,
-                                                use_label_description = true,
-                                        },
-                                        score_offset = -1,
-                                },
                                 lsp      = {
                                         name         = "LSP",
                                         module       = "blink.cmp.sources.lsp",
@@ -132,6 +156,14 @@ return {
                                         fallbacks    = {},
                                         async        = false,
                                         timeout_ms   = 500,
+                                        enabled      = function()
+                                                if vim.bo.ft ~= "lua" then return true end
+                                                local col = vim.api.nvim_win_get_cursor(0)[2]
+                                                local chars_before = vim.api.nvim_get_current_line():sub(col - 2, col)
+                                                local luadoc_but_not_comment = not chars_before:find("^%-%-?$")
+                                                           and not chars_before:find("%s%-%-?")
+                                                return luadoc_but_not_comment
+                                        end,
                                         override     = {
                                                 get_trigger_characters = function(self)
                                                         local trigger_characters = self:get_trigger_characters()
@@ -139,6 +171,16 @@ return {
                                                         return trigger_characters
                                                 end,
                                         },
+                                },
+                                snippets = {
+                                        name         = "Snip",
+                                        opts         = {
+                                                -- clipboard_register    = "+",
+                                                show_autosnippets     = true,
+                                                use_show_condition    = true,
+                                                use_label_description = true,
+                                        },
+                                        score_offset = -1,
                                 },
                                 path     = {
                                         name         = "Path",
@@ -148,14 +190,28 @@ return {
                                                 trailing_slash               = true,
                                                 label_trailing_slash         = true,
                                                 show_hidden_files_by_default = true,
-                                                get_cwd                      = function(_) return vim.fn.getcwd() end,
+                                                get_cwd                      = vim.uv.cwd,
                                         },
                                 },
                                 buffer   = {
                                         name         = "Buf",
-                                        score_offset = 60,
+                                        score_offset = -7,
                                         max_items    = 8,
                                         opts         = { get_bufnrs = vim.api.nvim_list_bufs },
+                                        get_bufnrs   = function()
+                                                local last_xmins       = 15
+                                                local all_open_buffers = vim.fn.getbufinfo{ buflisted = 1, bufloaded = 1 }
+                                                local recent_bufs      = vim.iter(all_open_buffers)
+                                                           :filter(function(buf)
+                                                                   local recently_used = os.time() - buf.lastused <
+                                                                              (60 * last_xmins)
+                                                                   local non_special = vim.bo[buf.bufnr].buftype == ""
+                                                                   return recently_used and non_special
+                                                           end)
+                                                           :map(function(buf) return buf.bufnr end)
+                                                           :totable()
+                                                return recent_bufs
+                                        end,
                                 },
                                 cmdline  = { module = "blink.cmp.sources.cmdline" },
                                 omni     = {
@@ -192,17 +248,20 @@ return {
                         },
                 },
                 keymap     = {
-                        preset        = "enter",
-                        ["<A-j>"]     = { "scroll_documentation_down", "fallback" },
-                        ["<A-k>"]     = { "scroll_documentation_up", "fallback" },
+                        preset        = "none",
+                        ["<A-j>"]     = { "scroll_signature_down", "scroll_documentation_down", "fallback" },
+                        ["<A-k>"]     = { "scroll_signature_up", "scroll_documentation_up", "fallback" },
                         ["<C-j>"]     = { "select_next", "fallback" },
                         ["<C-k>"]     = { "select_prev", "fallback" },
+                        ["<Down>"]    = { "select_next", "fallback" },
+                        ["<Up>"]      = { "select_prev", "fallback" },
                         ["<C-c>"]     = { function(cmp) if cmp.is_menu_visible() then cmp.hide() else cmp.show() end end },
                         ["<C-l>"]     = { "snippet_forward", "fallback" },
                         ["<C-h>"]     = { "snippet_backward", "fallback" },
                         ["<C-s>"]     = { "show_signature", "hide_signature", "fallback" },
-                        ["<Tab>"]     = { "select_next", "snippet_forward", "fallback" },
-                        ["<S-Tab>"]   = { "select_prev", "snippet_backward", "fallback" },
+                        ["<Tab>"]     = { "snippet_forward", "select_next", "fallback" },
+                        ["<S-Tab>"]   = { "snippet_backward", "select_prev", "fallback" },
+                        ["<CR>"]      = { "select_and_accept", "fallback" },
                         ["<C-Space>"] = {
                                 function(cmp)
                                         if cmp.is_menu_visible() then
@@ -220,12 +279,9 @@ return {
                 },
                 signature  = {
                         enabled = true,
-                        trigger = { enabled = false, show_on_keyword = true, show_on_insert = true },
-                        window  = { scrollbar = false, show_documentation = false },
+                        trigger = { enabled = false, show_on_keyword = true, show_on_insert = false },
+                        window  = { direction_priority = { "s", "n" }, scrollbar = false, show_documentation = false },
                 },
         },
         opts_extend  = { "sources.default", "sources.compat", "sources.completion.enabled_provider" },
-        config       = function(_, opts)
-                require("blink-cmp").setup(opts)
-        end,
 }
