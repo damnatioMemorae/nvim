@@ -68,10 +68,6 @@ map(n,  "n",     "nzz",                      { desc = "Search next", silent = tr
 map(n,  "N",     "Nzz",                      { desc = "Search previous", silent = true })
 map(ni, "<esc>", "<cmd>nohlsearch<cr><esc>", { desc = "Escape and Clear hlsearch", silent = true })
 
--- Goto matching parenthesis (`remap` needed to use builtin `MatchIt` plugin)
-map(n, "gm", "%zz", { desc = "󰅪 Goto match", remap = true, silent = true })
-map(n, "%",  "%zz", { desc = "󰅪 Goto match", remap = true, silent = true })
-
 -- Open first URL in file
 map(n, "<A-x>", function()
             local text = table.concat(vim.api.nvim_buf_get_lines(0, 0, -1, false), "\n")
@@ -214,9 +210,9 @@ map(n, "K", vim.lsp.buf.hover,          { desc = "󰏪 Hover Documentation", uni
 map(n, "J", vim.lsp.buf.signature_help, { desc = "󰏪 Signature Help" })
 
 map(n, prefix .. "f", "gF", { desc = "Goto File", silent = true })
--- map(n, prefix .. "q", vim.lsp.buf.code_action, { desc = "󱠀 Code Action Picker" })
-map(n, prefix .. "q", function() require("tiny-code-action").code_action() end,
-    { desc = "󱠀 Code Action Picker", remap = false, silent = true })
+map(n, prefix .. "q", vim.lsp.buf.code_action, { desc = "󱠀 Code Action Picker" })
+-- map(n, prefix .. "q", function() require("tiny-code-action").code_action() end,
+    -- { desc = "󱠀 Code Action Picker", remap = false, silent = true })
 map(n, "<leader>k", function()
             vim.diagnostic.config({ virtual_lines = { current_line = true }, virtual_text = false })
 

@@ -11,7 +11,7 @@ local ensure_installed = {
         -- "cmake-language-server",
 
         "biome",
-        "tombi",
+        -- "tombi",
         "css-lsp",
         "html-lsp",
         "json-lsp",

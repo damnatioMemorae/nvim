@@ -5,6 +5,7 @@ local o       = vim.o
 local wo      = vim.wo
 local fn      = vim.fn
 local opt     = vim.opt
+local cmd     = vim.cmd
 
 --[[AUTO CD TO PROJECT ROOT---------------------------------------------------------------------------------------------
 
@@ -17,10 +18,10 @@ autocmd("VimEnter", {
         desc     = "User: Auto-cd to project root",
         callback = function(ctx)
                 local root = vim.fs.root(ctx.buf, function(name, path)
-                        local `parentName`         = vim.fs.basename(vim.fs.dirname(path))
-                        local dirHasParentMarker = vim.tbl_contains(autoCdConfig.parentOfRoot, parentName)
-                        local dirHasChildMarker  = vim.tbl_contains(autoCdConfig.childOfRoot, name)
-                        return dirHasChildMarker or dirHasParentMarker
+                        local parent_name           = vim.fs.basename(vim.fs.dirname(path))
+                        local dir_has_parent_marker = vim.tbl_contains(autoCdConfig.parentOfRoot, parent_name)
+                        local dir_has_child_marker  = vim.tbl_contains(autoCdConfig.childOfRoot, name)
+                        return dir_has_child_marker or dir_has_parent_marker
                 end)
                 if root and root ~= "" then vim.uv.chdir(root) end
         end,
@@ -117,10 +118,10 @@ local function searchCountIndicator(mode)
         local row   = api.nvim_win_get_cursor(0)[1]
         local count = fn.searchcount()
         if count.total == 0 then return end
-        local text     = (" %d/%d "):format(count.current, count.total)
-        local line     = api.nvim_get_current_line():gsub("\t", (" "):rep(vim.bo.shiftwidth))
+        local text      = (" %d/%d "):format(count.current, count.total)
+        local line      = api.nvim_get_current_line():gsub("\t", (" "):rep(vim.bo.shiftwidth))
         local line_full = #line + sign_column_plus_scrollbar_width >= api.nvim_win_get_width(0)
-        local margin   = { (" "):rep(line_full and sign_column_plus_scrollbar_width or 0) }
+        local margin    = { (" "):rep(line_full and sign_column_plus_scrollbar_width or 0) }
 
         api.nvim_buf_set_extmark(0, count_ns, row - 1, 0, {
                 virt_text     = { { text, "IncSearch" }, margin },
@@ -132,12 +133,12 @@ end
 -- without the `searchCountIndicator`, this `on_key` simply does `auto-nohl`
 ---@diagnostic disable-next-line: unused-local
 vim.on_key(function(key, _typed)
-                   key                   = fn.keytrans(key)
+                   key                     = fn.keytrans(key)
                    local is_cmdline_search = fn.getcmdtype():find("[/?]") ~= nil
                    local is_normal_mode    = api.nvim_get_mode().mode == "n"
-                   local search_started   = (key == "/" or key == "?") and is_normal_mode
-                   local search_confirmed = (key == "<CR>" and is_cmdline_search)
-                   local search_cancelled = (key == "<Esc>" and is_cmdline_search)
+                   local search_started    = (key == "/" or key == "?") and is_normal_mode
+                   local search_confirmed  = (key == "<CR>" and is_cmdline_search)
+                   local search_cancelled  = (key == "<Esc>" and is_cmdline_search)
                    if not (search_started or search_confirmed or search_cancelled or is_normal_mode) then return end
 
                    -- works for RHS, therefore no need to consider remaps
@@ -155,10 +156,10 @@ vim.on_key(function(key, _typed)
 
 ----SKELETONS (TEMPLATES)-----------------------------------------------------------------------------------------------
 
-local template_dir       = fn.stdpath("config") .. "/templates"
-local home_dir           = os.getenv("HOME")
+local template_dir         = fn.stdpath("config") .. "/templates"
+local home_dir             = os.getenv("HOME")
 local glob_to_template_map = {
-        [home_dir .. "/.local/share/bin/lua/*.lua"]       = "script.lua",
+        [home_dir .. "/.local/share/bin/lua/*.lua"]      = "script.lua",
         [Config.localRepos .. "/**/*.lua"]               = "module.lua",
         [fn.stdpath("config") .. "/lua/functions/*.lua"] = "module.lua",
         [fn.stdpath("config") .. "/lua/plugins/*.lua"]   = "plugin-spec.lua",
@@ -216,7 +217,7 @@ autocmd({ "CursorMoved", "CursorMovedI", "WinScrolled" }, {
         group    = augroup("ScrollEOF", { clear = true }),
         callback = function()
                 if api.nvim_win_get_config(0).relative ~= "" then
-                        return -- Ignore floating windows
+                        return
                 end
 
                 local win_height             = fn.winheight(0)
@@ -230,7 +231,6 @@ autocmd({ "CursorMoved", "CursorMovedI", "WinScrolled" }, {
         end,
 })
 
--- FIX: for some reason `scrolloff` sometimes being set to `0` on new buffers
 local original_scrolloff = o.scrolloff
 autocmd({ "BufReadPost", "BufNew" }, {
         desc     = "User: FIX scrolloff on entering new buffer",
@@ -432,8 +432,6 @@ autocmd("FileType", {
         callback = function()
                 vim.cmd("wincmd L")
                 vim.cmd("vertical resize 70")
-                o.signcolumn = "yes:1"
-                o.number     = false
         end,
 })
 autocmd("FileType", {
@@ -457,49 +455,31 @@ autocmd("CmdlineChanged", {
         end,
 })
 
-----BACKDROP------------------------------------------------------------------------------------------------------------
-
-vim.api.nvim_create_autocmd({ "FileType", "FocusGained", "BufWinEnter" }, {
-        desc     = "Add backdrop to windows",
-        pattern  = { "dropbar_menu" },
-        callback = function(ctx)
-                local backdrop_name = "MasonBackdrop"
-                local mason_bufnr   = ctx.buf
-                local mason_zindex  = 10
-
-                local backdrop_bufnr = vim.api.nvim_create_buf(false, true)
-                local winnr         = vim.api.nvim_open_win(backdrop_bufnr, false, {
-                        relative  = "editor",
-                        row       = 0,
-                        col       = 0,
-                        width     = vim.o.columns,
-                        height    = vim.o.lines,
-                        focusable = false,
-                        style     = "minimal",
-                        zindex    = mason_zindex - 1,
-                })
-
-                vim.api.nvim_set_hl(0, backdrop_name, { link = "SnacksBackdrop" })
-                vim.wo[winnr].winhighlight    = "Normal:" .. backdrop_name
-                vim.wo[winnr].winblend        = 40
-                vim.bo[backdrop_bufnr].buftype = "nofile"
-
-                vim.api.nvim_create_autocmd({ "WinClosed" }, {
-                        once     = true,
-                        buffer   = mason_bufnr,
-                        callback = function()
-                                if vim.api.nvim_win_is_valid(winnr) then vim.api.nvim_win_close(winnr, true) end
-                                if vim.api.nvim_buf_is_valid(backdrop_bufnr) then
-                                        vim.api.nvim_buf_delete(backdrop_bufnr, { force = true })
-                                end
-                        end,
-                })
-        end,
-})
-
 ----SNIPPET-------------------------------------------------------------------------------------------------------------
 
 autocmd("WinScrolled", {
         desc     = "Exit snippet on window scroll",
         callback = function() vim.snippet.stop() end,
+})
+
+----RELOAD ON CHANGE----------------------------------------------------------------------------------------------------
+
+autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
+        desc     = "Reload files if they changed externaly",
+        callback = function()
+                if o.buftype ~= "nofile" then
+                        cmd.checktime()
+                end
+        end,
+})
+
+----STATUSCOL-----------------------------------------------------------------------------------------------------------
+
+autocmd("BufWinEnter", {
+        desc     = "Reset statuscolumn for miscellaneous buffers",
+        callback = function()
+                if vim.tbl_contains({ "nofile", "help", "prompt" }, vim.bo[0].buftype) then
+                        vim.wo[0][0].statuscolumn = ""
+                end
+        end,
 })

@@ -107,11 +107,12 @@ return {
                 { "<C-n>", function() openNotif("last") end, desc = "󰎟 Last notification" },
                 { "<leader><leader>n", function() Snacks.picker.notifications() end, desc = "󰎟 Notification history" },
                 {
-                        "<Esc>",
+                        "<Esc><Esc>",
                         function()
                                 Snacks.notifier.hide()
                                 vim.snippet.stop()
                         end,
+                        mode = { "n" },
                         desc = "Dismiss notice & exit snippet",
                 },
         },

@@ -76,7 +76,7 @@ local customCol = function()
                 NormalNC                   = { link = "Normal" },
                 Number                     = { fg = colors.peach },
                 Pmenu                      = { bg = colors.mantle },
-                PmenuSel                   = { link = "Visual" },
+                PmenuSel                   = { bg = colors.base, bold = true },
                 PmenuSbar                  = { bg = colors.base },
                 PmenuThumb                 = { bg = colors.surface0 },
                 PreCondit                  = { link = "PreProc" },
@@ -111,6 +111,8 @@ local customCol = function()
                 -- Exception                        = { fg = colors.yellow },
                 Exception                  = { fg = colors.yellow },
                 markdownBlockquote         = { bg = colors.crust },
+                WinBar                     = { link = "Normal" },
+                WinBlend                   = { bg = "#000000" },
 
                 ----TREESITTER------------------------------------------------------------------------------------------
 
@@ -277,21 +279,6 @@ local customCol = function()
                 BlinkCmpKindVariable      = { link = "@lsp.type.type" },
                 BlinkCmpAbbrDeprecated    = { link = "DiagnosticDeprecated" },
 
-                BlinkCmpLabelDescription    = { link = "Comment" },
-                BlinkCmpLabelDetail         = { link = "Comment" },
-                BlinkCmpLabelMatch          = { link = "Normal" },
-                BlinkCmpMenu                = { bg = colors.mantle },
-                BlinkCmpMenuBorder          = { fg = colors.surface0, bg = colors.mantle },
-                BlinkCmpDoc                 = { bg = colors.base },
-                BlinkCmpDocBorder           = { bg = colors.base },
-                BlinkCmpDocSeparator        = { bg = colors.base },
-                BlinkCmpMenuSelection       = { bg = colors.base, bold = false },
-                BlinkCmpSource              = { link = "Comment" },
-                BlinkCmpScrollBarThumb      = { link = "PmenuThumb" },
-                BlinkCmpScrollBarGutter     = { link = "PmenuSbar" },
-                BlinkCmpSignatureHelp       = { bg = colors.base },
-                BlinkCmpSignatureHelpBorder = { bg = colors.base },
-
                 ----DROPBAR---------------------------------------------------------------------------------------------
 
                 DropBarCurrentContext = { link = "Visual" },
@@ -306,10 +293,11 @@ local customCol = function()
                 DropBarMenuHoverEntry     = { link = "Visual" },
                 DropBarMenuHoverIcon      = { link = "IncSearch" },
                 DropBarMenuHoverSymbol    = { link = "Visual" },
-                DropBarMenuFloatBorder    = { link = "FloatBorder" },
-                DropBarMenuNormalFloat    = { link = "Normal" },
+                DropBarMenuFloatBorder    = { link = "DropBarMenuNormalFloat" },
+                DropBarMenuNormalFloat    = { link = "WinBar" },
                 DropBarMenuSbar           = { link = "PmenuSbar" },
                 DropBarMenuThumb          = { link = "PmenuThumb" },
+                DropBarIconKindDefaultNC  = { link = "WinBarNC" },
 
                 ----DROPBAR KIND----------------------------------------------------------------------------------------
 
@@ -384,7 +372,7 @@ local customCol = function()
 
                 ----DROPBAR ICON KIND-----------------------------------------------------------------------------------
 
-                DropBarIconKindDefault           = { link = "@text" },
+                DropBarIconKindDefault           = { link = "WinBar" },
                 DropBarIconKindArray             = { link = "@string" },
                 DropBarIconKindBoolean           = { link = "@lsp.type.boolean" },
                 DropBarIconKindBreakstatement    = { link = "DiagnosticError" },
@@ -397,7 +385,7 @@ local customCol = function()
                 DropBarIconKindDeclaration       = { link = "@lsp.type.type" },
                 DropBarIconKindDelete            = { link = "DiagnosticError" },
                 DropBarIconKindDir               = { link = "Function" },
-                DropBarIconKindDostatement       = { link = "@keyword" },
+                DropBarIconKindDostatement       = { link = "Keyword" },
                 DropBarIconKindElsestatement     = { link = "Conditional" },
                 DropBarIconKindElement           = { link = "@variable.builtin" },
                 DropBarIconKindEnum              = { link = "@lsp.type.enum" },
@@ -508,7 +496,7 @@ local customCol = function()
                 MoreMsg                 = { link = "DiagnosticHint" },
                 LspInlayHint            = { bg = colors.base },
                 SymbolUsage             = { bg = colors.base },
-                FoldMark                = { link = "LspInlayHint" },
+                FoldMark                = { link = "Comment" },
                 LightBulbSign           = { link = "DiagnosticSignHint" },
                 OutlineCurrent          = { bg = colors.base },
                 OutlineDetails          = { link = "LspInlayHint" },

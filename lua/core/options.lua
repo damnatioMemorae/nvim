@@ -1,8 +1,7 @@
 local opt = vim.opt
 local o   = vim.o
 
-------------------------------------------------------------------------------------------------------------------------
--- GENERAL
+----GENERAL-------------------------------------------------------------------------------------------------------------
 
 vim.schedule(function()
         o.clipboard = "unnamedplus"
@@ -28,7 +27,6 @@ o.spelllang     = "en_us"
 o.splitright    = true
 o.splitbelow    = true
 o.cursorline    = true
-o.signcolumn    = "yes"
 o.wrap          = false
 o.breakindent   = true
 o.report        = 9901
@@ -44,10 +42,31 @@ o.report        = 9001
 -- o.messagesopt   = { "wait:0", "history:1000" }
 o.nrformats     = "bin,hex,blank,unsigned"
 
--- o.statuscolumn  = "%s%l%C"
+----STATUSCOL--------------------------------------------------------------------------------------------------------------------
 
-------------------------------------------------------------------------------------------------------------------------
--- EDITOR
+local function numberLine()
+        local v = vim.v
+        if v.virtnum ~= 0 then
+                return "%="
+        end
+
+        local lnum     = v.relnum > 0 and v.relnum or v.lnum
+        local lnum_str = tostring(lnum)
+        local pad      = (""):rep(vim.wo.numberwidth - #lnum_str)
+        return "%=" .. pad .. lnum_str .. " "
+end
+
+function _G.render()
+        if vim.bo[0].buftype == "quickfix" then
+                return numberLine()
+        end
+
+        return numberLine()
+end
+
+o.statuscolumn = "%s%{%v:lua.render()%}"
+
+----EDITOR--------------------------------------------------------------------------------------------------------------
 
 o.textwidth     = 120
 o.expandtab     = true
@@ -58,26 +77,19 @@ o.smartindent   = true
 o.autoindent    = true
 o.breakindent   = true
 o.copyindent    = true
-o.concealcursor = "nv"
+o.concealcursor = "n"
 o.formatoptions = ""
 o.exrc          = true
 
-------------------------------------------------------------------------------------------------------------------------
--- FILETYPES
+----FILETYPES-----------------------------------------------------------------------------------------------------------
 
 vim.filetype.add{
         extension = { rasi = "rasi", rofi = "rasi", wofi = "rasi" },
-        filename  = {
-                [".ignore"] = "gitignore",
-        },
-        pattern   = {
-                [".*/kitty/.+%.conf"] = "kitty",
-                [".*/hypr/.+%.conf"]  = "hyprlang",
-        },
+        filename  = { [".ignore"] = "gitignore" },
+        pattern   = { [".*/kitty/.+%.conf"] = "kitty", [".*/hypr/.+%.conf"] = "hyprlang" },
 }
 
-------------------------------------------------------------------------------------------------------------------------
--- SEARCH & CMDLINE
+----SEARCH & CMDLINE----------------------------------------------------------------------------------------------------
 
 o.ignorecase = true
 o.smartcase  = true
@@ -85,8 +97,7 @@ o.hlsearch   = false
 o.inccommand = "split"
 o.cmdheight  = 0
 
-------------------------------------------------------------------------------------------------------------------------
--- INVISIBLE CHARS
+----INVISIBLE CHARS-----------------------------------------------------------------------------------------------------
 
 o.foldtext     = "v:lua.custom_foldtext()"
 o.list         = true
@@ -153,8 +164,6 @@ vim.api.nvim_create_autocmd("BufEnter", {
                         "logipat",
                         "rrhelper",
                         "spellfile_plugin",
-                        "matchit",
-                        "matchParen",
                 }) do
                         vim.g["loaded_" .. plugin] = 1
                 end
@@ -197,6 +206,6 @@ function _G.customFoldtext()
         foldVirtText(result, start, vim.v.foldstart - 1)
         -- table.insert(result, { "...", "Comment" })
         table.insert(result, { "...", "LspInlayHint" })
-        foldVirtText(result, end_, vim.v.foldend - 1, #(end_str:match("^(%s+)") or ""))
+        foldVirtText(result, end_,                      vim.v.foldend - 1, #(end_str:match("^(%s+)") or ""))
         return result
 end

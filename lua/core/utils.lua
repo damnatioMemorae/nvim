@@ -259,5 +259,38 @@ function M.getNodeText(node, bufnr)
         return vim.api.nvim_buf_get_text(bufnr or 0, sr, sc, er, ec, {})
 end
 
+---@param bufnr integer
+---@param filepath string
+---@return boolean
+function M.allowBufferForAi(bufnr, filepath)
+        if not filepath then filepath = vim.api.nvim_buf_get_name(bufnr) end
+        local ft, filename = vim.bo[bufnr].filetype, vim.fs.basename(filepath)
+        if vim.fn.reg_recording() ~= "" then return false end
+        if vim.bo[bufnr].buftype ~= "" then return false end
+        if ft == "text" then return false end
+        if ft == "bib" then return false end
+        if ft == "csv" then return false end
+        if filename == "config.local" then return false end
+        if not filename:find("%.") then return false end
+
+        local paths_to_ignore = {
+                "security",
+                "leetcode/",
+                "/private/var/",
+                "api-key",
+                ".env",
+                "recovery",
+        }
+        local ignore_path     = vim.iter(paths_to_ignore)
+                   :any(function(ignored) return filepath:lower():find(ignored, 1, true) ~= nil end)
+
+        if ignore_path then
+                vim.notify_once("Disabled AI on this buffer.")
+                return false
+        else
+                return true
+        end
+end
+
 --------------------------------------------------------------------------------
 return M

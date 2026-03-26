@@ -63,14 +63,14 @@ return {
                         "dsi",
                         function()
                                 require("various-textobjs").indentation("outer", "outer")
-                                local indentationFound = vim.fn.mode():find("V")
-                                if not indentationFound then return end
+                                local indentation_found = vim.fn.mode():find("V")
+                                if not indentation_found then return end
 
                                 vim.cmd.normal{ "<", bang = true } -- dedent indentation
-                                local endBorderLn   = vim.api.nvim_buf_get_mark(0, ">")[1]
-                                local startBorderLn = vim.api.nvim_buf_get_mark(0, "<")[1]
-                                vim.cmd(tostring(endBorderLn) .. " delete") -- delete end first so line index is not shifted
-                                vim.cmd(tostring(startBorderLn) .. " delete")
+                                local end_border_ln   = vim.api.nvim_buf_get_mark(0, ">")[1]
+                                local start_border_ln = vim.api.nvim_buf_get_mark(0, "<")[1]
+                                vim.cmd(tostring(end_border_ln) .. " delete") -- delete end first so line index is not shifted
+                                vim.cmd(tostring(start_border_ln) .. " delete")
                         end,
                         desc = " Delete surrounding indent",
                 },
@@ -78,8 +78,8 @@ return {
                         ",x",
                         function()
                                 require("various-textobjs").url()
-                                local foundURL = vim.fn.mode():find("v")
-                                if foundURL then
+                                local found_url = vim.fn.mode():find("v")
+                                if found_url then
                                         vim.cmd.normal{ '"zy', bang = true }
                                         local url = vim.fn.getreg("z")
                                         vim.ui.open(url)
@@ -90,11 +90,11 @@ return {
                 { -- open URL (first in a file)
                         "<D-U>",
                         function()
-                                local urlPattern = require("various-textobjs.charwise-textobjs").urlPattern
-                                local urlLine    = vim.iter(vim.api.nvim_buf_get_lines(0, 0, -1, false))
-                                           :find(function(line) return line:match(urlPattern) end)
-                                if urlLine then
-                                        vim.ui.open(urlLine:match(urlPattern))
+                                local url_pattern = require("various-textobjs.charwise-textobjs").urlPattern
+                                local url_line    = vim.iter(vim.api.nvim_buf_get_lines(0, 0, -1, false))
+                                           :find(function(line) return line:match(url_pattern) end)
+                                if url_line then
+                                        vim.ui.open(url_line:match(url_pattern))
                                 else
                                         vim.notify("No URL found in file.", vim.log.levels.WARN)
                                 end

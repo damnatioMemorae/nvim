@@ -1,11 +1,11 @@
 local textObj = require("core.utils").extraTextobjMaps
 
-local modes   = { "n", "v", "x", "o" }
+local modes = { "n", "v", "x", "o" }
 
 return {
         "nvim-treesitter/nvim-treesitter-textobjects",
-        branch       = "master",
-        cmd          = {
+        branch = "master",
+        cmd    = {
                 "TSTextobjectSelect",
                 "TSTextobjectSwapNext",
                 "TSTextobjectSwapPrevious",
@@ -17,22 +17,22 @@ return {
                 "TSTextobjectRepeatLastMoveOpposite",
                 "TSTextobjectRepeatLastMovePrevious",
         },
-        keys         = {
+        keys   = {
                 ---[[ COMMENT OPERATIONS
                 { -- COMMENT SINGLE
                         "q",
-                        "<cmd>TSTextobjectSelect @comment.inner<CR>",
+                        "<cmd>TSTextobjectSelect @comment.outer<CR>",
                         mode = "o",
                         desc = "󰆈 Single Comment",
                 },
                 { -- COMMENT STICKY DELETE
                         "qd",
                         function()
-                                local prevCursor = vim.api.nvim_win_get_cursor(0)
+                                local prev_cursor = vim.api.nvim_win_get_cursor(0)
                                 vim.cmd.TSTextobjectSelect("@comment.outer")
                                 vim.cmd.normal{ "d", bang = true }
                                 vim.cmd.normal("zz^")
-                                vim.api.nvim_win_set_cursor(0, prevCursor)
+                                vim.api.nvim_win_set_cursor(0, prev_cursor)
                         end,
                         desc = "󰆈 Sticky Delete Comment",
                 },
@@ -41,9 +41,9 @@ return {
                         function()
                                 vim.cmd.TSTextobjectSelect("@comment.outer")
                                 vim.cmd.normal{ "d", bang = true }
-                                local comStr = vim.trim( vim.bo.commentstring:format("") )
-                                local line   = vim.api.nvim_get_current_line():gsub("%s+$", "")
-                                vim.api.nvim_set_current_line(line .. " " .. comStr .. " ")
+                                local com_str = vim.trim(vim.bo.commentstring:format(""))
+                                local line    = vim.api.nvim_get_current_line():gsub("%s+$", "")
+                                vim.api.nvim_set_current_line(line .. " " .. com_str .. " ")
                                 vim.cmd.startinsert{ bang = true }
                         end,
                         desc = "󰆈 Change Comment",
@@ -259,5 +259,8 @@ return {
                         desc = "󰏪 Peek Definition",
                 },
                 --]]
+        },
+        opts   = {
+                select = { lookahead = true, include_surrounding_whitespace = false },
         },
 }

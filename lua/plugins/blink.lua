@@ -18,7 +18,7 @@ return {
                 snippets   = { preset = "luasnip" },
                 completion = {
                         keyword       = { range = "full" },
-                        accept        = { auto_brackets = { enabled = false } },
+                        accept        = { auto_brackets = { enabled = true } },
                         documentation = {
                                 auto_show          = true,
                                 auto_show_delay_ms = 200,
@@ -51,8 +51,8 @@ return {
                                 direction_priority = { "s", "n" },
                                 auto_show          = true,
                                 draw               = {
-                                        align_to   = "label",
                                         gap        = 1,
+                                        align_to   = "label",
                                         treesitter = { "lsp" },
                                         columns    = {
                                                 { "kind_icon",   gap = 0 },
@@ -174,13 +174,13 @@ return {
                                 },
                                 snippets = {
                                         name         = "Snip",
+                                        score_offset = -1,
                                         opts         = {
                                                 -- clipboard_register    = "+",
                                                 show_autosnippets     = true,
                                                 use_show_condition    = true,
                                                 use_label_description = true,
                                         },
-                                        score_offset = -1,
                                 },
                                 path     = {
                                         name         = "Path",
@@ -198,6 +198,7 @@ return {
                                         score_offset = -7,
                                         max_items    = 8,
                                         opts         = { get_bufnrs = vim.api.nvim_list_bufs },
+                                        --[[
                                         get_bufnrs   = function()
                                                 local last_xmins       = 15
                                                 local all_open_buffers = vim.fn.getbufinfo{ buflisted = 1, bufloaded = 1 }
@@ -212,6 +213,7 @@ return {
                                                            :totable()
                                                 return recent_bufs
                                         end,
+                                        --]]
                                 },
                                 cmdline  = { module = "blink.cmp.sources.cmdline" },
                                 omni     = {
@@ -284,4 +286,26 @@ return {
                 },
         },
         opts_extend  = { "sources.default", "sources.compat", "sources.completion.enabled_provider" },
+        config       = function(_, opts)
+                require("blink-cmp").setup(opts)
+
+                local hl     = vim.api.nvim_set_hl
+                local cmp    = "BlinkCmp"
+                local colors = Colors.Darkppuccin
+
+                hl(0, cmp .. "LabelDescription",    { link = "Comment" })
+                hl(0, cmp .. "LabelDetail",         { link = "Comment" })
+                hl(0, cmp .. "LabelMatch",          { fg = colors.red })
+                hl(0, cmp .. "Menu",                { link = "Pmenu" })
+                hl(0, cmp .. "MenuBorder",          { link = "Pmenu" })
+                hl(0, cmp .. "MenuSelection",       { link = "pmenuSel" })
+                hl(0, cmp .. "Doc",                 { link = "NormalFloat" })
+                hl(0, cmp .. "DocBorder",           { link = "BlinkCmpDoc" })
+                hl(0, cmp .. "DocSeparator",        { link = "BlinkCmpDoc" })
+                hl(0, cmp .. "SignatureHelp",       { link = "BlinkCmpDoc" })
+                hl(0, cmp .. "SignatureHelpBorder", { link = "BlinkCmpDoc" })
+                hl(0, cmp .. "Source",              { link = "Comment" })
+                hl(0, cmp .. "ScrollBarThumb",      { link = "PmenuThumb" })
+                hl(0, cmp .. "ScrollBarGutter",     { link = "PmenuSbar" })
+        end,
 }

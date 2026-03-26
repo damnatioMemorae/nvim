@@ -55,7 +55,6 @@ require("lazy").setup({
                 rtp = {
                         disabled_plugins = {
                                 "rplugin",
-                                "matchit",
                                 "netrwPlugin",
                                 "man",
                                 "tutor",
@@ -75,8 +74,7 @@ require("lazy").setup({
 require("lazy.view.config").keys.hover   = "o"
 require("lazy.view.config").keys.details = "<Tab>"
 
---------------------------------------------------------------------------------------------------------------------------------------------
--- KEYMAPS FOR NVIM TRIGGERING LAZY
+----KEYMAPS FOR NVIM TRIGGERING LAZY------------------------------------------------------------------------------------
 
 local map = require("core.utils").uniqueKeymap
 
@@ -104,8 +102,7 @@ local pluginTypeIcons = {
         ["which-key"]               = "⌨️",
 }
 
-------------------------------------------------------------------------------------------------------------------------
--- GOTO PLUGIN SPEC
+----GOTO PLUGIN SPEC----------------------------------------------------------------------------------------------------
 
 map("n", "<leader><leader>,", function()
             vim.api.nvim_create_autocmd("FileType", {
@@ -114,22 +111,22 @@ map("n", "<leader><leader>,", function()
                     pattern  = "TelescopeResults",
                     callback = function() vim.fn.matchadd("Title", [[^..\zs.]]) end,
             })
-            local specRoot  = require("lazy.core.config").options.spec.import
-            local specPath  = vim.fn.stdpath("config") .. "/lua/" .. specRoot
-            local specFiles = vim.fs.dir(specPath)
+            local spec_root  = require("lazy.core.config").options.spec.import
+            local spec_path  = vim.fn.stdpath("config") .. "/lua/" .. spec_root
+            local spec_files = vim.fs.dir(spec_path)
 
-            local allPlugins = vim.iter(specFiles):fold({}, function(acc, name, _)
+            local all_plugins = vim.iter(spec_files):fold({}, function(acc, name, _)
                     if not vim.endswith(name, ".lua") then return acc end
-                    local moduleName = name:gsub("%.lua$", "")
-                    local module     = require(specRoot .. "." .. moduleName)
+                    local module_name = name:gsub("%.lua$", "")
+                    local module     = require(spec_root .. "." .. module_name)
                     if type(module[1]) ~= "table" then module = { module } end
                     local plugins = vim.iter(module)
-                               :map(function(plugin) return { repo = plugin[1], module = moduleName } end)
+                               :map(function(plugin) return { repo = plugin[1], module = module_name } end)
                                :totable()
                     return vim.list_extend(acc, plugins)
             end)
 
-            vim.ui.select(allPlugins, {
+            vim.ui.select(all_plugins, {
                                   prompt      = "󰒲 Goto Config",
                                   format_item = function(plugin)
                                           local icon = pluginTypeIcons[plugin.module] or "󱧕"
@@ -138,14 +135,13 @@ map("n", "<leader><leader>,", function()
                           },
                           function(plugin)
                                   if not plugin then return end
-                                  local filepath = specPath .. "/" .. plugin.module .. ".lua"
+                                  local filepath = spec_path .. "/" .. plugin.module .. ".lua"
                                   local repo     = plugin.repo:gsub("/", "\\/")
                                   vim.cmd(("edit +/%q %s"):format(repo, filepath))
                           end)
     end, { desc = "󰒲 Goto Plugin Config" })
 
------------------------------------------------------------------------------------------------------------------
--- GOTO LOCAL PLUGIN CODE
+----GOTO LOCAL PLUGIN CODE----------------------------------------------------------------------------------------------
 
 map("n", "<leader><leader>p", function()
             vim.ui.select(
@@ -157,11 +153,10 @@ map("n", "<leader><leader>p", function()
                     end)
     end, { desc = "󰒲 Local Plugin Code" })
 
-------------------------------------------------------------------------------------------------------------------------
--- TEST FOR DUPLICATE KEYS (on every startup)
+----TEST FOR DUPLICATE KEYS---------------------------------------------------------------------------------------------
 
 local function checkForDuplicateKeys()
-        local alreadyMapped = {}
+        local already_mapped = {}
         local plugins       = require("lazy").plugins()
 
         -- 1) each plugin
@@ -170,21 +165,21 @@ local function checkForDuplicateKeys()
 
                 -- 2) each keymap of a plugin (only none-ft-specific keymaps)
                 vim.iter(plugin.keys)
-                           :filter(function(lazyKey) return lazyKey.ft == nil end)
-                           :each(function(lazyKey)
-                                   local lhs   = lazyKey[1] or lazyKey
-                                   local modes = lazyKey.mode or "n" ---@type string|string[]
+                           :filter(function(lazy_key) return lazy_key.ft == nil end)
+                           :each(function(lazy_key)
+                                   local lhs   = lazy_key[1] or lazy_key
+                                   local modes = lazy_key.mode or "n" ---@type string|string[]
                                    if type(modes) ~= "table" then modes = { modes } end
 
                                    -- 3) each mode of a keymap
                                    vim.iter(modes):each(function(mode)
-                                           if not alreadyMapped[mode] then alreadyMapped[mode] = {} end
-                                           if alreadyMapped[mode][lhs] then
+                                           if not already_mapped[mode] then already_mapped[mode] = {} end
+                                           if already_mapped[mode][lhs] then
                                                    local msg = ("Duplicate keymap: [%s (%s)]"):format(lhs, mode)
                                                    vim.notify(msg, vim.log.levels.WARN,
                                                               { title = "lazy.nvim", timeout = false })
                                            else
-                                                   alreadyMapped[mode][lhs] = true
+                                                   already_mapped[mode][lhs] = true
                                            end
                                    end)
                            end)

@@ -80,14 +80,6 @@ return {
                                 cursorcolumn   = false,
                         },
                 },
-                statuscolumn = {
-                        enabled = false,
-                        left    = { "git", "sign" },
-                        right   = { "fold" },
-                        folds   = { open = true, git_hl = false },
-                        git     = { pattern = { "GitSign", "MiniDiffSign" } },
-                        refresh = 50,
-                },
                 styles       = {
                         notification_history = {
                                 border   = border,
