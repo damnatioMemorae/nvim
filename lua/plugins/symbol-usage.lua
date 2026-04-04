@@ -3,14 +3,14 @@ return {
         event  = "VeryLazy",
         keys   = { { "<leader>os", Toggle.codeLens, desc = "LSP Codelens - Toggle" } },
         config = function()
-                local bg        = {}
+                local bg          = {}
                 -- local bg        = "LspInlayHint"
-                local groupsCol = { ---@diagnostic disable-line: unused-local
+                local _groups_col = {
                         { "Def",  "@lsp.type.parameter", "DiagnosticUnderlineError" },
                         { "Ref",  "@keyword",            "DiagnosticUnderlineWarn" },
                         { "Impl", "@class",              "DiagnosticUnderlineHint" },
                 }
-                local groups    = {
+                local groups      = {
                         { "Def",   "@lsp.type.parameter", "LspInlayHint" },
                         { "Ref",   "@keyword",            "LspInlayHint" },
                         { "Impl",  "@class",              "LspInlayHint" },
@@ -20,17 +20,16 @@ return {
                 local function h(name) return vim.api.nvim_get_hl(0, { name = name }) end
 
                 local function hl(list)
-                        for _, hlGroups in ipairs(list) do
-                                local symbol, fgCol, bgCol = unpack(hlGroups)
+                        for _, hl_groups in ipairs(list) do
+                                local symbol, fg_col, bg_col = unpack(hl_groups)
                                 vim.api.nvim_set_hl(0, "SymbolUsage" .. symbol,
-                                                    { fg = h(fgCol).fg, bg = h(bgCol).bg, bold = false })
+                                                    { fg = h(fg_col).fg, bg = h(bg_col).bg, bold = false })
                         end
                 end
 
                 hl(groups)
 
-                ---[[
-                local function text_format(symbol)
+                local function textFormat(symbol)
                         local res    = {}
                         local empty  = ""
                         local sep    = " "
@@ -61,20 +60,19 @@ return {
                         end
 
                         if stacked_functions_content ~= "" then
-                                if #res > 0 then
-                                        table.insert(res, { " ", "NonText" })
-                                end
-                                table.insert(res, { empty, "SymbolUsageDef" })
-                                table.insert(res, { " " .. tostring(stacked_functions_content), "SymbolUsageImpl" })
-                                table.insert(res, { empty, "SymbolUsageDef" })
+                                if #res > 0 then table.insert(res, { " ", "NonText" }) end
+
+                                table.insert(res, { border, "SymbolUsageDef" })
+                                table.insert(res, { " " .. tostring(stacked_functions_content), "@define" })
+                                table.insert(res, { border, "SymbolUsageDef" })
+                                -- insert("", tostring(stacked_functions_content), "SymbolUsageImpl")
                         end
 
                         return res
                 end
-                --]]
 
                 require("symbol-usage").setup({
-                        text_format    = text_format,
+                        text_format    = textFormat,
                         vt_position    = "end_of_line",
                         vt_priority    = 2000,
                         references     = { enabled = true, include_declaration = false },

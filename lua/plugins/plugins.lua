@@ -27,7 +27,7 @@ return {
         { enabled = true,  "chrisgrieser/nvim-lsp-endhints" },
         { enabled = false, "rachartier/tiny-code-action.nvim" },
         { enabled = true,  "rachartier/tiny-inline-diagnostic.nvim" },
-        { enabled = false,  "neovim/nvim-lspconfig" },
+        { enabled = false, "neovim/nvim-lspconfig" },
 
         ----TREESITTER--------------------------------------------------------------------------------------------------
         { enabled = true,  "Wansmer/treesj" },
@@ -62,16 +62,15 @@ return {
         { enabled = false, "MagicDuck/grug-far.nvim" },
         { enabled = true,  "altermo/ultimate-autopair.nvim" },
         { enabled = true,  "chrisgrieser/nvim-rip-substitute" },
-        { enabled = false,  "chrisgrieser/nvim-various-textobjs" },
+        { enabled = false, "chrisgrieser/nvim-various-textobjs" },
 
         ----MOVEMENT----------------------------------------------------------------------------------------------------
         { enabled = true,  "chrisgrieser/nvim-spider" },
-        { enabled = true, "folke/flash.nvim" },
+        { enabled = true,  "folke/flash.nvim" },
         { enabled = false, "https://codeberg.org/knight9114/arc.nvim" },
         { enabled = true,  "https://codeberg.org/andyg/leap.nvim" },
 
         ----MISC--------------------------------------------------------------------------------------------------------
-        { enabled = true,  "vhyrro/luarocks.nvim" },
         { enabled = true,  "MunifTanjim/nui.nvim" },
         { enabled = true,  "wakatime/vim-wakatime" },
         { enabled = true,  "nvim-lua/plenary.nvim" },
@@ -86,7 +85,7 @@ return {
 
         { enabled = true,  "yarospace/lua-console.nvim" },
 
-        { enabled = false, "3rd/image.nvim" },
+        { enabled = true,  "3rd/image.nvim" },
         { enabled = true,  "mbbill/undotree" },
         { enabled = true,  "folke/snacks.nvim" },
         { enabled = true,  "nvim-neo-tree/neo-tree.nvim" },

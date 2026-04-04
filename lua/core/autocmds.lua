@@ -35,6 +35,7 @@ autocmd("FileType", {
         desc     = "Quit windows with both `Esc` and `q`",
         group    = augroup("Close with <q>", { clear = true }),
         pattern  = {
+                "pager",
                 "checkhealth",
                 -- "help",
                 "lazy",
@@ -445,14 +446,14 @@ autocmd("VimResized", {
 
 ----QUICKFIX------------------------------------------------------------------------------------------------------------
 
-autocmd("FileType", {
-        desc     = "Open quickfix window in vertical split",
-        pattern  = "qf",
-        callback = function()
-                vim.cmd("wincmd L")
-                vim.cmd("vertical resize 70")
-        end,
-})
+-- autocmd("FileType", {
+--         desc     = "Open quickfix window in vertical split",
+--         pattern  = "qf",
+--         callback = function()
+--                 vim.cmd("wincmd L")
+--                 vim.cmd("vertical resize 70")
+--         end,
+-- })
 autocmd("FileType", {
         desc     = "Show quickfix results interactively",
         pattern  = "qf",

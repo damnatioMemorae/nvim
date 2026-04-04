@@ -154,5 +154,5 @@ return {
                 { "a" .. textObj.condition, select("conditional", "outer"), mode = { "x", "o" }, desc = icon.IfStatement .. "outer condition" },
                 { "i" .. textObj.condition, select("conditional", "inner"), mode = { "x", "o" }, desc = icon.IfStatement .. "inner condition" },
         },
-        opts         = { select = { lookahead = true, include_surrounding_whitespace = false } },
+        opts         = { select = { lookahead = true, include_surrounding_whitespace = true } },
 }

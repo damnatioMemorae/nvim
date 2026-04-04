@@ -3,11 +3,7 @@ return {
         lazy         = true,
         branch       = "v3.x",
         keys         = { { "<leader>e", "<cmd>Neotree toggle<cr>", desc = "Tree", mode = { "n" } } },
-        dependencies = {
-                "nvim-lua/plenary.nvim",
-                "nvim-tree/nvim-web-devicons",
-                "MunifTanjim/nui.nvim",
-        },
+        dependencies = { "nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons", "MunifTanjim/nui.nvim" },
         opts         = {
                 add_blank_line_at_top            = false,
                 auto_clean_after_session_restore = true,
@@ -23,11 +19,7 @@ return {
                 retain_hidden_root_indent        = false,
                 sort_case_insensitive            = false,
                 sources                          = { "filesystem", "buffers" },
-                source_selector                  = {
-                        winbar                        = false,
-                        statusline                    = false,
-                        show_scrolled_off_parent_node = false,
-                },
+                source_selector                  = { winbar = false, statusline = false, show_scrolled_off_parent_node = false },
                 window                           = {
                         position          = "right",
                         width             = 40,
@@ -83,22 +75,15 @@ return {
                                         error = "DiagnosticSignError",
                                 },
                         },
-                        modified    = {
-                                symbol    = Icons.Git.Modified,
-                                highlight = "NeoTreeModified",
-                        },
+                        modified    = { symbol = Icons.Git.Modified, highlight = "NeoTreeModified" },
                 },
                 filesystem                       = {
-                        filtered_items         = {
-                                visible         = true,
-                                hide_dotfiles   = false,
-                                hide_gitignored = true,
-                        },
                         bind_to_cwd            = true,
-                        follow_current_file    = { enabled = false },
                         leave_dirs_open        = true,
                         use_libuv_file_watcher = false,
                         terminals_first        = true,
+                        follow_current_file    = { enabled = false },
+                        filtered_items         = { visible = true, hide_dotfiles = false, hide_gitignored = true },
                 },
         },
 }

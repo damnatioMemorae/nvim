@@ -32,6 +32,7 @@ local ensure_installed = {
         -- FORMATTERS
         "prettier",
         "prettierd",
+        -- "ts_query_ls",
 
         -- DEBUGGERS
 

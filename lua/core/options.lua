@@ -81,6 +81,15 @@ o.concealcursor = "n"
 o.formatoptions = ""
 o.exrc          = true
 
+local cursor = {
+        "n-v-c-sm:block-Cursor",
+        "i-ci-ve:ver25-Cursor",
+        "r-cr-o:hor20-Cursor",
+        "a:blinkwait500-blinkoff500-blinkon500",
+}
+
+o.guicursor = table.concat(cursor, ",")
+
 ----FILETYPES-----------------------------------------------------------------------------------------------------------
 
 vim.filetype.add{
@@ -97,37 +106,40 @@ o.hlsearch   = false
 o.inccommand = "split"
 o.cmdheight  = 0
 
+local targets = {
+        [""]         = "msg",
+        empty        = "cmd",
+        bufwrite     = "msg",
+        confirm      = "cmd",
+        emsg         = "pager",
+        echo         = "msg",
+        echomsg      = "msg",
+        echoerr      = "pager",
+        completion   = "cmd",
+        list_cmd     = "pager",
+        lua_error    = "pager",
+        lua_print    = "msg",
+        progress     = "pager",
+        rpc_error    = "pager",
+        quickfix     = "msg",
+        search_cmd   = "cmd",
+        search_count = "cmd",
+        shell_cmd    = "pager",
+        shell_err    = "pager",
+        shell_out    = "pager",
+        shell_ret    = "msg",
+        undo         = "msg",
+        verbose      = "pager",
+        wildlist     = "cmd",
+        wmsg         = "msg",
+        typed_cmd    = "cmd",
+}
+
 require("vim._core.ui2").enable({
         enable = true,
         msg    = {
-                targets = {
-                        [""]         = "msg",
-                        empty        = "cmd",
-                        bufwrite     = "msg",
-                        confirm      = "cmd",
-                        emsg         = "pager",
-                        echo         = "msg",
-                        echomsg      = "msg",
-                        echoerr      = "pager",
-                        completion   = "cmd",
-                        list_cmd     = "pager",
-                        lua_error    = "pager",
-                        lua_print    = "msg",
-                        progress     = "pager",
-                        rpc_error    = "pager",
-                        quickfix     = "msg",
-                        search_cmd   = "cmd",
-                        search_count = "cmd",
-                        shell_cmd    = "pager",
-                        shell_err    = "pager",
-                        shell_out    = "pager",
-                        shell_ret    = "msg",
-                        undo         = "msg",
-                        verbose      = "pager",
-                        wildlist     = "cmd",
-                        wmsg         = "msg",
-                        typed_cmd    = "cmd",
-                },
+                -- targets = targets,
+                targets = "cmd",
                 cmd     = { height = 0.5 },
                 dialog  = { height = 0.5 },
                 pager   = { height = 0.5 },
@@ -137,19 +149,10 @@ require("vim._core.ui2").enable({
 
 ----INVISIBLE CHARS-----------------------------------------------------------------------------------------------------
 
-o.foldtext     = "v:lua.custom_foldtext()"
-o.list         = true
+-- o.foldtext     = "v:lua.custom_foldtext()"
 o.conceallevel = 2
+o.list         = true
 
-opt.fillchars:append{
-        fold      = " ",
-        vert      = "▕",
-        eob       = " ",
-        foldclose = Icons.Arrows.close,
-        foldopen  = Icons.Arrows.open,
-        foldsep   = "│",
-        diff      = "╱",
-}
 opt.listchars = {
         nbsp       = " ",
         precedes   = Icons.Misc.ellipsis,
@@ -158,6 +161,15 @@ opt.listchars = {
         lead       = " ",
         trail      = " ",
         tab        = "  ",
+}
+opt.fillchars:append{
+        fold      = " ",
+        vert      = "▕",
+        eob       = " ",
+        foldclose = Icons.Arrows.close,
+        foldopen  = Icons.Arrows.open,
+        foldsep   = "│",
+        diff      = "╱",
 }
 
 o.winborder        = "none"

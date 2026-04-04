@@ -1,15 +1,15 @@
 [
+        (arguments)
         (comment)
+        (do_statement)
         (elseif_statement)
         (else_statement)
-        (do_statement)
-        (while_statement)
-        (repeat_statement)
-        (if_statement)
         (for_statement)
         (function_declaration)
         (function_definition)
+        (if_statement)
         (parameters)
-        (arguments)
+        (repeat_statement)
         (table_constructor)
-] @fold
+        (while_statement)
+ ] @fold

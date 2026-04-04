@@ -85,10 +85,10 @@ map(n, "F", function() nano.fF("F") end, { desc = "F", silent = true })
 ----EDITING-------------------------------------------------------------------------------------------------------------
 
 -- Undo
-map(n, "u",          "<cmd>silent undo<CR>zz",                       { desc = "󰜊 Silent undo", silent = true })
-map(n, "U",          "<cmd>silent redo<CR>zz",                       { desc = "󰛒 Silent redo", silent = true })
-map(n, "<leader>uu", ":earlier ",                                    { desc = "󰜊 Undo to earlier", silent = true })
-map(n, "<leader>ur", function() vim.cmd.later(vim.o.undolevels) end, { desc = "󰛒 Redo all", silent = true })
+map(n, "u",           "<cmd>silent undo<CR>zz",                       { desc = "󰜊 Silent undo", silent = true })
+map(n, "U",           "<cmd>silent redo<CR>zz",                       { desc = "󰛒 Silent redo", silent = true })
+map(n, "<leader>uu",  ":earlier ",                                    { desc = "󰜊 Undo to earlier", silent = true })
+map(n, "<leader>ur",  function() vim.cmd.later(vim.o.undolevels) end, { desc = "󰛒 Redo all", silent = true })
 
 -- Duplicate
 map(n, "<C-w>", function() nano.smartDuplicate() end, { desc = "󰲢 Duplicate line", nowait = true, silent = true })
@@ -313,12 +313,12 @@ map(n, "<leader>id", function()
             vim.notify(vim.inspect(diag), nil, { ft = "lua" })
     end, { desc = "󰋽 Next diagnostic" })
 
-map(nx, "<leader>ee", function()
+map(nx, "<leader>E", function()
             local selection = vim.fn.mode() == "n" and "" or vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("v"))[1]
             return ":lua = " .. selection
     end, { expr = true, desc = "󰢱 Eval lua expr" })
 
-map("n", "<leader>ey", function()
+map(n, "<leader>ye", function()
             local cmd        = vim.trim(vim.fn.getreg(":"))
             local last_excmd = cmd:gsub("^lua ", ""):gsub("^= ?", "")
 

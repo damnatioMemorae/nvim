@@ -1,5 +1,28 @@
-local ensure_installed = { "all" }
-local ignoreParsers    = { "toml", "ipkg" }
+-- local ensure_installed = { "all" }
+local ensure_installed = {
+        "all",
+}
+
+---@param node "inc" | "dec" | "next" | "prev"
+local function incSelect(node)
+        if node == "inc" then
+                if vim.treesitter.get_parser(nil, nil, { error = false }) then
+                        require("vim.treesitter._select").select_parent(vim.v.count1)
+                else
+                        vim.lsp.buf.selection_range(vim.v.count1)
+                end
+        elseif node == "dec" then
+                if vim.treesitter.get_parser(nil, nil, { error = false }) then
+                        require("vim.treesitter._select").select_child(vim.v.count1)
+                else
+                        vim.lsp.buf.selection_range(-vim.v.count1)
+                end
+        elseif node == "next" then
+                require("vim.treesitter._select").select_next(vim.v.count1)
+        elseif node == "prev" then
+                require("vim.treesitter._select").select_prev(vim.v.count1)
+        end
+end
 
 return {
         "nvim-treesitter/nvim-treesitter",
@@ -34,8 +57,13 @@ return {
                 })
 
                 -- `ts_query_ls`: use the custom directory set in the treesitter config
-                local ts_dir = require("nvim-treesitter.config").get_install_dir("parser")
-                vim.lsp.config("ts_query_ls", { init_options = { parser_install_directories = { ts_dir } } })
+                -- local ts_dir = require("nvim-treesitter.config").get_install_dir("parser")
+                -- vim.lsp.config("ts_query_ls", { init_options = { parser_install_directories = { ts_dir } } })
+
+                vim.keymap.set("x",          "n", function() incSelect("next") end, { desc = "Select next node" })
+                vim.keymap.set("x",          "N", function() incSelect("prev") end, { desc = "Select previous node" })
+                vim.keymap.set({ "x", "o" }, "m", function() incSelect("inc") end,  { desc = "Select child node" })
+                vim.keymap.set({ "x", "o" }, "M", function() incSelect("dec") end,  { desc = "Select parent node" })
         end,
         opts  = { install_dir = vim.fn.stdpath("data") .. "/treesitter" },
 }
