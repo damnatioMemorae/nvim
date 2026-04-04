@@ -1,6 +1,6 @@
 local map = require("core.utils").uniqueKeymap
-------------------------------------------------------------------------------------------------------------------------
--- OPTIONS
+
+----OPTIONS-------------------------------------------------------------------------------------------------------------
 
 vim.api.nvim_create_autocmd("TextYankPost", {
         desc     = "User: Highlighted Yank",
@@ -9,70 +9,86 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 
 map("n", "<C-y>", ":%y<CR>", { desc = " Yank all", silent = true })
 
-------------------------------------------------------------------------------------------------------------------------
--- STICKY YANK
+----YANK----------------------------------------------------------------------------------------------------------------
 
-do
-        local cursorBefore
+do -- STICKY YANK
         map({ "n", "x" }, "y", function()
-                    cursorBefore = vim.api.nvim_win_get_cursor(0)
+                    vim.b.preYankCursor = vim.api.nvim_win_get_cursor(0)
                     return "y"
             end, { expr = true })
         map("n", "Y", function()
-                    cursorBefore = vim.api.nvim_win_get_cursor(0)
+                    vim.b.preYankCursor = vim.api.nvim_win_get_cursor(0)
                     return "y$"
             end, { expr = true, unique = false })
 
         vim.api.nvim_create_autocmd("TextYankPost", {
-                desc     = "User: Sticky yank/delete",
+                desc = "User: Sticky yank",
                 callback = function()
-                        if vim.v.event.regname ~= "" or not cursorBefore then return end
-
-                        if vim.v.event.operator == "y" then vim.api.nvim_win_set_cursor(0, cursorBefore) end
+                        if vim.v.event.operator == "y" and vim.b.preYankCursor then
+                                vim.api.nvim_win_set_cursor(0, vim.b.preYankCursor)
+                                vim.b.preYankCursor = nil
+                        end
                 end,
         })
 end
 
-------------------------------------------------------------------------------------------------------------------------
--- KEEP THE REGISTER CLEAN
+do -- YANKRING
+        map("n", "<A-p>", '"1p', { desc = " Paste from yankring" })
+
+        vim.api.nvim_create_autocmd("TextYankPost", {
+                desc     = "User: Yankring",
+                callback = function()
+                        if vim.v.event.operator ~= "y" then
+                                return
+                        end
+                        for i = 9, 1, -1 do
+                                vim.fn.setreg(tostring(i), vim.fn.getreg(tostring(i - 1)))
+                        end
+                end,
+        })
+end
+
+----KEEP THE REGISTER CLEAN---------------------------------------------------------------------------------------------
 
 map({ "n", "x" }, "x", '"_x')
 map({ "n", "x" }, "c", '"_c')
 map("n",          "C", '"_C')
 map("x",          "p", "P")
 map("n", "dd", function()
-            local lineEmpty = vim.trim(vim.api.nvim_get_current_line()) == ""
-            return (lineEmpty and '"_dd' or "dd")
+            local line_empty = vim.trim(vim.api.nvim_get_current_line()) == ""
+            return (line_empty and '"_dd' or "dd")
     end, { expr = true })
 
--- PASTING
+----PASTE---------------------------------------------------------------------------------------------------------------
+
 map("n", "<C-p>", function()
-            local curLine = vim.api.nvim_get_current_line():gsub("%s*$", "")
-            local reg     = vim.trim(vim.fn.getreg("+"))
-            vim.api.nvim_set_current_line(curLine .. " " .. reg)
+            local cur_line = vim.api.nvim_get_current_line():gsub("%s*$", "")
+            local reg      = vim.trim(vim.fn.getreg("+"))
+            vim.api.nvim_set_current_line(cur_line .. " " .. reg)
     end, { desc = " Sticky paste at EoL" })
-map("i", "<A-v>", function()
+
+map("i", "<C-v>", function()
             local reg = vim.trim(vim.fn.getreg("+")):gsub("\n%s*$", "\n")
             vim.fn.setreg("+", reg, "v")
             return "<C-g>u<C-r><C-o>+"
     end, { desc = " Paste charwise", expr = true })
 
---------------------------------------------------------------------------------------------------------------------
--- SPECIAL YANK OPERATIONS
+----SPECIAL YANK OPERATIONS---------------------------------------------------------------------------------------------
 
 map("n", "<leader>yl", function()
             vim.ui.input({ prompt = "󰅍 Yank lines matching:" }, function(input)
                     if not input then return end
-                    local lines      = vim.api.nvim_buf_get_lines(0, 0, -1, false)
-                    local matchLines = vim.tbl_filter(function(l) return l:find(input, nil, true) end, lines)
-                    vim.fn.setreg("+", table.concat(matchLines, "\n"))
-                    local pluralS = #matchLines == 1 and "" or "s"
-                    local msg     = ("%d line%s"):format(#matchLines, pluralS)
+                    local lines       = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+                    local match_lines = vim.tbl_filter(function(l) return l:find(input, nil, true) end, lines)
+                    vim.fn.setreg("+", table.concat(match_lines, "\n"))
+                    local plural_s = #match_lines == 1 and "" or "s"
+                    local msg      = ("%d line%s"):format(#match_lines, plural_s)
                     vim.notify(msg, nil, { title = "Copied", icon = "󰅍" })
             end)
     end, { desc = "󰦨 Lines matching pattern" })
+
 map("n", "<leader>y:", function()
-            local lastCmd = vim.fn.getreg(":"):gsub("^lua ?", "")
-            vim.fn.setreg("+", lastCmd)
-            vim.notify(lastCmd, nil, { title = "Copied", icon = "󰅍" })
+            local last_cmd = vim.fn.getreg(":"):gsub("^lua ?", "")
+            vim.fn.setreg("+", last_cmd)
+            vim.notify(last_cmd, nil, { title = "Copied", icon = "󰅍" })
     end, { desc = "󰘳 Last :excmd" })

@@ -28,9 +28,7 @@ safeRequire("core.backdrop-underline-fix")
 -- safeRequire("functions.commatose")
 
 if os.getenv("DISPLAY") ~= nil or os.getenv("WAYLAND_DISPLAY") ~= nil then
-        vim.cmd.colorscheme("catppuccin-mocha")
+        vim.cmd.colorscheme("catppuccin")
 else
         vim.cmd.colorscheme("industry")
 end
-
-vim.schedule(function() safeRequire("functions.ui") end)

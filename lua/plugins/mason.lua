@@ -1,51 +1,42 @@
 local ensure_installed = {
         -- LSP
         "asm-lsp",
-
         "shfmt",
         "shellcheck",
         "bash-language-server",
-
         "clangd",
         "clang-format",
-        -- "cmake-language-server",
-
         "biome",
-        -- "tombi",
         "css-lsp",
         "html-lsp",
         "json-lsp",
         "superhtml",
         "emmet-language-server",
         "css-variables-language-server",
-
         "gopls",
-
         "jdtls",
         "kotlin-lsp",
-
         "lua-language-server",
-
-        -- "ts_query_ls",
-
         "ty",
         "ruff",
-
-        -- "typos-lsp",
-        -- "harper-ls",
         "ltex-ls-plus",
         "markdown-oxide",
-
         "tsgo",
         "typescript-language-server",
-
         "rust-analyzer",
+        "systemd-lsp",
+        "omnisharp",
+        -- "phpactor",
+        "intelephense",
+        "stimulus-language-server",
+        -- FORMATTERS
+        "prettier",
+        "prettierd",
 
         -- DEBUGGERS
 
         -- OTHER
         "just-lsp",
-        -- "hover-ls",
         "tree-sitter-cli",
         "yaml-language-server",
         "gh-actions-language-server",
@@ -62,7 +53,7 @@ local function notify(msg, level, opts)
 end
 
 local function enableLsps()
-        local installed_packs = require("mason-registry").get_installed_packages()
+        local installed_packs  = require("mason-registry").get_installed_packages()
         local lsp_config_names = vim.iter(installed_packs):fold({}, function(acc, pack)
                 table.insert(acc, pack.spec.neovim and pack.spec.neovim.lspconfig)
                 return acc
@@ -74,17 +65,17 @@ end
 ---@param version? string if provided, updates to that version
 local function installOrUpdate(pack, version)
         local mode = version and ("updating to %s"):format(version) or "installing"
-        local msg = ("[%s] %s…"):format(pack.name, mode)
+        local msg  = ("[%s] %s…"):format(pack.name, mode)
         notify(msg, "info", { id = "mason.install" })
 
         pack:install({ version = version }, function(success, error)
                 if success then
                         mode = version and ("updated to %s"):format(version) or "installed"
-                        msg = ("[%s] %s "):format(pack.name, mode)
+                        msg  = ("[%s] %s "):format(pack.name, mode)
                         notify(msg, "info", { id = "mason.install" })
                 else
                         mode = version and "update" or "install"
-                        msg = ("[%s] failed to %s: %s"):format(pack.name, mode, error)
+                        msg  = ("[%s] failed to %s: %s"):format(pack.name, mode, error)
                         notify(msg, "error", { id = "mason.install" })
                 end
         end)
@@ -100,16 +91,16 @@ local function syncPackages()
                 assert(ok, "Could not refresh mason registry.")
 
                 -- auto-install missing packages & auto-update installed ones
-                vim.iter(ensure_installed):each(function(pack_name)
-                        if not mason_reg.has_package(pack_name) then
-                                local msg = ("No package [%s] available."):format(pack_name)
+                vim.iter(ensure_installed):each(function(packName)
+                        if not mason_reg.has_package(packName) then
+                                local msg = ("No package [%s] available."):format(packName)
                                 vim.notify(msg, vim.log.levels.WARN, { title = "mason" })
                                 return
                         end
-                        local pack = mason_reg.get_package(pack_name)
+                        local pack = mason_reg.get_package(packName)
                         if pack:is_installed() then
                                 local latest_version = pack:get_latest_version()
-                                local version = pack:get_installed_version()
+                                local version        = pack:get_installed_version()
                                 if latest_version ~= version then installOrUpdate(pack, latest_version) end
                         else
                                 installOrUpdate(pack)
@@ -119,12 +110,12 @@ local function syncPackages()
                 -- auto-clean unused packages
                 assert(#ensure_installed > 10, "< 10 mason packages, aborting uninstalls.")
                 local installed_packages = mason_reg.get_installed_package_names()
-                vim.iter(installed_packages):each(function(pack_name)
-                        if vim.tbl_contains(ensure_installed, pack_name) then return end
-                        mason_reg.get_package(pack_name):uninstall({}, function(success, error)
+                vim.iter(installed_packages):each(function(packName)
+                        if vim.tbl_contains(ensure_installed, packName) then return end
+                        mason_reg.get_package(packName):uninstall({}, function(success, error)
                                 local lvl = success and "info" or "error"
-                                local msg = success and ("[%s] uninstalled."):format(pack_name)
-                                           or ("[%s] failed to uninstall: %s"):format(pack_name, error)
+                                local msg = success and ("[%s] uninstalled."):format(packName)
+                                           or ("[%s] failed to uninstall: %s"):format(packName, error)
                                 notify(msg, lvl)
                         end)
                 end)
@@ -141,7 +132,7 @@ return {
                         -- "file:" .. vim.fn.stdpath("config") .. "/mason-registry",
                         "github:mason-org/mason-registry",
                 },
-                ui = {
+                ui         = {
                         border   = Border.borderStyle,
                         height   = 0.9,
                         width    = 0.8,
@@ -159,7 +150,7 @@ return {
                 },
         },
         config = function(_, opts)
-                vim.env.npm_config_cache = vim.env.HOME .. "/.cache/npm" -- don't crowd $HOME with `.npm` folder
+                vim.env.npm_config_cache = vim.env.HOME .. "/.cache/npm"  -- don't crowd $HOME with `.npm` folder
                 require("mason").setup(opts)
                 enableLsps()
                 vim.defer_fn(syncPackages, 2000)

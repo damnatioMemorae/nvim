@@ -1,6 +1,6 @@
 return {
         "folke/flash.nvim",
-        keys  = {
+        keys = {
                 {
                         "f",
                         mode = { "n", "x", "o" },
@@ -20,15 +20,14 @@ return {
                         desc = "Treesitter Search",
                 },
         },
-        opts  = {
-                jump   = { nohlsearch = true },
-                prompt = {
-                        win_config = {
-                                border = Border.borderStyle,
-                                row    = -3,
-                        },
+        opts = {
+                jump      = { nohlsearch = true, autojump = true },
+                label     = { uppercase = false },
+                prompt    = {
+                        prefix     = { { Icons.Arrows.rightArrow, "FlashPromptIcon" } },
+                        win_config = { border = Border.borderStyleNone, row = -1 },
                 },
-                search = {
+                search    = {
                         enabled = false,
                         exclude = {
                                 "flash_prompt",
@@ -45,9 +44,15 @@ return {
                                 end,
                         },
                 },
-                modes  = {
-                        char   = { enabled = false },
-                        search = { enabled = false },
-                },
+                remote_op = { restore = true },
+                modes     = { char = { enabled = false }, search = { enabled = false } },
         },
+        config = function(_, opts)
+                require("flash").setup(opts)
+
+                vim.api.nvim_set_hl(0, "FlashBackdrop", { link = "NonText" })
+                vim.api.nvim_set_hl(0, "FlashMatch",    { link = "LspInlayHint" })
+                vim.api.nvim_set_hl(0, "FlashCurrent",  { link = "LspInlayHint" })
+                vim.api.nvim_set_hl(0, "FlashLabel",    { link = "DiagnosticVirtualTextInfo" })
+        end,
 }

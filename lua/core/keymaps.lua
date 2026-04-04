@@ -6,7 +6,6 @@ local eval   = require("functions.inspect-and-eval")
 local map    = utils.uniqueKeymap
 local prefix = Config.prefix
 
-
 local n, i, c, v, o, x, t = "n", "i", "c", "v", "o", "x", "t"
 
 local ni    = { "n", "i" }
@@ -22,16 +21,19 @@ local nxvo  = { "n", "x", "c", "v", "o" }
 local nxcvo = { "n", "x", "c", "v", "o" }
 local opts  = { silent = true }
 
-local function cmd()
-        vim.cmd.normal("^zz")
-end
-
 ----META----------------------------------------------------------------------------------------------------------------
+
+map(nx, prefix .. "k", "<cmd>help!<CR>", { desc = "󰝰 Help" })
 
 map(n, "ZZ", "<cmd>qa<cr>", { desc = " Quit", silent = true })
 
 local plugin_dir = vim.fn.stdpath("data") --[[@as string]]
 map(n, "<leader>pd", function() vim.ui.open(plugin_dir) end, { desc = "󰝰 Plugin dir", silent = true })
+
+map("n", "<C-,>", function()
+            local path_of_this_lua_file = debug.getinfo(1, "S").source:gsub("^@", "")
+            vim.cmd.edit(path_of_this_lua_file)
+    end, { desc = "󰌌 Edit keybindings", unique = false })
 
 ----NAVIGATION----------------------------------------------------------------------------------------------------------
 
@@ -42,18 +44,13 @@ map(nx, "}", "}zz", opts)
 map(nx, "(", "{zz", opts)
 map(nx, ")", "}zz", opts)
 
-map(n, "<C-o>", "<C-o>", { remap = true })
-map(n, "<C-i>", "<C-i>", { remap = true })
-
 -- j/k should on wrapped lines
 map(nx, "j", "gj")
 map(nx, "k", "gk")
 
--- hjkl in INSERT mode
-map(i, "<C-h>", "<Left>",  opts)
-map(i, "<C-j>", "<Down>",  opts)
-map(i, "<C-k>", "<Up>",    opts)
-map(i, "<C-l>", "<Right>", opts)
+-- make HJKL behave like hjkl but with bigger distance
+map(x, "J", "6gj")
+map(x, "K", "6gk")
 
 -- Better scroll
 map(n, "<C-d>", "<C-d>zz", opts)
@@ -62,8 +59,8 @@ map(n, "<C-f>", "<C-f>zz", opts)
 map(n, "<C-b>", "<C-b>zz", opts)
 
 -- Search
--- map(x,  "/",     fuzzySearch,                { desc = " Search in sel" })
--- map(x,  "-",     "<Esc>/\\%V",               { desc = " Search in sel" })
+-- map(x,  "/",     fuzzySearch,                { desc = " Fuzzy search" })
+map(x,  "\\",    "<Esc>/\\%V",               { desc = " Search in sel" })
 map(n,  "n",     "nzz",                      { desc = "Search next", silent = true })
 map(n,  "N",     "Nzz",                      { desc = "Search previous", silent = true })
 map(ni, "<esc>", "<cmd>nohlsearch<cr><esc>", { desc = "Escape and Clear hlsearch", silent = true })
@@ -72,6 +69,7 @@ map(ni, "<esc>", "<cmd>nohlsearch<cr><esc>", { desc = "Escape and Clear hlsearch
 map(n, "<A-x>", function()
             local text = table.concat(vim.api.nvim_buf_get_lines(0, 0, -1, false), "\n")
             local url = text:match([[%l%l%l-://[^%s)"'`]+]])
+
             if url then
                     vim.ui.open(url)
             else
@@ -82,18 +80,6 @@ map(n, "<A-x>", function()
 --[[ make `fF` use `nN` instead of `;,`
 map(n, "f", function() nano.fF("f") end, { desc = "f", silent = true })
 map(n, "F", function() nano.fF("F") end, { desc = "F", silent = true })
---]]
-
---[[FOLDS---------------------------------------------------------------------------------------------------------------
-
-map(nxvo, "<A-,>",       "zm^",    { desc = "Fold more", silent = true })
-map(nxvo, "<A-.>",       "zr^",    { desc = "Reduce fold", silent = true })
-map(nxvo, "<A-C-Left>",  "zM^",    { desc = "Close all folds", silent = true })
-map(nxvo, "<A-C-Right>", "zR^",    { desc = "Open all folds", silent = true })
-map(nxvo, "<A-Left>",    "zc^",    { desc = "Close current fold", silent = true })
-map(nxvo, "<A-Right>",   "zo^",    { desc = "Open current fold", silent = true })
-map(nxvo, "<A-Down>",    "zj^",    { desc = "Goto next fold", silent = true })
-map(nxvo, "<A-Up>",      "zk^zz",  { desc = "Goto prev fold", silent = true })
 --]]
 
 ----EDITING-------------------------------------------------------------------------------------------------------------
@@ -113,11 +99,25 @@ map(n, "<", function() nano.toggleWordCasing() end, { desc = "󰬴 Toggle lower/
 map(n, ">", function() nano.camelSnakeToggle() end, { desc = "󰬴 Toggle camelCase and snake_case", silent = true })
 
 -- Append to EoL
-local trail_chars = { ",", "\\", "[", "]", "{", "}", ")", ";", "." }
-for _, key in pairs(trail_chars) do
-        local pad = key == "\\" and " " or ""
-        map(n, "<leader>" .. key, ("mzA%s%s<Esc>`z"):format(pad, key), opts)
+local trail_chars = { ",", ")", ";", ".", '"', "'", " \\", " {", "?" }
+for _, chars in pairs(trail_chars) do
+        map("n", "<leader>" .. vim.trim(chars), function()
+                local updated_line = vim.api.nvim_get_current_line() .. chars
+                vim.api.nvim_set_current_line(updated_line)
+        end)
 end
+
+map("i", "<A-t>", function() require("functions.auto-template-str").insertTemplateStr() end,
+    { desc = "󰅳 Insert template string" })
+
+-- Repeatable edit
+map("n", "<leader>j", '*N"_cgn', { desc = "󰆿 Repeatable edit (cword)" })
+map("x", "<leader>j", function()
+            assert(vim.fn.mode() == "v", "Only visual (character) mode.")
+            local selection = vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("v"))[1]
+            vim.fn.setreg("/", "\\V" .. vim.fn.escape(selection, [[/\]]))
+            return '<Esc>"_cgn'
+    end, { desc = "󰆿 Repeatable edit (selection)", expr = true })
 
 -- Whitespace
 map(n, "<A-CR>", "O<Esc>j", { desc = " blank above", silent = true })
@@ -146,6 +146,25 @@ map(n, "<A-`>", [[wBi`<Esc>ea`<Esc>b]],     { desc = " Inline Code cword", si
 map(x, "<A-`>", "<Esc>`<i`<Esc>`>la`<Esc>", { desc = " Inline Code selection", silent = true })
 map(i, "<A-`>", "``<Left>",                 { desc = " Inline Code", silent = true })
 
+----QUICKFIX------------------------------------------------------------------------------------------------------------
+
+map("n", "<leader><leader>q", function()
+            local quickfix_win_open = vim.fn.getqflist({ winid = true }).winid ~= 0
+            vim.cmd(quickfix_win_open and "cclose" or "copen")
+    end, { desc = " Toggle quickfix window" })
+
+--[[FOLDS---------------------------------------------------------------------------------------------------------------
+
+map(nxvo, "<A-,>",       "zm^",    { desc = "Fold more", silent = true })
+map(nxvo, "<A-.>",       "zr^",    { desc = "Reduce fold", silent = true })
+map(nxvo, "<A-C-Left>",  "zM^",    { desc = "Close all folds", silent = true })
+map(nxvo, "<A-C-Right>", "zR^",    { desc = "Open all folds", silent = true })
+map(nxvo, "<A-Left>",    "zc^",    { desc = "Close current fold", silent = true })
+map(nxvo, "<A-Right>",   "zo^",    { desc = "Open current fold", silent = true })
+map(nxvo, "<A-Down>",    "zj^",    { desc = "Goto next fold", silent = true })
+map(nxvo, "<A-Up>",      "zk^zz",  { desc = "Goto prev fold", silent = true })
+--]]
+
 ----TEXTOBJECTS---------------------------------------------------------------------------------------------------------
 
 local textobj_remaps = {
@@ -167,7 +186,7 @@ map(o, "J",         "2j")
 map(n, "<C-Space>", '"_ciw', { desc = "󰬞 change word", silent = true })
 map(x, "<C-Space>", '"_c',   { desc = "󰒅 change selection", silent = true })
 map(n, "<A-Space>", '"_daw', { desc = "󰬞 delete word", silent = true })
-map(x, "<A-Space>", '"_d',   { desc = "󰬞 delete selection", silent = true })
+-- map(x, "<A-Space>", '"_d',   { desc = "󰬞 delete selection", silent = true })
 
 ----COMMENTS------------------------------------------------------------------------------------------------------------
 
@@ -180,19 +199,17 @@ do
 end
 
 do
-        local comments = require("functions.comment")
-        map(n, "qw", function() comments.commentHr("replaceMode") end,
-            { desc = "󰆈 Horizontal Divider + Label", silent = true })
-        map(n, "qy", function() comments.duplicateLineAsComment() end,
-            { desc = "󰆈 Duplicate Line as Comment", silent = true })
-        map(n, "Q",  function() comments.addComment("eol") end,   { desc = "󰆈 Append Comment", silent = true })
-        map(n, "qo", function() comments.addComment("below") end, { desc = "󰆈 Comment Below", silent = true })
-        map(n, "qO", function() comments.addComment("above") end, { desc = "󰆈 Comment Above", silent = true })
+        local comment = require("functions.comment")
+        map(n, "qw", function() comment.commentHr("replaceMode") end, { desc = "󰆈 Horizontal Divider + Label" })
+        map(n, "qy", function() comment.duplicateLineAsComment() end, { desc = "󰆈 Duplicate Line as Comment" })
+        map(n, "Q",  function() comment.addComment("eol") end,        { desc = "󰆈 Append Comment" })
+        map(n, "qo", function() comment.addComment("below") end,      { desc = "󰆈 Comment Below" })
+        map(n, "qO", function() comment.addComment("above") end,      { desc = "󰆈 Comment Above" })
         map(n, "dQ", function()
                     vim.cmd(("g/%s/d"):format(vim.fn.escape(vim.fn.substitute(vim.o.commentstring, "%s", "", "g"),
                                                             "/.*[]~")))
-            end, { desc = "󰆈  Delete Comments", silent = true })
-        comments.setupReplaceModeHelpersForComments()
+            end, { desc = "󰆈  Delete Comments" })
+        comment.setupReplaceModeHelpersForComments()
 end
 
 ----LSP-----------------------------------------------------------------------------------------------------------------
@@ -209,10 +226,12 @@ map(n, "<A-D>", function()
 map(n, "K", vim.lsp.buf.hover,          { desc = "󰏪 Hover Documentation", unique = false })
 map(n, "J", vim.lsp.buf.signature_help, { desc = "󰏪 Signature Help" })
 
-map(n, prefix .. "f", "gF", { desc = "Goto File", silent = true })
+map(n, prefix .. "f", "gF",                    { desc = "Goto File", silent = true })
 map(n, prefix .. "q", vim.lsp.buf.code_action, { desc = "󱠀 Code Action Picker" })
--- map(n, prefix .. "q", function() require("tiny-code-action").code_action() end,
-    -- { desc = "󱠀 Code Action Picker", remap = false, silent = true })
+
+map("n", "<A-j>", function() nano.scrollLspOrOtherWin(5) end,  { desc = "↓ Scroll other win" })
+map("n", "<A-K>", function() nano.scrollLspOrOtherWin(-5) end, { desc = "↑ Scroll other win" })
+
 map(n, "<leader>k", function()
             vim.diagnostic.config({ virtual_lines = { current_line = true }, virtual_text = false })
 
@@ -235,30 +254,59 @@ map(n, prefix .. "c", vim.lsp.buf.code_action,    { desc = "󱠀 Code Action" })
 map(n, prefix .. "F", vim.lsp.buf.format,         { desc = "LSP Format" })
 --]]
 
-----INSERT MODE---------------------------------------------------------------------------------------------------------
+----MODES---------------------------------------------------------------------------------------------------------------
 
+-- INSERT
 map(n, "i", function()
             local line_empty = vim.trim(vim.api.nvim_get_current_line()) == ""
-            return (line_empty and [["_cc]] or "i")
+            return line_empty and '"_cc' or "i"
     end, { expr = true, desc = "indented i on empty line", silent = true })
 
--- VISUAL MODE
+-- VISUAL
 map(n, "<C-v>", "ggVG",  { desc = "select all", silent = true })
 map(x, "V",     "j",     { desc = "repeated `V` selects more lines", silent = true })
 map(x, "v",     "<C-v>", { desc = "`vv` starts visual block", silent = true })
 
+-- CMDLINE
+map("c", "<C-v>", function()
+            vim.fn.setreg("+", vim.trim(vim.fn.getreg("+")))
+            return "<C-r>+"
+    end, { expr = true, desc = " Paste" })
+
+map("c", "<A-c>", function()
+            local cmdline = vim.fn.getcmdline()
+
+            if cmdline == "" then
+                    return vim.notify("Nothing to copy.", vim.log.levels.WARN)
+            end
+
+            vim.fn.setreg("+", cmdline)
+            vim.notify(cmdline, nil, { title = "Copied", icon = "󰅍" })
+    end, { desc = "󰅍 Yank cmdline" })
+
+map("c", "<BS>", function()
+            if vim.fn.getcmdline() ~= "" then
+                    return "<BS>"
+            end
+    end, { expr = true, desc = "disable <BS> when cmdline is empty" })
+
+map("c", "<C-a>",     "<C-b>", { desc = "Goto start of cmdline" })
+map("c", "<A-Left>",  "<C-b>", { desc = "Goto start of cmdline" })
+map("c", "<A-Right>", "<C-e>", { desc = "Goto end of cmdline" })
+
 ----INSPECT & EVAL------------------------------------------------------------------------------------------------------
 
-map(n, "<leader>ih", vim.show_pos,                { desc = " Position at cursor", silent = true })
-map(n, "<leader>it", vim.treesitter.inspect_tree, { desc = " TS tree", silent = true })
-map(n, "<leader>iq", vim.treesitter.query.edit,   { desc = " TS query", silent = true })
+map(n, "<leader>ii", vim.cmd.Inspect,             { desc = " Inspect at cursor" })
+map(n, "<leader>it", vim.treesitter.inspect_tree, { desc = " TS tree" })
+map(n, "<leader>iq", vim.treesitter.query.edit,   { desc = " TS query" })
 
-map(n,  "<leader>ia",        function() eval.inspectNodeAncestors() end, { desc = " Node ancestors" })
-map(n,  "<leader>il",        function() eval.lspCapabilities() end,      { desc = "󱈄 LSP capabilities", silent = true })
-map(n,  "<leader>in",        function() eval.nodeAtCursor() end,         { desc = " Node at cursor", silent = true })
-map(n,  "<leader>ib",        function() eval.bufferInfo() end,           { desc = "󰽙 Buffer info", silent = true })
-map(nx, "<leader>ie",        function() eval.evalNvimLua() end,          { desc = " Eval", silent = true })
-map(n,  "<leader><leader>x", function() eval.runFile() end,              { desc = "󰜎 Run file", silent = true })
+map(n, "<leader>in", function() eval.nodeAtCursor() end,         { desc = " Node at cursor" })
+map(n, "<leader>ia", function() eval.inspectNodeAncestors() end, { desc = " Node ancestors" })
+
+map(n,  "<leader>ib",        function() eval.bufferInfo() end,      { desc = "󰽙 Buffer info" })
+map(n,  "<leader>il",        function() eval.lspCapabilities() end, { desc = "󱈄 LSP capabilities" })
+map(nx, "<leader>ie",        function() eval.evalNvimLua() end,     { desc = " Eval" })
+map(n,  "<leader><leader>x", function() eval.runFile() end,         { desc = "󰜎 Run file" })
 
 map(n, "<leader>id", function()
             local diag = vim.diagnostic.get_next()
@@ -270,15 +318,41 @@ map(nx, "<leader>ee", function()
             return ":lua = " .. selection
     end, { expr = true, desc = "󰢱 Eval lua expr" })
 
+map("n", "<leader>ey", function()
+            local cmd        = vim.trim(vim.fn.getreg(":"))
+            local last_excmd = cmd:gsub("^lua ", ""):gsub("^= ?", "")
 
-----WINDOWS-------------------------------------------------------------------------------------------------------------
+            if last_excmd == "" then
+                    return vim.notify("Nothing to copy", vim.log.levels.TRACE)
+            end
 
--- Create split
-map(n, "<A-w>",      "<C-W>czz", { desc = "Delete Window", silent = true })
+            local syntax = vim.startswith(cmd, "lua") and "lua" or "vim"
+            vim.notify(last_excmd, nil, { title = "Copied", icon = "󰅍", ft = syntax })
+            vim.fn.setreg("+", last_excmd)
+    end, { desc = " Yank last ex-cmd" })
+
+----WINDOWS & BUFFERS---------------------------------------------------------------------------------------------------
+
+-- Split
 map(n, "<A-->",      "<C-W>szz", { desc = "Split Window Below", silent = true })
 map(n, "<A-Bslash>", "<C-W>vzz", { desc = "Split Window Right", silent = true })
 
-----BUFFERS & FILES-----------------------------------------------------------------------------------------------------
+-- Delete window/buffer
+map(nix, "<A-w>", function()
+            vim.cmd("silent! update")
+
+            local win_closed = pcall(vim.cmd.close)
+            if win_closed then
+                    return
+            end
+
+            local buf_count = #vim.fn.getbufinfo{ buflisted = 1 }
+            if buf_count == 1 then
+                    return vim.notify("Only one buffer open.", vim.log.levels.TRACE)
+            end
+
+            vim.cmd.bdelete()
+    end, { desc = "󰽙 Close window/buffer" })
 
 map(n, "<A-r>", vim.cmd.edit,         { desc = "󰽙 Reload buffer", silent = true })
 map(n, "H",     "<cmd>bprevious<cr>", { desc = "Prev Buffer", silent = true })
@@ -303,12 +377,10 @@ end
 
 ----REFACTORING---------------------------------------------------------------------------------------------------------
 
-map(n, "<leader>fd", ":global //d<Left><Left>", { desc = " delete matching lines", silent = true })
+map(n, "<leader>fd", ":global //d<Left><Left>", { desc = " delete matching lines" })
 
-map(n, prefix .. "n", vim.lsp.buf.rename, { desc = "󰑕 LSP rename", silent = true })
-
-map(n, prefix .. "m", function() nano.camelSnakeLspRename() end,
-    { desc = "󰑕 LSP rename: camel/snake", silent = true })
+map(n, prefix .. "n", vim.lsp.buf.rename,                        { desc = "󰑕 LSP rename" })
+map(n, prefix .. "m", function() nano.camelSnakeLspRename() end, { desc = "󰑕 LSP rename: camel/snake" })
 
 map(nx, "<leader>qq", function()
             local line         = vim.api.nvim_get_current_line()

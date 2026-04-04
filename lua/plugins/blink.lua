@@ -255,6 +255,8 @@ return {
                         ["<A-k>"]     = { "scroll_signature_up", "scroll_documentation_up", "fallback" },
                         ["<C-j>"]     = { "select_next", "fallback" },
                         ["<C-k>"]     = { "select_prev", "fallback" },
+                        ["<C-Down>"]  = { "select_next", "fallback" },
+                        ["<C-Up>"]    = { "select_prev", "fallback" },
                         ["<Down>"]    = { "select_next", "fallback" },
                         ["<Up>"]      = { "select_prev", "fallback" },
                         ["<C-c>"]     = { function(cmp) if cmp.is_menu_visible() then cmp.hide() else cmp.show() end end },
@@ -263,7 +265,7 @@ return {
                         ["<C-s>"]     = { "show_signature", "hide_signature", "fallback" },
                         ["<Tab>"]     = { "snippet_forward", "select_next", "fallback" },
                         ["<S-Tab>"]   = { "snippet_backward", "select_prev", "fallback" },
-                        ["<CR>"]      = { "select_and_accept", "fallback" },
+                        ["<CR>"]      = { "accept", "fallback" },
                         ["<C-Space>"] = {
                                 function(cmp)
                                         if cmp.is_menu_visible() then
@@ -289,13 +291,12 @@ return {
         config       = function(_, opts)
                 require("blink-cmp").setup(opts)
 
-                local hl     = vim.api.nvim_set_hl
-                local cmp    = "BlinkCmp"
-                local colors = Colors.Darkppuccin
+                local hl  = vim.api.nvim_set_hl
+                local cmp = "BlinkCmp"
 
                 hl(0, cmp .. "LabelDescription",    { link = "Comment" })
                 hl(0, cmp .. "LabelDetail",         { link = "Comment" })
-                hl(0, cmp .. "LabelMatch",          { fg = colors.red })
+                hl(0, cmp .. "LabelMatch",          { link = "Visual" })
                 hl(0, cmp .. "Menu",                { link = "Pmenu" })
                 hl(0, cmp .. "MenuBorder",          { link = "Pmenu" })
                 hl(0, cmp .. "MenuSelection",       { link = "pmenuSel" })

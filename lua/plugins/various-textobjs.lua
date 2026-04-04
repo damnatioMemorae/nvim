@@ -29,8 +29,8 @@ return {
                 { "o", function() require("various-textobjs").column() end, mode = "o", desc = "ﴳ column" },
                 { "#", function() require("various-textobjs").cssColor("outer") end, mode = { "x", "o" }, desc = " outer color" },
 
-                { "in", function() require("various-textobjs").number("inner") end, mode = { "x", "o" }, desc = " inner number" },
-                { "an", function() require("various-textobjs").number("outer") end, mode = { "x", "o" }, desc = " outer number" },
+                -- { "in", function() require("various-textobjs").number("inner") end, mode = { "x", "o" }, desc = " inner number" },
+                -- { "an", function() require("various-textobjs").number("outer") end, mode = { "x", "o" }, desc = " outer number" },
 
                 { "ii", function() require("various-textobjs").indentation("inner", "inner") end, mode = { "x", "o" }, desc = "󰉶 inner indent" },
                 { "ai", function() require("various-textobjs").indentation("outer", "outer") end, mode = { "x", "o" }, desc = "󰉶 outer indent" },
@@ -58,6 +58,9 @@ return {
                 -- shell
                 { "i|", function() require("various-textobjs").shellPipe("inner") end, mode = "o", ft = "sh", desc = "󰟥 inner pipe" },
                 { "a|", function() require("various-textobjs").shellPipe("outer") end, mode = "o", ft = "sh", desc = "󰟥 outer pipe" },
+
+                -- { "in", function() require("vim.treesitter._select").select_prev(vim.v.count1) end, mode = "x", desc = "select previous node" },
+                -- { "an", function() require("vim.treesitter._select").select_next(vim.v.count1) end, mode = "x", desc = "select next node" },
 
                 { -- delete surrounding indentation
                         "dsi",

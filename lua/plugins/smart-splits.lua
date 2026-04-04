@@ -4,7 +4,7 @@ end
 
 return {
         "mrjones2014/smart-splits.nvim",
-        keys  = {
+        keys = {
                 { -- MOVE LEFT
                         "<C-h>",
                         function()

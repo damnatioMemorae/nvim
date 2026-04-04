@@ -17,7 +17,7 @@ return {
                 options = {
                         show_source                  = true,
                         throttle                     = 0,
-                        softwrap                     = 30,
+                        softwrap                     = 25,
                         multiple_diag_under_cursor   = true,
                         show_all_diags_on_cursorline = true,
                         enable_on_insert             = false,
@@ -28,7 +28,7 @@ return {
                         multilines                   = { enabled = true, trim_whitespaces = true },
                         show_related                 = { enabled = true, max_count = 5 },
                         overflow                     = { mode = "wrap" },
-                        break_line                   = { enabled = false, after = 40 },
+                        break_line                   = { enabled = false, after = 25 },
                         virt_texts                   = { priority = 8000 },
                         experimental                 = { use_window_local_extmarks = true },
                         format                       = function(diag)

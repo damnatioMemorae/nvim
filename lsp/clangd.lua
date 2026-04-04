@@ -84,6 +84,7 @@ local cmd = {
         -- "--use-dirty-headers",
 }
 
+---@type vim.lsp.Config
 return {
         cmd                = cmd,
         filetypes          = { "c", "cpp" },
@@ -104,63 +105,20 @@ return {
         },
         settings           = {
                 clangd = {
-                        InlayHints         = {
+                        InlayHints           = {
                                 Designators    = true,
                                 Enabled        = true,
                                 ParameterNames = true,
                                 DeducedTypes   = true,
                         },
-                        Completion         = { AllScopes = true, ArgumentLists = "Delimiters" },
-                        CompileFlags       = { Add = "-Iinclude" },
-                        usePlaceholders    = true,
-                        completeUnimported = true,
-                        clangdFileStatus   = true,
-                        fallbackFlags      = { "-std=c++23" },
+                        Completion           = { AllScopes = true, ArgumentLists = "Delimiters" },
+                        CompileFlags         = { Add = "-Iinclude" },
+                        usePlaceholders      = true,
+                        completeUnimported   = true,
+                        clangdFileStatus     = true,
+                        fallbackFlags        = { "-std=c++23" },
                 },
         },
-        -- capabilities       = {
-        --         offsetEncoding = { "utf-8", "utf-16" },
-        --         semanticTokens = { multilineTokenSupport = true },
-        --         textDocument   = {
-        --                 callHierarchy      = { dynamicRegistration = true },
-        --                 codeLens           = { dynamicRegistration = true },
-        --                 colorProvider      = { dynamicRegistration = true },
-        --                 documentHighlight  = { dynamicRegistration = true },
-        --                 documentSymbol     = { dynamicRegistration = true },
-        --                 hover              = { contentFormat = { "markdown" }, dynamicRegistration = true },
-        --                 inlineCompletion   = { dynamicRegistration = true },
-        --                 linkedEditingRange = { dynamicRegistration = true },
-        --                 onTypeFormatting   = { dynamicRegistration = true },
-        --                 references         = { dynamicRegistration = false },
-        --                 selectionRange     = { dynamicRegistration = false },
-        --                 completion         = {
-        --                         completionItem = {
-        --                                 commitCharactersSupport = true,
-        --                                 documentationFormat     = { "plaintext" },
-        --                                 editsNearCursor         = true,
-        --                                 dynamicRegistration     = true,
-        --                         },
-        --                 },
-        --                 foldingRange       = {
-        --                         dynamicRegistration = true,
-        --                         foldingRange        = { collapsedText = true },
-        --                         foldingRangeKind    = { valueSet = { "comment", "imports", "region" } },
-        --                         lineFoldingOnly     = true,
-        --                 },
-        --                 semanticTokens     = {
-        --                         augmentsSyntaxTokens    = true,
-        --                         dynamicRegistration     = false,
-        --                         formats                 = { "relative" },
-        --                         multilineTokenSupport   = true,
-        --                         overlappingTokenSupport = true,
-        --                         requests                = { full = { delta = true }, range = true },
-        --                         serverCancelSupport     = false,
-        --                         tokenModifiers          = { "declaration", "definition", "readonly", "static", "deprecated", "abstract", "async", "modification", "documentation", "defaultLibrary" },
-        --                         tokenTypes              = { "namespace", "type", "class", "enum", "interface", "struct", "typeParameter", "parameter", "variable", "property", "enumMember", "event", "function", "method", "macro", "keyword", "modifier", "comment", "string", "number", "regexp", "operator", "decorator" },
-        --                 },
-        --         },
-        --         workspace      = { didChangeWatchedFiles = { dynamicRegistration = true } },
-        -- },
         on_init            = function(client, init_result)
                 if init_result.offsetEncoding then
                         client.offset_encoding = init_result.offsetEncoding

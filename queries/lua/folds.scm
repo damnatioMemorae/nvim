@@ -1,5 +1,5 @@
 [
-        (comment) @fold
+        (comment)
         (elseif_statement)
         (else_statement)
         (do_statement)

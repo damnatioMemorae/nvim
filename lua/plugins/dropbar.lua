@@ -47,7 +47,7 @@ return {
                 bar     = {
                         truncate      = true,
                         pick          = { pivots = "hjklfdsa" },
-                        padding       = { left = 2, right = 2 },
+                        padding       = { left = 1, right = 2 },
                         -- gc            = { interval = 200 },
                         update_events = {
                                 win = {

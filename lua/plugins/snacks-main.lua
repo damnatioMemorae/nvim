@@ -19,7 +19,6 @@ return {
         keys     = {
                 { "<leader>fr", function() Snacks.rename.rename_file() end, desc = "Rename File" },
                 { "<leader>lg", function() Snacks.lazygit() end,            desc = "Lazygit" },
-                { "<A-b>",      function() Snacks.bufdelete() end,          desc = "Delete Buffer" },
         },
         opts     = {
                 quickfile    = { enabled = true },

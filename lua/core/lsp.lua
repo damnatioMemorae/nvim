@@ -1,5 +1,4 @@
-------------------------------------------------------------------------------------------------------------------------
--- DIAGNOSTICS
+----DIAGNOSTISCS--------------------------------------------------------------------------------------------------------
 
 local hl      = "DiagnosticVirtualText"
 local numbers = {
@@ -19,14 +18,12 @@ local numbers = {
 
 vim.diagnostic.config({
         signs            = numbers,
-        jump             = { float = false },
         virtual_text     = { source = false, current_line = nil },
         update_in_insert = false,
         severity_sort    = true,
 })
 
-------------------------------------------------------------------------------------------------------------------------
--- HANDLERS
+----HANDLERS------------------------------------------------------------------------------------------------------------
 
 local handlers = vim.lsp.handlers
 local methods  = vim.lsp.protocol.Methods
@@ -42,7 +39,6 @@ handlers[methods["textDocument_inlayHint"]] = function(err, result, ctx, config)
         end
         originalInlayHintHandler(err, result, ctx, config)
 end
-
 
 local originalRenameHandler              = handlers[methods["textDocument_rename"]]
 handlers[methods["textDocument_rename"]] = function(err, result, ctx, config)
@@ -69,8 +65,7 @@ handlers[methods["textDocument_rename"]] = function(err, result, ctx, config)
         if #changed_files > 1 then vim.cmd.wall() end
 end
 
-------------------------------------------------------------------------------------------------------------------------
--- POPUP
+----POPUP---------------------------------------------------------------------------------------------------------------
 
 local title_pos   = "left"
 local anchor_bias = "below"
@@ -123,68 +118,3 @@ vim.diagnostic.open_float = function()
                 source        = true,
         }
 end
-
-------------------------------------------------------------------------------------------------------------------------
---[[ LSP PROGRESS
-
-local progress = vim.defaulttable()
-vim.api.nvim_create_autocmd("LspProgress", {
-        callback = function(ev)
-                local client = vim.lsp.get_client_by_id(ev.data.client_id)
-                local value  = ev.data.params.value
-                if not client or type(value) ~= "table" then
-                        return
-                end
-                local p = progress[client.id]
-
-                for i = 1, #p + 1 do
-                        if i == #p + 1 or p[i].token == ev.data.params.token then
-                                p[i] = {
-                                        token = ev.data.params.token,
-                                        msg   = ("[%3d%%] %s%s"):format(
-                                                value.kind == "end" and 100 or value.percentage or 100,
-                                                value.title or "",
-                                                value.message and (" **%s**"):format(value.message) or ""
-                                        ),
-                                        done  = value.kind == "end",
-                                }
-                                break
-                        end
-                end
-
-                local msg           = {}
-                progress[client.id] = vim.tbl_filter(function(v) return table.insert(msg, v.msg) or not v.done end, p)
-
-                local spinner = Spinner.dots
-
-                vim.notify(table.concat(msg, "\n"), "info", { ---@diagnostic disable-line: param-type-mismatch
-                        id    = "lsp_progress",
-                        title = client.name,
-                        opts  = function(notif)
-                                notif.icon = #progress[client.id] == 0 and Icons.notifier.info
-                                           or spinner[math.floor(vim.uv.hrtime() / (1e6 * 80)) % #spinner + 1]
-                        end,
-                })
-        end,
-})
---]]
-
---[[
-vim.api.nvim_create_autocmd("LspProgress", {
-        callback = function(ev)
-                local value = ev.data.params.value or {}
-                local msg   = value.message or "done"
-
-                if #msg > 40 then
-                        msg = msg:sub(1, 37) .. "..."
-                end
-
-                vim.api.nvim_echo({ { msg } }, false, {
-                        id      = "lsp",
-                        kind    = "progress",
-                        title   = value.title,
-                        status  = value.kind ~= "end" and "running" or "success",
-                })
-        end,
-})
---]]

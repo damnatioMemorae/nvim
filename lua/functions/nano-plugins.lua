@@ -254,5 +254,28 @@ function M.alignSelectionByChar()
         vim.api.nvim_buf_set_lines(0, s_row - 1, e_row, false, aligned_lines)
 end
 
+---@param lines integer
+function M.scrollLspOrOtherWin(lines)
+        local winid = vim.b.lsp_floating_preview
+
+        if not winid then
+                local other_win = vim.iter(vim.api.nvim_tabpage_list_wins(0)):find(function(win)
+                        local not_floating = vim.api.nvim_win_get_config(win).relative == ""
+                        local not_this_win = vim.api.nvim_get_current_win() ~= win
+                        return not_floating and not_this_win
+                end)
+                winid           = other_win
+        end
+
+        if not winid then
+                vim.notify("No other window found.", vim.log.levels.WARN)
+                return
+        end
+        vim.api.nvim_win_call(winid, function()
+                local topline = vim.fn.winsaveview().topline
+                vim.fn.winrestview{ topline = topline + lines }
+        end)
+end
+
 ------------------------------------------------------------------------------------------------------------------------
 return M

@@ -1,6 +1,6 @@
 local style   = {
         local_name_style             = "snake_case",
-        function_param_name_style    = { "snake_case" },
+        function_param_name_style    = { "camel_case" },
         function_name_style          = "camel_case",
         local_function_name_style    = "camel_case",
         global_variable_name_style   = "camel_case",
@@ -100,29 +100,47 @@ local builtin = {
         ["table.new"]   = "enable",
         ["utf8"]        = "enable",
 }
+
+local root_markers1 = {
+        ".emmyrc.json",
+        ".luarc.json",
+        ".luarc.jsonc",
+}
+local root_markers2 = {
+        ".luacheckrc",
+        ".stylua.toml",
+        "stylua.toml",
+        "selene.toml",
+        "selene.yml",
+}
+
 local on_init = function(client)
         local path = vim.uv.cwd()
 
         if path == vim.fn.stdpath("config") then
+                local lazy = vim.fn.stdpath("data") .. "/lazy"
+                local libs = {
+                        vim.env.VIMRUNTIME,
+                        "${3rd}/luv/library",
+                        "${3rd}/busted/library",
+                        lazy .. "/snacks.nvim/lua",
+                        -- vim.api.nvim_get_runtime_file("", true),
+                }
+
                 client.config.settings.Lua = vim.tbl_deep_extend("force", client.config.settings.Lua, {
-                        workspace = { library = { "$VIMRUNTIME", "${3rd}/luv/library" }, ignoreDir = "templates" },
+                        workspace       = { library = libs, ignoreDir = "templates" },
+                        diagnostics     = { globals = "Snacks" },
+                        groupFileStatus = { luadoc = "Any", conventions = "Any" },
                 })
         end
 end
 
+---@type vim.lsp.Config
 return {
         cmd          = { "lua-language-server" },
         filetypes    = { "lua" },
-        root_markers = {
-                ".luarc.json",
-                ".luarc.jsonc",
-                ".luacheckrc",
-                ".stylua.toml",
-                "stylua.toml",
-                "selene.toml",
-                "selene.yml",
-                ".git",
-        },
+        root_markers = vim.fn.has("nvim-0.11.3") == 1 and { root_markers1, root_markers2, { ".git" } }
+                   or vim.list_extend(vim.list_extend(root_markers1, root_markers2), { ".git" }),
         settings     = {
                 Lua = {
                         completion    = {
@@ -130,7 +148,7 @@ return {
                                 displayContext = 10000,
                                 enable         = true,
                                 keywordSnippet = "Both",
-                                showWord       = "Enabled",
+                                showWord       = "Enable",
                                 workspaceWord  = true,
                                 postfix        = "@",
                                 autoRequire    = false,
@@ -144,8 +162,9 @@ return {
                                 disable            = { "trailing-space", "unused-function", "lowercase-global", "spell-check" },
                                 groupFileStatus    = { ["codestyle"] = "Any" },
                                 unusedLocalExclude = { "_*" },
-                                workspaceDelay     = 10000,
+                                ignoredFiles       = "Disable",
                                 workspaceEvent     = "OnChange",
+                                workspaceDelay     = 10000,
                                 workspaceRate      = 100,
                         },
                         nameStyle     = { config = style },
@@ -154,10 +173,11 @@ return {
                         semantic      = { enable = false, annotation = true, keyword = false, variable = true },
                         codeLens      = { enable = true },
                         signatureHelp = { enable = true },
-                        format        = { enable = true, defaultConfig = format },
                         telemetry     = { enable = false },
+                        format        = { enable = true, defaultConfig = format },
+                        language      = { fixIndent = true, completeAnnotation = true },
                         type          = { castNumberToInteger = true, checkTableShape = true, inferParamType = true },
-                        typeFormat    = { config = { auto_complete_end = true, auto_complete_table_sep = true, format_line = true } },
+                        typeFormat    = { config = { auto_complete_end = "true", auto_complete_table_sep = "true", format_line = "true" } },
                         workspace     = { preloadFileSize = 10000, useGitignore = false },
                 },
         },

@@ -7,7 +7,6 @@ return {
         dependencies = { "kevinhwang91/promise-async" },
         keys         = {
                 { "<leader>if", function() require("ufo").inspect() end, desc = "Fold Info" },
-
                 { -- REDUCE FOLD
                         "<A-,>",
                         function()
@@ -170,10 +169,12 @@ return {
                         },
                 },
                 provider_selector       = function(_bufnr, ft, _buftype)
-                        local lspWithOutFolding = { "markdown", "zsh", "bash", "css", "json" }
-                        if vim.tbl_contains(lspWithOutFolding, ft) then
+                        local lsp_with_out_folding = { "markdown", "zsh", "bash", "css", "json" }
+
+                        if vim.tbl_contains(lsp_with_out_folding, ft) then
                                 return { "treesitter", "indent" }
                         end
+
                         return { "treesitter", "indent" }
                 end,
                 fold_virt_text_handler  = function()
