@@ -40,9 +40,9 @@ return {
                 map(mode, "<leader>fu", function() return refactor.refactor("Extract Function") end,         opts)
                 map(mode, "<leader>fU", function() return refactor.refactor("Extract Function To File") end, opts)
 
-                map(mode, ",z",         function() return refactor.select_refactor({ prefer_ex_cmd = true }) end)
-                map("n",  "<leader>rp", function() return refactor.debug.printf({ below = false }) end)
-                map(mode, "<leader>rv", function() return refactor.debug.print_var() end)
-                map("n",  "<leader>rc", function() return refactor.debug.cleanup() end)
+                map(mode, "<LocalLeader>z", function() return refactor.select_refactor({ prefer_ex_cmd = true }) end)
+                map("n",  "<leader>rp",     function() return refactor.debug.printf({ below = false }) end)
+                map(mode, "<leader>rv",     function() return refactor.debug.print_var() end)
+                map("n",  "<leader>rc",     function() return refactor.debug.cleanup() end)
         end,
 }

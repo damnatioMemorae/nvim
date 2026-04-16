@@ -1,6 +1,6 @@
 local colors = Colors.Darkppuccin
 
-local customCol = function()
+local customCol = function(C)
         return {
 
                 ----BUILTINS--------------------------------------------------------------------------------------------
@@ -17,7 +17,7 @@ local customCol = function()
                 DapBreakpoint              = { link = "debugBreakpoint" },
                 DapBreakpointConition      = { link = "debugBreakpoint" },
                 DapBreakpointRejected      = { link = "debugBreakpoint" },
-                ActiveLineNumber           = { fg = colors.subtext0 },
+                ActiveLineNumber           = { link = "CursorLineNr" },
                 Boolean                    = { fg = colors.peach },
                 borderStyle                = { fg = colors.crust, bg = colors.crust },
                 borderTop                  = { link = "borderStyle" },
@@ -38,15 +38,14 @@ local customCol = function()
                 CurSearch                  = { fg = colors.teal, bg = colors.base },
                 -- CursorColumn                  = { bg = colors.},
                 -- Cursor                           = { fg = colors.crust, bg = colors.red },
-                CursorLine                 = { fg = "none", bg = "none" },
+                CursorLine                 = { fg = C.none, bg = C.none },
                 CursorLineNr               = { fg = colors.ivory },
                 Define                     = { fg = colors.pink },
                 Directory                  = { fg = colors.ivory },
                 -- EndOfBuffer                   = { fg = colors.},
                 Error                      = { fg = colors.red },
-                ErrorMsg                   = { fg = colors.red },
                 FloatBorder                = { fg = colors.mantle, bg = colors.mantle },
-                FloatTitle                 = { fg = colors.sky },
+                FloatTitle                 = { fg = colors.teal, bg = C.none },
                 -- FoldColumn                    = {},
                 FoldColumn                 = { link = "NonText" },
                 Folded                     = { fg = colors.surface2, bg = colors.mantle },
@@ -63,7 +62,7 @@ local customCol = function()
                 Identifier                 = { fg = colors.flamingo },
                 Include                    = { fg = colors.mauve },
                 IncSearch                  = { link = "CurSearch" },
-                Keyword                    = { fg = colors.yellow, bold = false },
+                Keyword                    = { fg = colors.rosewater, bold = false },
                 Label                      = { fg = colors.sky },
                 LineNr                     = { link = "NonText" },
                 Macro                      = { fg = colors.peach },
@@ -77,6 +76,7 @@ local customCol = function()
                 PmenuSel                   = { bg = colors.base, bold = true },
                 PmenuSbar                  = { bg = colors.base },
                 PmenuThumb                 = { bg = colors.surface0 },
+                PmenuBorder                = { link = "borderStyle" },
                 PreCondit                  = { link = "PreProc" },
                 PreProc                    = { fg = colors.pink },
                 Question                   = { fg = colors.teal },
@@ -102,25 +102,29 @@ local customCol = function()
                 Type                       = { link = "Keyword" },
                 -- Underlined                    = { fg = colors., underline = true },
                 VertSplit                  = { link = "NonText" },
-                Visual                     = { bg = "none", bold = true },
+                Visual                     = { bg = C.none, bold = true },
                 WarningMsg                 = { fg = colors.yellow },
                 WildMenu                   = { bg = colors.mantle },
                 WinSeparator               = { link = "LineNr" },
                 -- Exception                        = { fg = colors.yellow },
                 Exception                  = { fg = colors.yellow },
-                markdownBlockquote         = { bg = colors.crust },
+                markdownBlockquote         = { bg = C.none },
                 WinBar                     = { link = "Normal" },
                 WinBlend                   = { bg = "#000000" },
+                -- StdoutMsg                  = { fg = colors.pink },
+                -- OkMsg                      = { fg = colors.green, bg = colors.base },
+                -- ErrorMsg                   = { fg = colors.red, bg = colors.base },
+                MsgArea                    = { link = "NormalFloat" },
 
                 ----TREESITTER------------------------------------------------------------------------------------------
 
-                ["@comment.todo"]               = { fg = colors.crust, bg = colors.rosewater, italic = false, bold = true }, -- TODO
-                ["@comment.note"]               = { fg = colors.crust, bg = colors.blue, italic = false, bold = true },      -- NOTE
-                ["@comment.hint"]               = { fg = colors.crust, bg = colors.sky, italic = false, bold = true },       -- HINT
-                ["@comment.warning"]            = { fg = colors.crust, bg = colors.yellow, italic = false, bold = true },    -- WARNING
-                ["@comment.error"]              = { fg = colors.crust, bg = colors.red, italic = false, bold = true },       -- ERROR
-                ["@comment.code"]               = { fg = colors.teal, bg = colors.base, italic = false, bold = false },      -- `code`
-                ["@comment.bold"]               = { fg = colors.surface2, bold = true },                                     -- BOLD
+                ["@comment.todo"]               = { fg = C.none, bg = colors.rosewater, italic = true, bold = true },   -- TODO
+                ["@comment.note"]               = { fg = C.none, bg = colors.blue, italic = false, bold = true },       -- NOTE
+                ["@comment.hint"]               = { fg = C.none, bg = colors.sky, italic = false, bold = true },        -- HINT
+                ["@comment.warning"]            = { fg = C.none, bg = colors.yellow, italic = false, bold = true },     -- WARNING
+                ["@comment.error"]              = { fg = C.none, bg = colors.red, italic = false, bold = true },        -- ERROR
+                ["@comment.code"]               = { fg = colors.teal, bg = colors.base, italic = false, bold = false }, -- `code`
+                ["@comment.bold"]               = { fg = colors.surface2, bold = true },                                -- BOLD
                 ["@annotation"]                 = { fg = colors.yellow },
                 ["@attribute"]                  = { fg = colors.teal },
                 ["@boolean"]                    = { fg = colors.peach },
@@ -183,7 +187,7 @@ local customCol = function()
                 ["@module"]              = { fg = colors.yellow },
                 ["@operator"]            = { fg = colors.sapphire },
                 ["@property"]            = { fg = colors.lavender },
-                ["@lsp.type.keyword"]    = { fg = colors.yellow, bg = "none" },
+                ["@lsp.type.keyword"]    = { fg = colors.yellow },
                 ["@function.builtin"]    = { fg = colors.peach },
                 ["@keyword.conditional"] = { link = "@conditional" },
                 ["@keyword.repeat"]      = { link = "@conditional" },
@@ -248,34 +252,11 @@ local customCol = function()
                 ["@lsp.typemod.variable.globalScope"]        = { link = "Function" },
                 ["@lsp.typemod.variable.functionScope.cpp"]  = { fg = colors.mauve },
 
-                ----BLINK-----------------------------------------------------------------------------------------------
+                ----BLINK PAIRS-----------------------------------------------------------------------------------------
 
-                BlinkCmpKindClass         = { link = "@lsp.type.class" },
-                BlinkCmpKindColor         = { link = "@define" },
-                BlinkCmpKindConstant      = { link = "@constant" },
-                BlinkCmpKindConstructor   = { link = "@constructor" },
-                BlinkCmpKindEnum          = { link = "@lsp.type.enum" },
-                BlinkCmpKindEnumMember    = { link = "@lsp.type.enumMember" },
-                BlinkCmpKindEvent         = { link = "@lsp.type.event" },
-                BlinkCmpKindField         = { link = "@lsp.type.property" },
-                BlinkCmpKindFile          = { fg = colors.teal },
-                BlinkCmpKindFolder        = { fg = colors.ivory },
-                BlinkCmpKindFunction      = { link = "@lsp.type.function" },
-                BlinkCmpKindInterface     = { link = "@lsp.type.interface" },
-                BlinkCmpKindKeyword       = { fg = colors.rosewater },
-                BlinkCmpKindMethod        = { link = "@lsp.type.method" },
-                BlinkCmpKindModule        = { link = "@module" },
-                BlinkCmpKindOperator      = { link = "@lsp.type.operator" },
-                BlinkCmpKindProperty      = { link = "@lsp.type.property" },
-                BlinkCmpKindReference     = { link = "@function.call" },
-                BlinkCmpKindSnippet       = { link = "@module" },
-                BlinkCmpKindStruct        = { link = "@lsp.type.struct" },
-                BlinkCmpKindText          = { link = "@comment" },
-                BlinkCmpKindTypeParameter = { link = "@lsp.type.typeParameter" },
-                BlinkCmpKindUnit          = { link = "@module" },
-                BlinkCmpKindValue         = { link = "@lsp.type.enumMember" },
-                BlinkCmpKindVariable      = { link = "@lsp.type.type" },
-                BlinkCmpAbbrDeprecated    = { link = "DiagnosticDeprecated" },
+                BlinkPairsOrange = { fg = colors.peach, bg = C.none },
+                BlinkPairsPurple = { fg = colors.mauve, bg = C.none },
+                BlinkPairsBlue   = { fg = colors.blue, bg = C.none },
 
                 ----DROPBAR---------------------------------------------------------------------------------------------
 
@@ -383,7 +364,7 @@ local customCol = function()
                 DropBarIconKindDeclaration       = { link = "@lsp.type.type" },
                 DropBarIconKindDelete            = { link = "DiagnosticError" },
                 DropBarIconKindDir               = { link = "Function" },
-                DropBarIconKindDostatement       = { link = "Keyword" },
+                DropBarIconKindDostatement       = { link = "@keyword" },
                 DropBarIconKindElsestatement     = { link = "Conditional" },
                 DropBarIconKindElement           = { link = "@variable.builtin" },
                 DropBarIconKindEnum              = { link = "@lsp.type.enum" },
@@ -459,59 +440,40 @@ local customCol = function()
                 NeoTreeModified      = { link = "Normal" },
                 NeoTreeRootName      = { link = "CursorLineNr" },
 
-                ----MINI-STATUSLINE-------------------------------------------------------------------------------------
-
-                MiniStatuslineModeNormal  = { bg = colors.text },
-                MiniStatuslineModeInsert  = { bg = colors.text },
-                MiniStatuslineModeVisual  = { bg = colors.text },
-                MiniStatuslineModeOther   = { bg = colors.text },
-                MiniStatuslineModeReplace = { bg = colors.text },
-                MiniStatuslineModeCommand = { bg = colors.text },
-                MiniStatuslineDevinfo     = { bg = colors.crust },
-                MiniStatuslineFileinfo    = { bg = colors.crust },
-                MiniStatuslineFilename    = { fg = colors.surface0, bg = colors.crust },
-                MiniStatuslineInactive    = { fg = colors.text, bg = colors.crust },
-
                 ----MINI-HIPATTERNS-------------------------------------------------------------------------------------
 
-                MiniHipatternsNote  = { fg = colors.crust, bg = colors.sky, italic = true, bold = true },
-                MiniHipatternsTodo  = { fg = colors.crust, bg = colors.teal, italic = true, bold = true },
-                MiniHipatternsHack  = { fg = colors.crust, bg = colors.yellow, italic = true, bold = true },
-                MiniHipatternsFixme = { fg = colors.crust, bg = colors.red, italic = true, bold = true },
+                MiniHipatternsNote  = { link = "@comment.note" },
+                MiniHipatternsTodo  = { link = "@comment.todo" },
+                MiniHipatternsHack  = { link = "@comment.hack" },
+                MiniHipatternsFixme = { link = "@comment.error" },
 
-                ----NOTICE----------------------------------------------------------------------------------------------
+                ----MASON-----------------------------------------------------------------------------------------------
 
-                NoiceCmdline            = { link = "NormalFloat" },
-                NoiceConfirm            = { link = "NormalFloat" },
-                NoiceConfirmBorder      = { link = "FloatBorder" },
-                NoiceCmdlinePopup       = { link = "NormalFloat" },
-                NoiceCmdlinePopupBorder = { link = "FloatBorder" },
-                NoiceCmdlineIcon        = { link = "Title" },
+                MasonNormal             = { link = "Normal" },
+                MasonHeading            = { link = "FloatTitle" },
+                MasonHeader             = { link = "Error" },
+                MasonHighlight          = { link = "Function" },
+                MasonMutedBlock         = { link = "LspInlayHint" },
+                MasonHighlightBlockBold = { link = "@comment.code" },
 
                 ----MISC------------------------------------------------------------------------------------------------
 
-                YaziFloatBorder         = { fg = colors.crust, bg = colors.crust },
-                MoreMsg                 = { link = "DiagnosticHint" },
-                LspInlayHint            = { bg = colors.base },
-                SymbolUsage             = { bg = colors.base },
-                FoldMark                = { link = "Comment" },
-                LightBulbSign           = { link = "DiagnosticSignHint" },
-                OutlineCurrent          = { bg = colors.base },
-                OutlineDetails          = { link = "LspInlayHint" },
-                OutlineFoldMarker       = { link = "Comment" },
-                TreesitterContext       = { bg = colors.mantle, bold = false },
-                LspReferenceText        = { link = "Visual" },
-                LspReferenceWrite       = { link = "LspReferenceText" },
-                LspReferenceRead        = { link = "LspReferenceWrite" },
-                DiffAdded               = { link = "DiffAdd" },
-                DiffRemoved             = { link = "DiffDelete" },
-                QuickFixLine            = { link = "Visual" },
-                MasonNormal             = { bg = colors.mantle },
-                MasonHeading            = { fg = colors.red, bg = colors.mantle, bold = false },
-                MasonHeader             = { fg = colors.red, bg = colors.mantle, bold = false },
-                MasonHighlight          = { fg = colors.teal, bg = colors.mantle, bold = false },
-                MasonHighlightBlockBold = { fg = colors.spark, bg = colors.mantle, bold = false },
-                MasonMutedBlock         = { fg = colors.surface1, bg = colors.mantle, bold = false },
+                YaziFloatBorder   = { fg = colors.crust, bg = colors.crust },
+                MoreMsg           = { link = "DiagnosticHint" },
+                LspInlayHint      = { bg = colors.base },
+                SymbolUsage       = { link = "LspInlayHint" },
+                FoldMark          = { link = "Comment" },
+                LightBulbSign     = { link = "DiagnosticSignHint" },
+                OutlineCurrent    = { bg = colors.base },
+                OutlineDetails    = { link = "LspInlayHint" },
+                OutlineFoldMarker = { link = "Comment" },
+                TreesitterContext = { bg = colors.mantle, bold = false },
+                LspReferenceText  = { link = "Visual" },
+                LspReferenceWrite = { link = "LspReferenceText" },
+                LspReferenceRead  = { link = "LspReferenceWrite" },
+                DiffAdded         = { link = "DiffAdd" },
+                DiffRemoved       = { link = "DiffDelete" },
+                QuickFixLine      = { link = "Visual" },
         }
 end
 
@@ -533,7 +495,7 @@ return {
                         no_bold                = false,
                         no_underline           = true,
                         styles                 = { conditionals = { "italic" }, loops = { "italic" }, misc = {} },
-                        color_overrides        = { mocha = { mantle = "#14141f", crust = "#0e0e16" } },
+                        color_overrides        = { mocha = { mantle = colors.mantle, crust = colors.crust } },
                         custom_highlights      = customCol,
                         default_integrations   = true,
                         auto_integrations      = false,

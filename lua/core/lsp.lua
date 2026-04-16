@@ -1,7 +1,7 @@
 ----DIAGNOSTISCS--------------------------------------------------------------------------------------------------------
 
-local hl      = "DiagnosticVirtualText"
-local numbers = {
+local hl    = "DiagnosticVirtualText"
+local signs = {
         text  = {
                 [vim.diagnostic.severity.ERROR] = "",
                 [vim.diagnostic.severity.WARN]  = "",
@@ -17,7 +17,7 @@ local numbers = {
 }
 
 vim.diagnostic.config({
-        signs            = numbers,
+        signs            = signs,
         virtual_text     = { source = false, current_line = nil },
         update_in_insert = false,
         severity_sort    = true,
@@ -33,9 +33,11 @@ handlers[methods["textDocument_inlayHint"]] = function(err, result, ctx, config)
         local client = vim.lsp.get_client_by_id(ctx.client_id)
         if client then
                 local row, col = unpack(vim.api.nvim_win_get_cursor(0)) ---@diagnostic disable-line: unused-local
-                result         = vim.iter(result):filter(function(hint)
-                        return hint.position.line + 1 == row
-                end):totable()
+                result         = vim.iter(result)
+                           :filter(function(hint)
+                                   return hint.position.line + 1 == row
+                           end)
+                           :totable()
         end
         originalInlayHintHandler(err, result, ctx, config)
 end

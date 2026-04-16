@@ -4,7 +4,7 @@ local utils  = require("core.utils")
 local nano   = require("functions.nano-plugins")
 local eval   = require("functions.inspect-and-eval")
 local map    = utils.uniqueKeymap
-local prefix = Config.prefix
+local prefix = "<LocalLeader>"
 
 local n, i, c, v, o, x, t = "n", "i", "c", "v", "o", "x", "t"
 
@@ -85,10 +85,10 @@ map(n, "F", function() nano.fF("F") end, { desc = "F", silent = true })
 ----EDITING-------------------------------------------------------------------------------------------------------------
 
 -- Undo
-map(n, "u",           "<cmd>silent undo<CR>zz",                       { desc = "󰜊 Silent undo", silent = true })
-map(n, "U",           "<cmd>silent redo<CR>zz",                       { desc = "󰛒 Silent redo", silent = true })
-map(n, "<leader>uu",  ":earlier ",                                    { desc = "󰜊 Undo to earlier", silent = true })
-map(n, "<leader>ur",  function() vim.cmd.later(vim.o.undolevels) end, { desc = "󰛒 Redo all", silent = true })
+map(n, "u",          "<cmd>silent undo<CR>zz",                       { desc = "󰜊 Silent undo", silent = true })
+map(n, "U",          "<cmd>silent redo<CR>zz",                       { desc = "󰛒 Silent redo", silent = true })
+map(n, "<leader>uu", ":earlier ",                                    { desc = "󰜊 Undo to earlier", silent = true })
+map(n, "<leader>ur", function() vim.cmd.later(vim.o.undolevels) end, { desc = "󰛒 Redo all", silent = true })
 
 -- Duplicate
 map(n, "<C-w>", function() nano.smartDuplicate() end, { desc = "󰲢 Duplicate line", nowait = true, silent = true })
@@ -214,11 +214,11 @@ end
 
 ----LSP-----------------------------------------------------------------------------------------------------------------
 
-map(n, "<A-d>", function()
+map(nx, "<A-d>", function()
             vim.diagnostic.jump({ count = 1, float = false })
             vim.cmd.normal("zz")
     end, { desc = "■ Diagnostic Next" })
-map(n, "<A-D>", function()
+map(nx, "<A-D>", function()
             vim.diagnostic.jump({ count = -1, float = false })
             vim.cmd.normal("zz")
     end, { desc = "■ Diagnostic Prev" })
@@ -379,6 +379,7 @@ end
 
 map(n, "<leader>fd", ":global //d<Left><Left>", { desc = " delete matching lines" })
 
+map(n, prefix .. "x", "gx",                                      { desc = "Open Link", remap = true })
 map(n, prefix .. "n", vim.lsp.buf.rename,                        { desc = "󰑕 LSP rename" })
 map(n, prefix .. "m", function() nano.camelSnakeLspRename() end, { desc = "󰑕 LSP rename: camel/snake" })
 
@@ -400,17 +401,6 @@ map(n, "<leader>f<Tab>",   function() retabber("tabs") end,   { desc = "󰌒 Use
 map(n, "<leader>f<Space>", function() retabber("spaces") end, { desc = "󱁐 Use Spaces", silent = true })
 
 ----OPTION TOGGLING-----------------------------------------------------------------------------------------------------
-
-local loaded, _ = pcall(require, "snacks")
-
-if loaded then
-        Snacks.toggle.option("relativenumber", { name = " Relative Line Number", global = true }):map("<leader>or")
-        Snacks.toggle.option("number", { name = " Line Number", global = true }):map("<leader>on")
-        Snacks.toggle.option("wrap", { name = "󰖶 Wrap", global = true }):map("<leader>ow")
-        Snacks.toggle.treesitter({ name = " Treesitter Highlight" }):map("<leader>ot")
-        Snacks.toggle.option("conceallevel", { off = 0, on = vim.o.conceallevel > 0 and vim.o.conceallevel or 2 })
-                   :map("<leader>oc")
-end
 
 map("n", "<leader>ol", function()
             local clients = vim.lsp.get_clients{ bufnr = 0 }

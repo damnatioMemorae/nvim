@@ -1,7 +1,11 @@
 local opt = vim.opt
 local o   = vim.o
+local g   = vim.g
 
 ----GENERAL-------------------------------------------------------------------------------------------------------------
+
+g.mapleader      = " "
+g.maplocalleader = ","
 
 vim.schedule(function()
         o.clipboard = "unnamedplus"
@@ -17,6 +21,7 @@ opt.iskeyword:append("@,48-57,_,-,192-255")
 opt.spelloptions:append("noplainbuffer")
 opt.jumpoptions:append("stack")
 
+o.shell         = "bash"
 o.undofile      = true
 o.undolevels    = 10000
 o.swapfile      = false
@@ -41,11 +46,13 @@ o.report        = 9001
 -- opt.shortmess:append("ISs")
 -- o.messagesopt   = { "wait:0", "history:1000" }
 o.nrformats     = "bin,hex,blank,unsigned"
+o.showbreak     = " 󰘍 "
 
-----STATUSCOL--------------------------------------------------------------------------------------------------------------------
+----STATUSCOL-----------------------------------------------------------------------------------------------------------
 
 local function numberLine()
         local v = vim.v
+
         if v.virtnum ~= 0 then
                 return "%="
         end
@@ -53,6 +60,7 @@ local function numberLine()
         local lnum     = v.relnum > 0 and v.relnum or v.lnum
         local lnum_str = tostring(lnum)
         local pad      = (""):rep(vim.wo.numberwidth - #lnum_str)
+
         return "%=" .. pad .. lnum_str .. " "
 end
 
@@ -108,44 +116,44 @@ o.cmdheight  = 0
 
 local targets = {
         [""]         = "msg",
-        empty        = "cmd",
         bufwrite     = "msg",
-        confirm      = "cmd",
-        emsg         = "pager",
+        completion   = "msg",
+        confirm      = "dialog",
+        echoerr      = "pager",
         echo         = "msg",
         echomsg      = "msg",
-        echoerr      = "pager",
-        completion   = "cmd",
+        empty        = "cmd",
+        emsg         = "pager",
         list_cmd     = "pager",
         lua_error    = "pager",
         lua_print    = "msg",
         progress     = "pager",
-        rpc_error    = "pager",
         quickfix     = "msg",
+        rpc_error    = "pager",
         search_cmd   = "cmd",
         search_count = "cmd",
         shell_cmd    = "pager",
         shell_err    = "pager",
         shell_out    = "pager",
         shell_ret    = "msg",
+        typed_cmd    = "cmd",
         undo         = "msg",
         verbose      = "pager",
         wildlist     = "cmd",
         wmsg         = "msg",
-        typed_cmd    = "cmd",
 }
 
-require("vim._core.ui2").enable({
-        enable = true,
-        msg    = {
-                -- targets = targets,
-                targets = "cmd",
-                cmd     = { height = 0.5 },
-                dialog  = { height = 0.5 },
-                pager   = { height = 0.5 },
-                msg     = { height = 0.3, timeout = 1000 },
-        },
-})
+-- require("vim._core.ui2").enable({
+--         enable = true,
+--         msg    = {
+--                 -- targets = targets,
+--                 targets = "cmd",
+--                 cmd     = { height = 0.5 },
+--                 dialog  = { height = 0.5 },
+--                 pager   = { height = 0.5 },
+--                 msg     = { height = 0.3, timeout = 1000 },
+--         },
+-- })
 
 ----INVISIBLE CHARS-----------------------------------------------------------------------------------------------------
 
@@ -153,16 +161,16 @@ require("vim._core.ui2").enable({
 o.conceallevel = 2
 o.list         = true
 
-opt.listchars = {
-        nbsp       = " ",
+opt.listchars:append({
+        nbsp       = "_",
         precedes   = Icons.Misc.ellipsis,
         extends    = Icons.Misc.ellipsis,
         multispace = " ",
         lead       = " ",
         trail      = " ",
         tab        = "  ",
-}
-opt.fillchars:append{
+})
+opt.fillchars:append({
         fold      = " ",
         vert      = "▕",
         eob       = " ",
@@ -170,7 +178,7 @@ opt.fillchars:append{
         foldopen  = Icons.Arrows.open,
         foldsep   = "│",
         diff      = "╱",
-}
+})
 
 o.winborder        = "none"
 o.mousemoveevent   = true

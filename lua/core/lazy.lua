@@ -118,7 +118,7 @@ map("n", "<leader><leader>,", function()
             local all_plugins = vim.iter(spec_files):fold({}, function(acc, name, _)
                     if not vim.endswith(name, ".lua") then return acc end
                     local module_name = name:gsub("%.lua$", "")
-                    local module     = require(spec_root .. "." .. module_name)
+                    local module      = require(spec_root .. "." .. module_name)
                     if type(module[1]) ~= "table" then module = { module } end
                     local plugins = vim.iter(module)
                                :map(function(plugin) return { repo = plugin[1], module = module_name } end)
@@ -157,27 +157,35 @@ map("n", "<leader><leader>p", function()
 
 local function checkForDuplicateKeys()
         local already_mapped = {}
-        local plugins       = require("lazy").plugins()
+        local plugins        = require("lazy").plugins()
 
         -- 1) each plugin
         vim.iter(plugins):each(function(plugin)
-                if not plugin.keys then return end
+                if not plugin.keys then
+                        return
+                end
 
                 -- 2) each keymap of a plugin (only none-ft-specific keymaps)
                 vim.iter(plugin.keys)
-                           :filter(function(lazy_key) return lazy_key.ft == nil end)
-                           :each(function(lazy_key)
-                                   local lhs   = lazy_key[1] or lazy_key
-                                   local modes = lazy_key.mode or "n" ---@type string|string[]
-                                   if type(modes) ~= "table" then modes = { modes } end
+                           :filter(function(lazyKey) return lazyKey.ft == nil end)
+                           :each(function(lazyKey)
+                                   local lhs   = lazyKey[1] or lazyKey
+                                   local modes = lazyKey.mode or "n"
+
+                                   if type(modes) ~= "table" then
+                                           modes = { modes } ---@diagnostic disable-line: cast-local-type
+                                   end
 
                                    -- 3) each mode of a keymap
                                    vim.iter(modes):each(function(mode)
-                                           if not already_mapped[mode] then already_mapped[mode] = {} end
+                                           if not already_mapped[mode] then
+                                                   already_mapped[mode] = {}
+                                           end
+
                                            if already_mapped[mode][lhs] then
                                                    local msg = ("Duplicate keymap: [%s (%s)]"):format(lhs, mode)
                                                    vim.notify(msg, vim.log.levels.WARN,
-                                                              { title = "lazy.nvim", timeout = false })
+                                                              { title = "lazy.nvim", timeout = 4000 })
                                            else
                                                    already_mapped[mode][lhs] = true
                                            end

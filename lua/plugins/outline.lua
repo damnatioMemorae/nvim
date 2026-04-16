@@ -35,7 +35,7 @@ local icons = {
 
 return {
         "hedyhli/outline.nvim",
-        keys         = { { ",s", "<cmd>Outline<cr>", desc = "Outline", mode = { "n" } } },
+        keys         = { { "<LocalLeader>s", "<cmd>Outline<cr>", desc = "Outline", mode = { "n" } } },
         opts         = {
                 outline_window = { position = "right", width = 20, focus_on_open = false },
                 outline_items  = { show_symbol_details = true, auto_set_cursor = false },

@@ -10,7 +10,6 @@ _G.Spinner = {}
 
 ----VARIABLES-----------------------------------------------------------------------------------------------------------
 
-Config.prefix      = ","
 Config.projectsDir = vim.env.HOME .. "/deeznuts/"
 Config.backdrop    = 80
 Config.blend       = 0
@@ -29,7 +28,7 @@ Border.borderTop         = { "▔", "▔", "▔", " ", " ", " ", " ", " " }
 Border.borderBottom      = { " ", " ", " ", " ", "▂", "▂", "▂", " " }
 Border.borderLeft        = { "▌", " ", " ", " ", " ", " ", "▌", "▌" }
 Border.borderRight       = { " ", " ", "🮉", "🮉", "🮉", " ", " ", " " }
-Border.borderTopEmpty    = { "", "", "", "", "", "", "", "" }
+Border.borderTopEmpty    = { "▔", "▔", "▔", "", "", "", "", "" }
 Border.borderBottomEmpty = { "", "", "", "", "▂", "▂", "▂", "" }
 Border.borderLeftEmpty   = { "▌", "", "", "", "", "", "▌", "▌" }
 Border.borderRightEmpty  = { "", "", "🮉", "🮉", "🮉", "", "", "" }
@@ -51,11 +50,11 @@ function Toggle.codeLens()
         if loaded and Config.codeLens then
                 symbol.toggle_globally()
                 symbol.refresh()
-                vim.notify(msg .. "Enabled", vim.log.levels.INFO)
+                vim.notify(msg .. "Enabled", vim.log.levels.WARN)
         else
                 symbol.toggle_globally()
                 symbol.refresh()
-                vim.notify(msg .. "Disabled", vim.log.levels.INFO)
+                vim.notify(msg .. "Disabled", vim.log.levels.ERROR)
         end
 end
 
@@ -68,11 +67,11 @@ function Toggle.inlayHints()
         if loaded and Config.inlayHints then
                 endhints.enable()
                 vim.lsp.inlay_hint.enable(Config.inlayHints)
-                vim.notify(msg .. "Enabled", vim.log.levels.INFO)
+                vim.notify(msg .. "Enabled", vim.log.levels.WARN)
         else
                 endhints.disable()
                 vim.lsp.inlay_hint.enable(Config.inlayHints)
-                vim.notify(msg .. "Disabled", vim.log.levels.INFO)
+                vim.notify(msg .. "Disabled", vim.log.levels.ERROR)
         end
 end
 
@@ -84,10 +83,10 @@ function Toggle.indentLine()
 
         if loaded and Config.indentLine then
                 ibl.update({ enabled = Config.indentLine })
-                vim.notify(msg .. "Enabled",                vim.log.levels.INFO)
+                vim.notify(msg .. "Enabled",                vim.log.levels.WARN)
         else
                 ibl.update({ enabled = Config.indentLine })
-                vim.notify(msg .. "Disabled",               vim.log.levels.INFO)
+                vim.notify(msg .. "Disabled",               vim.log.levels.ERROR)
         end
 end
 
@@ -100,11 +99,11 @@ function Toggle.diagnostics()
         if loaded and Config.diagnostics then
                 diagnostics.enable()
                 vim.diagnostic.enable(Config.diagnostics)
-                vim.notify(msg .. "Enabled", vim.log.levels.INFO)
+                vim.notify(msg .. "Enabled", vim.log.levels.WARN)
         else
                 diagnostics.disable()
                 vim.diagnostic.enable(Config.diagnostics)
-                vim.notify(msg .. "Disabled", vim.log.levels.INFO)
+                vim.notify(msg .. "Disabled", vim.log.levels.ERROR)
         end
 end
 
@@ -115,7 +114,7 @@ local default_treesitter_branch = (vim.fn.executable("make") == 1 and
 vim.g.treesitter_branch         = vim.env.NVIM_TREESITTER_BRANCH or default_treesitter_branch
 --]]
 
---[[FUZZY SEARCH--------------------------------------------------------------------------------------------------------
+----FUZZY SEARCH--------------------------------------------------------------------------------------------------------
 
 vim.o.wildmode = "noselect"
 vim.api.nvim_create_autocmd("CmdlineChanged", {
@@ -283,76 +282,76 @@ Icons.KindsAlt = {
 }
 
 Icons.Devicons = {
-        Array             = "󰅪 ",
-        Boolean           = " ",
-        BreakStatement    = "󰙧 ",
-        Call              = "󰃷 ",
-        CaseStatement     = "󱃙 ",
-        Class             = " ",
-        Color             = " ",
-        Constant          = " ",
-        Constructor       = " ",
-        ContinueStatement = "→ ",
-        Copilot           = " ",
-        Declaration       = "󰙠 ",
-        Delete            = "󰢤 ",
-        DoStatement       = "󰑖 ",
-        Enum              = " ",
-        EnumMember        = " ",
-        Event             = " ",
-        Field             = " ",
-        File              = " ",
-        Folder            = " ",
-        ForStatement      = "󰑖 ",
-        Function          = " ",
-        H1Marker          = "󰉫 ",
-        H2Marker          = "󰉬 ",
-        H3Marker          = "󰉭 ",
-        H4Marker          = "󰉮 ",
-        H5Marker          = "󰉯 ",
-        H6Marker          = "󰉰 ",
-        Identifier        = " ",
-        IfStatement       = " ",
-        Interface         = " ",
-        Keyword           = " ",
-        List              = "󰅪 ",
-        Log               = " ",
-        Lsp               = " ",
-        Macro             = " ",
-        MarkdownH1        = "󰉫 ",
-        MarkdownH2        = "󰉬 ",
-        MarkdownH3        = "󰉭 ",
-        MarkdownH4        = "󰉮 ",
-        MarkdownH5        = "󰉯 ",
-        MarkdownH6        = "󰉰 ",
-        Method            = " ",
-        Module            = " ",
-        Namespace         = " ",
-        Null              = "󰢤 ",
-        Number            = "󰎠 ",
-        Object            = " ",
-        Operator          = "󰆕 ",
-        Package           = " ",
-        Pair              = "󰅪 ",
-        Property          = " ",
-        Reference         = "󰈇 ",
-        Regex             = " ",
-        Repeat            = "󰑖 ",
-        Scope             = " ",
-        Snippet           = " ",
-        Specifier         = "󰦪 ",
-        Statement         = " ",
-        String            = "󰉾 ",
-        Struct            = " ",
-        SwitchStatement   = "󰺟 ",
-        Terminal          = " ",
-        Text              = " ",
-        Type              = " ",
-        TypeParameter     = " ",
-        Unit              = " ",
-        Value             = "󰎠 ",
-        Variable          = " ",
-        WhileStatement    = "󰑖 ",
+        Array             = "󰅪",
+        Boolean           = "",
+        BreakStatement    = "󰙧",
+        Call              = "󰃷",
+        CaseStatement     = "󱃙",
+        Class             = "",
+        Color             = "",
+        Constant          = "",
+        Constructor       = "",
+        ContinueStatement = "→",
+        Copilot           = "",
+        Declaration       = "󰙠",
+        Delete            = "󰢤",
+        DoStatement       = "󰑖",
+        Enum              = "",
+        EnumMember        = "",
+        Event             = "",
+        Field             = "",
+        File              = "",
+        Folder            = "",
+        ForStatement      = "󰑖",
+        Function          = "",
+        H1Marker          = "󰉫",
+        H2Marker          = "󰉬",
+        H3Marker          = "󰉭",
+        H4Marker          = "󰉮",
+        H5Marker          = "󰉯",
+        H6Marker          = "󰉰",
+        Identifier        = "",
+        IfStatement       = "",
+        Interface         = "",
+        Keyword           = "",
+        List              = "󰅪",
+        Log               = "",
+        Lsp               = "",
+        Macro             = "",
+        MarkdownH1        = "󰉫",
+        MarkdownH2        = "󰉬",
+        MarkdownH3        = "󰉭",
+        MarkdownH4        = "󰉮",
+        MarkdownH5        = "󰉯",
+        MarkdownH6        = "󰉰",
+        Method            = "",
+        Module            = "",
+        Namespace         = "",
+        Null              = "󰢤",
+        Number            = "󰎠",
+        Object            = "",
+        Operator          = "󰆕",
+        Package           = "",
+        Pair              = "󰅪",
+        Property          = "",
+        Reference         = "󰈇",
+        Regex             = "",
+        Repeat            = "󰑖",
+        Scope             = "",
+        Snippet           = "",
+        Specifier         = "󰦪",
+        Statement         = "",
+        String            = "󰉾",
+        Struct            = "",
+        SwitchStatement   = "󰺟",
+        Terminal          = "",
+        Text              = "",
+        Type              = "",
+        TypeParameter     = "",
+        Unit              = "",
+        Value             = "󰎠",
+        Variable          = "",
+        WhileStatement    = "󰑖",
 }
 
 Icons.Misc = {

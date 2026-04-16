@@ -12,6 +12,18 @@ local none   = Border.borderStyleNone
 local top    = Border.borderTop
 local bot    = Border.borderBottom
 
+local loaded, _ = pcall(require, "snacks")
+local toggle    = Snacks.toggle
+local o         = vim.o
+
+if loaded then
+        toggle.option("relativenumber", { name = " Relative Line Number", global = true }):map("<leader>or")
+        toggle.option("number", { name = " Line Number", global = true }):map("<leader>on")
+        toggle.option("wrap", { name = "󰖶 Wrap", global = true }):map("<leader>ow")
+        toggle.option("conceallevel", { off = 0, on = o.conceallevel > 0 and o.conceallevel or 2 }):map("<leader>oc")
+        toggle.treesitter({ name = " Treesitter Highlight" }):map("<leader>ot")
+end
+
 return {
         "folke/snacks.nvim",
         lazy     = false,
@@ -21,10 +33,10 @@ return {
                 { "<leader>lg", function() Snacks.lazygit() end,            desc = "Lazygit" },
         },
         opts     = {
-                quickfile    = { enabled = true },
-                lazygit      = { enabled = true },
-                input        = { enabled = true },
-                indent       = {
+                quickfile = { enabled = true },
+                lazygit   = { enabled = true },
+                input     = { enabled = true },
+                indent    = {
                         indent  = {
                                 enabled    = false,
                                 char       = "",
@@ -43,7 +55,7 @@ return {
                                 only_current = false,
                         },
                 },
-                scope        = {
+                scope     = {
                         enabled    = true,
                         min_size   = 2,
                         cursor     = false,
@@ -68,7 +80,7 @@ return {
                                 field_blocks = { "local_declaration" },
                         },
                 },
-                win          = {
+                win       = {
                         border = border,
                         wo     = {
                                 signcolumn     = "no",
@@ -79,7 +91,7 @@ return {
                                 cursorcolumn   = false,
                         },
                 },
-                styles       = {
+                styles    = {
                         notification_history = {
                                 border   = border,
                                 height   = 0.9,
@@ -108,7 +120,7 @@ return {
                                 title    = " 󰆽 Git blame ",
                         },
                 },
-                picker       = {
+                picker    = {
                         prompt    = " > ",
                         ui_select = true,
                         hidden    = true,
@@ -259,7 +271,7 @@ return {
                                 },
                         },
                 },
-                image        = {
+                image     = {
                         enabled  = false,
                         formats  = { "png", "jpg", "jpeg", "gif", "bmp", "webp", "tiff", "heic", "avif", "mp4", "mov", "avi", "mkv", "webm", "pdf" },
                         force    = false,

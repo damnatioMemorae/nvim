@@ -19,7 +19,7 @@ return {
                 vim.api.nvim_set_hl(0, "TreesitterContextLineNumberBottom", { underline = false })
                 vim.api.nvim_set_hl(0, "TreesitterContextBottom",           { underline = false })
 
-                vim.keymap.set("n", ",t", function()
+                vim.keymap.set("n", "<LocalLeader>t", function()
                                        require("treesitter-context").go_to_context(vim.v.count1)
                                end, { silent = true })
         end,

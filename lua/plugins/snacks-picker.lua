@@ -1,4 +1,4 @@
-local prefix = Config.prefix
+local prefix = "<LocalLeader>"
 local leader = "<leader><leader>"
 
 local top    = Border.borderTop

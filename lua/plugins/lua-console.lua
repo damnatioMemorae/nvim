@@ -18,7 +18,7 @@ return {
                 },
                 mappings = {
                         quit = "<Esc>",
-                        open = ",f",
+                        open = "<LocalLeader>f",
                 },
         },
 }

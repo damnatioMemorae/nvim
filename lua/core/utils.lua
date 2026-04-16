@@ -1,10 +1,6 @@
 local M = {}
 ------------------------------------------------------------------------------------------------------------------------
 
-local api = vim.api
-local cmd = vim.cmd
-local fn  = vim.fn
-
 M.extraTextobjMaps = {
         func      = "f",
         call      = "l",
@@ -66,7 +62,34 @@ function M.getHl(name)
         return vim.api.nvim_get_hl(0, { name = name })
 end
 
--- craftzdog/utils.lua
+----SMALL STUFF---------------------------------------------------------------------------------------------------------
+
+function M.getRowCol()
+        local cursor = unpack(vim.api.nvim_win_get_cursor(0))
+        return cursor[1], cursor[2]
+end
+
+function M.merge(...)
+        local args = { ... }
+        return vim.tbl_extend("force", {}, unpack(args))
+end
+
+function M.concat(...)
+        local result = {}
+        local args   = { ... }
+        for _, i in ipairs(args) do
+                for _, j in ipairs(i) do
+                        table.insert(result, j)
+                end
+        end
+        return result
+end
+
+function M.exec(cmd)
+        return vim.trim(vim.fn.system(cmd))
+end
+
+----COLORS--------------------------------------------------------------------------------------------------------------
 -- https://github.com/EmmanuelOga/columns/blob/master/utils/color.lua
 
 local hex_chars = "0123456789abcdef"

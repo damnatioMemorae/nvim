@@ -1,6 +1,6 @@
 local style   = {
-        local_name_style             = "snake_case",
-        function_param_name_style    = { "camel_case" },
+        local_name_style             = { "snake_case" },
+        function_param_name_style    = { "camel_case", "pascal_case" },
         function_name_style          = "camel_case",
         local_function_name_style    = "camel_case",
         global_variable_name_style   = "camel_case",

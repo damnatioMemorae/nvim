@@ -1,6 +1,6 @@
 return {
         "mbbill/undotree",
-        keys   = { { Config.prefix .. "u", "<cmd>UndotreeToggle<cr>", desc = "Undo tree", mode = { "n" } } },
+        keys   = { { "<LocalLeader>u", "<cmd>UndotreeToggle<cr>", desc = "Undo tree", mode = { "n" } } },
         config = function()
                 vim.cmd([[
                         let g:undotree_WindowLayout = 4

@@ -1,7 +1,7 @@
 return {
         "chrisgrieser/nvim-various-textobjs",
         event = "VeryLazy",
-        keys = {
+        keys  = {
                 { "<Space>", function() require("various-textobjs").subword("inner") end, mode = "o", desc = "󰬞 inner subword" },
                 { "a<Space>", function() require("various-textobjs").subword("outer") end, mode = { "o", "x" }, desc = "󰬞 outer subword" },
 
@@ -78,14 +78,18 @@ return {
                         desc = " Delete surrounding indent",
                 },
                 { -- open URL (forward seeking)
-                        ",x",
+                        "<LocalLeader>x",
                         function()
+                                vim.keymap.del("n", "<LocalLeader>")
+
                                 require("various-textobjs").url()
                                 local found_url = vim.fn.mode():find("v")
                                 if found_url then
                                         vim.cmd.normal{ '"zy', bang = true }
                                         local url = vim.fn.getreg("z")
                                         vim.ui.open(url)
+                                else
+                                        vim.cmd.normal("gx")
                                 end
                         end,
                         desc = " Smart URL Opener",

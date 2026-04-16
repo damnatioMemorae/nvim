@@ -42,7 +42,7 @@ return {
         "Bekaboo/dropbar.nvim",
         event        = "BufEnter",
         dependencies = { "nvim-telescope/telescope-fzf-native.nvim" },
-        keys         = { { ",w", function() require("dropbar.api").pick() end, desc = "Toggle dropbar", mode = { "n" } } },
+        keys         = { { "<LocalLeader>w", function() require("dropbar.api").pick() end, desc = "Toggle dropbar", mode = { "n" } } },
         opts         = {
                 bar     = {
                         truncate      = true,

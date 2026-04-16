@@ -1,4 +1,4 @@
-local prefix = Config.prefix
+local prefix = "<LocalLeader>"
 
 return {
         "necrom4/convy.nvim",

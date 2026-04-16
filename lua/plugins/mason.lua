@@ -33,6 +33,7 @@ local ensure_installed = {
         "prettier",
         "prettierd",
         -- "ts_query_ls",
+        "qmlls",
 
         -- DEBUGGERS
 
@@ -134,7 +135,7 @@ return {
                         "github:mason-org/mason-registry",
                 },
                 ui         = {
-                        border   = Border.borderStyle,
+                        border   = Border.borderStyleNone,
                         height   = 0.9,
                         width    = 0.8,
                         backdrop = Config.backdrop,

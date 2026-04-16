@@ -3,7 +3,7 @@ return {
         { enabled = true,  "catppuccin/nvim" },
 
         ----AI----------------------------------------------------------------------------------------------------------
-        { enabled = true,  "monkoose/neocodeium" },
+        { enabled = false, "monkoose/neocodeium" },
 
         ----COMPLETION--------------------------------------------------------------------------------------------------
         { enabled = true,  "saghen/blink.cmp" },
@@ -50,7 +50,6 @@ return {
         { enabled = true,  "OXY2DEV/markview.nvim" },
         { enabled = true,  "OXY2DEV/helpview.nvim" },
         { enabled = true,  "nvim-lualine/lualine.nvim" },
-        { enabled = true,  "lukas-reineke/indent-blankline.nvim" },
 
         ----WINDOWS-----------------------------------------------------------------------------------------------------
         { enabled = true,  "sindrets/winshift.nvim" },
@@ -60,9 +59,8 @@ return {
         { enabled = true,  "monaqa/dial.nvim" },
         { enabled = true,  "necrom4/convy.nvim" },
         { enabled = false, "MagicDuck/grug-far.nvim" },
-        { enabled = true,  "altermo/ultimate-autopair.nvim" },
         { enabled = true,  "chrisgrieser/nvim-rip-substitute" },
-        { enabled = false, "chrisgrieser/nvim-various-textobjs" },
+        { enabled = true,  "chrisgrieser/nvim-various-textobjs" },
 
         ----MOVEMENT----------------------------------------------------------------------------------------------------
         { enabled = true,  "chrisgrieser/nvim-spider" },

@@ -13,12 +13,12 @@ return {
                         function() require("flash").remote() end,
                         desc = "Remote Flash",
                 },
-                {
-                        "r",
-                        mode = "o",
-                        function() require("flash").treesitter_search() end,
-                        desc = "Treesitter Search",
-                },
+                -- {
+                --         "r",
+                --         mode = "o",
+                --         function() require("flash").treesitter_search() end,
+                --         desc = "Treesitter Search",
+                -- },
         },
         opts = {
                 jump      = { nohlsearch = true, autojump = true },

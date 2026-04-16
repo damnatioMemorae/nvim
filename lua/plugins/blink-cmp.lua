@@ -3,6 +3,7 @@ return {
         event        = { "InsertEnter", "CmdlineEnter" },
         build        = "cargo build --release",
         dependencies = {
+                { "cushycush/quickshell-completions.nvim" },
                 { "niuiic/blink-cmp-rg.nvim" },
                 {
                         "L3MON4D3/LuaSnip",
@@ -22,10 +23,7 @@ return {
                         documentation = {
                                 auto_show          = true,
                                 auto_show_delay_ms = 200,
-                                window             = {
-                                        border    = Border.borderStyle,
-                                        scrollbar = false,
-                                },
+                                window             = { border = Border.borderStyle, scrollbar = false },
                         },
                         trigger       = {
                                 prefetch_on_insert                   = true,
@@ -61,51 +59,8 @@ return {
                                                 { "kind",        gap = 0 },
                                         },
                                         components = {
-                                                kind_icon   = {
-                                                        ellipsis = false,
-                                                        text     = function(ctx)
-                                                                if ctx.source_id == "cmdline" then return end
-                                                                return ctx.kind_icon
-                                                        end,
-                                                },
-                                                label       = {
-                                                        ellipsis = true,
-                                                        text     = function(ctx)
-                                                                return ctx.label
-                                                                -- .. ctx.label_detail
-                                                                -- .. (#ctx.label_description > 0 and " " .. ctx.label_description or "")
-                                                        end,
-                                                        -- highlight = function(ctx)
-                                                        --         local hls = {
-                                                        --                 { 0, #ctx.label_description, group = "BlinkCmpLabelDescription" },
-                                                        --                 { 0, #ctx.label,             group = "BlinkCmpLabelDescription" },
-                                                        --         }
-                                                        --
-                                                        --         -- local total_length = (#ctx.label + #ctx.label_detail)
-                                                        --         --            + (#ctx.label_description > 0 and #ctx.label_description + 1 or 0)
-                                                        --         -- local hls          = {
-                                                        --         --         { 0,          #ctx.label,   group = ctx.deprecated and "BlinkCmpLabelDeprecated" or "BlinkCmpLabel" },
-                                                        --         --         { #ctx.label, total_length, group = "BlinkCmpLabelDetail" },
-                                                        --         -- }
-                                                        --         -- for _, idx in ipairs(ctx.label_matched_indices) do
-                                                        --         --         table.insert(hls,
-                                                        --         --                      {
-                                                        --         --                              idx,
-                                                        --         --                              idx + 1,
-                                                        --         --                              group =
-                                                        --         --                              "BlinkCmpLabelMatch",
-                                                        --         --                      })
-                                                        --         -- end
-                                                        --
-                                                        --         return hls
-                                                        -- end,
-                                                },
-                                                source_name = {
-                                                        text = function(ctx)
-                                                                if ctx.source_id == "cmdline" then return end
-                                                                return ctx.source_name:sub(1, 4)
-                                                        end,
-                                                },
+                                                kind_icon = { ellipsis = false },
+                                                label     = { ellipsis = true, text = function(ctx) return ctx.label end },
                                         },
                                 },
                         },
@@ -125,37 +80,23 @@ return {
                                 force_version           = "1.*",
                         },
                 },
-                cmdline    = {
-                        keymap     = { preset = "inherit" },
-                        sources    = function()
-                                local type = vim.fn.getcmdtype()
-                                if type == "/" or type == "?" then return { "buffer" } end
-                                if type == ":" or type == "@" then return { "cmdline" } end
-                                return {}
-                        end,
-                        completion = {
-                                trigger = {
-                                        show_on_blocked_trigger_characters   = {},
-                                        show_on_x_blocked_trigger_characters = {},
-                                },
-                                list    = { selection = { preselect = false, auto_insert = false } },
-                                menu    = { auto_show = true },
-                        },
-                },
                 sources    = {
                         default            = { "lsp", "snippets", "path", "buffer" },
-                        per_filetype       = { ["rip-substitute"] = { "ripgrep", "buffer" } },
+                        per_filetype       = { ["rip-substitute"] = { "ripgrep", "buffer" }, qml = { "quickshell", "lsp", "snippets", "path", "buffer" } },
                         min_keyword_length = 0,
                         providers          = {
-                                lsp      = {
+                                quickshell = {
+                                        name         = "QS",
+                                        module       = "quickshell-completions.blink",
+                                        score_offset = 100,
+                                },
+                                lsp        = {
                                         name         = "LSP",
                                         module       = "blink.cmp.sources.lsp",
                                         opts         = { tailwind_color_icon = "██" },
-                                        -- max_items    = 40,
                                         score_offset = 160,
                                         fallbacks    = {},
-                                        async        = false,
-                                        timeout_ms   = 500,
+                                        async        = true,
                                         enabled      = function()
                                                 if vim.bo.ft ~= "lua" then return true end
                                                 local col = vim.api.nvim_win_get_cursor(0)[2]
@@ -172,17 +113,17 @@ return {
                                                 end,
                                         },
                                 },
-                                snippets = {
+                                snippets   = {
                                         name         = "Snip",
                                         score_offset = -1,
                                         opts         = {
-                                                -- clipboard_register    = "+",
                                                 show_autosnippets     = true,
                                                 use_show_condition    = true,
                                                 use_label_description = true,
+                                                -- search_paths          = { require("quickshell-completions").get_snippet_path() },
                                         },
                                 },
-                                path     = {
+                                path       = {
                                         name         = "Path",
                                         module       = "blink.cmp.sources.path",
                                         score_offset = 260,
@@ -193,7 +134,7 @@ return {
                                                 get_cwd                      = vim.uv.cwd,
                                         },
                                 },
-                                buffer   = {
+                                buffer     = {
                                         name         = "Buf",
                                         score_offset = -7,
                                         max_items    = 8,
@@ -215,14 +156,13 @@ return {
                                         end,
                                         --]]
                                 },
-                                cmdline  = { module = "blink.cmp.sources.cmdline" },
-                                omni     = {
+                                omni       = {
                                         name         = "Omni",
                                         module       = "blink.cmp.sources.complete_func",
                                         score_offset = 60,
                                         opts         = { disable_omnifunc = { "v:lua.vim.lsp.omnifunc" } },
                                 },
-                                ripgrep  = {
+                                ripgrep    = {
                                         module       = "blink-cmp-rg",
                                         name         = "RG",
                                         score_offset = 10,
@@ -291,22 +231,57 @@ return {
         config       = function(_, opts)
                 require("blink-cmp").setup(opts)
 
-                local hl  = vim.api.nvim_set_hl
-                local cmp = "BlinkCmp"
+                local kinds = {
+                        { "KindClass",           "@lsp.type.class" },
+                        { "KindColor",           "@define" },
+                        { "KindConstant",        "@constant" },
+                        { "KindConstructor",     "@constructor" },
+                        { "KindEnum",            "@lsp.type.enum" },
+                        { "KindEnumMember",      "@lsp.type.enumMember" },
+                        { "KindEvent",           "@lsp.type.event" },
+                        { "KindField",           "@lsp.type.property" },
+                        { "KindFile",            "@class" },
+                        { "KindFolder",          "Directory" },
+                        { "KindFunction",        "@lsp.type.function" },
+                        { "KindInterface",       "@lsp.type.interface" },
+                        { "KindKeyword",         "Keyword" },
+                        { "KindMethod",          "@lsp.type.method" },
+                        { "KindModule",          "@module" },
+                        { "KindOperator",        "@lsp.type.operator" },
+                        { "KindProperty",        "@lsp.type.property" },
+                        { "KindReference",       "@function.call" },
+                        { "KindSnippet",         "@module" },
+                        { "KindStruct",          "@lsp.type.struct" },
+                        { "KindText",            "@comment" },
+                        { "KindTypeParameter",   "@lsp.type.typeParameter" },
+                        { "KindUnit",            "@module" },
+                        { "KindValue",           "@lsp.type.enumMember" },
+                        { "KindVariable",        "@lsp.type.type" },
+                        { "AbbrDeprecated",      "DiagnosticDeprecated" },
 
-                hl(0, cmp .. "LabelDescription",    { link = "Comment" })
-                hl(0, cmp .. "LabelDetail",         { link = "Comment" })
-                hl(0, cmp .. "LabelMatch",          { link = "Visual" })
-                hl(0, cmp .. "Menu",                { link = "Pmenu" })
-                hl(0, cmp .. "MenuBorder",          { link = "Pmenu" })
-                hl(0, cmp .. "MenuSelection",       { link = "pmenuSel" })
-                hl(0, cmp .. "Doc",                 { link = "NormalFloat" })
-                hl(0, cmp .. "DocBorder",           { link = "BlinkCmpDoc" })
-                hl(0, cmp .. "DocSeparator",        { link = "BlinkCmpDoc" })
-                hl(0, cmp .. "SignatureHelp",       { link = "BlinkCmpDoc" })
-                hl(0, cmp .. "SignatureHelpBorder", { link = "BlinkCmpDoc" })
-                hl(0, cmp .. "Source",              { link = "Comment" })
-                hl(0, cmp .. "ScrollBarThumb",      { link = "PmenuThumb" })
-                hl(0, cmp .. "ScrollBarGutter",     { link = "PmenuSbar" })
+                        { "LabelDescription",    "Comment" },
+                        { "LabelDetail",         "Comment" },
+                        { "LabelMatch",          "Visual" },
+                        { "Menu",                "Pmenu" },
+                        { "MenuBorder",          "PmenuBorder" },
+                        { "MenuSelection",       "pmenuSel" },
+                        { "Doc",                 "NormalFloat" },
+                        { "DocBorder",           "BlinkCmpDoc" },
+                        { "DocSeparator",        "BlinkCmpDoc" },
+                        { "SignatureHelp",       "BlinkCmpDoc" },
+                        { "SignatureHelpBorder", "BlinkCmpDoc" },
+                        { "Source",              "Comment" },
+                        { "ScrollBarThumb",      "PmenuThumb" },
+                        { "ScrollBarGutter",     "PmenuSbar" },
+                }
+
+                local function hl(list)
+                        for _, groups in ipairs(list) do
+                                local kind, link = unpack(groups)
+                                vim.api.nvim_set_hl(0, "BlinkCmp" .. kind, { link = link })
+                        end
+                end
+
+                hl(kinds)
         end,
 }

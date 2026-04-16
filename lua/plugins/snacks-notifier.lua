@@ -1,12 +1,17 @@
-vim.api.nvim_set_hl(0, "SnacksNotifierBorderInfo",  { link = "DiagnosticInfo" })
-vim.api.nvim_set_hl(0, "SnacksNotifierBorderWarn",  { link = "DiagnosticWarn" })
-vim.api.nvim_set_hl(0, "SnacksNotifierBorderError", { link = "DiagnosticError" })
+---@param name string
+local function h(name)
+        vim.api.nvim_get_hl(0, { name = name })
+end
+
+vim.api.nvim_set_hl(0, "SnacksNotifierBorderInfo",  { fg = h("DiagnosticInfo"), bg = h("NormalFloat") })
+vim.api.nvim_set_hl(0, "SnacksNotifierBorderWarn",  { fg = h("DiagnosticWarn"), bg = h("NormalFloat") })
+vim.api.nvim_set_hl(0, "SnacksNotifierBorderError", { fg = h("DiagnosticError"), bg = h("NormalFloat") })
 vim.api.nvim_set_hl(0, "SnacksNotifierBorderTrace", { link = "FloatBorder" })
 vim.api.nvim_set_hl(0, "SnacksNotifierBorderDebug", { link = "FloatBorder" })
 
-vim.api.nvim_set_hl(0, "SnacksNotifierFooterInfo",  { link = "DiagnosticInfo" })
-vim.api.nvim_set_hl(0, "SnacksNotifierFooterWarn",  { link = "DiagnosticWarn" })
-vim.api.nvim_set_hl(0, "SnacksNotifierFooterError", { link = "DiagnosticError" })
+vim.api.nvim_set_hl(0, "SnacksNotifierFooterInfo",  { fg = h("DiagnosticInfo"), bg = h("NormalFloat") })
+vim.api.nvim_set_hl(0, "SnacksNotifierFooterWarn",  { fg = h("DiagnosticWarn"), bg = h("NormalFloat") })
+vim.api.nvim_set_hl(0, "SnacksNotifierFooterError", { fg = h("DiagnosticError"), bg = h("NormalFloat") })
 vim.api.nvim_set_hl(0, "SnacksNotifierFooterTrace", { link = "NormalFloat" })
 vim.api.nvim_set_hl(0, "SnacksNotifierFooterDebug", { link = "NormalFloat" })
 
@@ -16,7 +21,7 @@ vim.api.nvim_set_hl(0, "SnacksNotifierTitleError", { link = "DiagnosticError" })
 vim.api.nvim_set_hl(0, "SnacksNotifierTitleDebug", { link = "NormalFloat" })
 vim.api.nvim_set_hl(0, "SnacksNotifierTitleTrace", { link = "NormalFloat" })
 
-vim.api.nvim_set_hl(0, "SnacksNotifierMinimal", { link = "DiagnosticWarn" })
+vim.api.nvim_set_hl(0, "SnacksNotifierMinimal", { fg = h("DiagnosticInfo"), bg = h("NormalFloat") })
 
 ---@param idx number|"last"
 local function openNotif(idx)
@@ -129,9 +134,9 @@ return {
                         },
                 },
                 notifier = {
+                        enabled = false,
                         icons   = Icons.Notifier,
                         sort    = { "added" },
-                        enabled = true,
                         timeout = 2000,
                 },
                 styles   = {
@@ -141,15 +146,15 @@ return {
                                 width    = 0.9,
                                 title    = "",
                                 titlepos = "left",
-                                fg       = "markdown",
+                                ft       = "markdown",
                                 bo       = { filetype = "Snacks.notif_history", modifiable = false },
-                                wo       = { winhighlight = "Normal:SnacksNotifierHistory,FloatBorder:SnacksNotifierHistoryBorder" },
+                                wo       = { winhighlight = "NormalFloat:SnacksNotifierHistory,FloatBorder:SnacksNotifierHistoryBorder" },
                         },
                         notification         = {
+                                enabled = false,
                                 border  = Border.borderStyleNone,
                                 wo      = { winblend = Config.blend },
                                 icons   = Icons.Notifier,
-                                enabled = true,
                                 timeout = 2000,
                                 style   = "minimal",
                         },
@@ -157,15 +162,24 @@ return {
         },
         config = function(_, opts)
                 Snacks.setup(opts)
-                vim.notify = function(msg, lvl, noti_opts) ---@diagnostic disable-line: duplicate-set-field
-                        if type(msg) ~= "string" then msg = tostring(msg) end
+                --[[
+                vim.notify = function(msg, lvl, notiOpts) ---@diagnostic disable-line: duplicate-set-field
+                        if type(msg) ~= "string" then
+                                msg = tostring(msg)
+                        end
 
                         local ignore = (msg == "No code actions available" and vim.bo.ft == "typescript")
                                    or msg:find("^Error executing vim.schedule.*/_folding_range.lua:%d+")
-                        if ignore then return end
 
-                        if vim.startswith(msg, "[nvim-treesitter/") then noti_opts = { id = "treesitter-update" } end
-                        Snacks.notifier(msg, lvl, noti_opts)
+                        if ignore then
+                                return
+                        end
+
+                        if vim.startswith(msg, "[nvim-treesitter/") then
+                                notiOpts = { id = "treesitter-update" }
+                        end
+                        Snacks.notifier(msg, lvl, notiOpts)
                 end
+                --]]
         end,
 }

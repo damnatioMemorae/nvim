@@ -4,9 +4,6 @@ local autocmd = api.nvim_create_autocmd
 local o       = vim.o
 local wo      = vim.wo
 local fn      = vim.fn
-local opt     = vim.opt
-local cmd     = vim.cmd
-local lsp     = vim.lsp
 
 --[[AUTO CD TO PROJECT ROOT---------------------------------------------------------------------------------------------
 
@@ -265,13 +262,13 @@ autocmd("LspAttach", {
                                 desc     = "Highlight LSP symbol under cursor",
                                 buffer   = buf,
                                 group    = highlight_augroup,
-                                callback = lsp.buf.document_highlight,
+                                callback = vim.lsp.buf.document_highlight,
                         })
                         autocmd({ "CursorMoved", "CursorMovedI" }, {
                                 desc     = "Clear LSP symbol highlight",
                                 buffer   = buf,
                                 group    = highlight_augroup,
-                                callback = lsp.buf.clear_references,
+                                callback = vim.lsp.buf.clear_references,
                         })
                 end
                 --]]
@@ -295,7 +292,7 @@ autocmd("LspAttach", {
                                 buffer   = ev.buf,
                                 group    = color_augroup,
                                 -- callback = function() lsp.document_color.enable(true, 0, { style = "virtual" }) end,
-                                callback = function() lsp.document_color.enable(false) end,
+                                callback = function() vim.lsp.document_color.enable(false) end,
                         })
                 end
                 --]]
@@ -372,6 +369,7 @@ autocmd({ "ModeChanged" }, {
                                 lead       = ".",
                                 trail      = ".",
                                 tab        = "..",
+                                nbsp       = ".",
                         }
                 end
         end,
@@ -405,9 +403,14 @@ autocmd({ "BufLeave", "FocusLost", "InsertEnter", "WinLeave" }, {
 autocmd({ "BufReadPost", "BufReadPre", "BufWinEnter" }, {
         desc     = "Restore cursor position",
         pattern  = "*",
-        callback = function(ctx)
-                if vim.bo[ctx.buf].buftype ~= "" then return end
-                vim.cmd([[silent! normal! g`"]])
+        callback = function()
+                local test_line_data = vim.api.nvim_buf_get_mark(0, '"')
+                local test_line      = test_line_data[1]
+                local last_line      = vim.api.nvim_buf_line_count(0)
+
+                if test_line > 0 and test_line <= last_line then
+                        vim.api.nvim_win_set_cursor(0, test_line_data)
+                end
         end,
 })
 
@@ -469,7 +472,7 @@ autocmd("FileType", {
 
 ----CMDLINE COMPLETION--------------------------------------------------------------------------------------------------
 
-opt.wildmode = "noselect"
+vim.opt.wildmode = "noselect"
 autocmd("CmdlineChanged", {
         desc     = "Add fuzzy completion for command line",
         pattern  = { ":", "/", "!", "?" },
@@ -491,7 +494,7 @@ autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
         desc     = "Reload files if they changed externaly",
         callback = function()
                 if o.buftype ~= "nofile" then
-                        cmd.checktime()
+                        vim.cmd.checktime()
                 end
         end,
 })
@@ -504,5 +507,14 @@ autocmd("BufWinEnter", {
                 if vim.tbl_contains({ "nofile", "help", "prompt" }, vim.bo[0].buftype) then
                         vim.wo[0][0].statuscolumn = ""
                 end
+        end,
+})
+
+----JSON----------------------------------------------------------------------------------------------------------------
+
+autocmd("FileType", {
+        pattern  = { "json", "jsonc", "json5" },
+        callback = function()
+                vim.opt_local.conceallevel = 0
         end,
 })
