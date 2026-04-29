@@ -33,11 +33,9 @@ handlers[methods["textDocument_inlayHint"]] = function(err, result, ctx, config)
         local client = vim.lsp.get_client_by_id(ctx.client_id)
         if client then
                 local row, col = unpack(vim.api.nvim_win_get_cursor(0)) ---@diagnostic disable-line: unused-local
-                result         = vim.iter(result)
-                           :filter(function(hint)
-                                   return hint.position.line + 1 == row
-                           end)
-                           :totable()
+                result         = vim.iter(result):filter(function(hint)
+                        return hint.position.line + 1 == row
+                end):totable()
         end
         originalInlayHintHandler(err, result, ctx, config)
 end
@@ -58,11 +56,11 @@ handlers[methods["textDocument_rename"]] = function(err, result, ctx, config)
         end
 
         local plural = change_count > 1 and "s" or ""
-        local msg    = ("[%d] instance%s"):format(change_count, plural)
+        local msg    = ("%d instance%s"):format(change_count, plural)
         if #changed_files > 1 then
-                msg = ("**%s in [%d] files**\n%s"):format(msg, #changed_files, table.concat(changed_files, "\n"))
+                msg = ("%s in %d files\n%s"):format(msg, #changed_files, table.concat(changed_files, "\n"))
         end
-        vim.notify(msg, nil, { title = "Renamed with LSP", icon = Icons.Kinds.Parameter })
+        vim.notify(msg, vim.log.levels.WARN, { title = "Renamed with LSP", icon = Icons.Kinds.Parameter })
 
         if #changed_files > 1 then vim.cmd.wall() end
 end

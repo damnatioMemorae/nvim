@@ -1,7 +1,7 @@
 return {
         "echasnovski/mini.surround",
         version = false,
-        event   = "VeryLazy",
+        event   = "BufReadPre",
         opts    = {
                 custom_surroundings    = nil,
                 highlight_duration     = 1000,
@@ -18,8 +18,8 @@ return {
                         replace        = "sr",
                         update_n_lines = "sn",
 
-                        suffix_last    = "h",
-                        suffix_next    = "l",
+                        suffix_last = "h",
+                        suffix_next = "l",
                 },
         },
 }

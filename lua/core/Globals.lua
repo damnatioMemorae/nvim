@@ -16,10 +16,11 @@ Config.blend       = 0
 Config.winblend    = 0
 Config.localRepos  = vim.fs.normalize("$HOME/deeznuts/")
 
-Config.codeLens    = true
-Config.diagnostics = true
-Config.inlayHints  = true
-Config.indentLine  = true
+Config.codeLens   = true
+Config.conceal    = true
+Config.inlayHints = true
+Config.indentLine = true
+Config.statusline = false
 
 ----BORDERS-------------------------------------------------------------------------------------------------------------
 
@@ -58,6 +59,13 @@ function Toggle.codeLens()
         end
 end
 
+function Toggle.concealLvl()
+        local msg = Icons.Diagnostics.ERROR .. " " .. "Conceal Level - "
+
+        vim.wo.conceallevel = vim.wo.conceallevel == 0 and 2 or 0
+        vim.notify(msg .. vim.wo.conceallevel, vim.log.levels.WARN)
+end
+
 function Toggle.inlayHints()
         local loaded, endhints = pcall(require, "lsp-endhints")
 
@@ -93,16 +101,16 @@ end
 function Toggle.diagnostics()
         local loaded, diagnostics = pcall(require, "tiny-inline-diagnostic")
 
-        Config.diagnostics = not Config.diagnostics
-        local msg          = Icons.Diagnostics.ERROR .. " " .. "Diagnostics - "
+        Config.conceal = not Config.conceal
+        local msg      = Icons.Diagnostics.ERROR .. " " .. "Diagnostics - "
 
-        if loaded and Config.diagnostics then
+        if loaded and Config.conceal then
                 diagnostics.enable()
-                vim.diagnostic.enable(Config.diagnostics)
+                vim.diagnostic.enable(Config.conceal)
                 vim.notify(msg .. "Enabled", vim.log.levels.WARN)
         else
                 diagnostics.disable()
-                vim.diagnostic.enable(Config.diagnostics)
+                vim.diagnostic.enable(Config.conceal)
                 vim.notify(msg .. "Disabled", vim.log.levels.ERROR)
         end
 end
@@ -117,6 +125,7 @@ vim.g.treesitter_branch         = vim.env.NVIM_TREESITTER_BRANCH or default_tree
 ----FUZZY SEARCH--------------------------------------------------------------------------------------------------------
 
 vim.o.wildmode = "noselect"
+
 vim.api.nvim_create_autocmd("CmdlineChanged", {
         pattern  = ":",
         callback = function()
@@ -162,14 +171,18 @@ Icons.Notifier = {
 }
 
 Icons.Arrows = {
-        close      = "+",
-        open       = "-",
-        right      = "",
-        left       = "",
-        up         = "",
-        down       = "",
-        leftArrow  = "<",
-        rightArrow = ">",
+        close     = "+",
+        open      = "-",
+        right     = "",
+        left      = "",
+        up        = "",
+        down      = "",
+        leftBig   = "<",
+        rightBig  = ">",
+        upSmol    = "",
+        downSmol  = "",
+        rightSmol = "",
+        leftSmol  = "",
 }
 
 Icons.Kinds = {
@@ -367,6 +380,10 @@ Icons.Misc = {
 
         lightbulb = "󱠀",
         quickfix  = "󰏪",
+
+        package_installed   = "󱧕",
+        package_pending     = "󱧘",
+        package_uninstalled = "󱧙",
 
         Bug            = "",
         ellipsis       = "…",

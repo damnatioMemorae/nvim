@@ -1,11 +1,25 @@
-vim.api.nvim_set_hl(0, "SnacksTitle",                { link = "DiagnosticError" })
-vim.api.nvim_set_hl(0, "SnacksPickerTitle",          { link = "DiagnosticError" })
-vim.api.nvim_set_hl(0, "SnacksPicker",               { link = "Normal" })
-vim.api.nvim_set_hl(0, "SnacksPickerBorder",         { link = "borderStyle" })
-vim.api.nvim_set_hl(0, "SnacksPickerListCursorLine", { link = "Visual" })
-vim.api.nvim_set_hl(0, "SnacksPickerCursorLine",     { link = "TinyInlineDiagnosticVirtualTextError" })
-vim.api.nvim_set_hl(0, "SnacksPickerSelected",       { link = "Error" })
-vim.api.nvim_set_hl(0, "SnacksPickerIconFile",       { link = "BlinkCmpKindFile" })
+local groups = {
+        { "Title",                "DiagnosticError" },
+
+        { "PickerTitle",          "DiagnosticError" },
+        { "Picker",               "Normal" },
+        { "PickerBorder",         "borderStyle" },
+        { "PickerListCursorLine", "Visual" },
+        { "PickerCursorLine",     "TinyInlineDiagnosticVirtualTextError" },
+        { "PickerSelected",       "Error" },
+        { "PickerIconFile",       "BlinkCmpKindFile" },
+
+        { "PickerUndoAdded",      "SnacksDiffAdd" },
+        { "PickerUndoSaved",      "SnacksDiffContext" },
+        { "PickerUndoRemoved",    "SnacksDiffDelete" },
+        { "PickerUndoCurrent",    "DiffText" },
+
+        { "DiffAdded",            "DiffAdd" },
+        { "DiffSaved",            "DiffChange" },
+        { "DiffRemoved",          "DiffDelete" },
+        { "DiffCurrent",          "DiffText" },
+}
+require("core.utils").linkHl(groups, "Snacks")
 
 local border = Border.borderStyle
 local none   = Border.borderStyleNone
@@ -14,13 +28,11 @@ local bot    = Border.borderBottom
 
 local loaded, _ = pcall(require, "snacks")
 local toggle    = Snacks.toggle
-local o         = vim.o
 
 if loaded then
         toggle.option("relativenumber", { name = " Relative Line Number", global = true }):map("<leader>or")
         toggle.option("number", { name = " Line Number", global = true }):map("<leader>on")
         toggle.option("wrap", { name = "󰖶 Wrap", global = true }):map("<leader>ow")
-        toggle.option("conceallevel", { off = 0, on = o.conceallevel > 0 and o.conceallevel or 2 }):map("<leader>oc")
         toggle.treesitter({ name = " Treesitter Highlight" }):map("<leader>ot")
 end
 
@@ -29,31 +41,20 @@ return {
         lazy     = false,
         priority = 1000,
         keys     = {
+                -- { "<A-b>",      function() Snacks.bufdelete() end,          desc = "Delete Buffer" },
+                { "<A-b>",      "<cmd>b #<CR>",                             desc = "Swap buffer" },
                 { "<leader>fr", function() Snacks.rename.rename_file() end, desc = "Rename File" },
                 { "<leader>lg", function() Snacks.lazygit() end,            desc = "Lazygit" },
         },
         opts     = {
                 quickfile = { enabled = true },
                 lazygit   = { enabled = true },
-                input     = { enabled = true },
+                input     = { enabled = true, icon = "" },
                 indent    = {
-                        indent  = {
-                                enabled    = false,
-                                char       = "",
-                                only_scope = true,
-                        },
+                        indent  = { enabled = false, char = "", only_scope = true },
                         animate = { enabled = false },
-                        scope   = {
-                                enabled      = false,
-                                char         = "▏",
-                                underline    = true,
-                                only_current = true,
-                                hl           = "Function",
-                        },
-                        chunk   = {
-                                enabled      = false,
-                                only_current = false,
-                        },
+                        chunk   = { enabled = false, only_current = false },
+                        scope   = { enabled = false, char = "▏", underline = true, only_current = true, hl = "Function" },
                 },
                 scope     = {
                         enabled    = true,
@@ -63,6 +64,7 @@ return {
                         treesitter = {
                                 enabled      = true,
                                 injections   = true,
+                                field_blocks = { "local_declaration" },
                                 blocks       = {
                                         enabled = true,
                                         "function_declaration",
@@ -77,7 +79,6 @@ return {
                                         "if_statement",
                                         "for_statement",
                                 },
-                                field_blocks = { "local_declaration" },
                         },
                 },
                 win       = {
@@ -105,7 +106,9 @@ return {
                         input                = {
                                 backdrop = true,
                                 border   = border,
-                                row      = math.ceil(vim.o.lines / 2) - 8,
+                                row      = math.ceil(vim.o.lines / 10),
+                                b        = { completion = true },
+                                width    = 80,
                                 wo       = {
                                         cursorline   = false,
                                         winhighlight =
@@ -122,7 +125,7 @@ return {
                 },
                 picker    = {
                         prompt    = " > ",
-                        ui_select = true,
+                        ui_select = false,
                         hidden    = true,
                         ignored   = true,
                         formats   = { file = { filename_only = true } },
@@ -143,11 +146,7 @@ return {
                         icons     = {
                                 Diagnostics = Icons.Diagnostics,
                                 kinds       = Icons.Kinds,
-                                tree        = {
-                                        vertical = " ",
-                                        middle   = " ",
-                                        last     = " ",
-                                },
+                                tree        = { vertical = " ", middle = " ", last = " " },
                                 files       = {
                                         enabled  = true,
                                         dir      = Icons.Kinds.Folder,
@@ -300,17 +299,9 @@ return {
                                 statuscolumn   = "",
                         },
                         cache    = vim.fn.stdpath("cache") .. "/Snacks.image",
-                        debug    = {
-                                request   = false,
-                                convert   = false,
-                                placement = false,
-                        },
+                        debug    = { request = false, convert = false, placement = false },
+                        icons    = { math = "󰪚 ", chart = "󰄧 ", image = " " },
                         env      = {},
-                        icons    = {
-                                math  = "󰪚 ",
-                                chart = "󰄧 ",
-                                image = " ",
-                        },
                         convert  = {
                                 notify  = true,
                                 mermaid = function()

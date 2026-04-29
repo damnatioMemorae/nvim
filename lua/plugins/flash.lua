@@ -1,6 +1,6 @@
 return {
         "folke/flash.nvim",
-        keys = {
+        keys   = {
                 {
                         "f",
                         mode = { "n", "x", "o" },
@@ -20,11 +20,11 @@ return {
                 --         desc = "Treesitter Search",
                 -- },
         },
-        opts = {
+        opts   = {
                 jump      = { nohlsearch = true, autojump = true },
                 label     = { uppercase = false },
                 prompt    = {
-                        prefix     = { { Icons.Arrows.rightArrow, "FlashPromptIcon" } },
+                        prefix     = { { Icons.Arrows.rightBig, "FlashPromptIcon" } },
                         win_config = { border = Border.borderStyleNone, row = -1 },
                 },
                 search    = {
@@ -50,9 +50,12 @@ return {
         config = function(_, opts)
                 require("flash").setup(opts)
 
-                vim.api.nvim_set_hl(0, "FlashBackdrop", { link = "NonText" })
-                vim.api.nvim_set_hl(0, "FlashMatch",    { link = "LspInlayHint" })
-                vim.api.nvim_set_hl(0, "FlashCurrent",  { link = "LspInlayHint" })
-                vim.api.nvim_set_hl(0, "FlashLabel",    { link = "DiagnosticVirtualTextInfo" })
+                local groups = {
+                        { "Backdrop", "NonText" },
+                        { "Match",    "LspInlayHint" },
+                        { "Current",  "LspInlayHint" },
+                        { "Label",    "DiagnosticVirtualTextInfo" },
+                }
+                require("core.utils").linkHl(groups, "Flash")
         end,
 }

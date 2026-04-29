@@ -1,73 +1,22 @@
----[[
-vim.api.nvim_set_hl(0, "varGlobScope", { fg = "#fab387" })
-vim.api.nvim_set_hl(0, "varFuncScope", { fg = "#f38ba8" })
-vim.api.nvim_set_hl(0, "varClassScope", { fg = "#74c7ec" })
---]]
+local groups = {
+        { "@keyword.type.cpp",                        "@keyword" },
+        { "@keyword.import.cpp",                      "Preproc" },
+        { "@keyword.repeat.cpp",                      "@keyword.repeat" },
+        { "@keyword.return.cpp",                      "cppStatement" },
+        { "@keyword.modifier.cpp",                    "@modifier" },
+        { "@keyword.operator.cpp",                    "@keyword.operator" },
+        { "@keyword.conditional.cpp",                 "@keyword.conditional" },
 
-------------------------------------------------------------------------------------------------------------------------
--- SEMANTIC TOKENS
-
----[[ GLOBAL SCOPE
-vim.api.nvim_create_autocmd("LspTokenUpdate", {
-        callback = function(args)
-                local token = args.data.token
-                if
-                           token.type == "variable"
-                           and token.modifiers.globalScope
-                           and not token.modifiers.readonly
-                           and not token.modifiers.defaultLibrary
-                then
-                        vim.lsp.semantic_tokens.highlight_token(
-                                token, args.buf, args.data.client_id, "varGlobScope")
-                end
-        end,
-})
---]]
-
----[[ FUNCTION SCOPE
-vim.api.nvim_create_autocmd("LspTokenUpdate", {
-        callback = function(args)
-                local token = args.data.token
-                if
-                           token.type == "variable"
-                           and token.modifiers.functionScope
-                           and not token.modifiers.readonly
-                then
-                        vim.lsp.semantic_tokens.highlight_token(
-                                token, args.buf, args.data.client_id, "varFuncScope")
-                end
-        end,
-})
---]]
-
----[[ CLASS SCOPE
-vim.api.nvim_create_autocmd("LspTokenUpdate", {
-        callback = function(args)
-                local token = args.data.token
-                if
-                           token.type == "constructor"
-                           and token.modifiers.identifier
-                           and not token.modifiers.readonly
-                then
-                        vim.lsp.semantic_tokens.highlight_token(
-                                token, args.buf, args.data.client_id, "varClassScope")
-                end
-        end,
-})
---]]
-
----[[
-vim.api.nvim_create_autocmd("LspTokenUpdate", {
-        callback = function(args)
-                local token = args.data.token
-                if
-                           token.type == "cppType"
-                           and token.modifiers.identifier
-                           and not token.modifiers.readonly
-                then
-                        vim.lsp.semantic_tokens.highlight_token(
-                                token, args.buf, args.data.client_id, "LspInlayHint")
-                end
-        end,
-})
---]]
+        { "@lsp.type.type.cpp",                       "@type" },
+        { "@lsp.type.class.cpp",                      "@class" },
+        { "@lsp.type.method.cpp",                     "@method" },
+        { "@lsp.type.modifier.cpp",                   "@modifier" },
+        { "@lsp.type.function.cpp",                   "@function" },
+        { "@lsp.type.namespace.cpp",                  "@module" },
+        { "@lsp.typemod.variable.globalScope.cpp",    "@variable" },
+        { "@lsp.typemod.class.defaultLibrary.cpp",    "@class" },
+        { "@lsp.typemod.variable.functionScope.cpp",  "@character" },
+        { "@lsp.typemod.variable.defaultLibrary.cpp", "@variable.builtin" },
+        { "@lsp.typemod.function.defaultLibrary.cpp", "@function.builtin" },
+}
+require("core.utils").linkHl(groups)

@@ -30,19 +30,18 @@ return {
                         show_success_message    = true,
                 })
 
-                local map      = vim.keymap.set
-                local refactor = require("refactoring")
-                local opts     = { expr = true }
-                local mode     = { "n", "x" }
+                local mode   = { "n", "x" }
+                local rf     = require("refactoring")
+                local keymap = require("core.utils").uniqueKeymap
 
-                map(mode, "<leader>fi", function() return refactor.refactor("Inline Variable") end,          opts)
-                map(mode, "<leader>fe", function() return refactor.refactor("Extract Variable") end,         opts)
-                map(mode, "<leader>fu", function() return refactor.refactor("Extract Function") end,         opts)
-                map(mode, "<leader>fU", function() return refactor.refactor("Extract Function To File") end, opts)
+                keymap(mode, "<leader>fi", function() return rf.refactor("Inline Variable") end,          { expr = true })
+                keymap(mode, "<leader>fe", function() return rf.refactor("Extract Variable") end,         { expr = true })
+                keymap(mode, "<leader>fu", function() return rf.refactor("Extract Function") end,         { expr = true })
+                keymap(mode, "<leader>fU", function() return rf.refactor("Extract Function To File") end, { expr = true })
 
-                map(mode, "<LocalLeader>z", function() return refactor.select_refactor({ prefer_ex_cmd = true }) end)
-                map("n",  "<leader>rp",     function() return refactor.debug.printf({ below = false }) end)
-                map(mode, "<leader>rv",     function() return refactor.debug.print_var() end)
-                map("n",  "<leader>rc",     function() return refactor.debug.cleanup() end)
+                keymap({ "n" }, "<leader>rc",     function() return rf.debug.cleanup() end)
+                keymap({ "n" }, "<leader>rp",     function() return rf.debug.printf({ below = false }) end)
+                keymap(mode,    "<leader>rv",     function() return rf.debug.print_var() end)
+                keymap(mode,    "<LocalLeader>z", function() return rf.select_refactor({ prefer_ex_cmd = true }) end)
         end,
 }

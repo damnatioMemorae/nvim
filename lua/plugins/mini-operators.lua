@@ -54,15 +54,15 @@ return {
                                 -- MOVE CURSOR TO VALUE
                                 -- HACK: needs to work with `defer_fn`, since the transformer function is
                                 -- called only *before* multiplication
-                                local rowBefore = vim.api.nvim_win_get_cursor(0)[1]
+                                local row_before = vim.api.nvim_win_get_cursor(0)[1]
                                 vim.defer_fn(function()
-                                                     local rowAfter       = vim.api.nvim_win_get_cursor(0)[1]
-                                                     local line           = vim.api.nvim_get_current_line()
-                                                     local _, valuePos    = line:find("[:=] %S")   -- find value
-                                                     local _, _, fieldPos = line:find("@.-()%w+$") -- luadoc
-                                                     local col            = fieldPos or valuePos
-                                                     if rowBefore ~= rowAfter and col then
-                                                             vim.api.nvim_win_set_cursor(0, { rowAfter, col - 1 })
+                                                     local row_after       = vim.api.nvim_win_get_cursor(0)[1]
+                                                     local line            = vim.api.nvim_get_current_line()
+                                                     local _, value_pos    = line:find("[:=] %S")   -- find value
+                                                     local _, _, field_pos = line:find("@.-()%w+$") -- luadoc
+                                                     local col             = field_pos or value_pos
+                                                     if row_before ~= row_after and col then
+                                                             vim.api.nvim_win_set_cursor(0, { row_after, col - 1 })
                                                      end
                                              end, 1)
 

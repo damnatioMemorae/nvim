@@ -40,7 +40,11 @@ local function addDocstring()
                 vim.cmd.startinsert()
         elseif ft == "lua" then
                 local param_line = vim.api.nvim_get_current_line():match("function.*%((.*)%)$")
-                if not param_line then return end
+
+                if not param_line then
+                        return
+                end
+
                 local params       = vim.split(param_line, ", ?")
                 local luadoc_lines = vim.iter(params)
                            :map(function(param) return ("%s---@param %s any"):format(indent, param) end)
@@ -75,7 +79,7 @@ end
 
 return {
         "nvim-treesitter/nvim-treesitter-textobjects",
-        dependencies = "nvim-treesitter/nvim-treesitter",
+        dependencies = "nvim-treesitter",
         branch       = "main",
         keys         = {
                 ----COMMENTS--------------------------------------------------------------------------------------------

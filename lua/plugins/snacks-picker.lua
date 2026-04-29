@@ -1,42 +1,40 @@
-local prefix = "<LocalLeader>"
 local leader = "<leader><leader>"
 
 local top    = Border.borderTop
 local border = Border.borderStyle
 local bot    = Border.borderBottom
 local none   = Border.borderStyleNone
-local mode   = { "n" }
 
 local insertOnShow = function() vim.cmd.stopinsert() end
 
 return {
         "folke/snacks.nvim",
         keys = {
-                { leader .. "<leader>", function() Snacks.picker() end,                           desc = "Main Picker",             mode = mode },
-                { leader .. "f",        function() Snacks.picker.files() end,                     desc = "File Picker",             mode = mode },
-                { leader .. "k",        function() Snacks.picker.keymaps({ global = false }) end, desc = "Keymap (buffer)",         mode = mode },
-                { leader .. "K",        function() Snacks.picker.keymaps() end,                   desc = "Keymap (global)",         mode = mode },
-                { leader .. "w",        function() Snacks.picker.grep() end,                      desc = "Grep Picker",             mode = mode },
+                { leader .. "<leader>", function() Snacks.picker() end,                           desc = "Main Picker",             mode = { "n" } },
+                { leader .. "f",        function() Snacks.picker.files() end,                     desc = "File Picker",             mode = { "n" } },
+                { leader .. "k",        function() Snacks.picker.keymaps({ global = false }) end, desc = "Keymap (buffer)",         mode = { "n" } },
+                { leader .. "K",        function() Snacks.picker.keymaps() end,                   desc = "Keymap (global)",         mode = { "n" } },
+                { leader .. "w",        function() Snacks.picker.grep() end,                      desc = "Grep Picker",             mode = { "n" } },
                 { leader .. "W",        function() Snacks.picker.grep_word() end,                 desc = "Grep Word",               mode = { "n", "x" } },
-                { leader .. "B",        function() Snacks.picker.grep_buffers() end,              desc = "Grep Word",               mode = mode },
-                { leader .. "R",        function() Snacks.picker.registers() end,                 desc = "Register Picker",         mode = mode },
-                { leader .. "h",        function() Snacks.picker.highlights() end,                desc = "Highlight Picker",        mode = mode },
-                { leader .. "H",        function() Snacks.picker.help() end,                      desc = "Help Picker",             mode = mode },
-                { leader .. "l",        function() Snacks.picker.lazy() end,                      desc = "Lazy Picker",             mode = mode },
-                { leader .. "b",        function() Snacks.picker.buffers() end,                   desc = "Buffer Picker",           mode = mode },
-                { leader .. "u",        function() Snacks.picker.undo() end,                      desc = "Undo Picker",             mode = mode },
-                { leader .. "j",        function() Snacks.picker.jumps() end,                     desc = "Jumps Picker",            mode = mode },
-                { leader .. "e",        function() Snacks.explorer() end,                         desc = "Buffer Picker",           mode = mode },
+                { leader .. "B",        function() Snacks.picker.grep_buffers() end,              desc = "Grep Word",               mode = { "n" } },
+                { leader .. "R",        function() Snacks.picker.registers() end,                 desc = "Register Picker",         mode = { "n" } },
+                { leader .. "h",        function() Snacks.picker.highlights() end,                desc = "Highlight Picker",        mode = { "n" } },
+                { leader .. "H",        function() Snacks.picker.help() end,                      desc = "Help Picker",             mode = { "n" } },
+                { leader .. "l",        function() Snacks.picker.lazy() end,                      desc = "Lazy Picker",             mode = { "n" } },
+                { leader .. "b",        function() Snacks.picker.buffers() end,                   desc = "Buffer Picker",           mode = { "n" } },
+                { leader .. "u",        function() Snacks.picker.undo() end,                      desc = "Undo Picker",             mode = { "n" } },
+                { leader .. "j",        function() Snacks.picker.jumps() end,                     desc = "Jumps Picker",            mode = { "n" } },
+                { leader .. "e",        function() Snacks.explorer() end,                         desc = "Buffer Picker",           mode = { "n" } },
 
                 -- LSP PICKERS
-                { prefix .. "r",        function() Snacks.picker.lsp_references() end,            desc = "Show References",         mode = mode },
-                { prefix .. "i",        function() Snacks.picker.lsp_implementations() end,       desc = "Show Implementations",    mode = mode },
-                { prefix .. "d",        function() Snacks.picker.lsp_definitions() end,           desc = "Show Definitions",        mode = mode },
-                { prefix .. "D",        function() Snacks.picker.lsp_declarations() end,          desc = "Show Declarations",       mode = mode },
-                { leader .. "s",        function() Snacks.picker.lsp_symbols() end,               desc = "Show LSP Symbols",        mode = mode },
-                { leader .. "S",        function() Snacks.picker.lsp_workspace_symbols() end,     desc = "Show Workspace Symbols",  mode = mode },
-                { leader .. "d",        function() Snacks.picker.diagnostics_buffer() end,        desc = "Show Buffer Diagnostics", mode = mode },
-                { leader .. "D",        function() Snacks.picker.diagnostics() end,               desc = "Show Workspace Symbols",  mode = mode },
+                { "<LocalLeader>r",     function() Snacks.picker.lsp_references() end,            desc = "Show References",         mode = { "n" } },
+                { "<LocalLeader>i",     function() Snacks.picker.lsp_implementations() end,       desc = "Show Implementations",    mode = { "n" } },
+                { "<LocalLeader>d",     function() Snacks.picker.lsp_definitions() end,           desc = "Show Definitions",        mode = { "n" } },
+                { "<LocalLeader>D",     function() Snacks.picker.lsp_declarations() end,          desc = "Show Declarations",       mode = { "n" } },
+                { leader .. "s",        function() Snacks.picker.lsp_symbols() end,               desc = "Show LSP Symbols",        mode = { "n" } },
+                { leader .. "S",        function() Snacks.picker.lsp_workspace_symbols() end,     desc = "Show Workspace Symbols",  mode = { "n" } },
+                { leader .. "d",        function() Snacks.picker.diagnostics_buffer() end,        desc = "Show Buffer Diagnostics", mode = { "n" } },
+                { leader .. "D",        function() Snacks.picker.diagnostics() end,               desc = "Show Workspace Symbols",  mode = { "n" } },
         },
         opts = {
                 picker = {

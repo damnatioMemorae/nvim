@@ -185,8 +185,7 @@ ui2.enable({
 ----WRAP SET_POS--------------------------------------------------------------------------------------------------------
 
 local orig_set_pos = msgs.set_pos
-
-msgs.set_pos = function(tgt)
+msgs.set_pos       = function(tgt)
         orig_set_pos(tgt)
         if tgt == "msg" or tgt == nil then
                 overrideMsgWin()
@@ -200,8 +199,7 @@ end
 ----WRAP MSG_SHOW-------------------------------------------------------------------------------------------------------
 
 local orig_msg_show = msgs.msg_show
-
-msgs.msg_show = function(kind, content, replaceLast, history, append, id, trigger)
+msgs.msg_show       = function(kind, content, replaceLast, history, append, id, trigger)
         if shouldSkip(kind, content) then
                 return
         end
@@ -266,4 +264,3 @@ vim.api.nvim_create_autocmd("LspProgress", {
 --]]
 
 ----CMDLINE-------------------------------------------------------------------------------------------------------------
-

@@ -1,28 +1,17 @@
 return {
         "saghen/blink.cmp",
-        event        = { "InsertEnter", "CmdlineEnter" },
+        event        = "InsertEnter",
         build        = "cargo build --release",
-        dependencies = {
-                { "cushycush/quickshell-completions.nvim" },
-                { "niuiic/blink-cmp-rg.nvim" },
-                {
-                        "L3MON4D3/LuaSnip",
-                        dependencies = {
-                                "rafamadriz/friendly-snippets",
-                                config = function()
-                                        require("luasnip.loaders.from_vscode").lazy_load()
-                                end,
-                        },
-                },
-        },
+        dependencies = { "cushycush/quickshell-completions.nvim", "niuiic/blink-cmp-rg.nvim" },
         opts         = {
-                snippets   = { preset = "luasnip" },
+                -- snippets   = { preset = "luasnip" },
+                cmdline    = { enabled = false },
                 completion = {
                         keyword       = { range = "full" },
                         accept        = { auto_brackets = { enabled = true } },
                         documentation = {
                                 auto_show          = true,
-                                auto_show_delay_ms = 200,
+                                auto_show_delay_ms = 0,
                                 window             = { border = Border.borderStyle, scrollbar = false },
                         },
                         trigger       = {
@@ -47,20 +36,25 @@ return {
                                 scrolloff          = 4,
                                 scrollbar          = false,
                                 direction_priority = { "s", "n" },
-                                auto_show          = true,
+                                auto_show          = function()
+                                        if vim.bo.filetype == "dropbar_menu_fzf" then
+                                                return false
+                                        else
+                                                return true
+                                        end
+                                end,
                                 draw               = {
-                                        gap        = 1,
-                                        align_to   = "label",
+                                        gap        = 0,
+                                        align_to   = "kind_icon",
                                         treesitter = { "lsp" },
-                                        columns    = {
-                                                { "kind_icon",   gap = 0 },
-                                                { "label",       gap = 0 },
-                                                { "source_name", gap = 0 },
-                                                { "kind",        gap = 0 },
-                                        },
+                                        columns    = { { "kind_icon", gap = 0 }, { "label", gap = 0 }, { "source_name", gap = 0 } },
                                         components = {
-                                                kind_icon = { ellipsis = false },
-                                                label     = { ellipsis = true, text = function(ctx) return ctx.label end },
+                                                kind_icon   = { ellipsis = false },
+                                                label       = { ellipsis = true },
+                                                source_name = {
+                                                        text      = function(ctx) return "   " .. ctx.source_name end,
+                                                        highlight = "BlinkCmpSource",
+                                                },
                                         },
                                 },
                         },
@@ -82,11 +76,14 @@ return {
                 },
                 sources    = {
                         default            = { "lsp", "snippets", "path", "buffer" },
-                        per_filetype       = { ["rip-substitute"] = { "ripgrep", "buffer" }, qml = { "quickshell", "lsp", "snippets", "path", "buffer" } },
+                        per_filetype       = {
+                                ["rip-substitute"] = { "ripgrep", "buffer" },
+                                qml                = { inherit_defaults = true, "quickshell" },
+                        },
                         min_keyword_length = 0,
                         providers          = {
                                 quickshell = {
-                                        name         = "QS",
+                                        name         = "quick",
                                         module       = "quickshell-completions.blink",
                                         score_offset = 100,
                                 },
@@ -96,7 +93,7 @@ return {
                                         opts         = { tailwind_color_icon = "██" },
                                         score_offset = 160,
                                         fallbacks    = {},
-                                        async        = true,
+                                        async        = false,
                                         enabled      = function()
                                                 if vim.bo.ft ~= "lua" then return true end
                                                 local col = vim.api.nvim_win_get_cursor(0)[2]
@@ -114,7 +111,7 @@ return {
                                         },
                                 },
                                 snippets   = {
-                                        name         = "Snip",
+                                        name         = "snip",
                                         score_offset = -1,
                                         opts         = {
                                                 show_autosnippets     = true,
@@ -124,7 +121,7 @@ return {
                                         },
                                 },
                                 path       = {
-                                        name         = "Path",
+                                        name         = "path",
                                         module       = "blink.cmp.sources.path",
                                         score_offset = 260,
                                         opts         = {
@@ -135,7 +132,7 @@ return {
                                         },
                                 },
                                 buffer     = {
-                                        name         = "Buf",
+                                        name         = "buf",
                                         score_offset = -7,
                                         max_items    = 8,
                                         opts         = { get_bufnrs = vim.api.nvim_list_bufs },
@@ -157,14 +154,14 @@ return {
                                         --]]
                                 },
                                 omni       = {
-                                        name         = "Omni",
+                                        name         = "omni",
                                         module       = "blink.cmp.sources.complete_func",
                                         score_offset = 60,
                                         opts         = { disable_omnifunc = { "v:lua.vim.lsp.omnifunc" } },
                                 },
                                 ripgrep    = {
                                         module       = "blink-cmp-rg",
-                                        name         = "RG",
+                                        name         = "rip",
                                         score_offset = 10,
                                         max_items    = 4,
                                         opts         = {
@@ -191,8 +188,8 @@ return {
                 },
                 keymap     = {
                         preset        = "none",
-                        ["<A-j>"]     = { "scroll_signature_down", "scroll_documentation_down", "fallback" },
-                        ["<A-k>"]     = { "scroll_signature_up", "scroll_documentation_up", "fallback" },
+                        ["<A-j>"]     = { "scroll_signature_down", "scroll_documentation_down" },
+                        ["<A-k>"]     = { "scroll_signature_up", "scroll_documentation_up" },
                         ["<C-j>"]     = { "select_next", "fallback" },
                         ["<C-k>"]     = { "select_prev", "fallback" },
                         ["<C-Down>"]  = { "select_next", "fallback" },
@@ -200,19 +197,23 @@ return {
                         ["<Down>"]    = { "select_next", "fallback" },
                         ["<Up>"]      = { "select_prev", "fallback" },
                         ["<C-c>"]     = { function(cmp) if cmp.is_menu_visible() then cmp.hide() else cmp.show() end end },
-                        ["<C-l>"]     = { "snippet_forward", "fallback" },
-                        ["<C-h>"]     = { "snippet_backward", "fallback" },
-                        ["<C-s>"]     = { "show_signature", "hide_signature", "fallback" },
-                        ["<Tab>"]     = { "snippet_forward", "select_next", "fallback" },
-                        ["<S-Tab>"]   = { "snippet_backward", "select_prev", "fallback" },
+                        ["<C-l>"]     = { "snippet_forward" },
+                        ["<C-h>"]     = { "snippet_backward" },
+                        ["<C-s>"]     = { "show_signature", "hide_signature" },
+                        ["<Tab>"]     = { "snippet_forward", "select_next" },
+                        ["<S-Tab>"]   = { "snippet_backward", "select_prev" },
                         ["<CR>"]      = { "accept", "fallback" },
                         ["<C-Space>"] = {
                                 function(cmp)
-                                        if cmp.is_menu_visible() then
-                                                cmp.accept()
-                                                cmp.hide()
+                                        if cmp.snipper_active then
+                                                cmp.snippet_forward()
                                         else
-                                                cmp.show()
+                                                if cmp.is_menu_visible() then
+                                                        cmp.accept()
+                                                        cmp.hide()
+                                                else
+                                                        cmp.show()
+                                                end
                                         end
                                 end,
                         },
@@ -223,40 +224,40 @@ return {
                 },
                 signature  = {
                         enabled = true,
-                        trigger = { enabled = false, show_on_keyword = true, show_on_insert = false },
-                        window  = { direction_priority = { "s", "n" }, scrollbar = false, show_documentation = false },
+                        trigger = { enabled = false, show_on_keyword = false, show_on_insert = false },
+                        window  = { direction_priority = { "n", "s" }, scrollbar = false, show_documentation = false },
                 },
         },
         opts_extend  = { "sources.default", "sources.compat", "sources.completion.enabled_provider" },
         config       = function(_, opts)
                 require("blink-cmp").setup(opts)
 
-                local kinds = {
-                        { "KindClass",           "@lsp.type.class" },
-                        { "KindColor",           "@define" },
+                local groups = {
+                        { "KindClass",           "@class" },
+                        { "KindColor",           "DevIconDss" },
                         { "KindConstant",        "@constant" },
                         { "KindConstructor",     "@constructor" },
-                        { "KindEnum",            "@lsp.type.enum" },
-                        { "KindEnumMember",      "@lsp.type.enumMember" },
-                        { "KindEvent",           "@lsp.type.event" },
-                        { "KindField",           "@lsp.type.property" },
-                        { "KindFile",            "@class" },
+                        { "KindEnum",            "@enum" },
+                        { "KindEnumMember",      "@enumMember" },
+                        { "KindEvent",           "@event" },
+                        { "KindField",           "@field" },
+                        { "KindFile",            "Structure" },
                         { "KindFolder",          "Directory" },
-                        { "KindFunction",        "@lsp.type.function" },
-                        { "KindInterface",       "@lsp.type.interface" },
-                        { "KindKeyword",         "Keyword" },
-                        { "KindMethod",          "@lsp.type.method" },
+                        { "KindFunction",        "@function" },
+                        { "KindInterface",       "@interface" },
+                        { "KindKeyword",         "aboba" },
+                        { "KindMethod",          "@method" },
                         { "KindModule",          "@module" },
-                        { "KindOperator",        "@lsp.type.operator" },
-                        { "KindProperty",        "@lsp.type.property" },
+                        { "KindOperator",        "@operator" },
+                        { "KindProperty",        "@property" },
                         { "KindReference",       "@function.call" },
-                        { "KindSnippet",         "@module" },
-                        { "KindStruct",          "@lsp.type.struct" },
-                        { "KindText",            "@comment" },
-                        { "KindTypeParameter",   "@lsp.type.typeParameter" },
-                        { "KindUnit",            "@module" },
-                        { "KindValue",           "@lsp.type.enumMember" },
-                        { "KindVariable",        "@lsp.type.type" },
+                        { "KindSnippet",         "Keyword" },
+                        { "KindStruct",          "@struct" },
+                        { "KindText",            "@markup" },
+                        { "KindTypeParameter",   "@variable.parameter" },
+                        { "KindUnit",            "@number" },
+                        { "KindValue",           "@number" },
+                        { "KindVariable",        "@variable" },
                         { "AbbrDeprecated",      "DiagnosticDeprecated" },
 
                         { "LabelDescription",    "Comment" },
@@ -274,14 +275,6 @@ return {
                         { "ScrollBarThumb",      "PmenuThumb" },
                         { "ScrollBarGutter",     "PmenuSbar" },
                 }
-
-                local function hl(list)
-                        for _, groups in ipairs(list) do
-                                local kind, link = unpack(groups)
-                                vim.api.nvim_set_hl(0, "BlinkCmp" .. kind, { link = link })
-                        end
-                end
-
-                hl(kinds)
+                require("core.utils").linkHl(groups, "BlinkCmp")
         end,
 }

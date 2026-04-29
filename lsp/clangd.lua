@@ -52,6 +52,73 @@ local function symbolInfo()
                               end, bufnr)
 end
 
+local function semanticTokens()
+        ---[[ GLOBAL SCOPE
+        vim.api.nvim_create_autocmd("LspTokenUpdate", {
+                callback = function(args)
+                        local token = args.data.token
+                        if
+                                   token.type == "variable"
+                                   and token.modifiers.globalScope
+                                   and not token.modifiers.readonly
+                                   and not token.modifiers.defaultLibrary
+                        then
+                                vim.lsp.semantic_tokens.highlight_token(
+                                        token, args.buf, args.data.client_id, "varGlobScope")
+                        end
+                end,
+        })
+        --]]
+
+        ---[[ FUNCTION SCOPE
+        vim.api.nvim_create_autocmd("LspTokenUpdate", {
+                callback = function(args)
+                        local token = args.data.token
+                        if
+                                   token.type == "variable"
+                                   and token.modifiers.functionScope
+                                   and not token.modifiers.readonly
+                        then
+                                vim.lsp.semantic_tokens.highlight_token(
+                                        token, args.buf, args.data.client_id, "varFuncScope")
+                        end
+                end,
+        })
+        --]]
+
+        ---[[ CLASS SCOPE
+        vim.api.nvim_create_autocmd("LspTokenUpdate", {
+                callback = function(args)
+                        local token = args.data.token
+                        if
+                                   token.type == "constructor"
+                                   and token.modifiers.identifier
+                                   and not token.modifiers.readonly
+                        then
+                                vim.lsp.semantic_tokens.highlight_token(
+                                        token, args.buf, args.data.client_id, "varClassScope")
+                        end
+                end,
+        })
+        --]]
+
+        ---[[
+        vim.api.nvim_create_autocmd("LspTokenUpdate", {
+                callback = function(args)
+                        local token = args.data.token
+                        if
+                                   token.type == "cppType"
+                                   and token.modifiers.identifier
+                                   and not token.modifiers.readonly
+                        then
+                                vim.lsp.semantic_tokens.highlight_token(
+                                        token, args.buf, args.data.client_id, "LspInlayHint")
+                        end
+                end,
+        })
+        --]]
+end
+
 local cmd = {
         "clangd",
 
@@ -105,23 +172,24 @@ return {
         },
         settings           = {
                 clangd = {
-                        InlayHints           = {
+                        InlayHints         = {
                                 Designators    = true,
                                 Enabled        = true,
                                 ParameterNames = true,
                                 DeducedTypes   = true,
                         },
-                        Completion           = { AllScopes = true, ArgumentLists = "Delimiters" },
-                        CompileFlags         = { Add = "-Iinclude" },
-                        usePlaceholders      = true,
-                        completeUnimported   = true,
-                        clangdFileStatus     = true,
-                        fallbackFlags        = { "-std=c++23" },
+                        Completion         = { AllScopes = true, ArgumentLists = "Delimiters" },
+                        CompileFlags       = { Add = "-Iinclude" },
+                        usePlaceholders    = true,
+                        completeUnimported = true,
+                        clangdFileStatus   = true,
+                        fallbackFlags      = { "-std=c++23" },
                 },
         },
-        on_init            = function(client, init_result)
-                if init_result.offsetEncoding then
-                        client.offset_encoding = init_result.offsetEncoding
+        capabilities       = { semanticTokens = { multilineTokenSupport = true } },
+        on_init            = function(client, initResult)
+                if initResult.offsetEncoding then
+                        client.offset_encoding = initResult.offsetEncoding
                 end
         end,
         on_attach          = function(_, bufnr)
@@ -131,6 +199,8 @@ return {
                 vim.api.nvim_buf_create_user_command(bufnr, "LspClangdShowSymbolInfo", function()
                                                              symbolInfo()
                                                      end, { desc = "Show symbol info" })
+
+                semanticTokens()
         end,
         workspace_required = false,
 }

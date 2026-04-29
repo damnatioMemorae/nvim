@@ -114,19 +114,19 @@ local root_markers2 = {
         "selene.yml",
 }
 
+local lazy = vim.fn.stdpath("data") .. "/lazy"
+local libs = {
+        vim.env.VIMRUNTIME,
+        "${3rd}/luv/library",
+        "${3rd}/busted/library",
+        lazy .. "/snacks.nvim/lua",
+        lazy .. "/blink.pairs/lua",
+        -- vim.api.nvim_get_runtime_file("", true),
+}
 local on_init = function(client)
         local path = vim.uv.cwd()
 
         if path == vim.fn.stdpath("config") then
-                local lazy = vim.fn.stdpath("data") .. "/lazy"
-                local libs = {
-                        vim.env.VIMRUNTIME,
-                        "${3rd}/luv/library",
-                        "${3rd}/busted/library",
-                        lazy .. "/snacks.nvim/lua",
-                        -- vim.api.nvim_get_runtime_file("", true),
-                }
-
                 client.config.settings.Lua = vim.tbl_deep_extend("force", client.config.settings.Lua, {
                         workspace       = { library = libs, ignoreDir = "templates" },
                         diagnostics     = { globals = "Snacks" },

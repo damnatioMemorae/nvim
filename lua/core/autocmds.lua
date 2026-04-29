@@ -5,7 +5,7 @@ local o       = vim.o
 local wo      = vim.wo
 local fn      = vim.fn
 
---[[AUTO CD TO PROJECT ROOT---------------------------------------------------------------------------------------------
+----AUTO CD TO PROJECT ROOT---------------------------------------------------------------------------------------------
 
 local autoCdConfig = {
         childOfRoot  = { ".git" },
@@ -14,8 +14,8 @@ local autoCdConfig = {
 
 autocmd("VimEnter", {
         desc     = "User: Auto-cd to project root",
-        callback = function(ctx)
-                local root = vim.fs.root(ctx.buf, function(name, path)
+        callback = function(args)
+                local root = vim.fs.root(args.buf, function(name, path)
                         local parent_name           = vim.fs.basename(vim.fs.dirname(path))
                         local dir_has_parent_marker = vim.tbl_contains(autoCdConfig.parentOfRoot, parent_name)
                         local dir_has_child_marker  = vim.tbl_contains(autoCdConfig.childOfRoot, name)
@@ -24,7 +24,6 @@ autocmd("VimEnter", {
                 if root and root ~= "" then vim.uv.chdir(root) end
         end,
 })
---]]
 
 ----`q` and `Esc`-------------------------------------------------------------------------------------------------------
 
@@ -32,7 +31,9 @@ autocmd("FileType", {
         desc     = "Quit windows with both `Esc` and `q`",
         group    = augroup("Close with <q>", { clear = true }),
         pattern  = {
+                "gitcommit",
                 "pager",
+                "nvim-undotree",
                 "checkhealth",
                 -- "help",
                 "lazy",
@@ -51,12 +52,12 @@ autocmd("FileType", {
                 "tsplayground",
                 "query",
         },
-        callback = function(event)
+        callback = function(args)
                 -- local keys = { "q" }
                 local keys = { "<Esc>" }
                 -- local keys = { "q", "<Esc>" }
                 for _, value in pairs(keys) do
-                        vim.keymap.set("n", value, "<cmd>close<CR>", { buffer = event.buf, silent = true })
+                        vim.keymap.set("n", value, "<cmd>close<CR>", { buffer = args.buf, silent = true })
                 end
         end,
 })
@@ -107,51 +108,50 @@ autocmd("FocusGained", {
 ----AUTO-NOHL & INLINE SEARCH COUNT-------------------------------------------------------------------------------------
 
 ---@param mode? "clear"
-local function searchCountIndicator(mode)
-        local sign_column_plus_scrollbar_width = 2 + 3
-
-        local count_ns = api.nvim_create_namespace("searchCounter")
-        api.nvim_buf_clear_namespace(0, count_ns, 0, -1)
-        if mode == "clear" then return end
-
-        local row   = api.nvim_win_get_cursor(0)[1]
-        local count = fn.searchcount()
-        if count.total == 0 then return end
-        local text      = (" %d/%d "):format(count.current, count.total)
-        local line      = api.nvim_get_current_line():gsub("\t", (" "):rep(vim.bo.shiftwidth))
-        local line_full = #line + sign_column_plus_scrollbar_width >= api.nvim_win_get_width(0)
-        local margin    = { (" "):rep(line_full and sign_column_plus_scrollbar_width or 0) }
-
-        api.nvim_buf_set_extmark(0, count_ns, row - 1, 0, {
-                virt_text     = { { text, "IncSearch" }, margin },
-                virt_text_pos = line_full and "right_align" or "eol",
-                priority      = 200,
-        })
-end
+-- local function searchCountIndicator(mode)
+--         local sign_column_plus_scrollbar_width = 2 + 3
+--
+--         local count_ns = api.nvim_create_namespace("searchCounter")
+--         api.nvim_buf_clear_namespace(0, count_ns, 0, -1)
+--         if mode == "clear" then return end
+--
+--         local row   = api.nvim_win_get_cursor(0)[1]
+--         local count = fn.searchcount()
+--         if count.total == 0 then return end
+--         local text      = (" %d/%d "):format(count.current, count.total)
+--         local line      = api.nvim_get_current_line():gsub("\t", (" "):rep(vim.bo.shiftwidth))
+--         local line_full = #line + sign_column_plus_scrollbar_width >= api.nvim_win_get_width(0)
+--         local margin    = { (" "):rep(line_full and sign_column_plus_scrollbar_width or 0) }
+--
+--         api.nvim_buf_set_extmark(0, count_ns, row - 1, 0, {
+--                 virt_text     = { { text, "IncSearch" }, margin },
+--                 virt_text_pos = line_full and "right_align" or "eol",
+--                 priority      = 200,
+--         })
+-- end
 
 -- without the `searchCountIndicator`, this `on_key` simply does `auto-nohl`
----@diagnostic disable-next-line: unused-local
-vim.on_key(function(key, _typed)
-                   key                     = fn.keytrans(key)
-                   local is_cmdline_search = fn.getcmdtype():find("[/?]") ~= nil
-                   local is_normal_mode    = api.nvim_get_mode().mode == "n"
-                   local search_started    = (key == "/" or key == "?") and is_normal_mode
-                   local search_confirmed  = (key == "<CR>" and is_cmdline_search)
-                   local search_cancelled  = (key == "<Esc>" and is_cmdline_search)
-                   if not (search_started or search_confirmed or search_cancelled or is_normal_mode) then return end
-
-                   -- works for RHS, therefore no need to consider remaps
-                   local search_movement = vim.tbl_contains({ "n", "N", "*", "#" }, key)
-                   local short_pattern   = fn.getreg("/"):gsub([[\V\C]], ""):len() <= 1 -- for `fF` function
-
-                   if search_cancelled or (not search_movement and not search_confirmed) then
-                           vim.opt.hlsearch = false
-                           searchCountIndicator("clear")
-                   elseif (search_movement and not short_pattern) or search_confirmed or search_started then
-                           vim.opt.hlsearch = true
-                           vim.defer_fn(searchCountIndicator, 1)
-                   end
-           end, api.nvim_create_namespace("autoNohlAndSearchCount"))
+-- vim.on_key(function(key, _typed)
+--                    key                     = fn.keytrans(key)
+--                    local is_cmdline_search = fn.getcmdtype():find("[/?]") ~= nil
+--                    local is_normal_mode    = api.nvim_get_mode().mode == "n"
+--                    local search_started    = (key == "/" or key == "?") and is_normal_mode
+--                    local search_confirmed  = (key == "<CR>" and is_cmdline_search)
+--                    local search_cancelled  = (key == "<Esc>" and is_cmdline_search)
+--                    if not (search_started or search_confirmed or search_cancelled or is_normal_mode) then return end
+--
+--                    -- works for RHS, therefore no need to consider remaps
+--                    local search_movement = vim.tbl_contains({ "n", "N", "*", "#" }, key)
+--                    local short_pattern   = fn.getreg("/"):gsub([[\V\C]], ""):len() <= 1 -- for `fF` function
+--
+--                    if search_cancelled or (not search_movement and not search_confirmed) then
+--                            vim.opt.hlsearch = false
+--                            searchCountIndicator("clear")
+--                    elseif (search_movement and not short_pattern) or search_confirmed or search_started then
+--                            vim.opt.hlsearch = true
+--                            vim.defer_fn(searchCountIndicator, 1)
+--                    end
+--            end, api.nvim_create_namespace("autoNohlAndSearchCount"))
 
 ----SKELETONS (TEMPLATES)-----------------------------------------------------------------------------------------------
 
@@ -171,12 +171,12 @@ local glob_to_template_map = {
 
 autocmd({ "BufNewFile", "BufReadPost" }, {
         desc     = "User: Apply templates (`BufReadPost` for files created outside of nvim.)",
-        callback = function(ctx)
+        callback = function(args)
                 vim.defer_fn(
                         function()
-                                local stats = vim.uv.fs_stat(ctx.file)
+                                local stats = vim.uv.fs_stat(args.file)
                                 if not stats or stats.size > 10 then return end
-                                local filepath, bufnr = ctx.file, ctx.buf
+                                local filepath, bufnr = args.file, args.buf
 
                                 local matched_glob = vim.iter(glob_to_template_map):find(function(glob)
                                         local glob_matches_filename = vim.glob.to_lpeg(glob):match(filepath)
@@ -209,39 +209,15 @@ autocmd({ "BufNewFile", "BufReadPost" }, {
         end,
 })
 
-----ENFORCE SCROLLOF AT EOF---------------------------------------------------------------------------------------------
+----SMART VIRTUAL EDITING-----------------------------------------------------------------------------------------------
 
-autocmd({ "CursorMoved", "CursorMovedI", "WinScrolled" }, {
-        desc     = "Fix scrolloff when you are at the EOF",
-        group    = augroup("ScrollEOF", { clear = true }),
+autocmd("ModeChanged", {
+        pattern  = "*:*",
         callback = function()
-                if api.nvim_win_get_config(0).relative ~= "" then
-                        return
-                end
-
-                local win_height             = fn.winheight(0)
-                local scrolloff              = math.min(o.scrolloff, math.floor(win_height / 2))
-                local visual_distance_to_eof = win_height - fn.winline()
-
-                if visual_distance_to_eof < scrolloff then
-                        local win_view = fn.winsaveview()
-                        fn.winrestview({ topline = win_view.topline + scrolloff - visual_distance_to_eof })
-                end
-        end,
-})
-
-local original_scrolloff = o.scrolloff
-autocmd({ "BufReadPost", "BufNew" }, {
-        desc     = "User: FIX scrolloff on entering new buffer",
-        callback = function(ctx)
-                vim.defer_fn(function()
-                                     if not api.nvim_buf_is_valid(ctx.buf) or vim.bo[ctx.buf].buftype ~= "" then return end
-                                     if vim.o.scrolloff == 0 then
-                                             o.scrolloff = original_scrolloff
-                                             vim.notify("Triggered by [" .. ctx.event .. "]", nil,
-                                                        { title = "Scrolloff fix" })
-                                     end
-                             end, 150)
+                local mode = vim.fn.mode()
+                if mode == "n" or mode == "\22" then vim.opt.virtualedit = "all" end
+                if mode == "i" then vim.opt.virtualedit = "block" end
+                if mode == "v" or mode == "V" then vim.opt.virtualedit = "none" end
         end,
 })
 
@@ -250,19 +226,25 @@ autocmd({ "BufReadPost", "BufNew" }, {
 autocmd("LspAttach", {
         desc     = "LSP stuff",
         group    = augroup("lsp-attach", { clear = true }),
-        callback = function(ev)
-                local client = assert(vim.lsp.get_client_by_id(ev.data.client_id))
+        callback = function(args)
+                local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
 
-                ---[[ HIGHLIGHT
+                --[[ DOCUMENT HIGHLIGHT
                 if fn.has("nvim-0.11") == 1 and client:supports_method("textDocument/documentHighlight", 0) then
-                        local buf               = ev.buf
+                        local buf               = args.buf
                         local highlight_augroup = augroup("lsp-highlight", { clear = false })
 
-                        autocmd({ "CursorHold", "CursorHoldI", "CursorMoved", "CursorMovedI" }, {
+                        autocmd({ "CursorHold", "CursorHoldI" }, {
                                 desc     = "Highlight LSP symbol under cursor",
                                 buffer   = buf,
                                 group    = highlight_augroup,
-                                callback = vim.lsp.buf.document_highlight,
+                                callback = function()
+                                        local timer = vim.uv.new_timer()
+                                        timer:stop()
+                                        timer:start(2000, 0, vim.schedule_wrap(function()
+                                                vim.lsp.buf.document_highlight()
+                                        end))
+                                end,
                         })
                         autocmd({ "CursorMoved", "CursorMovedI" }, {
                                 desc     = "Clear LSP symbol highlight",
@@ -289,7 +271,7 @@ autocmd("LspAttach", {
                         local color_augroup = augroup("lsp-color", { clear = false })
                         autocmd({ "CursorHold", "CursorMoved" }, {
                                 desc     = "LSP colors",
-                                buffer   = ev.buf,
+                                buffer   = args.buf,
                                 group    = color_augroup,
                                 -- callback = function() lsp.document_color.enable(true, 0, { style = "virtual" }) end,
                                 callback = function() vim.lsp.document_color.enable(false) end,
@@ -332,46 +314,6 @@ autocmd("LspDetach", {
                         end
                 end
                 client:stop()
-        end,
-})
-
-----SMART VIRTUAL EDITING-----------------------------------------------------------------------------------------------
-
-autocmd("ModeChanged", {
-        desc     = "Move cursor everywhere",
-        pattern  = "*:*",
-        callback = function()
-                local mode = fn.mode()
-                if mode == "n" or mode == "\22" then vim.opt.virtualedit = "all" end
-                if mode == "i" then vim.opt.virtualedit = "block" end
-                if mode == "v" or mode == "V" then vim.opt.virtualedit = "onemore" end
-        end,
-})
-
-----SHOW WHITESPACES----------------------------------------------------------------------------------------------------
-
-autocmd({ "ModeChanged" }, {
-        desc     = "Show whitespace chars in selection",
-        pattern  = "*:*",
-        callback = function()
-                local mode = fn.mode()
-                if mode == "n" or mode == "\22" or mode == "i" then
-                        vim.opt.listchars = {
-                                multispace = " ",
-                                lead       = " ",
-                                trail      = " ",
-                                tab        = "  ",
-                        }
-                end
-                if mode == "v" or mode == "V" then
-                        vim.opt.listchars = {
-                                multispace = ".",
-                                lead       = ".",
-                                trail      = ".",
-                                tab        = "..",
-                                nbsp       = ".",
-                        }
-                end
         end,
 })
 
@@ -430,9 +372,9 @@ autocmd({ "BufWritePre" }, {
 
 autocmd("FileType", {
         desc     = "Automatically split help buffers to the right",
-        pattern  = { "help" },
+        pattern  = "help",
         callback = function()
-                if vim.o.filetype ~= "help" or "qf" then return end
+                if vim.o.filetype ~= "help" then return end
                 local function hasDiffviewInCurrentTab()
                         return vim.tbl_contains(
                                 vim.tbl_map(function(win) return vim.bo[vim.api.nvim_win_get_buf(win)].filetype end,
@@ -449,24 +391,18 @@ autocmd("VimResized", {
 
 ----QUICKFIX------------------------------------------------------------------------------------------------------------
 
--- autocmd("FileType", {
---         desc     = "Open quickfix window in vertical split",
---         pattern  = "qf",
---         callback = function()
---                 vim.cmd("wincmd L")
---                 vim.cmd("vertical resize 70")
---         end,
--- })
 autocmd("FileType", {
         desc     = "Show quickfix results interactively",
         pattern  = "qf",
-        callback = function(event)
-                local opts = { buffer = event.buf, silent = true }
+        callback = function(args)
+                local opts = { buffer = args.buf, silent = true }
                 vim.keymap.set("n", "J", "<cmd>cn<CR>zz<cmd>wincmd p<CR>", opts)
                 vim.keymap.set("n", "K", "<cmd>cN<CR>zz<cmd>wincmd p<CR>", opts)
                 vim.keymap.set("n", "<leader>qr", function() vim.cmd.cexpr("[]") end,
                                { desc = "󰚃 Remove quickfix items" })
                 vim.keymap.set("n", "<leader>q1", "<cmd>silent cfirst<CR>zv", { desc = "󰴩 Goto 1st quickfix" })
+                vim.cmd("wincmd L")
+                vim.cmd("vertical resize 70")
         end,
 })
 
@@ -504,7 +440,7 @@ autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
 autocmd("BufWinEnter", {
         desc     = "Reset statuscolumn for miscellaneous buffers",
         callback = function()
-                if vim.tbl_contains({ "nofile", "help", "prompt" }, vim.bo[0].buftype) then
+                if vim.tbl_contains({ "nofile", "help", "prompt", "terminal" }, vim.bo[0].buftype) then
                         vim.wo[0][0].statuscolumn = ""
                 end
         end,
@@ -513,8 +449,60 @@ autocmd("BufWinEnter", {
 ----JSON----------------------------------------------------------------------------------------------------------------
 
 autocmd("FileType", {
-        pattern  = { "json", "jsonc", "json5" },
+        pattern = { "json", "jsonc", "json5" },
+        command = "setlocal conceallevel=0",
+})
+
+----BACKDROP------------------------------------------------------------------------------------------------------------
+
+local backdrop = 40
+
+vim.api.nvim_create_autocmd({ "FileType", "FocusGained", "BufWinEnter" }, {
+        desc     = "Add backdrop to windows",
+        pattern  = { "dropbar_menu", "convy", "yazi" },
+        callback = function(args)
+                local backdrop_name = "Backdrop"
+                local bufnr         = args.buf
+                local zindex        = 20
+
+                local backdrop_bufnr = vim.api.nvim_create_buf(false, true)
+                local winnr          = vim.api.nvim_open_win(backdrop_bufnr, false, {
+                        relative  = "editor",
+                        row       = 0,
+                        col       = 0,
+                        width     = vim.o.columns,
+                        height    = vim.o.lines,
+                        focusable = false,
+                        style     = "minimal",
+                        zindex    = zindex - 1,
+                })
+
+                vim.api.nvim_set_hl(0, backdrop_name, { link = "Backdrop" })
+                vim.wo[winnr].winhighlight     = "Normal:" .. backdrop_name
+                -- vim.wo[winnr].winhighlight     = backdrop_name .. ":Normal"
+                -- vim.wo[winnr].winhighlight     = "Normal:Backdrop"
+                vim.wo[winnr].winblend         = backdrop
+                vim.bo[backdrop_bufnr].buftype = "nofile"
+
+                vim.api.nvim_create_autocmd({ "WinClosed" }, {
+                        once     = true,
+                        buffer   = bufnr,
+                        callback = function()
+                                if vim.api.nvim_win_is_valid(winnr) then
+                                        vim.api.nvim_win_close(winnr, true)
+                                end
+
+                                if vim.api.nvim_buf_is_valid(backdrop_bufnr) then
+                                        vim.api.nvim_buf_delete(backdrop_bufnr, { force = true })
+                                end
+                        end,
+                })
+        end,
+})
+
+autocmd("FileType", {
+        pattern  = "*",
         callback = function()
-                vim.opt_local.conceallevel = 0
+                vim.opt_local.formatoptions:remove({ "c", "r", "o" })
         end,
 })

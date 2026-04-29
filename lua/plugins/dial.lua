@@ -1,8 +1,6 @@
-local M = {}
-
 ---@param increment boolean
 ---@param g? boolean
-function M.dial(increment, g)
+local function dial(increment, g)
         local mode      = vim.fn.mode(true)
         -- Use visual commands for VISUAL 'v', VISUAL LINE 'V' and VISUAL BLOCK '\22'
         local is_visual = mode == "v" or mode == "V" or mode == "\22"
@@ -14,91 +12,43 @@ end
 return {
         "monaqa/dial.nvim",
         keys   = {
-                { "<C-a>",  function() return M.dial(true) end,        expr = true, desc = "Increment", mode = { "n", "v" } },
-                { "<C-x>",  function() return M.dial(false) end,       expr = true, desc = "Decrement", mode = { "n", "v" } },
-                { "g<C-a>", function() return M.dial(true, true) end,  expr = true, desc = "Increment", mode = { "n", "v" } },
-                { "g<C-x>", function() return M.dial(false, true) end, expr = true, desc = "Decrement", mode = { "n", "v" } },
-                { "+",      function() return M.dial(true) end,        expr = true, desc = "Increment", mode = { "n", "v" } },
-                { "-",      function() return M.dial(false) end,       expr = true, desc = "Decrement", mode = { "n", "v" } },
-                { "g+",     function() return M.dial(true, true) end,  expr = true, desc = "Increment", mode = { "n", "v" } },
-                { "g-",     function() return M.dial(false, true) end, expr = true, desc = "Decrement", mode = { "n", "v" } },
+                { "<C-a>",  function() return dial(true) end,        expr = true, desc = "Increment", mode = { "n", "v" } },
+                { "<C-x>",  function() return dial(false) end,       expr = true, desc = "Decrement", mode = { "n", "v" } },
+                { "g<C-a>", function() return dial(true, true) end,  expr = true, desc = "Increment", mode = { "n", "v" } },
+                { "g<C-x>", function() return dial(false, true) end, expr = true, desc = "Decrement", mode = { "n", "v" } },
+                { "+",      function() return dial(true) end,        expr = true, desc = "Increment", mode = { "n", "v" } },
+                { "-",      function() return dial(false) end,       expr = true, desc = "Decrement", mode = { "n", "v" } },
+                { "g+",     function() return dial(true, true) end,  expr = true, desc = "Increment", mode = { "n", "v" } },
+                { "g-",     function() return dial(false, true) end, expr = true, desc = "Decrement", mode = { "n", "v" } },
         },
         opts   = function()
                 local augend = require("dial.augend")
 
-                local logical_alias = augend.constant.new({
-                        elements = { "&&", "||" },
+                local ordinal_numbers              = augend.constant.new({
+                        elements = { "first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth" },
                         word     = false,
                         cyclic   = true,
                 })
-
-                local ordinal_numbers = augend.constant.new({
-                        elements = {
-                                "first",
-                                "second",
-                                "third",
-                                "fourth",
-                                "fifth",
-                                "sixth",
-                                "seventh",
-                                "eighth",
-                                "ninth",
-                                "tenth",
-                        },
-                        word     = false,
-                        cyclic   = true,
-                })
-
-                local weekdays = augend.constant.new({
-                        elements = {
-                                "Monday",
-                                "Tuesday",
-                                "Wednesday",
-                                "Thursday",
-                                "Friday",
-                                "Saturday",
-                                "Sunday",
-                        },
+                local weekdays                     = augend.constant.new({
+                        elements = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" },
                         word     = true,
                         cyclic   = true,
                 })
-
-                local months = augend.constant.new({
-                        elements = {
-                                "January",
-                                "February",
-                                "March",
-                                "April",
-                                "May",
-                                "June",
-                                "July",
-                                "August",
-                                "September",
-                                "October",
-                                "November",
-                                "December",
-                        },
+                local months                       = augend.constant.new({
+                        elements = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" },
                         word     = true,
                         cyclic   = true,
                 })
-
-                local capitalized_boolean = augend.constant.new({
-                        elements = {
-                                "True",
-                                "False",
-                        },
-                        word     = true,
-                        cyclic   = true,
-                })
-
-                local word_boolean = augend.constant.new({
-                        elements = {
-                                "yes",
-                                "no",
-                        },
-                        word     = true,
-                        cyclic   = true,
-                })
+                local logical_alias                = augend.constant.new({ elements = { "&&", "||" }, word = false, cyclic = true })
+                local yes_no                       = augend.constant.new({ elements = { "yes", "no" }, word = true, cyclic = true })
+                local yes_no_capitalized           = augend.constant.new({ elements = { "Yes", "No" }, word = true, cyclic = true })
+                local on_off                       = augend.constant.new({ elements = { "on", "off" }, word = true, cyclic = true })
+                local on_off_capitalized           = augend.constant.new({ elements = { "On", "Off" }, word = true, cyclic = true })
+                local enable_disable               = augend.constant.new({ elements = { "enable", "disable" }, word = true, cyclic = true })
+                local enable_disable_capitalized   = augend.constant.new({ elements = { "Enable", "Disable" }, word = true, cyclic = true })
+                local enabled_disabled             = augend.constant.new({ elements = { "enabled", "disabled" }, word = true, cyclic = true })
+                local enabled_disabled_capitalized = augend.constant.new({ elements = { "Enabled", "Disabled" }, word = true, cyclic = true })
+                local case                         = augend.case.new({ types = { "camelCase", "PascalCase", "kebab-case", "snake_case", "SCREAMING_SNAKE_CASE" }, cyclic = true })
 
                 return {
                         dials_by_ft = {
@@ -120,17 +70,25 @@ return {
                                         augend.integer.alias.octal,
                                         augend.integer.alias.binary,
                                         augend.constant.alias.en_weekday,
+                                        augend.constant.alias.en_weekday,
                                         augend.constant.alias.en_weekday_full,
                                         augend.constant.alias.bool,
                                         augend.constant.alias.Bool,
                                         augend.semver.alias.semver,
                                         augend.date.alias["%Y/%m/%d"], -- date (2022/02/19, etc.)
+                                        case,
                                         ordinal_numbers,
-                                        -- weekdays,
+                                        weekdays,
                                         months,
-                                        capitalized_boolean,
-                                        word_boolean,
                                         logical_alias,
+                                        yes_no,
+                                        yes_no_capitalized,
+                                        on_off,
+                                        on_off_capitalized,
+                                        enable_disable,
+                                        enable_disable_capitalized,
+                                        enabled_disabled,
+                                        enabled_disabled_capitalized,
                                 },
                                 only_in_visual = {
                                         augend.constant.alias.alpha,
@@ -156,11 +114,8 @@ return {
                                         augend.semver.alias.semver, -- versioning (v1.1.2)
                                 },
                                 lua            = {
-                                        augend.constant.new({
-                                                elements = { "and", "or" },
-                                                word     = true, -- if false, "sand" is incremented into "sor", "doctor" into "doctand", etc.
-                                                cyclic   = true, -- "or" is incremented into "and".
-                                        }),
+                                        augend.constant.new({ elements = { "and", "or" }, word = true, cyclic = true }),
+                                        augend.constant.new({ elements = { "==", "~=" }, word = false, cyclic = true }),
                                 },
                                 python         = {
                                         augend.constant.new({

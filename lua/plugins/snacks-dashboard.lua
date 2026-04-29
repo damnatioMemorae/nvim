@@ -122,12 +122,27 @@ return {
                                         padding = 1,
                                         align   = "center",
                                 },
+                                { -- MASON
+                                        text    = {
+                                                { Icons.Misc.package .. "  ", hl = button },
+                                                { "Mason",                    hl = label, width = 45 },
+                                                { "[",                        hl = button },
+                                                { "l",                        hl = label },
+                                                { "]",                        hl = button },
+                                        },
+                                        key     = "m",
+                                        action  = function()
+                                                require("mason"); vim.cmd("Mason")
+                                        end,
+                                        padding = 1,
+                                        align   = "center",
+                                },
                                 { -- LAZY
                                         text    = {
                                                 { Icons.Misc.package .. "  ", hl = button },
                                                 { "Lazy",                     hl = label, width = 45 },
                                                 { "[",                        hl = button },
-                                                { "l",                        hl = label },
+                                                { "m",                        hl = label },
                                                 { "]",                        hl = button },
                                         },
                                         key     = "l",
@@ -145,6 +160,19 @@ return {
                                         },
                                         key     = "u",
                                         action  = "<cmd> Lazy update <CR>",
+                                        padding = 1,
+                                        align   = "center",
+                                },
+                                { -- RESTART
+                                        text    = {
+                                                { Icons.Misc.restore .. "  ", hl = button },
+                                                { "Restart",                  hl = label, width = 45 },
+                                                { "[",                        hl = button },
+                                                { "r",                        hl = label },
+                                                { "]",                        hl = button },
+                                        },
+                                        key     = "r",
+                                        action  = "<cmd> restart <CR>",
                                         padding = 1,
                                         align   = "center",
                                 },

@@ -3,7 +3,9 @@ local autocmd = vim.api.nvim_create_autocmd
 
 local plugins = {}
 
-function __.loadPlugins(name)
+_G.Pack = {}
+
+function Pack.loadPlugins(name)
         local P = plugins[name]
 
         if not P then
@@ -23,7 +25,7 @@ function __.loadPlugins(name)
 
         if P.deps then
                 for _, plugin in ipairs(P.deps) do
-                        __.loadPlugins(plugin)
+                        Pack.loadPlugins(plugin)
                 end
         end
 
@@ -59,7 +61,7 @@ end
 ---     ft?:           string[],
 ---     event?:        string,
 ---}
-function __.addPlugin(opts)
+function Pack.add(opts)
         if opts.enabled == false then
                 return
         end
@@ -105,7 +107,7 @@ function __.addPlugin(opts)
                                                 command.range = { event.line1, event.line2 }
                                         end
 
-                                        __.loadPlugins(name)
+                                        Pack.loadPlugins(name)
 
                                         local info = vim.api.nvim_get_commands({})[cmd] or
                                                    vim.api.nvim_buf_get_commands(0, {})[cmd]
@@ -144,7 +146,7 @@ function __.addPlugin(opts)
                 autocmd(opts.event, {
                         once     = true,
                         callback = function()
-                                __.loadPlugins(name)
+                                Pack.loadPlugins(name)
                         end,
                 })
         end
@@ -154,7 +156,7 @@ function __.addPlugin(opts)
                         pattern  = opts.ft,
                         once     = true,
                         callback = function()
-                                __.loadPlugins(name)
+                                Pack.loadPlugins(name)
                         end,
                 })
         end
@@ -165,7 +167,7 @@ function __.addPlugin(opts)
                                 map.mode or "n", map[1],
                                 function()
                                         vim.print(name)
-                                        __.loadPlugins(name)
+                                        Pack.loadPlugins(name)
                                         map[2](plugins[name].package)
                                 end,
                                 { desc = map.desc })
@@ -178,7 +180,7 @@ autocmd("VimEnter", {
         callback = function()
                 for plugin, opts in pairs(plugins) do
                         if opts.is_instant then
-                                __.loadPlugins(plugin)
+                                Pack.loadPlugins(plugin)
                         end
                 end
         end,

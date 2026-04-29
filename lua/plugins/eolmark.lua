@@ -1,6 +1,6 @@
 return {
         "aidancz/eolmark.nvim",
-        event  = "BufEnter",
+        event  = "BufReadPre",
         config = function()
                 require("eolmark").setup({
                         opts              = { virt_text = { { "󱞣", "Comment" } } },

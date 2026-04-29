@@ -1,6 +1,6 @@
 return {
         "lukas-reineke/indent-blankline.nvim",
-        event  = "VeryLazy",
+        event  = "BufReadPre",
         main   = "ibl",
         keys   = { { "<leader>oi", Toggle.indentLine, desc = "Indent Lines - Toggle" } },
         config = function()
@@ -9,7 +9,7 @@ return {
                         whitespace = { remove_blankline_trail = true },
                         scope      = {
                                 show_start = true,
-                                show_end   = false,
+                                show_end   = true,
                                 char       = Icons.Misc.verticalBar,
                                 highlight  = { "Function" },
                         },

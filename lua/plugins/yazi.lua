@@ -22,4 +22,8 @@ return {
                 bufdelete_implementation             = "bundled-snacks",
                 picker_add_copy_relative_path_action = "snacks.picker",
         },
+        config  = function(_, opts)
+                require("yazi").setup(opts)
+                vim.api.nvim_set_hl(0, "YaziFloatBorder", { link = "BorderStyle" })
+        end,
 }

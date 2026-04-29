@@ -164,7 +164,7 @@ return {
                 preview                 = {
                         win_config = {
                                 border       = Border.borderStyle,
-                                winblend     = 0,
+                                winblend     = Config.winblend,
                                 winhighlight = "NormalFloat:NormalFloat",
                         },
                 },
@@ -177,10 +177,11 @@ return {
 
                         return { "treesitter", "indent" }
                 end,
-                fold_virt_text_handler  = function()
+                fold_virt_text_handler  = function(_virtText)
                         vim.wo.foldtext = [[
-                                substitute(getline(v:foldstart),'\\t',repeat('\ ',&tabstop),'g').'...'.trim(getline(v:foldend))
-                        ]]
+                                substitute(getline(v:foldstart),'\\t',repeat('\ ',&tabstop),'g').' ... '.trim(getline(v:foldend))
+                                ]]
+                        -- return _virtText
                 end,
         },
 }

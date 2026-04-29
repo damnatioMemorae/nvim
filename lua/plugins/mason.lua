@@ -129,20 +129,16 @@ return {
         event  = "BufReadPre",
         keys   = { { "<leader>m", vim.cmd.Mason, desc = " Mason Home" } },
         opts   = {
-                registries = {
-                        -- personal registry must come first to have priority
-                        -- "file:" .. vim.fn.stdpath("config") .. "/mason-registry",
-                        "github:mason-org/mason-registry",
-                },
+                registries = { "github:mason-org/mason-registry" },
                 ui         = {
                         border   = Border.borderStyleNone,
                         height   = 0.9,
                         width    = 0.8,
                         backdrop = Config.backdrop,
                         icons    = {
-                                package_installed   = "󱧕",
-                                package_pending     = "󱧘",
-                                package_uninstalled = "󱧙",
+                                package_installed   = Icons.Misc.package_installed,
+                                package_pending     = Icons.Misc.package_pending,
+                                package_uninstalled = Icons.Misc.package_uninstalled,
                         },
                         keymaps  = {
                                 uninstall_package     = "x",
@@ -152,9 +148,32 @@ return {
                 },
         },
         config = function(_, opts)
-                vim.env.npm_config_cache = vim.env.HOME .. "/.cache/npm"  -- don't crowd $HOME with `.npm` folder
+                vim.env.npm_config_cache = vim.env.HOME .. "/.cache/npm"
                 require("mason").setup(opts)
                 enableLsps()
                 vim.defer_fn(syncPackages, 2000)
+
+                local groups = {
+                        { "Error",                       "DiagnosticError" },
+                        { "Muted",                       "Comment" },
+                        { "Highlight",                   "Special" },
+                        { "HighlightSecondary",          "Structure" },
+                        { "Backdrop",                    "Backdrop" },
+                        { "MutedBlock",                  "LspInlayHint" },
+                        { "HighlightBlock",              "CurSearch" },
+                        { "HighlightBlockSecondary",     "Search" },
+                        { "Heading",                     "FloatTitle" },
+                        { "Doc",                         "Comment" },
+                        { "Pod",                         "Comment" },
+                        { "Header",                      "Title" },
+                        { "MutedBlockBold",              "LspInlayHint" },
+                        { "HeaderSecondary",             "Search" },
+                        { "HighlightBlockBold",          "CurSearch" },
+                        { "Warning",                     "DiagnosticWarn" },
+                        { "Link",                        "Special" },
+                        { "HighlightBlockBoldSecondary", "Search" },
+                        { "Normal",                      "Normal" },
+                }
+                require("core.utils").linkHl(groups, "Mason")
         end,
 }

@@ -1,6 +1,6 @@
 return {
         "chrisgrieser/nvim-various-textobjs",
-        event = "VeryLazy",
+        event = "BufReadPre",
         keys  = {
                 { "<Space>", function() require("various-textobjs").subword("inner") end, mode = "o", desc = "󰬞 inner subword" },
                 { "a<Space>", function() require("various-textobjs").subword("outer") end, mode = { "o", "x" }, desc = "󰬞 outer subword" },
@@ -66,26 +66,27 @@ return {
                         "dsi",
                         function()
                                 require("various-textobjs").indentation("outer", "outer")
-                                local indentation_found = vim.fn.mode():find("V")
-                                if not indentation_found then return end
+
+                                if not vim.fn.mode():find("V") then
+                                        return
+                                end
 
                                 vim.cmd.normal{ "<", bang = true } -- dedent indentation
-                                local end_border_ln   = vim.api.nvim_buf_get_mark(0, ">")[1]
-                                local start_border_ln = vim.api.nvim_buf_get_mark(0, "<")[1]
-                                vim.cmd(tostring(end_border_ln) .. " delete") -- delete end first so line index is not shifted
-                                vim.cmd(tostring(start_border_ln) .. " delete")
+
+                                vim.cmd(tostring(vim.api.nvim_buf_get_mark(0, ">")[1]) .. " delete") -- delete end first so line index is not shifted
+                                vim.cmd(tostring(vim.api.nvim_buf_get_mark(0, "<")[1]) .. " delete")
                         end,
                         desc = " Delete surrounding indent",
                 },
                 { -- open URL (forward seeking)
                         "<LocalLeader>x",
                         function()
-                                vim.keymap.del("n", "<LocalLeader>")
+                                vim.keymap.del("n", "gx")
 
                                 require("various-textobjs").url()
-                                local found_url = vim.fn.mode():find("v")
-                                if found_url then
-                                        vim.cmd.normal{ '"zy', bang = true }
+
+                                if vim.fn.mode():find("v") then
+                                        vim.cmd.normal({ '"zy', bang = true })
                                         local url = vim.fn.getreg("z")
                                         vim.ui.open(url)
                                 else
@@ -94,8 +95,9 @@ return {
                         end,
                         desc = " Smart URL Opener",
                 },
-                { -- open URL (first in a file)
-                        "<D-U>",
+                --[[ open URL (first in a file)
+                {
+                        "<A-u>",
                         function()
                                 local url_pattern = require("various-textobjs.charwise-textobjs").urlPattern
                                 local url_line    = vim.iter(vim.api.nvim_buf_get_lines(0, 0, -1, false))
@@ -108,5 +110,6 @@ return {
                         end,
                         desc = " Open First URL in File",
                 },
+                --]]
         },
 }

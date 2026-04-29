@@ -1,33 +1,4 @@
 local words = {
-        ["Colors.ivory"]     = "#dce0e8",
-        ["Colors.spark"]     = "#add8e6",
-        ["Colors.rosewater"] = "#f5e0dc",
-        ["Colors.flamingo"]  = "#f2cdcd",
-        ["Colors.pink"]      = "#f5c2e7",
-        ["Colors.mauve"]     = "#cba6f7",
-        ["Colors.red"]       = "#f38ba8",
-        ["Colors.maroon"]    = "#eba0ac",
-        ["Colors.peach"]     = "#fab387",
-        ["Colors.yellow"]    = "#f9e2af",
-        ["Colors.green"]     = "#a6e3a1",
-        ["Colors.teal"]      = "#94e2d5",
-        ["Colors.sky"]       = "#89dceb",
-        ["Colors.sapphire"]  = "#74c7ec",
-        ["Colors.blue"]      = "#89b4fa",
-        ["Colors.lavender"]  = "#b4befe",
-        ["Colors.text"]      = "#cdd6f4",
-        ["Colors.subtext1"]  = "#bac2de",
-        ["Colors.subtext0"]  = "#a6adc8",
-        ["Colors.overlay2"]  = "#9399b2",
-        ["Colors.overlay1"]  = "#7f849c",
-        ["Colors.overlay0"]  = "#6c7086",
-        ["Colors.surface2"]  = "#585b70",
-        ["Colors.surface1"]  = "#45475a",
-        ["Colors.surface0"]  = "#313244",
-        ["Colors.base"]      = "#1e1e2e",
-        ["Colors.mantle"]    = "#14141f",
-        ["Colors.crust"]     = "#0e0e16",
-
         ["colors.ivory"]     = "#dce0e8",
         ["colors.spark"]     = "#add8e6",
         ["colors.rosewater"] = "#f5e0dc",
@@ -55,38 +26,39 @@ local words = {
         ["colors.surface0"]  = "#313244",
         ["colors.base"]      = "#1e1e2e",
         ["colors.mantle"]    = "#14141f",
+        ["colors.crust1"]    = "#11111b",
         ["colors.crust"]     = "#0e0e16",
 }
 
 return {
-        "echasnovski/mini.hipatterns",
+        "mini-nvim/mini.hipatterns",
         version = false,
         event   = "VeryLazy",
         config  = function()
                 local hipatterns = require("mini.hipatterns")
 
-                local word_color_group = function(_, match)
+                local function wordColorGroup(_, match)
                         local hex = words[match]
                         if hex == nil then return nil end
                         return hipatterns.compute_hex_color_group(hex, "bg")
                 end
 
-                local hsl_to_hex = function(h, s, l)
+                local function hslToHex(h, s, l)
                         -- Actually convert h, s, l numbers into hex color in '#RRGGBB' format
                         return "#111111"
                 end
 
-                local hsl_color = function(_, match)
+                local function hslColor(_, match)
                         local h, s, l   = match:match("hsl%((%d+) (%d+)%% (%d+)%%%)")
                         h, s, l         = tonumber(h), tonumber(s), tonumber(l)
-                        local hex_color = hsl_to_hex(h, s, l)
+                        local hex_color = hslToHex(h, s, l)
                         return hipatterns.compute_hex_color_group(hex_color, "bg")
                 end
 
                 hipatterns.setup({
                         highlighters = {
                                 hex_color  = hipatterns.gen_highlighter.hex_color(),
-                                word_color = { pattern = "%f[%w]()%S+()%f[%W]", group = word_color_group },
+                                word_color = { pattern = "%f[%w]()%S+()%f[%W]", group = wordColorGroup },
                                 hsl_color  = {
                                         pattern = "hsl%(%d+,? %d+,? %d+%)",
                                         -- group  = hsl_color()
@@ -100,5 +72,13 @@ return {
                                 },
                         },
                 })
+
+                local groups = {
+                        { "Note",  "@comment.note" },
+                        { "Todo",  "@comment.todo" },
+                        { "Hack",  "@comment.hack" },
+                        { "Fixme", "@comment.error" },
+                }
+                require("core.utils").linkHl(groups, "MiniHipatterns")
         end,
 }

@@ -1,3 +1,6 @@
+local icon = Icons.Misc.lightbulb
+local hl   = "LspCodeAction"
+
 return {
         "kosayoda/nvim-lightbulb",
         event = "LspAttach",
@@ -8,17 +11,17 @@ return {
                 validate_config = "always",
                 sign            = {
                         enabled   = true,
-                        text      = Icons.Misc.lightbulb,
+                        text      = icon,
                         lens_text = Icons.Diagnostics.Info,
-                        hl        = "LightBulbSign",
+                        hl        = hl,
                 },
                 virtual_text    = {
                         enabled   = false,
-                        text      = " " .. Icons.Misc.lightbulb,
+                        text      = " " .. icon,
                         lens_text = Icons.Diagnostics.Info,
                         pos       = "eol",
                         hl_mode   = "combine",
-                        hl        = "LightBulbSign",
+                        hl        = hl,
                 },
                 status_text     = { enabled = true },
                 autocmd         = { enabled = true, updatetime = 1 },

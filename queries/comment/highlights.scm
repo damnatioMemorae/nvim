@@ -1,3 +1,5 @@
+;extends
+
 ("text" @comment.hint @nospell
         (#match? @comment.hint "^(HINT|WIP):?$")
         (#set! "priority" 135 ))

@@ -13,6 +13,7 @@ return {
                         preserve_context = false,
                 },
                 window   = {
+                        title = "",
                         border = Border.borderStyle,
                         height = 0.4,
                 },

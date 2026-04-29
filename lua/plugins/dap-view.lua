@@ -1,5 +1,6 @@
 return {
         "igorlfs/nvim-dap-view",
+        enabled = false,
         lazy = false,
         opts = {
                 winbar  = {

@@ -1,102 +1,14 @@
-local opt = vim.opt
-local o   = vim.o
-local g   = vim.g
+local arr  = Icons.Arrows
+local misc = Icons.Misc
+local opt  = vim.opt
 
-----GENERAL-------------------------------------------------------------------------------------------------------------
+vim.g.mapleader      = " "
+vim.g.maplocalleader = ","
 
-g.mapleader      = " "
-g.maplocalleader = ","
-
-vim.schedule(function()
-        o.clipboard = "unnamedplus"
-end)
-
-vim.cmd("filetype plugin indent on")
-if vim.fn.exists("syntax_on") ~= 1 then
-        vim.cmd("syntax enable")
-end
-
-opt.whichwrap:append("<>[]hl")
-opt.iskeyword:append("@,48-57,_,-,192-255")
-opt.spelloptions:append("noplainbuffer")
-opt.jumpoptions:append("stack")
-
-o.shell         = "bash"
-o.undofile      = true
-o.undolevels    = 10000
-o.swapfile      = false
-o.backup        = false
-o.writebackup   = false
-o.spell         = false
-o.spelllang     = "en_us"
-o.splitright    = true
-o.splitbelow    = true
-o.cursorline    = true
-o.wrap          = false
-o.breakindent   = true
-o.report        = 9901
-o.autowrite     = false
-o.autowriteall  = false
-o.jumpoptions   = "view"
-o.startofline   = true
-o.scrolloff     = 20
-o.sidescrolloff = 4
-o.shortmess     = "ISsltToOCFIc"
-o.report        = 9001
--- opt.shortmess:append("ISs")
--- o.messagesopt   = { "wait:0", "history:1000" }
-o.nrformats     = "bin,hex,blank,unsigned"
-o.showbreak     = " 󰘍 "
-
-----STATUSCOL-----------------------------------------------------------------------------------------------------------
-
-local function numberLine()
-        local v = vim.v
-
-        if v.virtnum ~= 0 then
-                return "%="
-        end
-
-        local lnum     = v.relnum > 0 and v.relnum or v.lnum
-        local lnum_str = tostring(lnum)
-        local pad      = (""):rep(vim.wo.numberwidth - #lnum_str)
-
-        return "%=" .. pad .. lnum_str .. " "
-end
-
-function _G.render()
-        if vim.bo[0].buftype == "quickfix" then
-                return numberLine()
-        end
-
-        return numberLine()
-end
-
-o.statuscolumn = "%s%{%v:lua.render()%}"
-
-----EDITOR--------------------------------------------------------------------------------------------------------------
-
-o.textwidth     = 120
-o.expandtab     = true
--- o.tabstop = 3
-o.shiftwidth    = 8
-o.shiftround    = true
-o.smartindent   = true
-o.autoindent    = true
-o.breakindent   = true
-o.copyindent    = true
-o.concealcursor = "n"
-o.formatoptions = ""
-o.exrc          = true
-
-local cursor = {
-        "n-v-c-sm:block-Cursor",
-        "i-ci-ve:ver25-Cursor",
-        "r-cr-o:hor20-Cursor",
-        "a:blinkwait500-blinkoff500-blinkon500",
-}
-
-o.guicursor = table.concat(cursor, ",")
+-- vim.cmd("filetype plugin indent on")
+-- if vim.fn.exists("syntax_on") ~= 1 then
+--         vim.cmd("syntax enable")
+-- end
 
 ----FILETYPES-----------------------------------------------------------------------------------------------------------
 
@@ -106,109 +18,6 @@ vim.filetype.add{
         pattern   = { [".*/kitty/.+%.conf"] = "kitty", [".*/hypr/.+%.conf"] = "hyprlang" },
 }
 
-----SEARCH & CMDLINE----------------------------------------------------------------------------------------------------
-
-o.ignorecase = true
-o.smartcase  = true
-o.hlsearch   = false
-o.inccommand = "split"
-o.cmdheight  = 0
-
-local targets = {
-        [""]         = "msg",
-        bufwrite     = "msg",
-        completion   = "msg",
-        confirm      = "dialog",
-        echoerr      = "pager",
-        echo         = "msg",
-        echomsg      = "msg",
-        empty        = "cmd",
-        emsg         = "pager",
-        list_cmd     = "pager",
-        lua_error    = "pager",
-        lua_print    = "msg",
-        progress     = "pager",
-        quickfix     = "msg",
-        rpc_error    = "pager",
-        search_cmd   = "cmd",
-        search_count = "cmd",
-        shell_cmd    = "pager",
-        shell_err    = "pager",
-        shell_out    = "pager",
-        shell_ret    = "msg",
-        typed_cmd    = "cmd",
-        undo         = "msg",
-        verbose      = "pager",
-        wildlist     = "cmd",
-        wmsg         = "msg",
-}
-
--- require("vim._core.ui2").enable({
---         enable = true,
---         msg    = {
---                 -- targets = targets,
---                 targets = "cmd",
---                 cmd     = { height = 0.5 },
---                 dialog  = { height = 0.5 },
---                 pager   = { height = 0.5 },
---                 msg     = { height = 0.3, timeout = 1000 },
---         },
--- })
-
-----INVISIBLE CHARS-----------------------------------------------------------------------------------------------------
-
--- o.foldtext     = "v:lua.custom_foldtext()"
-o.conceallevel = 2
-o.list         = true
-
-opt.listchars:append({
-        nbsp       = "_",
-        precedes   = Icons.Misc.ellipsis,
-        extends    = Icons.Misc.ellipsis,
-        multispace = " ",
-        lead       = " ",
-        trail      = " ",
-        tab        = "  ",
-})
-opt.fillchars:append({
-        fold      = " ",
-        vert      = "▕",
-        eob       = " ",
-        foldclose = Icons.Arrows.close,
-        foldopen  = Icons.Arrows.open,
-        foldsep   = "│",
-        diff      = "╱",
-})
-
-o.winborder        = "none"
-o.mousemoveevent   = true
-o.completeopt      = "menu,menuone,noselect"
-o.confirm          = true
-o.grepformat       = "%f:%l:%c:%m"
-o.grepprg          = "rg --vimgrep"
-o.inccommand       = "nosplit"
-o.incsearch        = true
-o.linebreak        = false
-o.list             = true
-o.mouse            = "a"
-o.number           = true
-o.pumblend         = 0
-o.pumheight        = 20
-o.relativenumber   = true
--- o.sessionoptions = { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp", "folds" }
-opt.sessionoptions = { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp", "folds" }
-o.showmode         = false
-o.termguicolors    = true
-o.termsync         = false
-o.updatetime       = 200
-o.virtualedit      = "block"
-o.wildmode         = ""
-o.winminwidth      = 5
-o.wrapmargin       = 120
-o.smoothscroll     = true
-o.hidden           = true
-
----[[
 vim.api.nvim_create_autocmd("BufEnter", {
         pattern  = "*",
         callback = function()
@@ -227,43 +36,118 @@ vim.api.nvim_create_autocmd("BufEnter", {
                 end
         end,
 })
---]]
 
-local function foldVirtText(result, s, lnum, coloff)
-        if not coloff then
-                coloff = 0
-        end
-        local text = ""
-        local hl
-        for i = 1, #s do
-                local char = s:sub(i, i)
-                local hls  = vim.treesitter.get_captures_at_pos(0, lnum, coloff + i - 1)
-                local hl_  = hls[#hls]
-                if hl_ then
-                        -- local new_hl = "@" .. _hl.capture
-                        local new_hl = "LspInlayHint"
-                        if new_hl ~= hl then
-                                table.insert(result, { text, hl })
-                                text = ""
-                                hl   = nil
-                        end
-                        text = text .. char
-                        hl   = new_hl
-                else
-                        text = text .. char
-                end
-        end
-        table.insert(result, { text, hl })
-end
+local cursor = {
+        "n-v-c-sm:block-Cursor",
+        "i-ci-ve:ver25-Cursor",
+        "r-cr-o:hor20-Cursor",
+        "a:blinkwait500-blinkoff500-blinkon500",
+}
 
-function _G.customFoldtext()
-        local start   = vim.fn.getline(vim.v.foldstart):gsub("\t", string.rep(" ", o.tabstop))
-        local end_str = vim.fn.getline(vim.v.foldend + 1)
-        local end_    = vim.trim(end_str)
-        local result  = {}
-        foldVirtText(result, start, vim.v.foldstart - 1)
-        -- table.insert(result, { "...", "Comment" })
-        table.insert(result, { "...", "LspInlayHint" })
-        foldVirtText(result, end_,                      vim.v.foldend - 1, #(end_str:match("^(%s+)") or ""))
-        return result
-end
+----GENERAL-------------------------------------------------------------------------------------------------------------
+opt.autowriteall   = false
+opt.autowrite      = false
+opt.cmdheight      = 0
+opt.concealcursor  = "n"
+opt.conceallevel   = 2
+opt.confirm        = true
+opt.exrc           = true
+opt.formatoptions  = ""
+opt.grepformat     = "%f:%l:%c:%m"
+opt.grepprg        = "rg --vimgrep"
+opt.hidden         = true
+opt.jumpoptions    = "stack"
+opt.linebreak      = false
+opt.list           = true
+opt.mouse          = "a"
+opt.mousemoveevent = true
+opt.ruler          = false
+opt.sessionoptions = { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp", "folds" }
+opt.shell          = "bash"
+opt.spell          = false
+opt.spelllang      = "en_us"
+opt.spelloptions   = "noplainbuffer"
+opt.startofline    = true
+opt.termsync       = false
+opt.timeoutlen     = 500
+opt.undofile       = true
+opt.undolevels     = 10000
+opt.whichwrap      = "<>[]hl"
+opt.wildmode       = ""
+opt.winborder      = Border.borderStyleNone
+opt.winminwidth    = 5
+opt.wrap           = false
+opt.wrapmargin     = 120
+opt.updatetime     = 2000
+opt.redrawtime     = 2000
+
+----BACKUP--------------------------------------------------------------------------------------------------------------
+opt.backup      = false
+opt.swapfile    = false
+opt.writebackup = false
+
+----LAYOUT--------------------------------------------------------------------------------------------------------------
+opt.inccommand    = "nosplit"
+opt.incsearch     = true
+opt.pumheight     = 20
+opt.scrolloff     = 20
+opt.showmode      = false
+opt.sidescrolloff = 4
+opt.splitbelow    = true
+opt.splitright    = true
+
+----EDIT----------------------------------------------------------------------------------------------------------------
+opt.clipboard   = "unnamedplus"
+opt.completeopt = "menu,menuone,noselect"
+opt.ignorecase  = true
+opt.iskeyword   = opt.iskeyword:append("@,48-57,_,-,192-255")
+opt.smartcase   = true
+
+----FOLD----------------------------------------------------------------------------------------------------------------
+opt.list = true
+
+----UI------------------------------------------------------------------------------------------------------------------
+opt.cursorline    = true
+opt.guicursor     = table.concat(cursor, ",")
+opt.hlsearch      = false
+opt.inccommand    = "split"
+opt.nrformats     = "bin,hex,blank,unsigned"
+opt.number        = true
+opt.pumblend      = 0
+opt.rnu           = true
+opt.shortmess     = "tF" .. "TIcC" .. "as" .. "WoO" .. "Sl"
+opt.showbreak     = " 󰘍 "
+opt.smoothscroll  = true
+opt.termguicolors = true
+opt.fillchars     = {
+        fold = " ",
+        vert = "│",
+        eob = " ",
+        foldclose = arr.close,
+        foldopen = arr.open,
+        foldsep = "│",
+        foldinner =
+        " ",
+        diff = "╱",
+}
+opt.listchars     = {
+        nbsp = "_",
+        precedes = misc.ellipsis,
+        extends = misc.ellipsis,
+        multispace = " ",
+        lead = " ",
+        trail =
+        " ",
+        tab = "  ",
+}
+
+----TABSPACE------------------------------------------------------------------------------------------------------------
+opt.autoindent  = true
+opt.breakindent = true
+opt.copyindent  = true
+opt.expandtab   = true
+opt.shiftround  = true
+opt.shiftwidth  = 8
+opt.smartindent = true
+opt.tabstop     = 2
+opt.textwidth   = 120

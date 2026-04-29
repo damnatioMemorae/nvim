@@ -3,16 +3,16 @@ local M = {}
 
 ---1. start/stop with just one keypress
 ---2. add notification & sound for recording
----@param toggle_key string key used to trigger this function
+---@param toggleKey string key used to trigger this function
 ---@param reg string vim register (single letter)
-function M.startOrStopRecording(toggle_key, reg)
+function M.startOrStopRecording(toggleKey, reg)
         local not_recording = vim.fn.reg_recording() == ""
 
         if not_recording then
                 vim.cmd.normal{ "q" .. reg, bang = true }
         else
                 vim.cmd.normal{ "q", bang = true }
-                local macro = vim.fn.getreg(reg):sub(1, -(#toggle_key + 1))
+                local macro = vim.fn.getreg(reg):sub(1, -(#toggleKey + 1))
                 if macro ~= "" then
                         vim.fn.setreg(reg, macro)
                         local msg = vim.fn.keytrans(macro)

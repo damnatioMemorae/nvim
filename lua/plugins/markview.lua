@@ -1,7 +1,7 @@
 return {
         "OXY2DEV/markview.nvim",
-        lazy    = false,
-        opts    = {
+        ft   = "markdown",
+        opts = {
                 experimental = {
                         check_rtp         = false,
                         check_rtp_message = false,
@@ -18,9 +18,9 @@ return {
                                         overlap      = { "┝", "━", "┥", "┿" },
                                         align_left   = "╼",
                                         align_right  = "╾",
-                                        align_center = { "╴", "╶" }
+                                        align_center = { "╴", "╶" },
                                 },
-                        }
-                }
-        }
+                        },
+                },
+        },
 }

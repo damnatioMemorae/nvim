@@ -1,5 +1,4 @@
-local backdrop = 70
-local types    = {
+local types = {
         "File",
         "Module",
         "Namespace",
@@ -40,15 +39,35 @@ end
 
 return {
         "Bekaboo/dropbar.nvim",
-        event        = "BufEnter",
-        dependencies = { "nvim-telescope/telescope-fzf-native.nvim" },
+        enabled      = false,
+        event        = "BufReadPre",
+        dependencies = { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
         keys         = { { "<LocalLeader>w", function() require("dropbar.api").pick() end, desc = "Toggle dropbar", mode = { "n" } } },
         opts         = {
                 bar     = {
                         truncate      = true,
                         pick          = { pivots = "hjklfdsa" },
                         padding       = { left = 1, right = 2 },
-                        -- gc            = { interval = 200 },
+                        gc            = { interval = 1000 },
+                        hover         = true,
+                        sources       = function(buf, _)
+                                local sources = require("dropbar.sources")
+                                local utils   = require("dropbar.utils")
+
+                                if vim.bo[buf].ft == "neo-tree" or vim.bo[buf].ft == "Outline" then
+                                        return {}
+                                end
+
+                                if vim.bo[buf].ft == "markdown" then
+                                        return { sources.path, sources.markdown }
+                                end
+
+                                if vim.bo[buf].buftype == "terminal" then
+                                        return { sources.terminal }
+                                end
+
+                                return { sources.path, utils.source.fallback({ sources.lsp }) }
+                        end,
                         update_events = {
                                 win = {
                                         "CursorHold",
@@ -78,7 +97,7 @@ return {
                 menu    = {
                         quick_navigation = true,
                         scrollbar        = { enable = false, background = true },
-                        win_configs      = { style = "minimal", border = Border.borderStyle },
+                        win_configs      = { style = "minimal", border = Border.borderStyleNone },
                         keymaps          = {
                                 ["<Esc>"] = "<C-w>q",
                                 ["h"]     = "<C-w>q",
@@ -104,63 +123,201 @@ return {
                                 end,
                         },
                 },
-                sources = {
-                        path       = { max_depth = 2 },
-                        treesitter = { valid_types = types },
-                        lsp        = { valid_types = types },
-                },
+                fzf     = { prompt = " %#Special#> " },
                 icons   = {
                         enable = true,
                         ui     = {
-                                bar  = { separator = " " .. Icons.Arrows.rightArrow .. " ", extends = " " .. Icons.Misc.ellipsis .. " " },
+                                bar  = { separator = " " .. Icons.Arrows.rightBig .. " ", extends = " " .. Icons.Misc.ellipsis .. " " },
                                 menu = { separator = " ", indicator = Icons.Misc.squareFilled .. " " },
                         },
                         kinds  = { symbols = addSpace(Icons.Kinds) },
+                },
+                sources = {
+                        path = {
+                                max_depth = 2,
+                                modified  = function(sym)
+                                        return sym:merge({
+                                                name    = sym.name .. " ",
+                                                icon    = " ",
+                                                name_hl = "LspInlayHint",
+                                                icon_hl = "LspInlayHint",
+                                                -- icon_hl = sym.icon,
+                                        })
+                                end,
+                        },
+                        -- treesitter = { valid_types = types },
+                        lsp  = { valid_types = types },
                 },
         },
         config       = function(_, opts)
                 require("dropbar").setup(opts)
                 vim.ui.select = require("dropbar.utils.menu").select
 
-                vim.api.nvim_create_autocmd({ "FileType", "FocusGained", "BufWinEnter" }, {
-                        desc     = "Add backdrop to windows",
-                        pattern  = { "dropbar_menu" },
-                        callback = function(ctx)
-                                local backdrop_name = "MasonBackdrop"
-                                local mason_bufnr   = ctx.buf
-                                local mason_zindex  = 20
+                local groups = {
+                        ----DROPBAR-------------------------------------------------------------------------------------
+                        { "Hover",                     "Visual" },
+                        { "FzfMatch",                  "Special" },
+                        { "CurrentContext",            "Visual" },
+                        { "Preview",                   "PmenuSbar" },
 
-                                local backdrop_bufnr = vim.api.nvim_create_buf(false, true)
-                                local winnr          = vim.api.nvim_open_win(backdrop_bufnr, false, {
-                                        relative  = "editor",
-                                        row       = 0,
-                                        col       = 0,
-                                        width     = vim.o.columns,
-                                        height    = vim.o.lines,
-                                        focusable = false,
-                                        style     = "minimal",
-                                        zindex    = mason_zindex - 1,
-                                })
+                        ----DROPBAR-ICON-UI-----------------------------------------------------------------------------
+                        { "IconUiIndicator",           "NonText" },
+                        { "IconUiSeparator",           "NonText" },
+                        { "MenuCurrentContext",        "Visual" },
+                        { "MenuHoverEntry",            "Visual" },
+                        { "MenuHoverIcon",             "IncSearch" },
+                        { "MenuHoverSymbol",           "Visual" },
+                        { "MenuFloatBorder",           "DropBarMenuNormalFloat" },
+                        { "MenuNormalFloat",           "WinBar" },
+                        { "MenuSbar",                  "PmenuSbar" },
+                        { "MenuThumb",                 "PmenuThumb" },
+                        { "IconKindDefaultNC",         "WinBarNC" },
 
-                                vim.api.nvim_set_hl(0, backdrop_name, { link = "WinBlend" })
-                                vim.wo[winnr].winhighlight     = "Normal:" .. backdrop_name
-                                vim.wo[winnr].winblend         = backdrop
-                                vim.bo[backdrop_bufnr].buftype = "nofile"
+                        ----DROPBAR KIND----------------------------------------------------------------------------------------
 
-                                vim.api.nvim_create_autocmd({ "WinClosed" }, {
-                                        once     = true,
-                                        buffer   = mason_bufnr,
-                                        callback = function()
-                                                if vim.api.nvim_win_is_valid(winnr) then
-                                                        vim.api.nvim_win_close(winnr,
-                                                                               true)
-                                                end
-                                                if vim.api.nvim_buf_is_valid(backdrop_bufnr) then
-                                                        vim.api.nvim_buf_delete(backdrop_bufnr, { force = true })
-                                                end
-                                        end,
-                                })
-                        end,
-                })
+                        { "KindDefault",               "Comment" },
+                        { "KindArray",                 "Comment" },
+                        { "KindBoolean",               "Comment" },
+                        { "KindBreakstatement",        "Comment" },
+                        { "KindCall",                  "Comment" },
+                        { "KindCasestatement",         "Comment" },
+                        { "KindClass",                 "Comment" },
+                        { "KindConstant",              "Comment" },
+                        { "KindConstructor",           "Comment" },
+                        { "KindContinuestatement",     "Comment" },
+                        { "KindDeclaration",           "Comment" },
+                        { "KindDelete",                "Comment" },
+                        { "KindDir",                   "Comment" },
+                        { "KindDostatement",           "Comment" },
+                        { "KindElsestatement",         "Comment" },
+                        { "KindElement",               "Comment" },
+                        { "KindEnum",                  "Comment" },
+                        { "KindEnumMember",            "Comment" },
+                        { "KindEvent",                 "Comment" },
+                        { "KindField",                 "Comment" },
+                        { "KindFile",                  "Comment" },
+                        { "KindFolder",                "Comment" },
+                        { "KindForStatement",          "Comment" },
+                        { "KindFunction",              "Comment" },
+                        { "KindH1Marker",              "Comment" },
+                        { "KindH2Marker",              "Comment" },
+                        { "KindH3Marker",              "Comment" },
+                        { "KindH4Marker",              "Comment" },
+                        { "KindH5Marker",              "Comment" },
+                        { "KindH6Marker",              "Comment" },
+                        { "KindIdentifier",            "Comment" },
+                        { "KindIfStatement",           "Comment" },
+                        { "KindInterface",             "Comment" },
+                        { "KindKeyword",               "Comment" },
+                        { "KindList",                  "Comment" },
+                        { "KindMacro",                 "Comment" },
+                        { "KindMarkdownH1",            "Comment" },
+                        { "KindMarkdownH2",            "Comment" },
+                        { "KindMarkdownH3",            "Comment" },
+                        { "KindMarkdownH4",            "Comment" },
+                        { "KindMarkdownH5",            "Comment" },
+                        { "KindMarkdownH6",            "Comment" },
+                        { "KindMethod",                "Comment" },
+                        { "KindModule",                "Comment" },
+                        { "KindNamespace",             "Comment" },
+                        { "KindNull",                  "Comment" },
+                        { "KindNumber",                "Comment" },
+                        { "KindObject",                "Comment" },
+                        { "KindOperator",              "Comment" },
+                        { "KindPackage",               "Comment" },
+                        { "KindPair",                  "Comment" },
+                        { "KindProperty",              "Comment" },
+                        { "KindReference",             "Comment" },
+                        { "KindRepeat",                "Comment" },
+                        { "KindReturn",                "Comment" },
+                        { "KindRuleset",               "Comment" },
+                        { "KindScope",                 "Comment" },
+                        { "KindSpecifier",             "Comment" },
+                        { "KindStatement",             "Comment" },
+                        { "KindString",                "Comment" },
+                        { "KindStruct",                "Comment" },
+                        { "KindSwitchstatement",       "Comment" },
+                        { "KindTerminal",              "Comment" },
+                        { "KindType",                  "Comment" },
+                        { "KindTypeParameter",         "Comment" },
+                        { "KindUnit",                  "Comment" },
+                        { "KindValue",                 "Comment" },
+                        { "KindVariable",              "Comment" },
+                        { "KindWhileStatement",        "Comment" },
+
+                        ----DROPBAR ICON KIND-----------------------------------------------------------------------------------
+
+                        { "IconKindDefault",           "WinBar" },
+                        { "IconKindArray",             "@string" },
+                        { "IconKindBoolean",           "@lsp.type.boolean" },
+                        { "IconKindBreakstatement",    "DiagnosticError" },
+                        { "IconKindCall",              "@function.call" },
+                        { "IconKindCasestatement",     "Conditional" },
+                        { "IconKindClass",             "@lsp.type.class" },
+                        { "IconKindConstant",          "@constant" },
+                        { "IconKindConstructor",       "@constructor" },
+                        { "IconKindContinuestatement", "Conditional" },
+                        { "IconKindDeclaration",       "@lsp.type.type" },
+                        { "IconKindDelete",            "DiagnosticError" },
+                        { "IconKindDir",               "Function" },
+                        { "IconKindDostatement",       "@keyword" },
+                        { "IconKindElsestatement",     "Conditional" },
+                        { "IconKindElement",           "@variable.builtin" },
+                        { "IconKindEnum",              "@lsp.type.enum" },
+                        { "IconKindEnumMember",        "@lsp.type.enumMember" },
+                        { "IconKindEvent",             "@lsp.type.event" },
+                        { "IconKindField",             "@field" },
+                        { "IconKindFile",              "Comment" },
+                        { "IconKindFolder",            "Directory" },
+                        { "IconKindForStatement",      "@keyword.repeat" },
+                        { "IconKindFunction",          "@lsp.type.function" },
+                        { "IconKindH1Marker",          "MarkdownH1" },
+                        { "IconKindH2Marker",          "MarkdownH2" },
+                        { "IconKindH3Marker",          "MarkdownH3" },
+                        { "IconKindH4Marker",          "MarkdownH4" },
+                        { "IconKindH5Marker",          "MarkdownH5" },
+                        { "IconKindH6Marker",          "MarkdownH6" },
+                        { "IconKindIdentifier",        "Identifier" },
+                        { "IconKindIfStatement",       "Conditional" },
+                        { "IconKindInterface",         "@lsp.type.interface" },
+                        { "IconKindKeyword",           "@lsp.type.keyword" },
+                        { "IconKindList",              "@markup.list" },
+                        { "IconKindMacro",             "@lsp.type.macro" },
+                        { "IconKindMarkdownH1",        "MarkdownH1" },
+                        { "IconKindMarkdownH2",        "MarkdownH2" },
+                        { "IconKindMarkdownH3",        "MarkdownH3" },
+                        { "IconKindMarkdownH4",        "MarkdownH4" },
+                        { "IconKindMarkdownH5",        "MarkdownH5" },
+                        { "IconKindMarkdownH6",        "MarkdownH6" },
+                        { "IconKindMethod",            "@lsp.type.method" },
+                        { "IconKindModule",            "@module" },
+                        { "IconKindNamespace",         "@lsp.type.namespace" },
+                        { "IconKindNull",              "@lsp.type.boolean" },
+                        { "IconKindNumber",            "@lsp.type.number" },
+                        { "IconKindObject",            "@keyword.function" },
+                        { "IconKindOperator",          "@lsp.type.operator" },
+                        { "IconKindPackage",           "Conditional" },
+                        { "IconKindPair",              "@keyword" },
+                        { "IconKindProperty",          "@property" },
+                        { "IconKindReference",         "@keyword" },
+                        { "IconKindRepeat",            "@keyword.repeat" },
+                        { "IconKindReturn",            "@keyword.return" },
+                        { "IconKindRuleset",           "@include" },
+                        { "IconKindScope",             "@include" },
+                        { "IconKindSpecifier",         "@include" },
+                        { "IconKindStatement",         "Statement" },
+                        { "IconKindString",            "@string" },
+                        { "IconKindStruct",            "@lsp.type.struct" },
+                        { "IconKindSwitchstatement",   "Conditional" },
+                        { "IconKindTerminal",          "@string" },
+                        { "IconKindType",              "@lsp.type.type" },
+                        { "IconKindTypeParameter",     "@lsp.type.typeParameter" },
+                        { "IconKindUnit",              "@keyword" },
+                        { "IconKindValue",             "@text" },
+                        { "IconKindVariable",          "@lsp.type.variable" },
+                        { "IconKindWhileStatement",    "@keyword.repeat" },
+
+                }
+                require("core.utils").linkHl(groups, "DropBar")
         end,
 }

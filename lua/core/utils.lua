@@ -21,20 +21,15 @@ function M.uniqueKeymap(mode, lhs, rhs, opts)
         local success, _ = pcall(vim.keymap.set, mode, lhs, rhs, opts)
         if not success then
                 local modes = type(mode) == "table" and table.concat(mode, ", ") or mode
-                local msg   = ("**Duplicate keymap**\n[[%s]] %s"):format(modes, lhs)
+                local msg   = ("Duplicate keymap\n[%s] %s"):format(modes, lhs)
                 vim.defer_fn(
                         function()
-                                vim.notify(msg, vim.log.levels.WARN, { title = "Custom keymaps", timeout = false })
+                                vim.notify(msg, vim.log.levels.WARN, { title = "Keymaps", timeout = 4000 })
                         end, 1000)
         end
         pcall(vim.keymap.set, mode, lhs, rhs, opts)
 end
 
-function M.multiMap(mode, lhs, rhs, opts)
-        vim.keymap.set(mode, lhs, rhs, opts)
-end
-
----sets `buffer`, `silent` and `nowait` to true
 ---@param mode string|string[]
 ---@param lhs string
 ---@param rhs string|function
@@ -57,12 +52,24 @@ function M.supportsMethod(client)
         end
 end
 
+---get highlight values by name
 ---@param name string
 function M.getHl(name)
         return vim.api.nvim_get_hl(0, { name = name })
 end
 
 ----SMALL STUFF---------------------------------------------------------------------------------------------------------
+
+---link highlights in a table
+---@param groups table
+---@param shortName? string
+function M.linkHl(groups, shortName)
+        shortName = shortName or ""
+
+        for _, group in ipairs(groups) do
+                vim.api.nvim_set_hl(0, shortName .. group[1], { link = group[2] })
+        end
+end
 
 function M.getRowCol()
         local cursor = unpack(vim.api.nvim_win_get_cursor(0))
@@ -117,7 +124,7 @@ end
  * @param   Number  g       The green color value
  * @param   Number  b       The blue color value
  * @return  Array           The HSL representation
---]]
+]]
 function M.rgbToHsl(r, g, b)
         local max, min = math.max(r, g, b), math.min(r, g, b)
         local h        = 0
@@ -161,7 +168,7 @@ end
  * @param   Number  s       The saturation
  * @param   Number  l       The lightness
  * @return  Array           The RGB representation
---]]
+]]
 function M.hslToRgb(h, s, l)
         local r, g, b
 
@@ -217,10 +224,9 @@ end
  * @param   Number  s       The saturation
  * @param   Number  l       The lightness
  * @return  String           The hex representation
---]]
+]]
 
-------------------------------------------------------------------------------------------------------------------------
--- TREESITTER
+----TREESITTER----------------------------------------------------------------------------------------------------------
 -- borrowed forever from https://github.com/nfrid/treesitter-utils
 
 ---@param node TSNode
@@ -315,5 +321,5 @@ function M.allowBufferForAi(bufnr, filepath)
         end
 end
 
---------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
 return M

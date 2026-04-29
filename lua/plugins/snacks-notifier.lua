@@ -109,17 +109,17 @@ return {
         "folke/snacks.nvim",
         keys   = {
                 -- { "<C-n>", function() Snacks.notifier.show_history() end, desc = "Notification History" },
-                { "<C-n>", function() openNotif("last") end, desc = "󰎟 Last notification" },
+                -- { "<C-n>", function() openNotif("last") end, desc = "󰎟 Last notification" },
                 { "<leader><leader>n", function() Snacks.picker.notifications() end, desc = "󰎟 Notification history" },
-                {
-                        "<Esc>",
-                        function()
-                                Snacks.notifier.hide()
-                                vim.snippet.stop()
-                        end,
-                        mode = { "n" },
-                        desc = "Dismiss notice & exit snippet",
-                },
+                -- {
+                --         "<Esc>",
+                --         function()
+                --                 Snacks.notifier.hide()
+                --                 vim.snippet.stop()
+                --         end,
+                --         mode = { "n" },
+                --         desc = "Dismiss notice & exit snippet",
+                -- },
         },
         opts   = {
                 picker   = {

@@ -24,7 +24,7 @@ require("lazy").setup({
                 title       = " lazy.nvim ",
                 wrap        = true,
                 backdrop    = Config.backdrop,
-                border      = Border.borderStyle,
+                border      = Border.borderStyleNone,
                 pills       = false,
                 size        = { width = 0.80, height = 0.9 },
                 custom_keys = {
@@ -76,11 +76,11 @@ require("lazy.view.config").keys.details = "<Tab>"
 
 ----KEYMAPS FOR NVIM TRIGGERING LAZY------------------------------------------------------------------------------------
 
-local map = require("core.utils").uniqueKeymap
+local keymap = require("core.utils").uniqueKeymap
 
-map("n", "<leader>pp", require("lazy").sync,    { desc = "󰒲 Lazy Sync" })
-map("n", "<leader>pl", require("lazy").home,    { desc = "󰒲 Lazy Home" })
-map("n", "<leader>pi", require("lazy").install, { desc = "󰒲 Lazy Install" })
+keymap("n", "<leader>pp", require("lazy").sync,    { desc = "󰒲 Lazy Sync" })
+keymap("n", "<leader>pl", require("lazy").home,    { desc = "󰒲 Lazy Home" })
+keymap("n", "<leader>pi", require("lazy").install, { desc = "󰒲 Lazy Install" })
 
 local pluginTypeIcons = {
         ["ai-plugins"]              = "󰚩",
@@ -104,54 +104,65 @@ local pluginTypeIcons = {
 
 ----GOTO PLUGIN SPEC----------------------------------------------------------------------------------------------------
 
-map("n", "<leader><leader>,", function()
-            vim.api.nvim_create_autocmd("FileType", {
-                    desc     = "User (once): Colorize icons in `TelescopeResults`",
-                    once     = true,
-                    pattern  = "TelescopeResults",
-                    callback = function() vim.fn.matchadd("Title", [[^..\zs.]]) end,
-            })
-            local spec_root  = require("lazy.core.config").options.spec.import
-            local spec_path  = vim.fn.stdpath("config") .. "/lua/" .. spec_root
-            local spec_files = vim.fs.dir(spec_path)
+keymap("n", "<leader><leader>,", function()
+               vim.api.nvim_create_autocmd("FileType", {
+                       desc     = "User (once): Colorize icons in `TelescopeResults`",
+                       once     = true,
+                       pattern  = "TelescopeResults",
+                       callback = function() vim.fn.matchadd("Title", [[^..\zs.]]) end,
+               })
+               local spec_root  = require("lazy.core.config").options.spec.import
+               local spec_path  = vim.fn.stdpath("config") .. "/lua/" .. spec_root
+               local spec_files = vim.fs.dir(spec_path)
 
-            local all_plugins = vim.iter(spec_files):fold({}, function(acc, name, _)
-                    if not vim.endswith(name, ".lua") then return acc end
-                    local module_name = name:gsub("%.lua$", "")
-                    local module      = require(spec_root .. "." .. module_name)
-                    if type(module[1]) ~= "table" then module = { module } end
-                    local plugins = vim.iter(module)
-                               :map(function(plugin) return { repo = plugin[1], module = module_name } end)
-                               :totable()
-                    return vim.list_extend(acc, plugins)
-            end)
+               local all_plugins = vim.iter(spec_files):fold({}, function(acc, name, _)
+                       if not vim.endswith(name, ".lua") then
+                               return acc
+                       end
 
-            vim.ui.select(all_plugins, {
-                                  prompt      = "󰒲 Goto Config",
-                                  format_item = function(plugin)
-                                          local icon = pluginTypeIcons[plugin.module] or "󱧕"
-                                          return icon .. " " .. vim.fs.basename(plugin.repo)
-                                  end,
-                          },
-                          function(plugin)
-                                  if not plugin then return end
-                                  local filepath = spec_path .. "/" .. plugin.module .. ".lua"
-                                  local repo     = plugin.repo:gsub("/", "\\/")
-                                  vim.cmd(("edit +/%q %s"):format(repo, filepath))
-                          end)
-    end, { desc = "󰒲 Goto Plugin Config" })
+                       local module_name = name:gsub("%.lua$", "")
+                       local module      = require(spec_root .. "." .. module_name)
+
+                       if type(module[1]) ~= "table" then
+                               module = { module }
+                       end
+
+                       local plugins = vim.iter(module)
+                                  :map(function(plugin) return { repo = plugin[1], module = module_name } end)
+                                  :totable()
+                       return vim.list_extend(acc, plugins)
+               end)
+
+               vim.ui.select(all_plugins, {
+                                     prompt      = "󰒲 Goto Config",
+                                     format_item = function(plugin)
+                                             local icon = pluginTypeIcons[plugin.module] or "󱧕"
+                                             return icon .. " " .. vim.fs.basename(plugin.repo)
+                                     end,
+                             },
+                             function(plugin)
+                                     if not plugin then
+                                             return
+                                     end
+
+                                     local filepath = spec_path .. "/" .. plugin.module .. ".lua"
+                                     local repo     = plugin.repo:gsub("/", "\\/")
+
+                                     vim.cmd(("edit +/%q %s"):format(repo, filepath))
+                             end)
+       end, { desc = "󰒲 Goto Plugin Config" })
 
 ----GOTO LOCAL PLUGIN CODE----------------------------------------------------------------------------------------------
 
-map("n", "<leader><leader>p", function()
-            vim.ui.select(
-                    require("lazy").plugins(),
-                    { prompt = "󰒲 Local Code", format_item = function(plugin) return plugin.name end },
-                    function(plugin)
-                            if not plugin then return end
-                            Snacks.picker.files{ prompt_title = plugin.name, cwd = plugin.dir }
-                    end)
-    end, { desc = "󰒲 Local Plugin Code" })
+keymap("n", "<leader><leader>p", function()
+               vim.ui.select(
+                       require("lazy").plugins(),
+                       { prompt = "󰒲 Local Code", format_item = function(plugin) return plugin.name end },
+                       function(plugin)
+                               if not plugin then return end
+                               Snacks.picker.files{ prompt_title = plugin.name, cwd = plugin.dir }
+                       end)
+       end, { desc = "Local Plugin Code" })
 
 ----TEST FOR DUPLICATE KEYS---------------------------------------------------------------------------------------------
 
@@ -183,7 +194,7 @@ local function checkForDuplicateKeys()
                                            end
 
                                            if already_mapped[mode][lhs] then
-                                                   local msg = ("Duplicate keymap: [%s (%s)]"):format(lhs, mode)
+                                                   local msg = ("Duplicate keymap: %s (%s)"):format(lhs, mode)
                                                    vim.notify(msg, vim.log.levels.WARN,
                                                               { title = "lazy.nvim", timeout = 4000 })
                                            else
@@ -195,3 +206,4 @@ local function checkForDuplicateKeys()
 end
 
 vim.defer_fn(checkForDuplicateKeys, 5000)
+vim.api.nvim_set_hl(0, "LazyNormal", { link = "Normal" })

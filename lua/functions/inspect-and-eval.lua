@@ -11,16 +11,16 @@ local notify = vim.notify
 function M.bufferInfo()
         local pseudo_tilde = "∼"
 
-        local clients     = lsp.get_clients{ bufnr = 0 }
+        local clients      = lsp.get_clients{ bufnr = 0 }
         local longest_name = vim.iter(clients)
                    :fold(0, function(acc, client) return math.max(acc, #client.name) end)
-        local lsps        = vim.tbl_map(function(client)
-                                                local pad = (" "):rep(math.min(longest_name - #client.name)) .. " "
-                                                local root = client.root_dir and
-                                                           client.root_dir:gsub("/Users/%w+", pseudo_tilde)
-                                                           or "*Single file mode*"
-                                                return ("[%s]%s%s"):format(client.name, pad, root)
-                                        end, clients)
+        local lsps         = vim.tbl_map(function(client)
+                                                 local pad = (" "):rep(math.min(longest_name - #client.name)) .. " "
+                                                 local root = client.root_dir and
+                                                            client.root_dir:gsub("/Users/%w+", pseudo_tilde)
+                                                            or "*Single file mode*"
+                                                 return ("[%s]%s%s"):format(client.name, pad, root)
+                                         end, clients)
 
         local indent_type   = bo.expandtab and "spaces" or "tabs"
         local indent_amount = bo.expandtab and bo.tabstop or bo.shiftwidth
@@ -65,7 +65,7 @@ function M.nodeAtCursor()
 
         local start_row, start_col = node:start()
         local end_row, end_col     = node:end_()
-        local ns                 = api.nvim_create_namespace("node-highlight")
+        local ns                   = api.nvim_create_namespace("node-highlight")
         if start_row == end_row then
                 api.nvim_buf_add_highlight(0, ns, config.hlGroup, start_row, start_col, end_col)
         else
@@ -110,15 +110,22 @@ function M.lspCapabilities()
 end
 
 function M.evalNvimLua()
+        local devicons = require("nvim-web-devicons")
+        local ft_icon  = devicons.get_icon_color("lua")
         local function eval(input)
-                if not input or input == "" then return end
+                if not input or input == "" then
+                        return
+                end
+
                 local out  = fn.luaeval(input)
-                local opts = { title = "Eval", icon = "", ft = "lua" }
+                local opts = { title = "Eval", icon = ft_icon, ft = "lua" }
+
                 notify(vim.inspect(out), vim.log.levels.DEBUG, opts)
         end
 
         if fn.mode() == "n" then
-                vim.ui.input({ prompt = " Eval: ", win = { ft = "lua" } }, eval)
+                -- vim.ui.input({ prompt = " Eval: ", win = { ft = "lua" } }, eval)
+                vim.ui.input({ icon = ft_icon, prompt = "", win = { ft = "lua" } }, eval)
         else
                 cmd.normal{ '"zy', bang = true }
                 eval(fn.getreg("z"))
@@ -128,7 +135,7 @@ end
 function M.runFile()
         cmd("silent update")
         local has_shebang = api.nvim_buf_get_lines(0, 0, 1, false)[1]:find("^#!")
-        local filepath   = api.nvim_buf_get_name(0)
+        local filepath    = api.nvim_buf_get_name(0)
         if bo.filetype == "lua" and filepath:find("nvim") then
                 cmd.source()
                 -- elseif bo.filetype == "lua" and fn.finddir("love2d", nil, nil) then
