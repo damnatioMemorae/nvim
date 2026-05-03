@@ -13,7 +13,7 @@ local function get_lsp_items(params)
                 for _, obj in ipairs(results) do
                         local result = obj.result
                         if result then
-                                items = vim
+                                items = hl
                                     .iter(result.items)
                                     :filter(function(item)
                                             return item.kind == lsp.protocol.CompletionItemKind.EnumMember

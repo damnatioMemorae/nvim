@@ -23,18 +23,16 @@ local function addDocstring()
                 vim.api.nvim_win_set_cursor(0, { ln + 1, #indent + 3 })
                 vim.cmd.startinsert()
         elseif ft == "javascript" then
-                vim.cmd.normal{ "t)", bang = true } -- go to parameter, since cursor has to be on diagnostic for code action
+                vim.cmd.normal{ "t)", bang = true }
                 vim.lsp.buf.code_action{
                         filter = function(action) return action.title == "Infer parameter types from usage" end,
                         apply  = true,
                 }
-                -- goto docstring (deferred, so code action can finish first)
                 vim.defer_fn(function()
                                      vim.api.nvim_win_set_cursor(0, { ln + 1, 0 })
                                      vim.cmd.normal{ "t)", bang = true }
                              end, 100)
         elseif ft == "typescript" then
-                -- add TSDoc
                 vim.api.nvim_buf_set_lines(0, ln - 1, ln - 1, false, { indent .. "/**  */" })
                 vim.api.nvim_win_set_cursor(0, { ln, #indent + 4 })
                 vim.cmd.startinsert()
@@ -50,7 +48,6 @@ local function addDocstring()
                            :map(function(param) return ("%s---@param %s any"):format(indent, param) end)
                            :totable()
                 vim.api.nvim_buf_set_lines(0, ln - 1, ln - 1, false, luadoc_lines)
-                -- goto 1st param type & edit it
                 vim.api.nvim_win_set_cursor(0, { ln, #luadoc_lines[1] })
                 vim.cmd.normal{ '"_ciw', bang = true }
                 vim.cmd.startinsert{ bang = true }
@@ -82,14 +79,13 @@ return {
         dependencies = "nvim-treesitter",
         branch       = "main",
         keys         = {
-                ----COMMENTS--------------------------------------------------------------------------------------------
+                ---- COMMENTS ------------------------------------------------------------------------------------------
 
                 { "q", select("comment", "outer"), mode = "o", desc = "󰆈 single comment" },
                 { "qf", addDocstring, desc = "󰆈 add docstring" },
                 { -- CHANGE SINGLE COMMENT
                         "cq",
                         function()
-                                -- not using `@comment.inner`, since not supported for many languages
                                 local select_obj = require("nvim-treesitter-textobjects.select").select_textobject
                                 select_obj("@comment.outer", "textobjects")
                                 local com_str = vim.bo.commentstring:format("")
@@ -101,8 +97,6 @@ return {
                 { -- STICKY DELETE COMMENT
                         "dq",
                         function()
-                                -- as opposed to regular usage of the textobj, also trims the line
-                                -- and preserves the cursor position
                                 local cursor_before = vim.api.nvim_win_get_cursor(0)
                                 local select_obj = require("nvim-treesitter-textobjects.select").select_textobject
                                 select_obj("@comment.outer", "textobjects")
@@ -114,7 +108,7 @@ return {
                         desc = "󰆈 Sticky delete single comment",
                 },
 
-                ----MOVE------------------------------------------------------------------------------------------------
+                ---- MOVE ----------------------------------------------------------------------------------------------
 
                 { "<A-q>", function() gotoObj("comment", "outer", "next") end, mode = mode, desc = " Goto next comment" },
                 { "<A-Q>", function() gotoObj("comment", "outer", "prev") end, mode = mode, desc = " Goto prev comment" },
@@ -135,7 +129,7 @@ return {
                 { "<A-t>", function() gotoObj("assignment", "outer", "next") end, mode = mode, desc = icon.Type .. "Goto next type" },
                 { "<A-T>", function() gotoObj("assignment", "outer", "prev") end, mode = mode, desc = icon.Type .. "Goto prev type" },
 
-                ----SWAP------------------------------------------------------------------------------------------------
+                ---- SWAP ----------------------------------------------------------------------------------------------
 
                 { "<A-}>", function() swapObj("parameter", "inner", "next") end, desc = icon.Parameter .. "Swap arg" },
                 { "<A-{>", function() swapObj("parameter", "inner", "prev") end, desc = icon.Parameter .. "Swap arg" },
@@ -143,7 +137,7 @@ return {
                 { "<A-}>", function() swapObj("md_section", "inner", "next") end, desc = icon.Parameter .. "Swap arg", ft = "markdown" },
                 { "<A-{>", function() swapObj("md_section", "inner", "prev") end, desc = icon.Parameter .. "Swap arg", ft = "markdown" },
 
-                ----TEXT OBJECTS----------------------------------------------------------------------------------------
+                ---- TEXT OBJECTS --------------------------------------------------------------------------------------
 
                 { "a/", select("regex", "outer"), mode = { "x", "o" }, desc = icon.Regex .. "outer regex" },
                 { "i/", select("regex", "inner"), mode = { "x", "o" }, desc = icon.Regex .. "inner regex" },

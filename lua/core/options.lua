@@ -5,12 +5,7 @@ local opt  = vim.opt
 vim.g.mapleader      = " "
 vim.g.maplocalleader = ","
 
--- vim.cmd("filetype plugin indent on")
--- if vim.fn.exists("syntax_on") ~= 1 then
---         vim.cmd("syntax enable")
--- end
-
-----FILETYPES-----------------------------------------------------------------------------------------------------------
+---- FILETYPES ---------------------------------------------------------------------------------------------------------
 
 vim.filetype.add{
         extension = { rasi = "rasi", rofi = "rasi", wofi = "rasi" },
@@ -44,7 +39,7 @@ local cursor = {
         "a:blinkwait500-blinkoff500-blinkon500",
 }
 
-----GENERAL-------------------------------------------------------------------------------------------------------------
+---- GENERAL -----------------------------------------------------------------------------------------------------------
 opt.autowriteall   = false
 opt.autowrite      = false
 opt.cmdheight      = 0
@@ -81,12 +76,12 @@ opt.wrapmargin     = 120
 opt.updatetime     = 2000
 opt.redrawtime     = 2000
 
-----BACKUP--------------------------------------------------------------------------------------------------------------
+---- BACKUP ------------------------------------------------------------------------------------------------------------
 opt.backup      = false
 opt.swapfile    = false
 opt.writebackup = false
 
-----LAYOUT--------------------------------------------------------------------------------------------------------------
+---- LAYOUT ------------------------------------------------------------------------------------------------------------
 opt.inccommand    = "nosplit"
 opt.incsearch     = true
 opt.pumheight     = 20
@@ -96,17 +91,17 @@ opt.sidescrolloff = 4
 opt.splitbelow    = true
 opt.splitright    = true
 
-----EDIT----------------------------------------------------------------------------------------------------------------
+---- EDIT --------------------------------------------------------------------------------------------------------------
 opt.clipboard   = "unnamedplus"
 opt.completeopt = "menu,menuone,noselect"
 opt.ignorecase  = true
 opt.iskeyword   = opt.iskeyword:append("@,48-57,_,-,192-255")
 opt.smartcase   = true
 
-----FOLD----------------------------------------------------------------------------------------------------------------
+---- FOLD --------------------------------------------------------------------------------------------------------------
 opt.list = true
 
-----UI------------------------------------------------------------------------------------------------------------------
+---- UI ----------------------------------------------------------------------------------------------------------------
 opt.cursorline    = true
 opt.guicursor     = table.concat(cursor, ",")
 opt.hlsearch      = false
@@ -120,28 +115,28 @@ opt.showbreak     = " 󰘍 "
 opt.smoothscroll  = true
 opt.termguicolors = true
 opt.fillchars     = {
-        fold = " ",
-        vert = "│",
-        eob = " ",
+        fold      = " ",
+        vert      = "│",
+        eob       = " ",
         foldclose = arr.close,
-        foldopen = arr.open,
-        foldsep = "│",
+        foldopen  = arr.open,
+        foldsep   = "│",
         foldinner =
         " ",
-        diff = "╱",
+        diff      = "╱",
 }
 opt.listchars     = {
-        nbsp = "_",
-        precedes = misc.ellipsis,
-        extends = misc.ellipsis,
+        nbsp       = "_",
+        precedes   = misc.ellipsis,
+        extends    = misc.ellipsis,
         multispace = " ",
-        lead = " ",
-        trail =
+        lead       = " ",
+        trail      =
         " ",
-        tab = "  ",
+        tab        = "  ",
 }
 
-----TABSPACE------------------------------------------------------------------------------------------------------------
+---- TABSPACE ----------------------------------------------------------------------------------------------------------
 opt.autoindent  = true
 opt.breakindent = true
 opt.copyindent  = true

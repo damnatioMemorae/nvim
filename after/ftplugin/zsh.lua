@@ -1,22 +1,22 @@
--- ABBREVIATIONS
+---- ABBREVIATIONS -----------------------------------------------------------------------------------------------------
+
 local abbr = require("core.utils").bufAbbrev
 
-abbr("//", "#")
+abbr("//",    "#")
 abbr("delay", "sleep")
 abbr("const", "local")
-abbr("~=", "=~") -- lua uses `=~`
+abbr("~=",    "=~") -- lua uses `=~`
 
---------------------------------------------------------------------------------
--- KEYMAPS
+---- KEYMAPS -----------------------------------------------------------------------------------------------------------
+
 local bkeymap = require("core.utils").bufKeymap
 
 bkeymap("n", "<A-s>", function()
-    vim.cmd([[% substitute_/Users/\w\+/_$HOME/_e]]) -- replace `/Users/…` with `$HOME/`
-    vim.lsp.buf.format()
-end, { desc = " Format" })
+                vim.cmd([[% substitute_/Users/\w\+/_$HOME/_e]]) -- replace `/Users/…` with `$HOME/`
+                vim.lsp.buf.format()
+        end, { desc = " Format" })
 
---------------------------------------------------------------------------------
--- SHELL SYNTAX HIGHLIGHT
+---- SHELL SYNTAX HIGHLIGHTING -----------------------------------------------------------------------------------------
 
 vim.cmd(" highlight @keyword.conditional.bash guifg=#74c7ec ")
 vim.cmd(" highlight @keyword.repeat.bash      guifg=#74c7ec ")

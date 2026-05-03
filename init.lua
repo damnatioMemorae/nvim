@@ -6,7 +6,6 @@ end
 
 vim.cmd("packadd nvim.undotree")
 
----Safe wrapper for `require()` function
 ---@param module string module name
 local function safeRequire(module)
         local success, errmsg = pcall(require, module)
@@ -23,19 +22,13 @@ safeRequire("functions.statuscol")
 
 safeRequire("core.lsp")
 safeRequire("core.ui2")
+safeRequire("core.statusline")
 
 if not vim.env.NO_PLUGINS then
         safeRequire("core.lazy")
         if vim.g.setColorscheme then
                 vim.g.setColorscheme("init")
         end
-end
-
-if pcall(require, "incline") then
-        vim.o.laststatus = 0
-        vim.o.statusline = " "
-else
-        safeRequire("core.statusline")
 end
 
 safeRequire("core.keymaps")

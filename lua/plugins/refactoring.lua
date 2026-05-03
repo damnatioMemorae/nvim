@@ -30,18 +30,26 @@ return {
                         show_success_message    = true,
                 })
 
-                local mode   = { "n", "x" }
-                local rf     = require("refactoring")
-                local keymap = require("core.utils").uniqueKeymap
+                local k = require("core.utils").uniqueKeymap
+                local d = require("refactoring.debug")
+                local r = require("refactoring")
+                local m = { "n", "x" }
 
-                keymap(mode, "<leader>fi", function() return rf.refactor("Inline Variable") end,          { expr = true })
-                keymap(mode, "<leader>fe", function() return rf.refactor("Extract Variable") end,         { expr = true })
-                keymap(mode, "<leader>fu", function() return rf.refactor("Extract Function") end,         { expr = true })
-                keymap(mode, "<leader>fU", function() return rf.refactor("Extract Function To File") end, { expr = true })
+                k(m, "<leader>fi", function() return r.inline_var() end,           { expr = true })
+                k(m, "<leader>fe", function() return r.extract_var() end,          { expr = true })
+                k(m, "<leader>fu", function() return r.extract_func() .. "_" end,  { expr = true })
+                k(m, "<leader>fU", function() return r.extract_func_to_file() end, { expr = true })
 
-                keymap({ "n" }, "<leader>rc",     function() return rf.debug.cleanup() end)
-                keymap({ "n" }, "<leader>rp",     function() return rf.debug.printf({ below = false }) end)
-                keymap(mode,    "<leader>rv",     function() return rf.debug.print_var() end)
-                keymap(mode,    "<LocalLeader>z", function() return rf.select_refactor({ prefer_ex_cmd = true }) end)
+                -- k(m, "<leader>fi", function() return r.refactor("Inline Variable") end,          { expr = true })
+                -- k(m, "<leader>fe", function() return r.refactor("Extract Variable") end,         { expr = true })
+                -- k(m, "<leader>fu", function() return r.refactor("Extract Function") end,         { expr = true })
+                -- k(m, "<leader>fU", function() return r.refactor("Extract Function To File") end, { expr = true })
+
+                k(m, "<leader>pv", function() return d.print_var({ output_location = "below", expr = true }) end)
+                k(m, "<leader>pV", function() return d.print_var({ output_location = "above", expr = true }) end)
+                -- k({ "n" }, "<leader>rp", function() return d.printf({ below = false }) end)
+                k({ "n" }, "<leader>pc", function() return d.cleanup({ restore_view = true }) end)
+
+                k(m, "<LocalLeader>z", function() return r.select_refactor() end)
         end,
 }

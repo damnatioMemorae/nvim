@@ -2,7 +2,7 @@ local groups = {
         { "@keyword.type.cpp",                        "@keyword" },
         { "@keyword.import.cpp",                      "Preproc" },
         { "@keyword.repeat.cpp",                      "@keyword.repeat" },
-        { "@keyword.return.cpp",                      "cppStatement" },
+        { "@keyword.return.cpp",                      "Statement" },
         { "@keyword.modifier.cpp",                    "@modifier" },
         { "@keyword.operator.cpp",                    "@keyword.operator" },
         { "@keyword.conditional.cpp",                 "@keyword.conditional" },

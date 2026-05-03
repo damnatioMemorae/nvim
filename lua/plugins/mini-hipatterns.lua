@@ -31,7 +31,7 @@ local words = {
 }
 
 return {
-        "mini-nvim/mini.hipatterns",
+        "nvim-mini/mini.hipatterns",
         version = false,
         event   = "VeryLazy",
         config  = function()
@@ -43,25 +43,12 @@ return {
                         return hipatterns.compute_hex_color_group(hex, "bg")
                 end
 
-                local function hslToHex(h, s, l)
-                        -- Actually convert h, s, l numbers into hex color in '#RRGGBB' format
-                        return "#111111"
-                end
-
-                local function hslColor(_, match)
-                        local h, s, l   = match:match("hsl%((%d+) (%d+)%% (%d+)%%%)")
-                        h, s, l         = tonumber(h), tonumber(s), tonumber(l)
-                        local hex_color = hslToHex(h, s, l)
-                        return hipatterns.compute_hex_color_group(hex_color, "bg")
-                end
-
                 hipatterns.setup({
                         highlighters = {
                                 hex_color  = hipatterns.gen_highlighter.hex_color(),
                                 word_color = { pattern = "%f[%w]()%S+()%f[%W]", group = wordColorGroup },
                                 hsl_color  = {
                                         pattern = "hsl%(%d+,? %d+,? %d+%)",
-                                        -- group  = hsl_color()
                                         group   = function(_, match)
                                                 local utils     = require("core.utils")
                                                 local h, s, l   = match:match("hsl%((%d+),? (%d+),? (%d+)%)")

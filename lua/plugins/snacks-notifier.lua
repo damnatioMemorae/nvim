@@ -1,17 +1,14 @@
----@param name string
-local function h(name)
-        vim.api.nvim_get_hl(0, { name = name })
-end
+local h = require("core.utils").getHl
 
-vim.api.nvim_set_hl(0, "SnacksNotifierBorderInfo",  { fg = h("DiagnosticInfo"), bg = h("NormalFloat") })
-vim.api.nvim_set_hl(0, "SnacksNotifierBorderWarn",  { fg = h("DiagnosticWarn"), bg = h("NormalFloat") })
-vim.api.nvim_set_hl(0, "SnacksNotifierBorderError", { fg = h("DiagnosticError"), bg = h("NormalFloat") })
+vim.api.nvim_set_hl(0, "SnacksNotifierBorderInfo",  { fg = h("DiagnosticInfo").fg, bg = h("NormalFloat").bg })
+vim.api.nvim_set_hl(0, "SnacksNotifierBorderWarn",  { fg = h("DiagnosticWarn").fg, bg = h("NormalFloat").bg })
+vim.api.nvim_set_hl(0, "SnacksNotifierBorderError", { fg = h("DiagnosticError").fg, bg = h("NormalFloat").bg })
 vim.api.nvim_set_hl(0, "SnacksNotifierBorderTrace", { link = "FloatBorder" })
 vim.api.nvim_set_hl(0, "SnacksNotifierBorderDebug", { link = "FloatBorder" })
 
-vim.api.nvim_set_hl(0, "SnacksNotifierFooterInfo",  { fg = h("DiagnosticInfo"), bg = h("NormalFloat") })
-vim.api.nvim_set_hl(0, "SnacksNotifierFooterWarn",  { fg = h("DiagnosticWarn"), bg = h("NormalFloat") })
-vim.api.nvim_set_hl(0, "SnacksNotifierFooterError", { fg = h("DiagnosticError"), bg = h("NormalFloat") })
+vim.api.nvim_set_hl(0, "SnacksNotifierFooterInfo",  { fg = h("DiagnosticInfo").fg, bg = h("NormalFloat").bg })
+vim.api.nvim_set_hl(0, "SnacksNotifierFooterWarn",  { fg = h("DiagnosticWarn").fg, bg = h("NormalFloat").bg })
+vim.api.nvim_set_hl(0, "SnacksNotifierFooterError", { fg = h("DiagnosticError").fg, bg = h("NormalFloat").bg })
 vim.api.nvim_set_hl(0, "SnacksNotifierFooterTrace", { link = "NormalFloat" })
 vim.api.nvim_set_hl(0, "SnacksNotifierFooterDebug", { link = "NormalFloat" })
 
@@ -21,7 +18,7 @@ vim.api.nvim_set_hl(0, "SnacksNotifierTitleError", { link = "DiagnosticError" })
 vim.api.nvim_set_hl(0, "SnacksNotifierTitleDebug", { link = "NormalFloat" })
 vim.api.nvim_set_hl(0, "SnacksNotifierTitleTrace", { link = "NormalFloat" })
 
-vim.api.nvim_set_hl(0, "SnacksNotifierMinimal", { fg = h("DiagnosticInfo"), bg = h("NormalFloat") })
+vim.api.nvim_set_hl(0, "SnacksNotifierMinimal", { fg = h("DiagnosticInfo").fg, bg = h("NormalFloat").bg })
 
 ---@param idx number|"last"
 local function openNotif(idx)
@@ -107,20 +104,7 @@ end
 
 return {
         "folke/snacks.nvim",
-        keys   = {
-                -- { "<C-n>", function() Snacks.notifier.show_history() end, desc = "Notification History" },
-                -- { "<C-n>", function() openNotif("last") end, desc = "󰎟 Last notification" },
-                { "<leader><leader>n", function() Snacks.picker.notifications() end, desc = "󰎟 Notification history" },
-                -- {
-                --         "<Esc>",
-                --         function()
-                --                 Snacks.notifier.hide()
-                --                 vim.snippet.stop()
-                --         end,
-                --         mode = { "n" },
-                --         desc = "Dismiss notice & exit snippet",
-                -- },
-        },
+        keys   = { { "<leader><leader>n", function() Snacks.picker.notifications() end, desc = "󰎟 Notification history" } },
         opts   = {
                 picker   = {
                         sources = {
@@ -175,7 +159,7 @@ return {
                                 return
                         end
 
-                        if vim.startswith(msg, "[nvim-treesitter/") then
+                        if vim.startswithl(msg, "[nvim-treesitter/") then
                                 notiOpts = { id = "treesitter-update" }
                         end
                         Snacks.notifier(msg, lvl, notiOpts)

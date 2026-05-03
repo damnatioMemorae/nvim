@@ -1,8 +1,10 @@
 return {
         "saghen/blink.cmp",
-        event        = "InsertEnter",
-        build        = "cargo build --release",
-        dependencies = { "cushycush/quickshell-completions.nvim", "niuiic/blink-cmp-rg.nvim" },
+        event        = "VeryLazy",
+        dependencies = { "saghen/blink.lib", "cushycush/quickshell-completions.nvim", "niuiic/blink-cmp-rg.nvim" },
+        build        = function()
+                require("blink.cmp").build():wait(60000)
+        end,
         opts         = {
                 -- snippets   = { preset = "luasnip" },
                 cmdline    = { enabled = false },
@@ -60,19 +62,14 @@ return {
                         },
                 },
                 fuzzy      = {
-                        implementation    = "prefer_rust_with_warning",
-                        max_typos         = 3,
-                        frecency          = {
+                        implementation = "prefer_rust_with_warning",
+                        max_typos      = 3,
+                        frecency       = {
                                 enabled = true,
                                 path    = vim.fn.stdpath("state") .. "/blink/cmp/frecency.dat",
                         },
-                        use_proximity     = true,
-                        sorts             = { "exact", "score", "sort_text" },
-                        prebuilt_binaries = {
-                                download                = false,
-                                ignore_version_mismatch = false,
-                                force_version           = "1.*",
-                        },
+                        use_proximity  = true,
+                        sorts          = { "exact", "score", "sort_text" },
                 },
                 sources    = {
                         default            = { "lsp", "snippets", "path", "buffer" },
@@ -117,7 +114,6 @@ return {
                                                 show_autosnippets     = true,
                                                 use_show_condition    = true,
                                                 use_label_description = true,
-                                                -- search_paths          = { require("quickshell-completions").get_snippet_path() },
                                         },
                                 },
                                 path       = {
@@ -166,7 +162,7 @@ return {
                                         max_items    = 4,
                                         opts         = {
                                                 prefix_min_len = 3,
-                                                get_command    = function(context, prefix) ---@diagnostic disable-line: unused-local
+                                                get_command    = function(_context, prefix)
                                                         return {
                                                                 "rg",
                                                                 "--no-config",
@@ -178,8 +174,8 @@ return {
                                                                 vim.fs.root(0, ".git") or vim.fn.getcwd(),
                                                         }
                                                 end,
-                                                get_prefix     = function(context)
-                                                        return context.line:sub(1, context.cursor[2]):match("[%w_-]+$") or
+                                                get_prefix     = function(_context)
+                                                        return _context.line:sub(1, _context.cursor[2]):match("[%w_-]+$") or
                                                                    ""
                                                 end,
                                         },

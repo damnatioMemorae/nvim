@@ -1,15 +1,20 @@
-local keymap = require("core.utils").uniqueKeymap
+local utils  = require("core.utils")
+local keymap = utils.uniqueKeymap
+local play   = utils.playSound
 
-----OPTIONS-------------------------------------------------------------------------------------------------------------
+---- OPTIONS -----------------------------------------------------------------------------------------------------------
 
 vim.api.nvim_create_autocmd("TextYankPost", {
         desc     = "User: Highlighted Yank",
-        callback = function() vim.highlight.on_yank{ timeout = 100 } end,
+        callback = function()
+                play("pickup")
+                vim.highlight.on_yank{ timeout = 100 }
+        end,
 })
 
 keymap("n", "<C-y>", ":%y<CR>", { desc = " Yank all", silent = true })
 
-----YANK----------------------------------------------------------------------------------------------------------------
+---- YANK --------------------------------------------------------------------------------------------------------------
 
 do -- STICKY YANK
         keymap({ "n", "x" }, "y", function()
@@ -48,7 +53,7 @@ do -- YANKRING
         })
 end
 
-----KEEP THE REGISTER CLEAN---------------------------------------------------------------------------------------------
+---- KEEP THE REGISTER CLEAN -------------------------------------------------------------------------------------------
 
 keymap({ "n", "x" }, "x", '"_x')
 keymap({ "n", "x" }, "c", '"_c')
@@ -59,7 +64,7 @@ keymap("n", "dd", function()
                return (line_empty and '"_dd' or "dd")
        end, { expr = true })
 
-----PASTE---------------------------------------------------------------------------------------------------------------
+---- PASTE -------------------------------------------------------------------------------------------------------------
 
 keymap("n", "<C-p>", function()
                local cur_line = vim.api.nvim_get_current_line():gsub("%s*$", "")
@@ -73,7 +78,7 @@ keymap("i", "<C-v>", function()
                return "<C-g>u<C-r><C-o>+"
        end, { desc = " Paste charwise", expr = true })
 
-----SPECIAL YANK OPERATIONS---------------------------------------------------------------------------------------------
+---- SPECIAL YANK OPERATIONS -------------------------------------------------------------------------------------------
 
 keymap("n", "<leader>yl", function()
                vim.ui.input({ prompt = "󰅍 Yank lines matching:" }, function(input)

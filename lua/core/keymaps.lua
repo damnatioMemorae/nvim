@@ -20,7 +20,7 @@ local nio   = { "n", "i", "o" }
 local nxvo  = { "n", "x", "c", "v", "o" }
 local nxcvo = { "n", "x", "c", "v", "o" }
 
-----META----------------------------------------------------------------------------------------------------------------
+---- META --------------------------------------------------------------------------------------------------------------
 
 keymap(nx, prefix .. "k", "<cmd>help!<CR>", { desc = "󰝰 Help" })
 
@@ -36,7 +36,7 @@ keymap(n, "<C-,>", function()
                vim.cmd.edit(path_of_this_lua_file)
        end, { desc = "󰌌 Edit keybindings", unique = false })
 
-----NAVIGATION----------------------------------------------------------------------------------------------------------
+---- NAVIGATION --------------------------------------------------------------------------------------------------------
 
 keymap(n, "_", "0")
 
@@ -83,12 +83,12 @@ map(n, "f", function() nano.fF("f") end, { desc = "f" })
 map(n, "F", function() nano.fF("F") end, { desc = "F" })
 --]]
 
-----EDITING-------------------------------------------------------------------------------------------------------------
+---- EDITING -----------------------------------------------------------------------------------------------------------
 
 -- Undo
 keymap(n, "<LocalLeader>u", "<cmd>Undotree<CR>",                            { desc = "󰜊 Uncotree" })
-keymap(n, "u",              "<cmd>silent undo<CR>",                       { desc = "󰜊 Silent undo" })
-keymap(n, "U",              "<cmd>silent redo<CR>",                       { desc = "󰛒 Silent redo" })
+keymap(n, "u",              "<cmd>silent undo<CR>",                         { desc = "󰜊 Silent undo" })
+keymap(n, "U",              "<cmd>silent redo<CR>",                         { desc = "󰛒 Silent redo" })
 keymap(n, "<leader>uu",     ":earlier ",                                    { desc = "󰜊 Undo to earlier" })
 keymap(n, "<leader>ur",     function() vim.cmd.later(vim.o.undolevels) end, { desc = "󰛒 Redo all" })
 
@@ -143,21 +143,20 @@ keymap({ "i", "c" }, "<C-d>", "<Backspace>", { desc = "Delete" })
 -- Save file
 keymap(n, "<C-s>", function() vim.cmd.write() end, { desc = "Save File" })
 
-----SURROUND------------------------------------------------------------------------------------------------------------
+---- SURROUND ----------------------------------------------------------------------------------------------------------
 
-keymap(i, "<",     "<>",                       { desc = " Inline Code cword" })
 keymap(n, "<A-`>", [[wBi`<Esc>ea`<Esc>b]],     { desc = " Inline Code cword" })
 keymap(x, "<A-`>", "<Esc>`<i`<Esc>`>la`<Esc>", { desc = " Inline Code selection" })
 keymap(i, "<A-`>", "``<Left>",                 { desc = " Inline Code" })
 
-----QUICKFIX------------------------------------------------------------------------------------------------------------
+---- QUICKFIX ----------------------------------------------------------------------------------------------------------
 
 keymap(n, "<leader><leader>q", function()
                local quickfix_win_open = vim.fn.getqflist({ winid = true }).winid ~= 0
                vim.cmd(quickfix_win_open and "cclose" or "copen")
        end, { desc = " Toggle quickfix window" })
 
---[[FOLDS---------------------------------------------------------------------------------------------------------------
+--[[ FOLDS -------------------------------------------------------------------------------------------------------------
 
 keymap(nxvo, "<A-,>",       "zm^",    { desc = "Fold more", })
 keymap(nxvo, "<A-.>",       "zr^",    { desc = "Reduce fold", })
@@ -169,7 +168,7 @@ keymap(nxvo, "<A-Down>",    "zj^",    { desc = "Goto next fold", })
 keymap(nxvo, "<A-Up>",      "zk^zz",  { desc = "Goto prev fold", })
 --]]
 
-----TEXTOBJECTS---------------------------------------------------------------------------------------------------------
+---- TEXTOBJECTS -------------------------------------------------------------------------------------------------------
 
 local textobj_remaps = {
         { "c", "}", "", "curly" },
@@ -192,7 +191,7 @@ keymap(x, "<C-Space>", '"_c',   { desc = "󰒅 change selection" })
 keymap(n, "<A-Space>", '"_daw', { desc = "󰬞 delete word" })
 -- map(x, "<A-Space>", '"_d',   { desc = "󰬞 delete selection" })
 
-----COMMENTS------------------------------------------------------------------------------------------------------------
+---- COMMENTS ----------------------------------------------------------------------------------------------------------
 
 keymap(nx, "q",  "zzgc",  { desc = "󰆈 Comment operator", remap = true })
 keymap(n,  "qq", "gcczz", { desc = "󰆈 Comment line", remap = true })
@@ -216,7 +215,7 @@ do
         comment.setupReplaceModeHelpersForComments()
 end
 
-----LSP-----------------------------------------------------------------------------------------------------------------
+---- LSP ---------------------------------------------------------------------------------------------------------------
 
 keymap(nx, "<A-d>", function()
                vim.diagnostic.jump({ count = 1, float = false })
@@ -263,7 +262,7 @@ keymap(n, prefix .. "c", vim.lsp.buf.code_action,    { desc = "󱠀 Code Action"
 keymap(n, prefix .. "F", vim.lsp.buf.format,         { desc = "LSP Format" })
 --]]
 
-----MODES---------------------------------------------------------------------------------------------------------------
+---- MODES -------------------------------------------------------------------------------------------------------------
 
 -- INSERT
 keymap(n, "i", function()
@@ -303,7 +302,7 @@ keymap(c, "<C-a>",     "<C-b>", { desc = "Goto start of cmdline" })
 keymap(c, "<A-Left>",  "<C-b>", { desc = "Goto start of cmdline" })
 keymap(c, "<A-Right>", "<C-e>", { desc = "Goto end of cmdline" })
 
-----INSPECT & EVAL------------------------------------------------------------------------------------------------------
+---- INSPECT & EVAL ----------------------------------------------------------------------------------------------------
 
 keymap(n, "<leader>ii", vim.cmd.Inspect,             { desc = " Inspect at cursor" })
 keymap(n, "<leader>it", vim.treesitter.inspect_tree, { desc = " TS tree" })
@@ -341,7 +340,7 @@ keymap(n, "<leader>ye", function()
                vim.fn.setreg("+", last_excmd)
        end, { desc = " Yank last ex-cmd" })
 
-----WINDOWS & BUFFERS---------------------------------------------------------------------------------------------------
+---- WINDOWS & BUFFERS -------------------------------------------------------------------------------------------------
 
 keymap(n, "<C-n>", "<cmd>messages<CR>", { desc = "Notification History" })
 
@@ -370,7 +369,7 @@ keymap(n, "<A-r>", vim.cmd.edit,         { desc = "Reload buffer" })
 keymap(n, "H",     "<cmd>bprevious<cr>", { desc = "Prev Buffer" })
 keymap(n, "L",     "<cmd>bnext<cr>",     { desc = "Next Buffer" })
 
---[[MACROS--------------------------------------------------------------------------------------------------------------
+--[[ MACROS ------------------------------------------------------------------------------------------------------------
 
 do
         local reg        = "r"
@@ -382,7 +381,7 @@ do
 end
 --]]
 
-----REFACTORING---------------------------------------------------------------------------------------------------------
+---- REFACTORING -------------------------------------------------------------------------------------------------------
 
 keymap(n, "<leader>fd", ":global //d<Left><Left>", { desc = " delete matching lines" })
 
@@ -406,7 +405,7 @@ end
 keymap(n, "<leader>f<Tab>",   function() retabber("tabs") end,   { desc = "󰌒 Use Tabs" })
 keymap(n, "<leader>f<Space>", function() retabber("spaces") end, { desc = "󱁐 Use Spaces" })
 
-----OPTION TOGGLING-----------------------------------------------------------------------------------------------------
+---- OPTION TOGGLING ---------------------------------------------------------------------------------------------------
 
 keymap(n, "<leader>ol", function()
                local clients = vim.lsp.get_clients{ bufnr = 0 }
@@ -419,7 +418,7 @@ keymap(n, "<leader>ol", function()
 
 keymap(n, "<leader>oc", function() Toggle.concealLvl() end, { desc = "󰈉 Conceal" })
 
-----RELOAD PLUGINS------------------------------------------------------------------------------------------------------
+---- RELOAD PLUGINS ----------------------------------------------------------------------------------------------------
 
 keymap(n, "<leader>lr", function()
                local plugins      = require("lazy").plugins()

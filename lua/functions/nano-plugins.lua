@@ -1,10 +1,9 @@
 local M = {}
-------------------------------------------------------------------------------------------------------------------------
 
----1. start/stop with just one keypress
----2. add notification & sound for recording
----@param toggleKey string key used to trigger this function
----@param reg string vim register (single letter)
+---- MACRO -------------------------------------------------------------------------------------------------------------
+
+---@param toggleKey string
+---@param reg string
 function M.startOrStopRecording(toggleKey, reg)
         local not_recording = vim.fn.reg_recording() == ""
 
@@ -35,9 +34,8 @@ function M.editMacro(reg)
         end)
 end
 
-------------------------------------------------------------------------------------------------------------------------
+---- CASE TOGGLE -------------------------------------------------------------------------------------------------------
 
--- Simplified implementation of coerce.nvim
 function M.camelSnakeToggle()
         local cword         = vim.fn.expand("<cword>")
         local new_word
@@ -84,9 +82,16 @@ function M.toggleWordCasing()
         vim.api.nvim_win_set_cursor(0, prev_cursor)
 end
 
-------------------------------------------------------------------------------------------------------------------------
+function M.toggleTitleCase()
+        local prev_cursor = vim.api.nvim_win_get_cursor(0)
+        local cword       = vim.fn.expand("<cword>")
+        local cmd         = cword == cword:lower() and "guiwgUl" or "guiw"
+        vim.cmd.normal{ cmd, bang = true }
+        vim.api.nvim_win_set_cursor(0, prev_cursor)
+end
 
--- Simplified implementation of `coerce.nvim`
+---- LSP CASE RENAME ---------------------------------------------------------------------------------------------------
+
 function M.camelSnakeLspRename()
         local cword         = vim.fn.expand("<cword>")
         local snake_pattern = "_(%w)"
@@ -104,32 +109,22 @@ function M.camelSnakeLspRename()
         end
 end
 
-function M.toggleTitleCase()
-        local prev_cursor = vim.api.nvim_win_get_cursor(0)
-        local cword       = vim.fn.expand("<cword>")
-        local cmd         = cword == cword:lower() and "guiwgUl" or "guiw"
-        vim.cmd.normal{ cmd, bang = true }
-        vim.api.nvim_win_set_cursor(0, prev_cursor)
-end
-
-------------------------------------------------------------------------------------------------------------------------
+---- SMART DUPLICATE ---------------------------------------------------------------------------------------------------
 
 function M.smartDuplicate()
         local row, col = unpack(vim.api.nvim_win_get_cursor(0))
         local line     = vim.api.nvim_get_current_line()
         local ft       = vim.bo.filetype
 
-        -- filetype-specific tweaks
         if ft == "css" then
-                -- stylua: ignore
                 line = line:gsub("(%a+):", {
-                        top = "bottom:",
+                        top    = "bottom:",
                         bottom = "top:",
-                        right = "left:",
-                        left = "right:",
-                        light = "dark:",
-                        dark = "light:",
-                        width = "height:",
+                        right  = "left:",
+                        left   = "right:",
+                        light  = "dark:",
+                        dark   = "light:",
+                        width  = "height:",
                         height = "width:",
                 })
         elseif ft == "javascript" or ft == "typescript" or ft == "swift" then
@@ -140,70 +135,62 @@ function M.smartDuplicate()
                 line = line:gsub("^(%s*)if( .* then)$", "%1elif%2")
         elseif ft == "python" then
                 line = line:gsub("^(%s*)if( .*:)$", "%1elif%2")
-        elseif ft == "markdown" then -- increment numbered list
+        elseif ft == "markdown" then
                 line = line:gsub("^(%s*)(%d+)%. ", function(indent, num)
                         local increment = tonumber(num) + 1
                         return indent .. increment .. ". "
                 end)
         end
 
-        -- insert duplicated line
         vim.api.nvim_buf_set_lines(0, row, row, false, { line })
 
-        -- move cursor down, and to value/field (if any)
         local _, luadoc_field_pos = line:find("%-%-%-@%w+ ")
         local _, value_pos        = line:find("[:=] ")
         local target_col          = luadoc_field_pos or value_pos or col
         vim.api.nvim_win_set_cursor(0, { row + 1, target_col })
 end
 
-------------------------------------------------------------------------------------------------------------------------
+---- f & F -------------------------------------------------------------------------------------------------------------
 
--- `fF` work with `nN` instead of `;,` (inspired by tT.nvim)
 ---@param char "f"|"F"
 function M.fF(char)
-        local target  = vim.fn.getcharstr() -- awaits user input for a char
+        local target  = vim.fn.getcharstr()
         local pattern = [[\V\C]] .. target
         vim.fn.setreg("/",     pattern)
-        vim.fn.search(pattern, char == "f" and "" or "b") -- move cursor
-        vim.v.searchforward = 1                           -- `n` always forward, `N` always backward
+        vim.fn.search(pattern, char == "f" and "" or "b")
+        vim.v.searchforward = 1
 end
 
-------------------------------------------------------------------------------------------------------------------------
+---- FORMATTING --------------------------------------------------------------------------------------------------------
 
 function M.formatWithFallback()
         local formatting_lsp = vim.lsp.get_clients{ method = "textDocument/formatting", bufnr = 0 }
 
         if #formatting_lsp > 0 then
-                -- save for efm-formatters that don't use stdin
                 if vim.bo.ft == "markdown" then
-                        -- saving with explicit name prevents issues when changing `cwd`
-                        -- `:update!` suppresses "The file has been changed since reading it!!!"
                         local vim_cmd = ("silent update! %q"):format(vim.api.nvim_buf_get_name(0))
                         vim.cmd(vim_cmd)
                 end
                 vim.lsp.buf.format()
         else
-                vim.cmd([[% substitute_\s\+$__e]])            -- remove trailing spaces
-                vim.cmd([[% substitute _\(\n\n\)\n\+_\1_e]])  -- remove duplicate blank lines
-                vim.cmd([[silent! /^\%(\n*.\)\@!/,$ delete]]) -- remove blanks at end of file
+                vim.cmd([[% substitute_\s\+$__e]])
+                vim.cmd([[% substitute _\(\n\n\)\n\+_\1_e]])
+                vim.cmd([[silent! /^\%(\n*.\)\@!/,$ delete]])
         end
 end
 
-------------------------------------------------------------------------------------------------------------------------
+---- ALIGNMENT ---------------------------------------------------------------------------------------------------------
 
 function M.alignSelectionByChar()
         local sep = vim.fn.input("Enter table separator: ")
         if sep == "" then sep = "&" end
 
-        -- Ensure we are in visual mode
         local mode = vim.fn.mode()
         if not vim.tbl_contains({ "v", "V", "\22" }, mode) then
                 print("Not in visual mode")
                 return
         end
 
-        -- Get positions of the selection
         local s_pos = vim.fn.getpos("v")
         local e_pos = vim.fn.getpos(".")
 
@@ -212,7 +199,6 @@ function M.alignSelectionByChar()
                 s_row, e_row = e_row, s_row
         end
 
-        -- Get selected lines from the buffer (0-based indexing)
         local lines = vim.api.nvim_buf_get_lines(0, s_row - 1, e_row, false)
         if not lines or #lines == 0 then
                 print("No lines selected")
@@ -222,23 +208,19 @@ function M.alignSelectionByChar()
         local split_lines, col_widths, indents = {}, {}, {}
 
         for _, line in ipairs(lines) do
-                -- Detect indentation (spaces or tabs)
                 local indent = line:match("^%s*") or ""
                 table.insert(indents, indent)
 
-                -- Remove indentation before splitting
                 local stripped = line:sub(#indent + 1)
                 local cols     = vim.split(stripped, sep, true) ---@diagnostic disable-line: param-type-mismatch
                 table.insert(split_lines, cols)
 
-                -- Compute max width for each column
                 for i, col in ipairs(cols) do
                         local width   = vim.fn.strdisplaywidth(vim.trim(col))
                         col_widths[i] = math.max(col_widths[i] or 0, width)
                 end
         end
 
-        -- Rebuild aligned lines
         local aligned_lines = {}
         for idx, cols in ipairs(split_lines) do
                 local aligned = {}
@@ -250,9 +232,10 @@ function M.alignSelectionByChar()
                 table.insert(aligned_lines, indents[idx] .. table.concat(aligned, " " .. sep .. " "))
         end
 
-        -- Replace the original lines in the buffer with aligned ones
         vim.api.nvim_buf_set_lines(0, s_row - 1, e_row, false, aligned_lines)
 end
+
+---- SCROLL OTHER WINDOWS ----------------------------------------------------------------------------------------------
 
 ---@param lines integer
 function M.scrollLspOrOtherWin(lines)

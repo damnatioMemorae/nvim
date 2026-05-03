@@ -1,4 +1,4 @@
----[[ GO SEMANTIC SYNTAX HIGHLIGHTING
+--[[ GO SEMANTIC SYNTAX HIGHLIGHTING
 vim.cmd(" highlight @lsp.type.function.go                   guifg=#dce0e8 ")
 vim.cmd(" highlight @lsp.type.method.go                     guifg=#dce0e8 ")
 vim.cmd(" highlight @lsp.type.type.go                       guifg=#89b4fa ")
@@ -14,7 +14,7 @@ vim.cmd(" highlight @lsp.typemod.type.defaultLibrary.go     guifg=#89b4fa ")
 vim.cmd(" highlight @type.builtin.go                        guifg=#89b4fa ")
 --]]
 
----[[ GO NORMAL SYNTAX HIGHLIGHTING
+--[[ GO NORMAL SYNTAX HIGHLIGHTING
 vim.cmd(" highlight @keyword.import.go                      guifg=#f9e2af ")
 vim.cmd(" highlight @keyword.function.go                    guifg=#cba6f7 ")
 vim.cmd(" highlight @module.go                              guifg=#f38ba8 ")

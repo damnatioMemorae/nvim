@@ -1,7 +1,7 @@
 return {
         "saghen/blink.pairs",
         build = "cargo build --release",
-        event = { "InsertEnter", "CmdlineEnter" },
+        event = { "InsertEnter", "CmdlineEnter", "BufReadPre" },
         keys  = {
                 { "<A-i>", "a{<CR>", mode = "n", desc = " Open new scope", remap = true },
                 { "<A-i>", "{<CR>", mode = "i", desc = " Open new scope", remap = true },
@@ -38,7 +38,8 @@ return {
                 highlights = {
                         enabled         = true,
                         cmdline         = true,
-                        groups          = { "BlinkPairs" },
+                        groups          = { "BlinkPairsOrange", "BlinkPairsPurple", "BlinkPairsBlue" },
+                        -- groups          = { "BlinkPairs" },
                         unmatched_group = "MatchParen",
                         matchparen      = {
                                 enabled             = true,

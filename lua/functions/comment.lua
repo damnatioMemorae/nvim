@@ -45,12 +45,11 @@ function M.setupReplaceModeHelpersForComments()
         })
 end
 
----@param replace_mode_label? any
-function M.commentHr(replace_mode_label)
+---@param replaceModeLabel? any
+function M.commentHr(replaceModeLabel)
         assert(vim.bo.commentstring ~= "", "Comment string not set for " .. vim.bo.ft)
         local start_ln = vim.api.nvim_win_get_cursor(0)[1]
 
-        -- determine indent
         local ln = start_ln
         local line, indent
         repeat
@@ -59,39 +58,39 @@ function M.commentHr(replace_mode_label)
                 ln     = ln - 1
         until line ~= "" or ln == 0
 
-        -- determine hr-length
         local indent_length  = vim.bo.expandtab and #indent or #indent * vim.bo.tabstop
         local com_str_length = #(vim.bo.commentstring:format(""))
         local textwidth      = vim.o.textwidth > 0 and vim.o.textwidth or 80
         local hr_length      = textwidth - (indent_length + com_str_length)
 
-        -- construct HR
         local hr              = config.hrChar:rep(hr_length)
         local hr_with_comment = vim.bo.commentstring:format(hr)
-
-        -- filetype-specific considerations
         if not vim.list_contains(config.formatterWantsPadding, vim.bo.ft) then
                 hr_with_comment = hr_with_comment:gsub(" ", config.hrChar)
         end
-        local full_line = indent .. hr_with_comment
-        if vim.bo.ft == "markdown" then full_line = "---" end
 
-        -- append lines & move
+        local full_line = indent .. hr_with_comment
+        if vim.bo.ft == "markdown" then
+                full_line = "---"
+        end
+
         vim.api.nvim_buf_set_lines(0, start_ln, start_ln, true, { full_line })
-        if not replace_mode_label then
+        if not replaceModeLabel then
                 vim.api.nvim_buf_set_lines(0, start_ln + 1, start_ln + 1, true, { "" })
         end
 
         vim.api.nvim_win_set_cursor(0, { start_ln + 1, #indent })
-        if replace_mode_label then
-                vim.cmd.normal{ com_str_length + 1 .. "l", bang = true }
+        if replaceModeLabel then
+                vim.cmd.normal({ com_str_length + 1 .. "l", bang = true })
                 vim.cmd.startreplace()
         end
 end
 
 function M.duplicateLineAsComment()
         local com_str = getCommentstr()
-        if not com_str then return end
+        if not com_str then
+                return
+        end
 
         local lnum, col       = unpack(vim.api.nvim_win_get_cursor(0))
         local cur_line        = vim.api.nvim_get_current_line()
@@ -115,13 +114,13 @@ function M.docstring()
                 vim.cmd.startinsert()
         elseif ft == "javascript" then
                 vim.cmd.normal{ "t)", bang = true }
-                vim.lsp.buf.code_action{
+                vim.lsp.buf.code_action({
                         filter = function(action) return action.title == "Infer parameter types from usage" end,
                         apply  = true,
-                }
+                })
                 vim.defer_fn(function()
                                      vim.api.nvim_win_set_cursor(0, { ln + 1, 0 })
-                                     vim.cmd.normal{ "t)", bang = true }
+                                     vim.cmd.normal({ "t)", bang = true })
                              end, 100)
         elseif ft == "typescript" then
                 vim.api.nvim_buf_set_lines(0, ln - 1, ln - 1, false, { indent .. "/**  */" })
@@ -139,19 +138,18 @@ function M.addComment(where)
         assert(vim.bo.commentstring ~= "", "Comment string not set for " .. vim.bo.ft)
         local lnum = vim.api.nvim_win_get_cursor(0)[1]
 
-        -- above/below: add empty line and move to it
         if where == "above" or where == "below" then
-                if where == "above" then lnum = lnum - 1 end
+                if where == "above" then
+                        lnum = lnum - 1
+                end
                 vim.api.nvim_buf_set_lines(0, lnum, lnum, true, { "" })
                 lnum = lnum + 1
                 vim.api.nvim_win_set_cursor(0, { lnum, 0 })
         end
 
-        -- determine comment behavior
         local place_holder_at_end = vim.bo.commentstring:find("%%s$") ~= nil
         local line                = vim.api.nvim_get_current_line()
 
-        -- if empty line, add indent of first non-blank line after cursor
         local indent     = ""
         local empty_line = line == ""
         if empty_line then
@@ -162,15 +160,13 @@ function M.addComment(where)
                 end
                 indent = vim.fn.getline(i):match("^%s*")
         end
-        local spacing = vim.list_contains(config.formatterWantsPadding, vim.bo.ft) and "  " or " "
+        local spacing  = vim.list_contains(config.formatterWantsPadding, vim.bo.ft) and "  " or " "
         local new_line = empty_line and indent or line .. spacing
 
-        -- write line
         local com_chars = vim.trim(vim.bo.commentstring:format(""))
         if place_holder_at_end then com_chars = com_chars .. " " end
         vim.api.nvim_set_current_line(new_line .. com_chars)
 
-        -- move cursor
         if place_holder_at_end then
                 vim.cmd.startinsert{ bang = true }
         else

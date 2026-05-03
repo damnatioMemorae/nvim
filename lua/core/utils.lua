@@ -8,7 +8,6 @@ M.extraTextobjMaps = {
         wikilink  = "R",
 }
 
----ensures unique keymaps https://www.reddit.com/r/neovim/comments/16h2lla/can_you_make_neovim_warn_you_if_your_config_maps/
 ---@param mode string|string[]
 ---@param lhs string
 ---@param rhs string|function
@@ -52,15 +51,13 @@ function M.supportsMethod(client)
         end
 end
 
----get highlight values by name
 ---@param name string
 function M.getHl(name)
         return vim.api.nvim_get_hl(0, { name = name })
 end
 
-----SMALL STUFF---------------------------------------------------------------------------------------------------------
+---- SMALL STUFF -------------------------------------------------------------------------------------------------------
 
----link highlights in a table
 ---@param groups table
 ---@param shortName? string
 function M.linkHl(groups, shortName)
@@ -96,7 +93,7 @@ function M.exec(cmd)
         return vim.trim(vim.fn.system(cmd))
 end
 
-----COLORS--------------------------------------------------------------------------------------------------------------
+---- COLORS ------------------------------------------------------------------------------------------------------------
 -- https://github.com/EmmanuelOga/columns/blob/master/utils/color.lua
 
 local hex_chars = "0123456789abcdef"
@@ -173,7 +170,7 @@ function M.hslToRgb(h, s, l)
         local r, g, b
 
         if s == 0 then
-                r, g, b = l, l, l -- achromatic
+                r, g, b = l, l, l
         else
                 function hue2rgb(p, q, t)
                         if t < 0 then
@@ -226,68 +223,6 @@ end
  * @return  String           The hex representation
 ]]
 
-----TREESITTER----------------------------------------------------------------------------------------------------------
--- borrowed forever from https://github.com/nfrid/treesitter-utils
-
----@param node TSNode
----@param bufnr number | nil
----@return number, number, number, number
-local function getNodeRange(node, bufnr)
-        local bufnr          = bufnr or 0
-        local sr, sc, er, ec = node:range()
-        local last_row       = vim.api.nvim_buf_line_count(bufnr) - 1
-        -- If the node is the last node in the buffer, then its end row and column might need
-        -- to be adjusted to avoid out-of-bounds error when calling nvim_buf_[set|get]_text
-        if er > last_row then
-                er = last_row
-                ec = #vim.api.nvim_buf_get_lines(bufnr, last_row, last_row + 1, false)[1]
-        end
-        return sr, sc, er, ec
-end
-
---- Find parent node of given type.
----@param node TSNode
----@param type string
----@return TSNode | nil
-function M.findParentNode(node, type)
-        if (node == node:root()) then return nil end
-        if (node:type() == type) then return node end
-        return M.findParentNode(node:parent(), type)
-end
-
---- Find child node of given type.
----@param node TSNode
----@param type string
----@return TSNode | nil
-function M.findChildNode(node, type)
-        local child = node:child(0)
-        while child do
-                if (child:type() == type) then return child end
-                child = child:next_sibling()
-        end
-        return nil
-end
-
---- Set text of given node.
----@param node TSNode
----@param text string | table
----@param bufnr number | nil
-function M.setNodeText(node, text, bufnr)
-        local sr, sc, er, ec = getNodeRange(node, bufnr)
-        local content        = { text }
-        if (type(text) == "table") then content = text end
-        vim.api.nvim_buf_set_text(bufnr or 0, sr, sc, er, ec, content)
-end
-
---- Get text of given node.
----@param node TSNode
----@param bufnr number | nil
----@return string[]
-function M.getNodeText(node, bufnr)
-        local sr, sc, er, ec = getNodeRange(node, bufnr)
-        return vim.api.nvim_buf_get_text(bufnr or 0, sr, sc, er, ec, {})
-end
-
 ---@param bufnr integer
 ---@param filepath string
 ---@return boolean
@@ -319,6 +254,13 @@ function M.allowBufferForAi(bufnr, filepath)
         else
                 return true
         end
+end
+
+---- MISC --------------------------------------------------------------------------------------------------------------
+
+function M.playSound(file)
+        local path = vim.fn.stdpath("config") .. "/sounds/"
+        vim.fn.system("paplay " .. path .. file .. ".mp3")
 end
 
 ------------------------------------------------------------------------------------------------------------------------

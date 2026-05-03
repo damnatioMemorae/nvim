@@ -47,7 +47,7 @@ return {
                         markers        = { Icons.Arrows.rightSmol, Icons.Arrows.downSmol },
                 },
                 preview_window = {
-                        auto_preview = true,
+                        auto_preview = false,
                         width        = 40,
                         min_width    = 30,
                         height       = 50,
@@ -65,7 +65,7 @@ return {
                         goto_and_close   = "<S-Cr>",
                         restore_location = ",,",
                         hover_symbol     = "<C-space>",
-                        toggle_preview   = "K",
+                        toggle_preview   = "p",
                         rename_symbol    = "r",
                         code_actions     = "a",
                         fold             = "h",

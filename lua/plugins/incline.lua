@@ -1,19 +1,26 @@
 return {
         "b0o/incline.nvim",
         event  = "BufReadPre",
+        init   = function()
+                vim.o.laststatus = 0
+                vim.o.statusline = " "
+        end,
         opts   = {
-                window    = {
+                debounce_threshold = 0,
+                hide               = { only_win = false },
+                window             = {
                         padding = 0,
                         margin  = { horizontal = 0 },
                         overlap = { winbar = true },
+                        width   = "fit",
                 },
-                highlight = {
+                highlight          = {
                         groups = {
                                 InclineNormal   = { default = true, group = "LspInlayHint" },
                                 InclineNormalNC = { default = true, group = "LspInlayHint" },
                         },
                 },
-                render    = function(props)
+                render             = function(props)
                         local devicons = require("nvim-web-devicons")
                         local filtype  = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(props.buf), ":t")
                         local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(props.buf), ":t:r")

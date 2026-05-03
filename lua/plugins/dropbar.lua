@@ -141,11 +141,9 @@ return {
                                                 icon    = " ",
                                                 name_hl = "LspInlayHint",
                                                 icon_hl = "LspInlayHint",
-                                                -- icon_hl = sym.icon,
                                         })
                                 end,
                         },
-                        -- treesitter = { valid_types = types },
                         lsp  = { valid_types = types },
                 },
         },
@@ -154,13 +152,15 @@ return {
                 vim.ui.select = require("dropbar.utils.menu").select
 
                 local groups = {
-                        ----DROPBAR-------------------------------------------------------------------------------------
+                        ---- DROPBAR -----------------------------------------------------------------------------------
+
                         { "Hover",                     "Visual" },
                         { "FzfMatch",                  "Special" },
                         { "CurrentContext",            "Visual" },
                         { "Preview",                   "PmenuSbar" },
 
-                        ----DROPBAR-ICON-UI-----------------------------------------------------------------------------
+                        ---- DROPBAR-ICON-UI ---------------------------------------------------------------------------
+
                         { "IconUiIndicator",           "NonText" },
                         { "IconUiSeparator",           "NonText" },
                         { "MenuCurrentContext",        "Visual" },
@@ -173,7 +173,7 @@ return {
                         { "MenuThumb",                 "PmenuThumb" },
                         { "IconKindDefaultNC",         "WinBarNC" },
 
-                        ----DROPBAR KIND----------------------------------------------------------------------------------------
+                        ---- DROPBAR KIND ------------------------------------------------------------------------------
 
                         { "KindDefault",               "Comment" },
                         { "KindArray",                 "Comment" },
@@ -245,7 +245,7 @@ return {
                         { "KindVariable",              "Comment" },
                         { "KindWhileStatement",        "Comment" },
 
-                        ----DROPBAR ICON KIND-----------------------------------------------------------------------------------
+                        ---- DROPBAR ICON KIND -------------------------------------------------------------------------
 
                         { "IconKindDefault",           "WinBar" },
                         { "IconKindArray",             "@string" },
@@ -316,7 +316,6 @@ return {
                         { "IconKindValue",             "@text" },
                         { "IconKindVariable",          "@lsp.type.variable" },
                         { "IconKindWhileStatement",    "@keyword.repeat" },
-
                 }
                 require("core.utils").linkHl(groups, "DropBar")
         end,

@@ -19,7 +19,6 @@ return {
                 { "'", function() require("various-textobjs").anyQuote("inner") end, mode = "o", desc = " inner anyQuote" },
                 { '"', function() require("various-textobjs").anyQuote("outer") end, mode = "o", desc = " outer anyQuote" },
 
-                -- INFO not setting in visual mode, to keep visual block mode replace
                 { "rp", function() require("various-textobjs").restOfParagraph() end, mode = "o", desc = "¶ rest of paragraph" },
                 { "ri", function() require("various-textobjs").restOfIndentation() end, mode = "o", desc = "󰉶 rest of indentation" },
                 { "rg", "G", mode = "o", desc = " rest of buffer" },
@@ -73,7 +72,7 @@ return {
 
                                 vim.cmd.normal{ "<", bang = true } -- dedent indentation
 
-                                vim.cmd(tostring(vim.api.nvim_buf_get_mark(0, ">")[1]) .. " delete") -- delete end first so line index is not shifted
+                                vim.cmd(tostring(vim.api.nvim_buf_get_mark(0, ">")[1]) .. " delete")
                                 vim.cmd(tostring(vim.api.nvim_buf_get_mark(0, "<")[1]) .. " delete")
                         end,
                         desc = " Delete surrounding indent",

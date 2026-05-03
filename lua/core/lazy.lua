@@ -12,7 +12,7 @@ end
 
 vim.opt.runtimepath:prepend(lazypath)
 
---------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
 
 require("lazy").setup({
         spec             = { import = "plugins" },
@@ -74,7 +74,7 @@ require("lazy").setup({
 require("lazy.view.config").keys.hover   = "o"
 require("lazy.view.config").keys.details = "<Tab>"
 
-----KEYMAPS FOR NVIM TRIGGERING LAZY------------------------------------------------------------------------------------
+---- KEYMAPS FOR NVIM TRIGGERING LAZY ----------------------------------------------------------------------------------
 
 local keymap = require("core.utils").uniqueKeymap
 
@@ -102,7 +102,7 @@ local pluginTypeIcons = {
         ["which-key"]               = "⌨️",
 }
 
-----GOTO PLUGIN SPEC----------------------------------------------------------------------------------------------------
+---- GOTO PLUGIN SPEC --------------------------------------------------------------------------------------------------
 
 keymap("n", "<leader><leader>,", function()
                vim.api.nvim_create_autocmd("FileType", {
@@ -152,31 +152,17 @@ keymap("n", "<leader><leader>,", function()
                              end)
        end, { desc = "󰒲 Goto Plugin Config" })
 
-----GOTO LOCAL PLUGIN CODE----------------------------------------------------------------------------------------------
-
-keymap("n", "<leader><leader>p", function()
-               vim.ui.select(
-                       require("lazy").plugins(),
-                       { prompt = "󰒲 Local Code", format_item = function(plugin) return plugin.name end },
-                       function(plugin)
-                               if not plugin then return end
-                               Snacks.picker.files{ prompt_title = plugin.name, cwd = plugin.dir }
-                       end)
-       end, { desc = "Local Plugin Code" })
-
-----TEST FOR DUPLICATE KEYS---------------------------------------------------------------------------------------------
+---- TEST FOR DUPLICATE KEYS -------------------------------------------------------------------------------------------
 
 local function checkForDuplicateKeys()
         local already_mapped = {}
         local plugins        = require("lazy").plugins()
 
-        -- 1) each plugin
         vim.iter(plugins):each(function(plugin)
                 if not plugin.keys then
                         return
                 end
 
-                -- 2) each keymap of a plugin (only none-ft-specific keymaps)
                 vim.iter(plugin.keys)
                            :filter(function(lazyKey) return lazyKey.ft == nil end)
                            :each(function(lazyKey)
@@ -187,7 +173,6 @@ local function checkForDuplicateKeys()
                                            modes = { modes } ---@diagnostic disable-line: cast-local-type
                                    end
 
-                                   -- 3) each mode of a keymap
                                    vim.iter(modes):each(function(mode)
                                            if not already_mapped[mode] then
                                                    already_mapped[mode] = {}

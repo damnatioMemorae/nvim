@@ -4,8 +4,9 @@ local autocmd = api.nvim_create_autocmd
 local o       = vim.o
 local wo      = vim.wo
 local fn      = vim.fn
+local keymap  = require("core.utils").uniqueKeymap
 
-----AUTO CD TO PROJECT ROOT---------------------------------------------------------------------------------------------
+---- AUTO CD TO PROJECT ROOT -------------------------------------------------------------------------------------------
 
 local autoCdConfig = {
         childOfRoot  = { ".git" },
@@ -25,7 +26,7 @@ autocmd("VimEnter", {
         end,
 })
 
-----`q` and `Esc`-------------------------------------------------------------------------------------------------------
+---- `q` and `Esc` -----------------------------------------------------------------------------------------------------
 
 autocmd("FileType", {
         desc     = "Quit windows with both `Esc` and `q`",
@@ -62,7 +63,7 @@ autocmd("FileType", {
         end,
 })
 
-----BUFFER--------------------------------------------------------------------------------------------------------------
+---- BUFFER ------------------------------------------------------------------------------------------------------------
 
 autocmd("FocusGained", {
         desc     = "User: FIX `cwd` being not available when it is deleted outside nvim.",
@@ -105,7 +106,7 @@ autocmd("FocusGained", {
         end,
 })
 
-----AUTO-NOHL & INLINE SEARCH COUNT-------------------------------------------------------------------------------------
+---- AUTO-NOHL & INLINE SEARCH COUNT -----------------------------------------------------------------------------------
 
 ---@param mode? "clear"
 -- local function searchCountIndicator(mode)
@@ -153,7 +154,7 @@ autocmd("FocusGained", {
 --                    end
 --            end, api.nvim_create_namespace("autoNohlAndSearchCount"))
 
-----SKELETONS (TEMPLATES)-----------------------------------------------------------------------------------------------
+---- SKELETONS (TEMPLATES) ---------------------------------------------------------------------------------------------
 
 local template_dir         = fn.stdpath("config") .. "/templates"
 local home_dir             = os.getenv("HOME")
@@ -209,7 +210,7 @@ autocmd({ "BufNewFile", "BufReadPost" }, {
         end,
 })
 
-----SMART VIRTUAL EDITING-----------------------------------------------------------------------------------------------
+---- SMART VIRTUAL EDITING ---------------------------------------------------------------------------------------------
 
 autocmd("ModeChanged", {
         pattern  = "*:*",
@@ -221,7 +222,7 @@ autocmd("ModeChanged", {
         end,
 })
 
-----LSP-----------------------------------------------------------------------------------------------------------------
+---- LSP ---------------------------------------------------------------------------------------------------------------
 
 autocmd("LspAttach", {
         desc     = "LSP stuff",
@@ -290,7 +291,7 @@ autocmd("LspAttach", {
                                             and ctx.data.params.value.title == "Loading Workspace"
                                         if ctx.event == "LspProgress" and not lsp_progress_end then return end
                                         vim.lsp.codelens.refresh({ bufnr = ctx.buf })
-                                        vim.keymap.set("n", ",l", vim.lsp.codelens.run)
+                                        keymap("n", ",l", vim.lsp.codelens.run)
                                 end
                         })
                 end
@@ -317,7 +318,7 @@ autocmd("LspDetach", {
         end,
 })
 
----[[SWITCH BETWEEN `rlnu` and `lnu`-------------------------------------------------------------------------------------
+---[[ SWITCH BETWEEN `rlnu` and `lnu` -----------------------------------------------------------------------------------
 
 autocmd({ "BufEnter", "FocusGained", "InsertLeave", "WinEnter" }, {
         desc     = "Enable relative line numbers in active window",
@@ -340,7 +341,7 @@ autocmd({ "BufLeave", "FocusLost", "InsertEnter", "WinLeave" }, {
         end,
 })
 
-----RESTORE CURSOR POSITION---------------------------------------------------------------------------------------------
+---- RESTORE CURSOR POSITION -------------------------------------------------------------------------------------------
 
 autocmd({ "BufReadPost", "BufReadPre", "BufWinEnter" }, {
         desc     = "Restore cursor position",
@@ -353,10 +354,11 @@ autocmd({ "BufReadPost", "BufReadPre", "BufWinEnter" }, {
                 if test_line > 0 and test_line <= last_line then
                         vim.api.nvim_win_set_cursor(0, test_line_data)
                 end
+                vim.cmd.normal("zz")
         end,
 })
 
-----TRIM TRAILING WHITESPACE--------------------------------------------------------------------------------------------
+---- TRIM TRAILING WHITESPACE ------------------------------------------------------------------------------------------
 
 autocmd({ "BufWritePre" }, {
         desc     = "Remove trailing whitespace",
@@ -368,7 +370,7 @@ autocmd({ "BufWritePre" }, {
         end,
 })
 
-----SPLITS--------------------------------------------------------------------------------------------------------------
+---- SPLITS ------------------------------------------------------------------------------------------------------------
 
 autocmd("FileType", {
         desc     = "Automatically split help buffers to the right",
@@ -389,24 +391,24 @@ autocmd("VimResized", {
         command = "wincmd =",
 })
 
-----QUICKFIX------------------------------------------------------------------------------------------------------------
+---- QUICKFIX ----------------------------------------------------------------------------------------------------------
 
 autocmd("FileType", {
         desc     = "Show quickfix results interactively",
         pattern  = "qf",
         callback = function(args)
                 local opts = { buffer = args.buf, silent = true }
-                vim.keymap.set("n", "J", "<cmd>cn<CR>zz<cmd>wincmd p<CR>", opts)
-                vim.keymap.set("n", "K", "<cmd>cN<CR>zz<cmd>wincmd p<CR>", opts)
-                vim.keymap.set("n", "<leader>qr", function() vim.cmd.cexpr("[]") end,
-                               { desc = "󰚃 Remove quickfix items" })
-                vim.keymap.set("n", "<leader>q1", "<cmd>silent cfirst<CR>zv", { desc = "󰴩 Goto 1st quickfix" })
-                vim.cmd("wincmd L")
-                vim.cmd("vertical resize 70")
+                keymap("n", "J", "<cmd>cn<CR>zz<cmd>wincmd p<CR>", opts)
+                keymap("n", "K", "<cmd>cN<CR>zz<cmd>wincmd p<CR>", opts)
+                keymap("n", "<leader>qr", function() vim.cmd.cexpr("[]") end,
+                       { desc = "󰚃 Remove quickfix items" })
+                keymap("n", "<leader>q1", "<cmd>silent cfirst<CR>zv", { desc = "󰴩 Goto 1st quickfix" })
+                -- vim.cmd("wincmd L")
+                -- vim.cmd("vertical resize 70")
         end,
 })
 
-----CMDLINE COMPLETION--------------------------------------------------------------------------------------------------
+---- CMDLINE COMPLETION ------------------------------------------------------------------------------------------------
 
 vim.opt.wildmode = "noselect"
 autocmd("CmdlineChanged", {
@@ -417,14 +419,14 @@ autocmd("CmdlineChanged", {
         end,
 })
 
-----SNIPPET-------------------------------------------------------------------------------------------------------------
+---- SNIPPET -----------------------------------------------------------------------------------------------------------
 
 autocmd("WinScrolled", {
         desc     = "Exit snippet on window scroll",
         callback = function() vim.snippet.stop() end,
 })
 
-----RELOAD ON CHANGE----------------------------------------------------------------------------------------------------
+---- RELOAD ON CHANGE --------------------------------------------------------------------------------------------------
 
 autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
         desc     = "Reload files if they changed externaly",
@@ -435,7 +437,7 @@ autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
         end,
 })
 
-----STATUSCOL-----------------------------------------------------------------------------------------------------------
+---- STATUSCOL ---------------------------------------------------------------------------------------------------------
 
 autocmd("BufWinEnter", {
         desc     = "Reset statuscolumn for miscellaneous buffers",
@@ -446,14 +448,14 @@ autocmd("BufWinEnter", {
         end,
 })
 
-----JSON----------------------------------------------------------------------------------------------------------------
+---- JSON --------------------------------------------------------------------------------------------------------------
 
 autocmd("FileType", {
         pattern = { "json", "jsonc", "json5" },
         command = "setlocal conceallevel=0",
 })
 
-----BACKDROP------------------------------------------------------------------------------------------------------------
+---- BACKDROP ----------------------------------------------------------------------------------------------------------
 
 local backdrop = 40
 

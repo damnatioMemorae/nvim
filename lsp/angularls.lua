@@ -61,7 +61,7 @@ local extension_path = vim.fs.normalize(vim.fs.joinpath(ngserver_path, '../../..
 
 -- angularls will get module by `require.resolve(PROBE_PATH, MODULE_NAME)` of nodejs
 local ts_probe_dirs = vim.iter({ extension_path, default_probe_dir }):join(',')
-local ng_probe_dirs = vim
+local ng_probe_dirs = hl
   .iter({ extension_path, default_probe_dir })
   :map(function(p)
     return vim.fs.joinpath(p, '/@angular/language-server/node_modules')

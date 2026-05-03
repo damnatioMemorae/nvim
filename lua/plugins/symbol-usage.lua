@@ -17,7 +17,7 @@ return {
                         { "Round", "LspInlayHint" },
                 }
 
-                local function h(name) return vim.api.nvim_get_hl(0, { name = name }) end
+                local h = require("core.utils").getHl
 
                 local function hl(list)
                         for _, hl_groups in ipairs(list) do

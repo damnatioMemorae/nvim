@@ -38,9 +38,18 @@ local colors = {
         crust1    = "#11111b",
         crust     = "#0e0e16",
 
-        green_transparent  = "#1d2324",
-        yellow_transparent = "#262325",
-        red_transparent    = "#251b25",
+        -- green_transparent  = "#1d2324",
+        -- yellow_transparent = "#262325",
+        -- red_transparent    = "#251b25",
+
+        -- green_transparent  = "#3c4e40",
+        -- yellow_transparent = "#554e44",
+        -- red_transparent    = "#533342",
+
+        teal_transparent   = "#29383c",
+        green_transparent  = "#2c3932",
+        yellow_transparent = "#3d3835",
+        red_transparent    = "#3c2733",
 }
 
 vim.g.terminal_color_0          = colors.crust
@@ -65,20 +74,20 @@ vim.g.terminal_color_foreground = colors.text
 ---@type table<string, vim.api.keyset.highlight>
 local groups = {
 
-        ----BLEND-------------------------------------------------------------------------------------------------------
+        ---- BLEND -----------------------------------------------------------------------------------------------------
         WinBlend = { bg = "#000000" },
         Backdrop = { bg = "#000000" },
 
-        ----TITLES------------------------------------------------------------------------------------------------------
+        ---- TITLES ----------------------------------------------------------------------------------------------------
         Title      = { fg = colors.teal },
         FloatTitle = { fg = colors.teal, bg = colors.mantle },
 
-        ----SEARCH------------------------------------------------------------------------------------------------------
-        Search    = { reverse = true },
-        CurSearch = { reverse = true },
-        IncSearch = { fg = colors.spark, bg = colors.base },
+        ---- SEARCH ----------------------------------------------------------------------------------------------------
+        Search    = { fg = colors.crust, bg = colors.spark },
+        CurSearch = { fg = colors.teal, bg = colors.base },
+        IncSearch = { fg = colors.teal, bg = colors.base },
 
-        ----UI----------------------------------------------------------------------------------------------------------
+        ---- UI --------------------------------------------------------------------------------------------------------
         CursorLine   = { fg = "none", bg = "none" },
         Visual       = { bg = "none", bold = true },
         VisualNOS    = { bg = "none", bold = true },
@@ -88,23 +97,23 @@ local groups = {
         StatusLineNC = { link = "Normal", underline = true },
         Label        = { fg = colors.sky },
 
-        ----COLUMN------------------------------------------------------------------------------------------------------
+        ---- COLUMN ----------------------------------------------------------------------------------------------------
         LineNr           = { link = "NonText" },
         CursorLineNr     = { fg = colors.ivory },
         ActiveLineNumber = { link = "CursorLineNr" },
-        Folded           = { fg = colors.surface0, bg = colors.crust1 },
+        Folded           = { fg = colors.surface2, bg = colors.crust1 },
         FoldMark         = { link = "Comment" },
         FoldColumn       = { link = "NonText" },
         SignColumn       = { link = "NonText" },
 
-        ----MENU--------------------------------------------------------------------------------------------------------
+        ---- MENU ------------------------------------------------------------------------------------------------------
         Pmenu       = { bg = colors.crust1 },
         PmenuSel    = { link = "Visual" },
         PmenuSbar   = { bg = colors.base },
         PmenuThumb  = { bg = colors.surface0 },
         PmenuBorder = { link = "borderStyle" },
 
-        ----EIDITOR-----------------------------------------------------------------------------------------------------
+        ---- EIDITOR ---------------------------------------------------------------------------------------------------
         Normal         = { bg = colors.crust },
         NormalFloat    = { bg = colors.crust1 },
         NormalNC       = { link = "Normal" },
@@ -117,7 +126,7 @@ local groups = {
         SpecialComment = { link = "Special" },
         NonText        = { fg = colors.surface0 },
 
-        ----SPELL-------------------------------------------------------------------------------------------------------
+        ---- SPELL -----------------------------------------------------------------------------------------------------
         SpellBad   = { sp = colors.red, underline = true },
         SpellCap   = { sp = colors.yellow, underline = true },
         SpellLocal = { sp = colors.blue, underline = true },
@@ -128,16 +137,16 @@ local groups = {
         markdownBlockquote = { bg = "none" },
         QuickFixLine       = { link = "Visual" },
 
-        ----DIFF--------------------------------------------------------------------------------------------------------
+        ---- DIFF ------------------------------------------------------------------------------------------------------
         DiffAdded   = { fg = colors.green },
         DiffChanged = { fg = colors.yellow },
         DiffRemoved = { fg = colors.red },
-        DiffAdd     = { bg = colors.green_transparent },
-        DiffChange  = { bg = colors.yellow_transparent },
-        DiffDelete  = { bg = colors.red_transparent },
-        DiffText    = { bg = colors.surface0 },
+        DiffAdd     = { fg = colors.green, bg = colors.green_transparent },
+        DiffChange  = { fg = colors.yellow, bg = colors.yellow_transparent },
+        DiffDelete  = { fg = colors.red, bg = colors.red_transparent },
+        DiffText    = { fg = colors.teal, bg = colors.teal_transparent },
 
-        ----MSG---------------------------------------------------------------------------------------------------------
+        ---- MSG -------------------------------------------------------------------------------------------------------
         OkMsg      = { link = "DiagnosticOk" },
         WarningMsg = { link = "DiagnosticWarn" },
         ErrorMsg   = { link = "DiagnosticError" },
@@ -146,7 +155,7 @@ local groups = {
         MoreMsg    = { link = "Comment" },
         MsgArea    = { link = "NormalFloat" },
 
-        ----LSP---------------------------------------------------------------------------------------------------------
+        ---- LSP -------------------------------------------------------------------------------------------------------
         LspInlayHint                = { fg = colors.overlay0, bg = colors.base },
         LspCodeLens                 = { link = "LspInlayHint" },
         LspReferenceText            = { link = "Visual" },
@@ -158,7 +167,7 @@ local groups = {
         LspSignatureActiveParameter = { link = "LspReferenceWrite" },
         LspCodeAction               = { fg = colors.spark },
 
-        ----DIAGNOSTIC--------------------------------------------------------------------------------------------------
+        ---- DIAGNOSTIC ------------------------------------------------------------------------------------------------
         DiagnosticVirtualTextError = { fg = colors.red, bg = colors.base },
         DiagnosticVirtualTextWarn  = { fg = colors.yellow, bg = colors.base },
         DiagnosticVirtualTextInfo  = { fg = colors.sky, bg = colors.base },
@@ -168,7 +177,7 @@ local groups = {
         DiagnosticInfo             = { fg = colors.sky },
         DiagnosticHint             = { fg = colors.teal },
 
-        ----BORDERS-----------------------------------------------------------------------------------------------------
+        ---- BORDERS ---------------------------------------------------------------------------------------------------
         borderStyle       = { fg = colors.crust, bg = colors.crust },
         borderTop         = { fg = colors.crust, bg = colors.crust },
         borderBottom      = { fg = colors.crust, bg = colors.crust },
@@ -181,8 +190,8 @@ local groups = {
         borderStyleNone   = { fg = colors.crust, bg = colors.crust },
         FloatBorder       = { fg = colors.crust1, bg = colors.crust1 },
 
-        ----SYNTAX------------------------------------------------------------------------------------------------------
-        MatchParen   = { fg = colors.mauve, bg = colors.surface0, bold = true },
+        ---- SYNTAX ----------------------------------------------------------------------------------------------------
+        MatchParen   = { fg = colors.ivory, bg = colors.crust, bold = true, reverse = true },
         Conceal      = { link = "Folded" },
         Comment      = { fg = colors.surface2 },
         Directory    = { fg = colors.ivory },
@@ -210,25 +219,26 @@ local groups = {
         Type         = { fg = colors.mauve },
         TypeDef      = { link = "Type" },
 
-        ----SEMANTIC TOKENS---------------------------------------------------------------------------------------------
-        -- ["@lsp.type.keyword"]    = { link = "Keyword" },
-        -- ["@lsp.type.class"]      = { link = "Structure" },
-        -- ["@lsp.type.decorator"]  = { link = "Constant" },
-        -- ["@lsp.type.enum"]       = { link = "Constant" },
-        -- ["@lsp.type.enumMember"] = { link = "Constant" },
-        -- ["@lsp.type.macro"]      = { link = "Macro" },
-        -- ["@lsp.type.interface"]  = { link = "Structure" },
-        -- ["@lsp.type.function"]   = { link = "Function" },
-        -- ["@lsp.type.method"]     = { link = "Function" },
-        -- ["@lsp.type.namespace"]  = { link = "Include" },
-        -- ["@lsp.type.parameter"]  = { link = "@typeParameter" },
-        -- ["@lsp.type.property"]   = { link = "Identifier" },
-        -- ["@lsp.type.struct"]     = { link = "Structure" },
-        -- ["@lsp.type.comment"]    = { link = "Comment" },
-        -- ["@lsp.type.type"]       = { link = "Comment" },
-        -- ["@lsp.type.variable"]   = { link = "@variable" },
+        --[[ SEMANTIC TOKENS -------------------------------------------------------------------------------------------
+        ["@lsp.type.keyword"]    = { link = "Keyword" },
+        ["@lsp.type.class"]      = { link = "Structure" },
+        ["@lsp.type.decorator"]  = { link = "Constant" },
+        ["@lsp.type.enum"]       = { link = "Constant" },
+        ["@lsp.type.enumMember"] = { link = "Constant" },
+        ["@lsp.type.macro"]      = { link = "Macro" },
+        ["@lsp.type.interface"]  = { link = "Structure" },
+        ["@lsp.type.function"]   = { link = "Function" },
+        ["@lsp.type.method"]     = { link = "Function" },
+        ["@lsp.type.namespace"]  = { link = "Include" },
+        ["@lsp.type.parameter"]  = { link = "@typeParameter" },
+        ["@lsp.type.property"]   = { link = "Identifier" },
+        ["@lsp.type.struct"]     = { link = "Structure" },
+        ["@lsp.type.comment"]    = { link = "Comment" },
+        ["@lsp.type.type"]       = { link = "Comment" },
+        ["@lsp.type.variable"]   = { link = "@variable" },
+        --]]
 
-        ----TREESITTER--------------------------------------------------------------------------------------------------
+        ---- TREESITTER ------------------------------------------------------------------------------------------------
         ["@comment.todo"]    = { fg = colors.crust, bg = colors.rosewater, italic = false, bold = true }, -- TODO
         ["@comment.note"]    = { fg = colors.crust, bg = colors.blue, italic = false, bold = true },      -- NOTE
         ["@comment.hint"]    = { fg = colors.crust, bg = colors.sky, italic = false, bold = true },       -- HINT

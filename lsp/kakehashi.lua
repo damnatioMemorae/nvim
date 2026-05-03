@@ -1,25 +1,20 @@
-local parsers = "$HOME/.local/share/nvim/site/parser"
-local queries = "$HOME/.local/share/nvim/lazy/nvim-treesitter"
-local custom  = "$HOME/.config/nvim"
-
+---@type vim.lsp.Config
 return {
         cmd          = { "kakehashi" },
+        filetypes    = { "lua", "cpp", "c" },
         root_markers = { "kakehashi.toml", ".git" },
-        filetypes    = { "markdown", "lua", "cpp", "c", "bash", "go" },
         init_options = {
-                -- searchPaths     = { parsers, queries, custom },
-                -- searchPaths     = { parsers },
                 autoInstall     = true,
                 languageServers = {
-                        lua_ls = {
-                                cmd       = { "lua-language-server" },
+                        ["lua_ls"] = {
+                                cmd       = { "lua-languge-server" },
                                 languages = { "lua" },
                         },
                 },
                 languages       = {
-                        lua      = { parser = "$HOME/.local/share/nvim/site/parser/lua.so" },
-                        markdown = { bridge = { lua_ls = { enabled = true } } },
-                        cpp      = { bridge = { lua_ls = { enabled = true } } },
+                        markdown = {
+                                bridge = { lua_ls = { enabled = true } },
+                        },
                 },
         },
 }

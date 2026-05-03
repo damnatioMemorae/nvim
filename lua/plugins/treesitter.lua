@@ -1,18 +1,17 @@
--- local ensure_installed = { "all" }
 local keymap = require("core.utils").uniqueKeymap
 
 return {
         "nvim-treesitter/nvim-treesitter",
-        event   = "BufReadPre",
-        build   = ":TSUpdate",
-        init    = function()
-                ----HIGHLIGHTS------------------------------------------------------------------------------------------
+        event  = "BufReadPre",
+        build  = ":TSUpdate",
+        init   = function()
+                ---- HIGHLIGHTS ----------------------------------------------------------------------------------------
 
                 local highlight = function(bufnr, lang)
                         if not vim.treesitter.language.add(lang) then
                                 return vim.notify(
                                         string.format("Treesitter cannot load parser for: %s", lang),
-                                        vim.log.levels.INFO,
+                                        vim.log.levels.WARN,
                                         { title = "Treesitter" })
                         end
                         vim.treesitter.start(bufnr)
@@ -33,7 +32,7 @@ return {
                                         return
                                 end
 
-                                ----FOLDS-------------------------------------------------------------------------------
+                                ---- FOLDS -----------------------------------------------------------------------------
 
                                 if ft == "javascriptreact" or ft == "typescript" then
                                         vim.opt_local.foldmethod = "indent"
@@ -48,7 +47,7 @@ return {
                                         end
                                 end)
 
-                                ----INDENT------------------------------------------------------------------------------
+                                ---- INDENT ----------------------------------------------------------------------------
 
                                 local dont_use_treesitter_indent = {
                                         "zsh",
@@ -64,7 +63,7 @@ return {
                                         vim.bo.indentexpr = "v:lua.require('nvim-treesitter').indentexpr()"
                                 end
 
-                                ----INSTALL PARSERS---------------------------------------------------------------------
+                                ---- INSTALL PARSERS -------------------------------------------------------------------
 
                                 if vim.fn.executable("tree-sitter") ~= 1 then
                                         vim.api.nvim_echo(
@@ -78,26 +77,22 @@ return {
                                 end
 
                                 if vim.list_contains(treesitter.get_installed(), ft) then
-                                        -- highlight(buf, ft)
+                                        highlight(buf, ft)
                                 elseif vim.list_contains(treesitter.get_available(), ft) then
                                         treesitter.install(ft):await(function()
-                                                -- highlight(buf, ft)
+                                                highlight(buf, ft)
                                         end)
                                 end
                         end,
                 })
-
-                -- `ts_query_ls`: use the custom directory set in the treesitter config
-                -- local ts_dir = require("nvim-treesitter.config").get_install_dir("parser")
-                -- vim.lsp.config("ts_query_ls", { init_options = { parser_install_directories = { ts_dir } } })
 
                 keymap("v",          "n", "]n", { remap = true, desc = "Select next node" })
                 keymap("v",          "N", "[n", { remap = true, desc = "Select previous node" })
                 keymap({ "v", "o" }, "m", "an", { remap = true, desc = "Select child node" })
                 keymap({ "v", "o" }, "M", "in", { remap = true, desc = "Select parent node" })
         end,
-        opts    = { install_dir = vim.fn.stdpath("data") .. "/treesitter" },
-        config  = function(_, opts)
+        opts   = { install_dir = vim.fn.stdpath("data") .. "/treesitter" },
+        config = function(_, opts)
                 local treesitter = require("nvim-treesitter")
                 treesitter.setup(opts)
                 if vim.fn.executable("tree-sitter") ~= 1 then

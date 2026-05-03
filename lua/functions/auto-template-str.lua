@@ -1,5 +1,5 @@
 local M = {}
---------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
 
 ---@param msg string
 local function warn(msg)
@@ -7,10 +7,10 @@ local function warn(msg)
 end
 
 ---@param strNode? TSNode
----@param insertAtCursor string text to insert at cursor location
+---@param insertAtCursor string
 ---@param textTransformer fun(nodeText: string): string
----@param cursorMove "nodeEnd"|nil where to move the cursor before applying `cursorOffset`
----@param cursorOffset number number of columns to move to the right
+---@param cursorMove "nodeEnd"|nil
+---@param cursorOffset number
 local function updateNode(strNode, insertAtCursor, textTransformer, cursorMove, cursorOffset)
         if not strNode then
                 return
@@ -25,20 +25,17 @@ local function updateNode(strNode, insertAtCursor, textTransformer, cursorMove, 
         local node_row, node_start_col, _, node_end_col = strNode:range()
         local cursor_col                                = vim.api.nvim_win_get_cursor(0)[2]
 
-        -- 1. `insertAtCursor`
         local pos_in_node = cursor_col - node_start_col
         node_text         = node_text:sub(1, pos_in_node) .. insertAtCursor .. node_text:sub(pos_in_node + 1)
 
-        -- 2. `textTransformer`
         node_text = textTransformer(node_text)
         vim.api.nvim_buf_set_text(0, node_row, node_start_col, node_row, node_end_col, { node_text })
 
-        -- 3. `cursorMove` & `cursorOffset`
         if cursorMove == "nodeEnd" then cursor_col = node_end_col end
         vim.api.nvim_win_set_cursor(0, { node_row + 1, cursor_col + cursorOffset })
 end
 
---------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
 
 local filetypeFuncs = {}
 
@@ -74,7 +71,7 @@ function filetypeFuncs.python(node)
         updateNode(str_node, "{}", transformer, nil, 2)
 end
 
---------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
 
 function M.insertTemplateStr()
         if vim.fn.mode() ~= "i" then
@@ -94,5 +91,5 @@ function M.insertTemplateStr()
         update_func(node_at_cursor)
 end
 
---------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
 return M
