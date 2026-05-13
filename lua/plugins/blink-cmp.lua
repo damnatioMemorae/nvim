@@ -1,6 +1,7 @@
 return {
         "saghen/blink.cmp",
-        event        = "VeryLazy",
+        enabled      = true,
+        event        = { "InsertEnter", "CmdLineEnter" },
         dependencies = { "saghen/blink.lib", "cushycush/quickshell-completions.nvim", "niuiic/blink-cmp-rg.nvim" },
         build        = function()
                 require("blink.cmp").build():wait(60000)
@@ -23,7 +24,7 @@ return {
                                 show_on_backspace_in_keyword         = false,
                                 show_on_backspace_after_accept       = false,
                                 show_on_backspace_after_insert_enter = false,
-                                show_on_insert                       = false,
+                                show_on_insert                       = true,
                                 show_on_accept_on_trigger_character  = false,
                                 show_on_blocked_trigger_characters   = {},
                         },
@@ -91,6 +92,7 @@ return {
                                         score_offset = 160,
                                         fallbacks    = {},
                                         async        = false,
+                                        max_items    = 40,
                                         enabled      = function()
                                                 if vim.bo.ft ~= "lua" then return true end
                                                 local col = vim.api.nvim_win_get_cursor(0)[2]

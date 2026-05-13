@@ -13,18 +13,18 @@ local autoCdConfig = {
         parentOfRoot = { ".config", vim.fs.basename(vim.env.HOME) },
 }
 
-autocmd("VimEnter", {
-        desc     = "User: Auto-cd to project root",
-        callback = function(args)
-                local root = vim.fs.root(args.buf, function(name, path)
-                        local parent_name           = vim.fs.basename(vim.fs.dirname(path))
-                        local dir_has_parent_marker = vim.tbl_contains(autoCdConfig.parentOfRoot, parent_name)
-                        local dir_has_child_marker  = vim.tbl_contains(autoCdConfig.childOfRoot, name)
-                        return dir_has_child_marker or dir_has_parent_marker
-                end)
-                if root and root ~= "" then vim.uv.chdir(root) end
-        end,
-})
+-- autocmd("VimEnter", {
+--         desc     = "User: Auto-cd to project root",
+--         callback = function(args)
+--                 local root = vim.fs.root(args.buf, function(name, path)
+--                         local parent_name           = vim.fs.basename(vim.fs.dirname(path))
+--                         local dir_has_parent_marker = vim.tbl_contains(autoCdConfig.parentOfRoot, parent_name)
+--                         local dir_has_child_marker  = vim.tbl_contains(autoCdConfig.childOfRoot, name)
+--                         return dir_has_child_marker or dir_has_parent_marker
+--                 end)
+--                 if root and root ~= "" then vim.uv.chdir(root) end
+--         end,
+-- })
 
 ---- `q` and `Esc` -----------------------------------------------------------------------------------------------------
 
@@ -68,7 +68,9 @@ autocmd("FileType", {
 autocmd("FocusGained", {
         desc     = "User: FIX `cwd` being not available when it is deleted outside nvim.",
         callback = function()
-                if not vim.uv.cwd() then vim.uv.chdir("/") end
+                if not vim.uv.cwd() then
+                        vim.uv.chdir("/")
+                end
         end,
 })
 autocmd("FocusGained", {
@@ -224,11 +226,115 @@ autocmd("ModeChanged", {
 
 ---- LSP ---------------------------------------------------------------------------------------------------------------
 
+local debounce = 100
+local timer    = vim.uv.new_timer()
+
+---@param client any
+---@param group any
+---@param bufnr integer
+local function compDoc(client, group, bufnr)
+        if not timer then
+                vim.notify("Cannot create timer", vim.log.levels.ERROR)
+        end
+
+        autocmd("CompleteChanged", {
+                group    = group,
+                buffer   = bufnr,
+                callback = function()
+                        timer:stop()
+
+                        local client_id = vim.tbl_get(vim.v.completed_item, "user_data", "nvim", "lsp", "client_id")
+                        if client_id ~= client.id then
+                                return
+                        end
+
+                        local completion_item = vim.tbl_get(vim.v.completed_item, "user_data", "nvim", "lsp",
+                                                            "completion_item")
+                        if not completion_item then
+                                return
+                        end
+
+                        local complete_info = vim.fn.complete_info({ "selected" })
+                        if vim.tbl_isempty(complete_info) then
+                                return
+                        end
+
+                        timer:start(debounce, 0, vim.schedule_wrap(function()
+                                client:request(
+                                        vim.lsp.protocol.Methods.completionItem_resolve,
+                                        completion_item,
+                                        function(err, result)
+                                                if err ~= nil then
+                                                        -- vim.notify("client" .. " " .. client.id .. vim.inspect(err),
+                                                        --            vim.log.levels.ERROR)
+                                                        return
+                                                end
+
+                                                local docs = vim.tbl_get(result, "documentation", "value")
+                                                if not docs then
+                                                        return
+                                                end
+
+                                                local wininfo = vim.api.nvim__complete_set(complete_info.selected,
+                                                                                           { info = docs })
+                                                if vim.tbl_isempty(wininfo) or not vim.api.nvim_win_is_valid(wininfo.winid) then
+                                                        return
+                                                end
+
+                                                vim.api.nvim_win_set_config(wininfo.winid, { border = "single" })
+                                                vim.wo[wininfo.winid].conceallevel  = 2
+                                                vim.wo[wininfo.winid].concealcursor = "niv"
+                                                vim.wo[wininfo.winid].winhighlight  = "PmenuDoc:Normal"
+
+                                                if not vim.api.nvim_buf_is_valid(wininfo.bufnr) then
+                                                        return
+                                                end
+
+                                                vim.bo[wininfo.bufnr].syntax = "markdown"
+                                                vim.treesitter.start(wininfo.bufnr, "markdown")
+                                        end,
+                                        bufnr
+                                )
+                        end)
+                        )
+                end,
+        })
+end
+
 autocmd("LspAttach", {
         desc     = "LSP stuff",
         group    = augroup("lsp-attach", { clear = true }),
         callback = function(args)
                 local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
+
+                --[[ COMPLETION
+                if client:supports_method("textDocument/completion") and not pcall(require, "blink.cmp") then
+                        vim.lsp.completion.enable(true, client.id, args.buf, {
+                                autotrigger = false,
+                                convert     = function(item)
+                                        return {
+                                                abbr         = Icons.Kinds.Array .. " " .. item.label:gsub("%b()", ""),
+                                                abbr_hlgroup = "LspKind" ..
+                                                           (vim.lsp.protocol.CompletionItemKind[item.kind] or ""),
+                                                -- kind         = "",
+                                                kind_hlgroup = "LspKind" ..
+                                                           (vim.lsp.protocol.CompletionItemKind[item.kind] or ""),
+                                                menu         = "",
+                                        }
+                                end,
+                        })
+
+                        local group = augroup("CompletionDocumentation" .. client.id, { clear = true })
+                        compDoc(client, group, args.buf)
+
+                        vim.opt.complete:append("o")
+                        vim.o.autocomplete  = true
+                        vim.o.completeopt   = "fuzzy,menuone,noinsert,noselect,popup"
+                        vim.o.pummaxwidth   = 80
+                        vim.o.complete      = "o,.,w,b,u"
+                        vim.o.previewheight = 3
+                end
+                --]]
 
                 --[[ DOCUMENT HIGHLIGHT
                 if fn.has("nvim-0.11") == 1 and client:supports_method("textDocument/documentHighlight", 0) then

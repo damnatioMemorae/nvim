@@ -3,7 +3,7 @@ local prefix = "<LocalLeader>"
 return {
         "echasnovski/mini.align",
         version = false,
-        event   = "VeryLazy",
+        event   = "BufReadPre",
         opts    = {
                 mappings = {
                         start              = prefix .. "a",

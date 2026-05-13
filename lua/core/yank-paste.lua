@@ -7,7 +7,7 @@ local play   = utils.playSound
 vim.api.nvim_create_autocmd("TextYankPost", {
         desc     = "User: Highlighted Yank",
         callback = function()
-                play("pickup")
+                -- play("pickup")
                 vim.highlight.on_yank{ timeout = 100 }
         end,
 })

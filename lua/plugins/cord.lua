@@ -1,4 +1,4 @@
 return {
         "vyfor/cord.nvim",
-        lazy = false,
+        event = "BufReadPre",
 }

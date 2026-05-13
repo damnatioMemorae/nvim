@@ -1,23 +1,16 @@
 return {
         "nvim-mini/mini.diff",
         version = false,
-        event   = "VeryLazy",
-        keys    = { { "<leader>g", function() MiniDiff.toggle_overlay() end } }, ---@diagnostic disable-line undefined-global
+        event   = "BufReadPre",
+        keys    = { { "<leader>g", function() require("mini.diff").toggle_overlay() end } },
         opts    = {
                 delay   = { text_change = 0 },
                 view    = {
                         priority = 4000,
                         style    = "sign",
-                        signs    = {
-                                add    = "▐",
-                                change = "🮍",
-                                delete = "🭻",
-                        },
+                        signs    = { add = "▐", change = "🮍", delete = "🭻" },
                 },
-                options = {
-                        algorithm         = "myers",
-                        indent_heuristics = true,
-                },
+                options = { algorithm = "myers", indent_heuristics = true },
         },
         config  = function(_, opts)
                 require("mini.diff").setup(opts)

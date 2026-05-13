@@ -1,5 +1,6 @@
 return {
         "L3MON4D3/LuaSnip",
+        enabled = false,
         event  = "InsertEnter",
         opts   = {},
         config = function(_, opts)

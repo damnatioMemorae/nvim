@@ -104,10 +104,10 @@ keymap(n, ">", function() nano.camelSnakeToggle() end, { desc = "󰬴 Toggle cam
 local trail_chars = { ",", ")", ";", ".", '"', "'", " \\", " {", "?" }
 for _, chars in pairs(trail_chars) do
         keymap("n", "<leader>" .. vim.trim(chars), function()
-                -- local updated_line = vim.api.nvim_get_current_line() .. chars
-                -- vim.api.nvim_set_current_line(updated_line)
-                vim.cmd("normal A" .. chars)
-                vim.cmd("normal ^")
+                local updated_line = vim.api.nvim_get_current_line() .. chars
+                vim.api.nvim_set_current_line(updated_line)
+                -- vim.cmd("normal A" .. chars)
+                -- vim.cmd("normal ^")
         end)
 end
 

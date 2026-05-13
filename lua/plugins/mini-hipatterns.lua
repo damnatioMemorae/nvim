@@ -33,7 +33,7 @@ local words = {
 return {
         "nvim-mini/mini.hipatterns",
         version = false,
-        event   = "VeryLazy",
+        event   = "BufReadPre",
         config  = function()
                 local hipatterns = require("mini.hipatterns")
 

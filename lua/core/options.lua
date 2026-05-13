@@ -40,6 +40,7 @@ local cursor = {
 }
 
 ---- GENERAL -----------------------------------------------------------------------------------------------------------
+
 opt.autowriteall   = false
 opt.autowrite      = false
 opt.cmdheight      = 0
@@ -77,11 +78,13 @@ opt.updatetime     = 2000
 opt.redrawtime     = 2000
 
 ---- BACKUP ------------------------------------------------------------------------------------------------------------
+
 opt.backup      = false
 opt.swapfile    = false
 opt.writebackup = false
 
 ---- LAYOUT ------------------------------------------------------------------------------------------------------------
+
 opt.inccommand    = "nosplit"
 opt.incsearch     = true
 opt.pumheight     = 20
@@ -92,6 +95,7 @@ opt.splitbelow    = true
 opt.splitright    = true
 
 ---- EDIT --------------------------------------------------------------------------------------------------------------
+
 opt.clipboard   = "unnamedplus"
 opt.completeopt = "menu,menuone,noselect"
 opt.ignorecase  = true
@@ -99,9 +103,11 @@ opt.iskeyword   = opt.iskeyword:append("@,48-57,_,-,192-255")
 opt.smartcase   = true
 
 ---- FOLD --------------------------------------------------------------------------------------------------------------
+
 opt.list = true
 
 ---- UI ----------------------------------------------------------------------------------------------------------------
+
 opt.cursorline    = true
 opt.guicursor     = table.concat(cursor, ",")
 opt.hlsearch      = false
@@ -137,12 +143,13 @@ opt.listchars     = {
 }
 
 ---- TABSPACE ----------------------------------------------------------------------------------------------------------
+
 opt.autoindent  = true
+opt.shiftround  = true
+opt.shiftwidth  = 8
+opt.tabstop     = 2
+opt.smartindent = true
 opt.breakindent = true
 opt.copyindent  = true
 opt.expandtab   = true
-opt.shiftround  = true
-opt.shiftwidth  = 8
-opt.smartindent = true
-opt.tabstop     = 2
 opt.textwidth   = 120

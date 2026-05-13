@@ -291,7 +291,6 @@ Icons.KindsAlt = {
         Operator      = "󰪚",
         Type          = "󰜁",
         TypeParameter = "󰬛",
-
 }
 
 Icons.Devicons = {

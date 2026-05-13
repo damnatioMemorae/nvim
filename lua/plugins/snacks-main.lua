@@ -93,22 +93,12 @@ return {
                         },
                 },
                 styles    = {
-                        notification_history = {
-                                border   = border,
-                                height   = 0.9,
-                                width    = 0.9,
-                                title    = "",
-                                titlepos = "left",
-                                fg       = "markdown",
-                                bo       = { filetype = "Snacks.notif_history", modifiable = false },
-                                wo       = { winhighlight = "Normal:SnacksNotifierHistory,FloatBorder:SnacksNotifierHistoryBorder" },
-                        },
                         input                = {
                                 backdrop = true,
                                 border   = border,
                                 row      = math.ceil(vim.o.lines / 10),
                                 b        = { completion = true },
-                                width    = 80,
+                                width    = 100,
                                 wo       = {
                                         cursorline   = false,
                                         winhighlight =
@@ -121,6 +111,16 @@ return {
                                 height   = 0.6,
                                 border   = border,
                                 title    = " 󰆽 Git blame ",
+                        },
+                        notification_history = {
+                                border   = border,
+                                height   = 0.9,
+                                width    = 0.9,
+                                title    = "",
+                                titlepos = "left",
+                                fg       = "markdown",
+                                bo       = { filetype = "Snacks.notif_history", modifiable = false },
+                                wo       = { winhighlight = "Normal:SnacksNotifierHistory,FloatBorder:SnacksNotifierHistoryBorder" },
                         },
                 },
                 picker    = {

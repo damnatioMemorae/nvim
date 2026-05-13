@@ -3,7 +3,6 @@ local lvl  = vim.v.count
 
 return {
         "kevinhwang91/nvim-ufo",
-        event        = "BufEnter",
         dependencies = { "kevinhwang91/promise-async" },
         keys         = {
                 { "<leader>if", function() require("ufo").inspect() end, desc = "Fold Info" },

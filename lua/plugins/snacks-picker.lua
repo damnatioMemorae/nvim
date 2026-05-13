@@ -76,10 +76,10 @@ return {
 
                 ---- LSP -----------------------------------------------------------------------------------------------
 
-                { "<LocalLeader>r", function() Snacks.picker.lsp_references() end,        desc = "Show References",         mode = { "n" } },
-                { "<LocalLeader>i", function() Snacks.picker.lsp_implementations() end,   desc = "Show Implementations",    mode = { "n" } },
-                { "<LocalLeader>d", function() Snacks.picker.lsp_definitions() end,       desc = "Show Definitions",        mode = { "n" } },
-                { "<LocalLeader>D", function() Snacks.picker.lsp_declarations() end,      desc = "Show Declarations",       mode = { "n" } },
+                -- { "<LocalLeader>r", function() Snacks.picker.lsp_references() end,        desc = "Show References",         mode = { "n" } },
+                -- { "<LocalLeader>i", function() Snacks.picker.lsp_implementations() end,   desc = "Show Implementations",    mode = { "n" } },
+                -- { "<LocalLeader>d", function() Snacks.picker.lsp_definitions() end,       desc = "Show Definitions",        mode = { "n" } },
+                -- { "<LocalLeader>D", function() Snacks.picker.lsp_declarations() end,      desc = "Show Declarations",       mode = { "n" } },
                 { leader .. "s",    function() Snacks.picker.lsp_symbols() end,           desc = "Show LSP Symbols",        mode = { "n" } },
                 { leader .. "S",    function() Snacks.picker.lsp_workspace_symbols() end, desc = "Show Workspace Symbols",  mode = { "n" } },
                 { leader .. "d",    function() Snacks.picker.diagnostics_buffer() end,    desc = "Show Buffer Diagnostics", mode = { "n" } },

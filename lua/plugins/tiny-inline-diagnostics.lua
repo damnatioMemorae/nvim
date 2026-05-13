@@ -29,7 +29,7 @@ return {
                         show_related                 = { enabled = true, max_count = 5 },
                         overflow                     = { mode = "wrap" },
                         break_line                   = { enabled = false, after = 25 },
-                        virt_texts                   = { priority = 8000 },
+                        virt_texts                   = { priority = 10000 },
                         experimental                 = { use_window_local_extmarks = true },
                         format                       = function(diag) return diag.message end,
                 },

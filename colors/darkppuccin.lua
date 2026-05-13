@@ -108,8 +108,9 @@ local groups = {
 
         ---- MENU ------------------------------------------------------------------------------------------------------
         Pmenu       = { bg = colors.crust1 },
-        PmenuSel    = { link = "Visual" },
-        PmenuSbar   = { bg = colors.base },
+        PmenuDoc    = { bg = colors.base },
+        PmenuSel    = { bg = colors.base, bold = true },
+        PmenuSbar   = { bg = colors.mantle },
         PmenuThumb  = { bg = colors.surface0 },
         PmenuBorder = { link = "borderStyle" },
 
@@ -329,6 +330,35 @@ local groups = {
         ["@string.special.url"]         = { link = "@string.escape" },
         ["@string.special.url.html"]    = { link = "@string.escape" },
         ["@string.special.url.comment"] = { link = "@string.escape" },
+
+        ---- LSP KINDS -------------------------------------------------------------------------------------------------
+
+        LspKindClass         = { link = "@class" },
+        LspKindColor         = { link = "DevIconDss" },
+        LspKindConstant      = { link = "@constant" },
+        LspKindConstructor   = { link = "@constructor" },
+        LspKindEnum          = { link = "@enum" },
+        LspKindEnumMember    = { link = "@enumMember" },
+        LspKindEvent         = { link = "@event" },
+        LspKindField         = { link = "@field" },
+        LspKindFile          = { link = "Structure" },
+        LspKindFolder        = { link = "Directory" },
+        LspKindFunction      = { link = "@function" },
+        LspKindInterface     = { link = "@interface" },
+        LspKindKeyword       = { link = "aboba" },
+        LspKindMethod        = { link = "@method" },
+        LspKindModule        = { link = "@module" },
+        LspKindOperator      = { link = "@operator" },
+        LspKindProperty      = { link = "@property" },
+        LspKindReference     = { link = "@function.call" },
+        LspKindSnippet       = { link = "Keyword" },
+        LspKindStruct        = { link = "@struct" },
+        LspKindText          = { link = "@markup" },
+        LspKindTypeParameter = { link = "@variable.parameter" },
+        LspKindUnit          = { link = "@number" },
+        LspKindValue         = { link = "@number" },
+        LspKindVariable      = { link = "@variable" },
+        LspAbbrDeprecated    = { link = "DiagnosticDeprecated" },
 
 }
 
