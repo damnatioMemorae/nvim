@@ -563,11 +563,11 @@ autocmd("FileType", {
 
 ---- BACKDROP ----------------------------------------------------------------------------------------------------------
 
-local backdrop = 40
+local backdrop = Config.backdrop
 
 vim.api.nvim_create_autocmd({ "FileType", "FocusGained", "BufWinEnter" }, {
         desc     = "Add backdrop to windows",
-        pattern  = { "dropbar_menu", "convy", "yazi" },
+        pattern  = { "dropbar_menu", "convy", "yazi", "Glance" },
         callback = function(args)
                 local backdrop_name = "Backdrop"
                 local bufnr         = args.buf
@@ -585,10 +585,8 @@ vim.api.nvim_create_autocmd({ "FileType", "FocusGained", "BufWinEnter" }, {
                         zindex    = zindex - 1,
                 })
 
-                vim.api.nvim_set_hl(0, backdrop_name, { link = "Backdrop" })
+                vim.api.nvim_set_hl(0, backdrop_name, { bg = "#000000" })
                 vim.wo[winnr].winhighlight     = "Normal:" .. backdrop_name
-                -- vim.wo[winnr].winhighlight     = backdrop_name .. ":Normal"
-                -- vim.wo[winnr].winhighlight     = "Normal:Backdrop"
                 vim.wo[winnr].winblend         = backdrop
                 vim.bo[backdrop_bufnr].buftype = "nofile"
 

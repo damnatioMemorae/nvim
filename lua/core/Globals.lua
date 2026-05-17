@@ -11,7 +11,7 @@ _G.Spinner = {}
 ---- VARIABLES ---------------------------------------------------------------------------------------------------------
 
 Config.projectsDir = vim.env.HOME .. "/deeznuts/"
-Config.backdrop    = 80
+Config.backdrop    = 60
 Config.blend       = 0
 Config.winblend    = 0
 Config.localRepos  = vim.fs.normalize("$HOME/deeznuts/")
