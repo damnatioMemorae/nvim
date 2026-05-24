@@ -13,18 +13,20 @@ local autoCdConfig = {
         parentOfRoot = { ".config", vim.fs.basename(vim.env.HOME) },
 }
 
--- autocmd("VimEnter", {
---         desc     = "User: Auto-cd to project root",
---         callback = function(args)
---                 local root = vim.fs.root(args.buf, function(name, path)
---                         local parent_name           = vim.fs.basename(vim.fs.dirname(path))
---                         local dir_has_parent_marker = vim.tbl_contains(autoCdConfig.parentOfRoot, parent_name)
---                         local dir_has_child_marker  = vim.tbl_contains(autoCdConfig.childOfRoot, name)
---                         return dir_has_child_marker or dir_has_parent_marker
---                 end)
---                 if root and root ~= "" then vim.uv.chdir(root) end
---         end,
--- })
+--[[
+autocmd("VimEnter", {
+        desc     = "User: Auto-cd to project root",
+        callback = function(args)
+                local root = vim.fs.root(args.buf, function(name, path)
+                        local parent_name           = vim.fs.basename(vim.fs.dirname(path))
+                        local dir_has_parent_marker = vim.tbl_contains(autoCdConfig.parentOfRoot, parent_name)
+                        local dir_has_child_marker  = vim.tbl_contains(autoCdConfig.childOfRoot, name)
+                        return dir_has_child_marker or dir_has_parent_marker
+                end)
+                if root and root ~= "" then vim.uv.chdir(root) end
+        end,
+})
+--]]
 
 ---- `q` and `Esc` -----------------------------------------------------------------------------------------------------
 
@@ -50,6 +52,7 @@ autocmd("FileType", {
                 "qf",
                 "spectre_panel",
                 "startuptime",
+                "terminal",
                 "tsplayground",
                 "query",
         },
@@ -336,24 +339,21 @@ autocmd("LspAttach", {
                 end
                 --]]
 
-                --[[ DOCUMENT HIGHLIGHT
-                if fn.has("nvim-0.11") == 1 and client:supports_method("textDocument/documentHighlight", 0) then
+                ---[[ DOCUMENT HIGHLIGHT
+                if vim.fn.mode() ~= "i" and fn.has("nvim-0.11") == 1 and client:supports_method("textDocument/documentHighlight", 0) then
                         local buf               = args.buf
-                        local highlight_augroup = augroup("lsp-highlight", { clear = false })
+                        local highlight_augroup = augroup("lsp-highlight", { clear = true })
 
-                        autocmd({ "CursorHold", "CursorHoldI" }, {
+                        autocmd({ "CursorMoved" }, {
                                 desc     = "Highlight LSP symbol under cursor",
                                 buffer   = buf,
                                 group    = highlight_augroup,
                                 callback = function()
-                                        local timer = vim.uv.new_timer()
-                                        timer:stop()
-                                        timer:start(2000, 0, vim.schedule_wrap(function()
-                                                vim.lsp.buf.document_highlight()
-                                        end))
+                                        vim.lsp.buf.clear_references()
+                                        vim.lsp.buf.document_highlight()
                                 end,
                         })
-                        autocmd({ "CursorMoved", "CursorMovedI" }, {
+                        autocmd({ "CursorMoved" }, {
                                 desc     = "Clear LSP symbol highlight",
                                 buffer   = buf,
                                 group    = highlight_augroup,
@@ -452,15 +452,15 @@ autocmd({ "BufLeave", "FocusLost", "InsertEnter", "WinLeave" }, {
 autocmd({ "BufReadPost", "BufReadPre", "BufWinEnter" }, {
         desc     = "Restore cursor position",
         pattern  = "*",
-        callback = function()
-                local test_line_data = vim.api.nvim_buf_get_mark(0, '"')
-                local test_line      = test_line_data[1]
-                local last_line      = vim.api.nvim_buf_line_count(0)
-
-                if test_line > 0 and test_line <= last_line then
-                        vim.api.nvim_win_set_cursor(0, test_line_data)
+        callback = function(args)
+                local mark       = vim.api.nvim_buf_get_mark(args.buf, '"')
+                local line_count = vim.api.nvim_buf_line_count(args.buf)
+                if mark[1] > 0 and mark[1] <= line_count then
+                        vim.api.nvim_win_set_cursor(0, mark)
+                        vim.schedule(function()
+                                vim.cmd("normal! zz")
+                        end)
                 end
-                vim.cmd.normal("zz")
         end,
 })
 
@@ -479,18 +479,9 @@ autocmd({ "BufWritePre" }, {
 ---- SPLITS ------------------------------------------------------------------------------------------------------------
 
 autocmd("FileType", {
-        desc     = "Automatically split help buffers to the right",
-        pattern  = "help",
-        callback = function()
-                if vim.o.filetype ~= "help" then return end
-                local function hasDiffviewInCurrentTab()
-                        return vim.tbl_contains(
-                                vim.tbl_map(function(win) return vim.bo[vim.api.nvim_win_get_buf(win)].filetype end,
-                                            vim.api.nvim_tabpage_list_wins(0)), "DiffviewFiles")
-                end
-                if hasDiffviewInCurrentTab() then return end
-                vim.cmd.wincmd("L")
-        end,
+        desc    = "Automatically split help buffers to the right",
+        pattern = "help",
+        command = "wincmd L",
 })
 autocmd("VimResized", {
         desc    = "Automatically resize splits",
@@ -606,9 +597,32 @@ vim.api.nvim_create_autocmd({ "FileType", "FocusGained", "BufWinEnter" }, {
         end,
 })
 
+---- DONT CONTINUE COMMENTS --------------------------------------------------------------------------------------------
+
 autocmd("FileType", {
         pattern  = "*",
         callback = function()
                 vim.opt_local.formatoptions:remove({ "c", "r", "o" })
+        end,
+})
+
+---- ENV SYNTAX HIGHLIGHTING -------------------------------------------------------------------------------------------
+
+autocmd("BufRead", {
+        group    = augroup("dotenv_ft", { clear = true }),
+        pattern  = { ".env", ".env.*" },
+        callback = function()
+                vim.bo.filetype = "dosini"
+        end,
+})
+
+---- TERMINAL BUFFER ---------------------------------------------------------------------------------------------------
+
+autocmd("FileType", {
+        pattern  = "*",
+        callback = function()
+                if vim.bo.buftype == "terminal" then
+                        vim.keymap.set("i", "<C-Escape>", "<C-\\><C-n>")
+                end
         end,
 })

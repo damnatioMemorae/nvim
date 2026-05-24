@@ -4,8 +4,6 @@ else
         vim.cmd.colorscheme("industry")
 end
 
-vim.cmd("packadd nvim.undotree")
-
 ---@param module string module name
 local function safeRequire(module)
         local success, errmsg = pcall(require, module)
@@ -41,3 +39,5 @@ safeRequire("core.yank-paste")
 
 -- safeRequire("functions.treesitter-diagnostics")
 -- safeRequire("functions.commatose")
+
+vim.cmd("packadd nvim.undotree")

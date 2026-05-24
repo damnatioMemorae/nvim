@@ -27,7 +27,7 @@ local words = {
         ["colors.base"]      = "#1e1e2e",
         ["colors.mantle"]    = "#14141f",
         ["colors.crust1"]    = "#11111b",
-        ["colors.crust"]     = "#0e0e16",
+        ["colors.crust0"]    = "#0e0e16",
 }
 
 return {
@@ -47,16 +47,6 @@ return {
                         highlighters = {
                                 hex_color  = hipatterns.gen_highlighter.hex_color(),
                                 word_color = { pattern = "%f[%w]()%S+()%f[%W]", group = wordColorGroup },
-                                hsl_color  = {
-                                        pattern = "hsl%(%d+,? %d+,? %d+%)",
-                                        group   = function(_, match)
-                                                local utils     = require("core.utils")
-                                                local h, s, l   = match:match("hsl%((%d+),? (%d+),? (%d+)%)")
-                                                h, s, l         = tonumber(h), tonumber(s), tonumber(l)
-                                                local hex_color = utils.hslToHex(h, s, l)
-                                                return hipatterns.compute_hex_color_group(hex_color, "bg")
-                                        end,
-                                },
                         },
                 })
 

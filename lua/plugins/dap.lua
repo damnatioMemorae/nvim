@@ -1,8 +1,12 @@
 return {
         "mfussenegger/nvim-dap",
-        enabled      = false,
         lazy         = false,
-        dependencies = { "rcarriga/nvim-dap-ui", "nvim-neotest/nvim-nio", "theHamsta/nvim-dap-virtual-text" },
+        dependencies = {
+                "rcarriga/nvim-dap-ui",
+                "nvim-neotest/nvim-nio",
+                "theHamsta/nvim-dap-virtual-text",
+                "igorlfs/nvim-dap-view",
+        },
         config       = function()
                 local dap          = require("dap")
                 local ui           = require("dapui")
@@ -188,6 +192,12 @@ return {
                         },
                 }
 
-                ---- GO ------------------------------------------------------------------------------------------------
+                ---- LUA -----------------------------------------------------------------------------------------------
+
+                local luadb               = vim.fn.stdpath("data") .. "/mason/packages/local-lua_debugger-vscode"
+                dap.adapters["local-lua"] = {
+                        type    = "executable",
+                        command = "node",
+                }
         end,
 }

@@ -1,5 +1,5 @@
 local icon = Icons.Misc.lightbulb
-local hl   = "LspCodeAction"
+local hl   = "DiagnosticHint"
 
 return {
         "kosayoda/nvim-lightbulb",

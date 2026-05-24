@@ -78,6 +78,7 @@ local groups = {
         { "@constructor.lua",     "Delimiter" },
         { "@type.luadoc",         "Comment" },
         { "@type.builtin.luadoc", "@type.luadoc" },
+        -- { "@variable.parameter",  "Type" },
 }
 
 require("core.utils").linkHl(groups)

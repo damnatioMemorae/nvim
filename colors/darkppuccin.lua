@@ -36,7 +36,7 @@ local colors = {
         base      = "#1e1e2e",
         mantle    = "#14141f",
         crust1    = "#11111b",
-        crust     = "#0e0e16",
+        crust0    = "#0e0e16",
 
         -- green_transparent  = "#1d2324",
         -- yellow_transparent = "#262325",
@@ -52,7 +52,7 @@ local colors = {
         red_transparent    = "#3c2733",
 }
 
-vim.g.terminal_color_0          = colors.crust
+vim.g.terminal_color_0          = colors.crust0
 vim.g.terminal_color_1          = colors.red
 vim.g.terminal_color_2          = colors.green
 vim.g.terminal_color_3          = colors.yellow
@@ -68,7 +68,7 @@ vim.g.terminal_color_12         = colors.sapphire
 vim.g.terminal_color_13         = colors.mauve
 vim.g.terminal_color_14         = colors.teal
 vim.g.terminal_color_15         = colors.subtext0
-vim.g.terminal_color_background = colors.crust
+vim.g.terminal_color_background = colors.crust0
 vim.g.terminal_color_foreground = colors.text
 
 ---@type table<string, vim.api.keyset.highlight>
@@ -83,7 +83,7 @@ local groups = {
         FloatTitle = { fg = colors.teal, bg = colors.mantle },
 
         ---- SEARCH ----------------------------------------------------------------------------------------------------
-        Search    = { fg = colors.crust, bg = colors.spark },
+        Search    = { fg = colors.crust0, bg = colors.spark },
         CurSearch = { fg = colors.teal, bg = colors.base },
         IncSearch = { fg = colors.teal, bg = colors.base },
 
@@ -115,7 +115,7 @@ local groups = {
         PmenuBorder = { link = "borderStyle" },
 
         ---- EIDITOR ---------------------------------------------------------------------------------------------------
-        Normal         = { bg = colors.crust },
+        Normal         = { bg = colors.crust0 },
         NormalFloat    = { bg = colors.crust1 },
         NormalNC       = { link = "Normal" },
         WinSeparator   = { link = "NonText" },
@@ -179,20 +179,20 @@ local groups = {
         DiagnosticHint             = { fg = colors.teal },
 
         ---- BORDERS ---------------------------------------------------------------------------------------------------
-        borderStyle       = { fg = colors.crust, bg = colors.crust },
-        borderTop         = { fg = colors.crust, bg = colors.crust },
-        borderBottom      = { fg = colors.crust, bg = colors.crust },
-        borderLeft        = { fg = colors.crust, bg = colors.crust },
-        borderRight       = { fg = colors.crust, bg = colors.crust },
-        borderTopEmpty    = { fg = colors.crust, bg = colors.crust },
-        borderBottomEmpty = { fg = colors.crust, bg = colors.crust },
-        borderLeftEmpty   = { fg = colors.crust, bg = colors.crust },
-        borderRightEmpty  = { fg = colors.crust, bg = colors.crust },
-        borderStyleNone   = { fg = colors.crust, bg = colors.crust },
+        borderStyle       = { fg = colors.crust0, bg = colors.crust0 },
+        borderTop         = { fg = colors.crust0, bg = colors.crust0 },
+        borderBottom      = { fg = colors.crust0, bg = colors.crust0 },
+        borderLeft        = { fg = colors.crust0, bg = colors.crust0 },
+        borderRight       = { fg = colors.crust0, bg = colors.crust0 },
+        borderTopEmpty    = { fg = colors.crust0, bg = colors.crust0 },
+        borderBottomEmpty = { fg = colors.crust0, bg = colors.crust0 },
+        borderLeftEmpty   = { fg = colors.crust0, bg = colors.crust0 },
+        borderRightEmpty  = { fg = colors.crust0, bg = colors.crust0 },
+        borderStyleNone   = { fg = colors.crust0, bg = colors.crust0 },
         FloatBorder       = { fg = colors.crust1, bg = colors.crust1 },
 
         ---- SYNTAX ----------------------------------------------------------------------------------------------------
-        MatchParen   = { fg = colors.ivory, bg = colors.crust, bold = true, reverse = true },
+        MatchParen   = { fg = colors.ivory, bg = colors.crust0, bold = true, reverse = true },
         Conceal      = { link = "Folded" },
         Comment      = { fg = colors.surface2 },
         Directory    = { fg = colors.ivory },
@@ -240,13 +240,13 @@ local groups = {
         --]]
 
         ---- TREESITTER ------------------------------------------------------------------------------------------------
-        ["@comment.todo"]    = { fg = colors.crust, bg = colors.rosewater, italic = false, bold = true }, -- TODO
-        ["@comment.note"]    = { fg = colors.crust, bg = colors.blue, italic = false, bold = true },      -- NOTE
-        ["@comment.hint"]    = { fg = colors.crust, bg = colors.sky, italic = false, bold = true },       -- HINT
-        ["@comment.warning"] = { fg = colors.crust, bg = colors.yellow, italic = false, bold = true },    -- WARNING
-        ["@comment.error"]   = { fg = colors.crust, bg = colors.red, italic = false, bold = true },       -- ERROR
-        ["@comment.code"]    = { fg = colors.teal, bg = colors.base, italic = false, bold = false },      -- `code`
-        ["@comment.bold"]    = { fg = colors.surface2, bold = true },                                     -- BOLD
+        ["@comment.todo"]    = { fg = colors.crust0, bg = colors.rosewater, italic = false, bold = true }, -- TODO
+        ["@comment.note"]    = { fg = colors.crust0, bg = colors.blue, italic = false, bold = true },      -- NOTE
+        ["@comment.hint"]    = { fg = colors.crust0, bg = colors.sky, italic = false, bold = true },       -- HINT
+        ["@comment.warning"] = { fg = colors.crust0, bg = colors.yellow, italic = false, bold = true },    -- WARNING
+        ["@comment.error"]   = { fg = colors.crust0, bg = colors.red, italic = false, bold = true },       -- ERROR
+        ["@comment.code"]    = { fg = colors.teal, bg = colors.base, italic = false, bold = false },       -- `code`
+        ["@comment.bold"]    = { fg = colors.surface2, bold = true },                                      -- BOLD
 
         ["@punctuation.bracket"]   = { link = "Comment" },
         ["@punctuation.delimiter"] = { link = "Comment" },

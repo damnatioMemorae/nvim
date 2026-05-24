@@ -36,6 +36,7 @@ local ensure_installed = {
         "qmlls",
 
         -- DEBUGGERS
+        "local-lua-debugger-vscode",
 
         -- OTHER
         "just-lsp",
