@@ -32,8 +32,10 @@ return {
                         local ft_icon, ft_color = devicons.get_icon_color(filtype)
 
                         local function getFt()
+                                local icon  = "*"
+                                -- local icon = "🬁"
                                 if vim.bo[props.buf].modified then
-                                        return { { filename, group = "Comment" }, { "*" .. " ", group = "Special" } }
+                                        return { { filename, group = "Comment" }, { icon .. " ", group = "Special" } }
                                 else
                                         return { filename .. " ", group = "Comment" }
                                 end
@@ -82,22 +84,16 @@ return {
                         end
 
                         local function lspStatus()
-                                local label = {}
-                                vim.api.nvim_create_autocmd("LspProgress", {
-                                        callback = function(args)
-
-                                        end,
-                                })
-                                return label
                         end
 
                         return {
                                 { " " },
                                 { getGitDiff() },
                                 { getDiagnostic() },
-                                -- { ft_icon .. " ",        guifg = ft_color },
+                                { lspStatus() },
+                                -- { ft_icon .. " ",        guifg  = ft_color },
                                 { getFt() },
-                                -- { filename .. " ", group = "Comment" },
+                                -- { filename .. " ", group  = "Comment" },
                         }
                 end,
         },
