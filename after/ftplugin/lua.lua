@@ -1,17 +1,12 @@
-local bkeymap = require("core.utils").bufKeymap
-local abbr    = require("core.utils").bufAbbrev
-
-------------------------------------------------------------------------------------------------------------------------
-
-abbr("//",    "--")
-abbr("const", "local")
-abbr("let",   "local")
-abbr("===",   "==")
-abbr("!=",    "~=")
-abbr("!==",   "~=")
-abbr("=~",    "~=")
-abbr("fi",    "end")
-abbr("fu",    "function")
+_G.bufAbbr("//",    "--")
+_G.bufAbbr("const", "local")
+_G.bufAbbr("let",   "local")
+_G.bufAbbr("===",   "==")
+_G.bufAbbr("!=",    "~=")
+_G.bufAbbr("!==",   "~=")
+_G.bufAbbr("=~",    "~=")
+_G.bufAbbr("fi",    "end")
+_G.bufAbbr("fu",    "function")
 
 ---@param sign "+"|"-"
 local function plusPlusMinusMinus(sign)
@@ -27,8 +22,8 @@ local function plusPlusMinusMinus(sign)
                 vim.api.nvim_win_set_cursor(0, { row, col + diff })
         end
 end
-bkeymap("i", "+", function() plusPlusMinusMinus("+") end, { desc = "i++  i = i + 1" })
-bkeymap("i", "-", function() plusPlusMinusMinus("-") end, { desc = "i--  i = i - 1" })
+_G.bufMap({ "+", function() plusPlusMinusMinus("+") end, mode = "i", desc = "i++  i = i + 1" })
+_G.bufMap({ "-", function() plusPlusMinusMinus("-") end, mode = "i", desc = "i--  i = i - 1" })
 
 ---- AUTO-COMMA FOR TABLES ---------------------------------------------------------------------------------------------
 
@@ -47,14 +42,19 @@ vim.api.nvim_create_autocmd("TextChangedI", {
 
 ---- YANK MODULE NAME --------------------------------------------------------------------------------------------------
 
-bkeymap("n", "<leader>ym", function()
+_G.bufMap({
+        "<leader>ym",
+        function()
                 local abs_path = vim.api.nvim_buf_get_name(0)
                 local rel_path = abs_path:sub(#(vim.uv.cwd()) + 2)
                 local module   = rel_path:gsub("%.lua$", ""):gsub("^lua/", ""):gsub("/", "."):gsub("%.init$", "")
                 local req      = ("require(%q)"):format(module)
                 vim.fn.setreg("+", req)
                 vim.notify(req, nil, { icon = "󰅍", title = "Copied", ft = "lua" })
-        end, { desc = "󰢱 Module (require)" })
+        end,
+        mode = "n",
+        desc = "󰢱 Module (require)",
+})
 
 --[[ SEMANTIC TOKENS ---------------------------------------------------------------------------------------------------
 
@@ -74,11 +74,3 @@ vim.api.nvim_create_autocmd("LspTokenUpdate", {
 })
 --]]
 
-local groups = {
-        { "@constructor.lua",     "Delimiter" },
-        { "@type.luadoc",         "Comment" },
-        { "@type.builtin.luadoc", "@type.luadoc" },
-        -- { "@variable.parameter",  "Type" },
-}
-
-require("core.utils").linkHl(groups)

@@ -28,5 +28,8 @@
 ("text" @comment.bold
         (#lua-match? @comment.bold "^%u[%u%d_]+$"))
 
-("text" @comment.code @nospell
-        (#lua-match? @comment.code "`([^`]+)`"))
+("text" @number
+        (#lua-match? @number "^#[0-9]+$"))
+
+("text" @comment.code
+        (#lua-match? @comment.code "^`[%w]+$"))

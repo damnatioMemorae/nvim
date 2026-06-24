@@ -56,6 +56,8 @@ return {
                         { "Current",  "LspInlayHint" },
                         { "Label",    "DiagnosticVirtualTextInfo" },
                 }
-                require("core.utils").linkHl(groups, "Flash")
+                vim.iter(groups):each(function(group)
+                        vim.api.nvim_set_hl(0, "Flash" .. group[1], { link = group[2] })
+                end)
         end,
 }

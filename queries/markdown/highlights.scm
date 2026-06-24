@@ -9,3 +9,15 @@
         (atx_h6_marker)
 ] @conceal
         (#set! conceal ""))
+
+; (((atx_h1_marker) @conceal.heading) (#set! conceal "o"))
+; (((atx_h2_marker) @conceal.heading) (#set! conceal "o"))
+; (((atx_h3_marker) @conceal.heading) (#set! conceal "o"))
+; (((atx_h4_marker) @conceal.heading) (#set! conceal "o"))
+; (((atx_h5_marker) @conceal.heading) (#set! conceal "o"))
+; (((atx_h6_marker) @conceal.heading) (#set! conceal "o"))
+
+(((language) @conceal) (#set! conceal " "))
+; (((list_marker_minus) @conceal.list) (#set! conceal "-"))
+
+; ((inline) @)

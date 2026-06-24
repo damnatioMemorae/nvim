@@ -38,11 +38,7 @@ local function addDocstring()
                 vim.cmd.startinsert()
         elseif ft == "lua" then
                 local param_line = vim.api.nvim_get_current_line():match("function.*%((.*)%)$")
-
-                if not param_line then
-                        return
-                end
-
+                if not param_line then return end
                 local params       = vim.split(param_line, ", ?")
                 local luadoc_lines = vim.iter(params)
                            :map(function(param) return ("%s---@param %s any"):format(indent, param) end)
@@ -79,11 +75,11 @@ return {
         dependencies = "nvim-treesitter",
         branch       = "main",
         keys         = {
-                ---- COMMENTS ------------------------------------------------------------------------------------------
+                ---- COMMENTS --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-                { "q", select("comment", "outer"), mode = "o", desc = "󰆈 single comment" },
-                { "qf", addDocstring, desc = "󰆈 add docstring" },
-                { -- CHANGE SINGLE COMMENT
+                { "q",  select("comment", "outer"), mode = "o",            desc = "single comment" },
+                { "qf", addDocstring,               desc = "add docstring" },
+                {
                         "cq",
                         function()
                                 local select_obj = require("nvim-treesitter-textobjects.select").select_textobject
@@ -92,9 +88,9 @@ return {
                                 vim.cmd.normal{ "c" .. com_str, bang = true }
                                 vim.cmd.startinsert{ bang = true }
                         end,
-                        desc = "󰆈 Change single comment",
-                },
-                { -- STICKY DELETE COMMENT
+                        desc = "Change single comment",
+                }, -- CHANGE SINGLE COMMENT
+                {
                         "dq",
                         function()
                                 local cursor_before = vim.api.nvim_win_get_cursor(0)
@@ -105,10 +101,10 @@ return {
                                 vim.api.nvim_set_current_line(trimmed_line)
                                 vim.api.nvim_win_set_cursor(0, cursor_before)
                         end,
-                        desc = "󰆈 Sticky delete single comment",
-                },
+                        desc = "Sticky delete single comment",
+                }, -- STICKY DELETE COMMENT
 
-                ---- MOVE ----------------------------------------------------------------------------------------------
+                ---- MOVE ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
                 { "<A-q>", function() gotoObj("comment", "outer", "next") end, mode = mode, desc = " Goto next comment" },
                 { "<A-Q>", function() gotoObj("comment", "outer", "prev") end, mode = mode, desc = " Goto prev comment" },
@@ -129,7 +125,7 @@ return {
                 { "<A-t>", function() gotoObj("assignment", "outer", "next") end, mode = mode, desc = icon.Type .. "Goto next type" },
                 { "<A-T>", function() gotoObj("assignment", "outer", "prev") end, mode = mode, desc = icon.Type .. "Goto prev type" },
 
-                ---- SWAP ----------------------------------------------------------------------------------------------
+                ---- SWAP ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
                 { "<A-}>", function() swapObj("parameter", "inner", "next") end, desc = icon.Parameter .. "Swap arg" },
                 { "<A-{>", function() swapObj("parameter", "inner", "prev") end, desc = icon.Parameter .. "Swap arg" },
@@ -137,7 +133,7 @@ return {
                 { "<A-}>", function() swapObj("md_section", "inner", "next") end, desc = icon.Parameter .. "Swap arg", ft = "markdown" },
                 { "<A-{>", function() swapObj("md_section", "inner", "prev") end, desc = icon.Parameter .. "Swap arg", ft = "markdown" },
 
-                ---- TEXT OBJECTS --------------------------------------------------------------------------------------
+                ---- TEXT OBJECTS ----------------------------------------------------------------------------------------------------------------------------------------------------------
 
                 { "a/", select("regex", "outer"), mode = { "x", "o" }, desc = icon.Regex .. "outer regex" },
                 { "i/", select("regex", "inner"), mode = { "x", "o" }, desc = icon.Regex .. "inner regex" },

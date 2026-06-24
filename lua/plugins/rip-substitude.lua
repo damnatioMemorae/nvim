@@ -3,15 +3,15 @@ return {
         cmd  = "RipSubstitute",
         keys = {
                 {
-                        "<leader>fs",
+                        "<LocalLeader>w",
                         function() require("rip-substitute").sub() end,
                         mode = { "n", "x", "v" },
-                        desc = " Substitute (rip-sub)",
+                        desc = "Substitute (rip-sub)",
                 },
                 {
-                        "<leader>fS",
+                        "<LocalLeader>W",
                         function() require("rip-substitute").rememberCursorWord() end,
-                        desc = " Remember cursor word (rip-sub)",
+                        desc = "Remember cursor word (rip-sub)",
                 },
         },
         opts = {
@@ -21,16 +21,21 @@ return {
                         position                = "top",
                         hideSearchReplaceLabels = true,
                         hideKeymapHints         = true,
-                        matchCountHlGroup       = "FloatTitle",
-                        noMatchHlGroup          = "FloatTitle",
+                        matchCountHlGroup       = "DiagnosticInfo",
+                        noMatchHlGroup          = "DiagnosticError",
+                        disabledCompletion      = true,
                 },
                 prefill         = {
                         normal                      = "cursorWord",
-                        visual                      = "selectionFirstLine",
+                        visual                      = "selection",
                         startInReplaceLineIfPrefill = true,
                         alsoPrefillReplaceLine      = true,
                 },
-                keymaps         = { insertModeConfirm = "<CR>", abort = "<Esc>" },
+                keymaps         = {
+                        abort                                  = "<Esc>",
+                        insertModeConfirmAndSubstituteInBuffer = "<CR>",
+                        confirmAndSubstituteInBuffer           = "<CR>",
+                },
                 editingBehavior = { autoCaptureGroups = true },
         },
 }

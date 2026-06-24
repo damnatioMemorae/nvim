@@ -1,5 +1,24 @@
 local button = "Function"
 local label  = "Comment"
+local width  = 46
+
+local function getPicker(picker, mode)
+        mode = mode or "snacks"
+
+        local fzf_lua = pcall(require, "fzf-lua")
+        local snacks  = pcall(require, "snacks")
+
+        if snacks then
+                return require(mode)[picker]()
+        elseif fzf_lua then
+                return require(mode)[picker]()
+        end
+end
+
+local mode = "fzf-lua"
+local function picker(pick)
+        getPicker(pick, mode)
+end
 
 return {
         "folke/snacks.nvim",
@@ -34,7 +53,7 @@ return {
                                 { -- NEW FILE
                                         text    = {
                                                 { Icons.Misc.newFile .. "  ", hl = button },
-                                                { "New file",                 hl = label, width = 45 },
+                                                { "New file",                 hl = label, width = width },
                                                 { "[",                        hl = button },
                                                 { "n",                        hl = label },
                                                 { "]",                        hl = button },
@@ -44,62 +63,49 @@ return {
                                         padding = 1,
                                         align   = "center",
                                 },
-                                { -- RECENT FILES
-                                        text    = {
-                                                { Icons.Misc.recentFile .. "  ", hl = button },
-                                                { "Recent files",                hl = label, width = 45 },
-                                                { "[",                           hl = button },
-                                                { "r",                           hl = label },
-                                                { "]",                           hl = button },
-                                        },
-                                        key     = "r",
-                                        action  = function() Snacks.picker.recent({ layout = "vertical" }) end,
-                                        padding = 1,
-                                        align   = "center",
-                                },
-                                { -- FIND FILE
+                                { -- FILE
                                         text    = {
                                                 { Icons.Misc.findFile .. "  ", hl = button },
-                                                { "Find file",                 hl = label, width = 45 },
+                                                { "Files",                     hl = label, width = width },
                                                 { "[",                         hl = button },
                                                 { "f",                         hl = label },
                                                 { "]",                         hl = button },
                                         },
-                                        action  = function() Snacks.picker.files({ layout = "vertical" }) end,
+                                        action  = function() picker("files") end,
                                         key     = "f",
                                         padding = 1,
                                         align   = "center",
                                 },
-                                { -- FIND TEXT
+                                { -- GREP
                                         text    = {
                                                 { Icons.Misc.findText .. "  ", hl = button },
-                                                { "Find text",                 hl = label, width = 45 },
+                                                { "Grep",                      hl = label, width = width },
                                                 { "[",                         hl = button },
                                                 { "w",                         hl = label },
                                                 { "]",                         hl = button },
                                         },
-                                        action  = function() Snacks.picker.grep({ layout = "vertical" }) end,
+                                        action  = function() picker("live_grep") end,
                                         key     = "w",
                                         padding = 1,
                                         align   = "center",
                                 },
-                                { -- YAZI
+                                { -- EXPLORE
                                         text    = {
                                                 { Icons.Kinds.Folder .. "  ", hl = button },
-                                                { "Yazi",                     hl = label, width = 45 },
+                                                { "Explore",                  hl = label, width = width },
                                                 { "[",                        hl = button },
-                                                { "y",                        hl = label },
+                                                { "e",                        hl = label },
                                                 { "]",                        hl = button },
                                         },
-                                        action  = "<cmd>Yazi<CR>",
-                                        key     = "y",
+                                        action  = function() require("mini.files").open() end,
+                                        key     = "e",
                                         padding = 1,
                                         align   = "center",
                                 },
                                 { -- RESTORE SESSION
                                         text    = {
                                                 { Icons.Misc.restore .. "  ", hl = button },
-                                                { "Restore session",          hl = label, width = 45 },
+                                                { "Restore session",          hl = label, width = width },
                                                 { "[",                        hl = button },
                                                 { "s",                        hl = label },
                                                 { "]",                        hl = button },
@@ -112,7 +118,7 @@ return {
                                 { -- CONFIG
                                         text    = {
                                                 { Icons.Misc.config .. "  ", hl = button },
-                                                { "Config",                  hl = label, width = 45 },
+                                                { "Config",                  hl = label, width = width },
                                                 { "[",                       hl = button },
                                                 { "c",                       hl = label },
                                                 { "]",                       hl = button },
@@ -125,7 +131,7 @@ return {
                                 { -- MASON
                                         text    = {
                                                 { Icons.Misc.package .. "  ", hl = button },
-                                                { "Mason",                    hl = label, width = 45 },
+                                                { "Mason",                    hl = label, width = width },
                                                 { "[",                        hl = button },
                                                 { "l",                        hl = label },
                                                 { "]",                        hl = button },
@@ -140,7 +146,7 @@ return {
                                 { -- LAZY
                                         text    = {
                                                 { Icons.Misc.package .. "  ", hl = button },
-                                                { "Lazy",                     hl = label, width = 45 },
+                                                { "Lazy",                     hl = label, width = width },
                                                 { "[",                        hl = button },
                                                 { "m",                        hl = label },
                                                 { "]",                        hl = button },
@@ -153,7 +159,7 @@ return {
                                 { -- UPDATE
                                         text    = {
                                                 { Icons.Misc.newPackage .. "  ", hl = button },
-                                                { "Update plugins",              hl = label, width = 45 },
+                                                { "Update plugins",              hl = label, width = width },
                                                 { "[",                           hl = button },
                                                 { "u",                           hl = label },
                                                 { "]",                           hl = button },
@@ -166,7 +172,7 @@ return {
                                 { -- RESTART
                                         text    = {
                                                 { Icons.Misc.restore .. "  ", hl = button },
-                                                { "Restart",                  hl = label, width = 45 },
+                                                { "Restart",                  hl = label, width = width },
                                                 { "[",                        hl = button },
                                                 { "r",                        hl = label },
                                                 { "]",                        hl = button },
@@ -179,7 +185,7 @@ return {
                                 { -- QUIT
                                         text    = {
                                                 { Icons.Misc.quit .. "  ", hl = button },
-                                                { "Quit",                  hl = label, width = 45 },
+                                                { "Quit",                  hl = label, width = width },
                                                 { "[",                     hl = button },
                                                 { "q",                     hl = label },
                                                 { "]",                     hl = button },

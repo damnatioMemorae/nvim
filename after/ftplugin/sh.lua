@@ -1,20 +1,21 @@
 ---- ABBREVIATIONS -----------------------------------------------------------------------------------------------------
 
-local abbr = require("core.utils").bufAbbrev
-
-abbr("//",    "#")
-abbr("delay", "sleep")
-abbr("const", "local")
-abbr("~=",    "=~")
+_G.bufAbbr("//",    "#")
+_G.bufAbbr("delay", "sleep")
+_G.bufAbbr("const", "local")
+_G.bufAbbr("~=",    "=~")
 
 ---- KEYMAPS -----------------------------------------------------------------------------------------------------------
 
-local bkeymap = require("core.utils").bufKeymap
-
-bkeymap("n", "<A-s>", function()
+_G.bufMap({
+        "<A-s>",
+        function()
                 vim.cmd([[% substitute_/Users/\w\+/_$HOME/_e]])
                 vim.lsp.buf.format()
-        end, { desc = " Format" })
+        end,
+        mode = "n",
+        desc = " Format"
+})
 
 ---- SHELL SYNTAX HIGHLIGHTING -----------------------------------------------------------------------------------------
 

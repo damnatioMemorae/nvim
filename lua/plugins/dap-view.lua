@@ -1,8 +1,6 @@
 return {
         "igorlfs/nvim-dap-view",
         dependencies = { "mfussenegger/nvim-dap" },
-        enabled      = true,
-        lazy         = false,
         opts         = {
                 winbar  = {
                         show_keymap_hints = false,

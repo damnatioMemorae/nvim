@@ -1,11 +1,8 @@
 return {
         "b0o/incline.nvim",
-        event  = "BufReadPre",
-        init   = function()
-                vim.o.laststatus = 0
-                vim.o.statusline = " "
-        end,
-        opts   = {
+        event        = "BufReadPre",
+        dependencies = { "nvim-tree/nvim-web-devicons" },
+        opts         = {
                 debounce_threshold = 0,
                 hide               = { only_win = false },
                 window             = {
@@ -21,84 +18,126 @@ return {
                         },
                 },
                 render             = function(props)
-                        local devicons = require("nvim-web-devicons")
-                        local filtype  = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(props.buf), ":t")
-                        local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(props.buf), ":t:r")
+                        local loaded_d, devicons   = pcall(require, "nvim-web-devicons")
+                        local loaded_r, real_icons = pcall(require, "real-icons")
+                        local filename             = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(props.buf), ":t")
 
-                        if filename == "" then
-                                filename = "[No Name]"
+                        local ft_icon  = (function()
+                                if loaded_r then
+                                        local render  = require("real-icons.render.placeholder")
+                                        local icon    = real_icons.get(filename, { is_dir = false })
+                                        local segment = render.segment(icon)
+
+                                        return { segment.text, segment.hl }
+                                elseif loaded_d then
+                                        return { devicons.get_icon(filename) }
+                                end
+                        end)()
+                        local dir_icon = (function()
+                                if loaded_r then
+                                        local render  = require("real-icons.render.placeholder")
+                                        local icon    = real_icons.get(filename, { is_dir = true })
+                                        local segment = render.segment(icon)
+
+                                        return { segment.text, segment.hl }
+                                else
+                                        return { devicons.get_icon(filename) }
+                                end
+                        end)()
+
+                        local function getDiff()
+                                local signs = vim.b[props.buf].gitsigns_status_dict
+                                if not signs then return {} end
+
+                                return vim.iter({ { "added", "" }, { "changed", "" }, { "removed", "" } })
+                                           :map(function(i)
+                                                   local n = signs[i[1]]
+                                                   return (n and n > 0) and {
+                                                           n .. i[2] .. " ",
+                                                           group = "Diff" .. i[1],
+                                                   }
+                                           end)
+                                           :totable()
                         end
 
-                        local ft_icon, ft_color = devicons.get_icon_color(filtype)
+                        local function getPath()
+                                local arrow = " " .. Icons.Arrows.rightBig .. " "
+                                local parts = vim.split(vim.fn.fnamemodify(
+                                                                vim.api.nvim_buf_get_name(props.buf), ":~:.:h"), "/")
+
+                                return vim.iter(parts)
+                                           :enumerate()
+                                           :map(function(i, item)
+                                                   return {
+                                                           { dir_icon[1], group = dir_icon[2] },
+                                                           { " " .. item, group = "Comment" },
+                                                           {
+                                                                   i < #parts and arrow or " ",
+                                                                   group = "Comment",
+                                                           },
+                                                   }
+                                           end)
+                                           :totable()
+                        end
 
                         local function getFt()
-                                local icon  = "*"
-                                -- local icon = "🬁"
+                                local label = { { vim.fn.fnamemodify(vim.api.nvim_buf_get_name(props.buf), ":t:r"), group = "Comment" } }
+
                                 if vim.bo[props.buf].modified then
-                                        return { { filename, group = "Comment" }, { icon .. " ", group = "Special" } }
-                                else
-                                        return { filename .. " ", group = "Comment" }
-                                end
-                        end
-
-                        local function getGitDiff()
-                                local icons  = { removed = "", changed = "", added = "" }
-                                local signs  = vim.b[props.buf].gitsigns_status_dict
-                                local labels = {}
-
-                                if signs == nil then
-                                        return labels
-                                end
-
-                                for name, icon in pairs(icons) do
-                                        if tonumber(signs[name]) and signs[name] > 0 then
-                                                table.insert(labels,
-                                                             { icon .. signs[name] .. " ", group = "Diff" .. name })
-                                        end
-                                end
-
-                                if #labels > 0 then
-                                        table.insert(labels, { "┊ " })
-                                end
-
-                                return labels
-                        end
-
-                        local function getDiagnostic()
-                                local groups = { "error", "warn", "hint" }
-                                local label  = {}
-
-                                for _, severity in pairs(groups) do
-                                        local count = #vim.diagnostic.get(props.buf, {
-                                                severity = vim.diagnostic.severity[string.upper(severity)] })
-
-                                        if count >= 0 then
-                                                table.insert(label, {
-                                                        count .. " ",
-                                                        group = "DiagnosticSign" .. severity,
-                                                })
-                                        end
+                                        label[#label + 1] = { "*", group = "Special" }
                                 end
 
                                 return label
                         end
 
-                        local function lspStatus()
+                        local function getDiagnostic()
+                                return vim.iter({ "error", "warn", "hint" })
+                                           :map(function(severity)
+                                                   local count = #vim.diagnostic.get(props.buf, {
+                                                           severity = vim.diagnostic.severity[string.upper(severity)] })
+
+                                                   return { count .. " ", group = "DiagnosticSign" .. severity }
+                                           end)
+                                           :totable()
+                        end
+
+                        local function breadCrumbs(source)
+                                local ok, dropbar = pcall(require, "dropbar.sources")
+                                if not ok or not props.focused then
+                                        return {}
+                                end
+                                local arrow   = " " .. Icons.Arrows.rightBig .. " "
+                                local symbols = dropbar[source].get_symbols(props.buf, 0, vim.api.nvim_win_get_cursor(0))
+
+                                return vim.iter(symbols or {})
+                                           :enumerate()
+                                           :map(function(i, item)
+                                                   return {
+                                                           { item._.icon, group = item._.icon_hl },
+                                                           { item._.name, group = item._.name_hl },
+                                                           {
+                                                                   i < #symbols and arrow or " ",
+                                                                   group = "Comment",
+                                                           },
+                                                   }
+                                           end)
+                                           :totable()
                         end
 
                         return {
                                 { " " },
-                                { getGitDiff() },
+                                { getPath() },
+                                -- { breadCrumbs("lsp") },
                                 { getDiagnostic() },
-                                { lspStatus() },
-                                -- { ft_icon .. " ",        guifg  = ft_color },
+                                { ft_icon[1],     group = ft_icon[2] },
+                                { " " },
                                 { getFt() },
-                                -- { filename .. " ", group  = "Comment" },
+                                { " " },
+                                -- { getDiff() },
                         }
                 end,
         },
-        config = function(_, opts)
-                local incline = require("incline")
-                incline.setup(opts)
+        config       = function(_, opts)
+                require("incline").setup(opts)
         end,
 }

@@ -6,7 +6,8 @@ local cmd    = vim.cmd
 local api    = vim.api
 local fn     = vim.fn
 local notify = vim.notify
-------------------------------------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 function M.bufferInfo()
         local pseudo_tilde = "∼"
@@ -40,7 +41,7 @@ function M.bufferInfo()
                 vim.list_extend(out, { "*No LSPs attached.*" })
         end
         local opts = { title = "Inspect buffer", icon = "󰽙", timeout = 10000 }
-        notify(table.concat(out, "\n"), vim.log.levels.DEBUG, opts)
+        vim.notify(table.concat(out, "\n"), vim.log.levels.DEBUG, opts)
 end
 
 function M.nodeAtCursor()
@@ -48,7 +49,7 @@ function M.nodeAtCursor()
 
         local ok, node = pcall(vim.treesitter.get_node)
         if not (ok and node) then
-                notify("No node under cursor", vim.log.levels.DEBUG, { icon = "" })
+                vim.notify("No node under cursor", vim.log.levels.DEBUG, { icon = "" })
                 return
         end
 
@@ -61,7 +62,7 @@ function M.nodeAtCursor()
         end
         tree[#tree] = tree[#tree]:gsub("├", "└")
         local msg   = table.concat(tree, "\n")
-        notify(msg, vim.log.levels.DEBUG, { icon = "", title = "Node at cursor" })
+        vim.notify(msg, vim.log.levels.DEBUG, { icon = "", title = "Node at cursor" })
 
         local start_row, start_col = node:start()
         local end_row, end_col     = node:end_()
@@ -88,7 +89,7 @@ end
 function M.lspCapabilities()
         local clients = lsp.get_clients{ bufnr = 0 }
         if #clients == 0 then
-                notify("No LSPs attached.", vim.log.levels.WARN, { icon = "󱈄" })
+                vim.notify("No LSPs attached.", vim.log.levels.WARN, { icon = "󱈄" })
                 return
         end
         vim.ui.select(clients, {
@@ -105,7 +106,7 @@ function M.lspCapabilities()
                               local opts   = { icon = "󱈄", title = client.name .. " capabilities", ft = "lua" }
                               local header = "-- for a full view, open in notification history\n"
                               local text   = header .. vim.inspect(info)
-                              notify(text, vim.log.levels.DEBUG, opts)
+                              vim.notify(text, vim.log.levels.DEBUG, opts)
                       end)
 end
 
@@ -120,14 +121,14 @@ function M.evalNvimLua()
                 local out  = fn.luaeval(input)
                 local opts = { title = "Eval", icon = ft_icon, ft = "lua" }
 
-                notify(vim.inspect(out), vim.log.levels.DEBUG, opts)
+                vim.notify(vim.inspect(out), vim.log.levels.DEBUG, opts)
         end
 
         if fn.mode() == "n" then
                 -- vim.ui.input({ prompt = " Eval: ", win = { ft = "lua" } }, eval)
                 vim.ui.input({ icon = ft_icon, prompt = "", win = { ft = "lua" } }, eval)
         else
-                cmd.normal{ '"zy', bang = true }
+                cmd.normal({ '"zy', bang = true })
                 eval(fn.getreg("z"))
         end
 end
@@ -144,7 +145,7 @@ function M.runFile()
                 cmd("! chmod +x %")
                 cmd("! %")
         else
-                notify("File has no shebang.", vim.log.levels.WARN, { title = "Run", icon = "󰜎" })
+                vim.notify("File has no shebang.", vim.log.levels.WARN, { title = "Run", icon = "󰜎" })
         end
 
         if bo.filetype == "sh" and filepath:find("nvim") then
@@ -153,7 +154,7 @@ function M.runFile()
                 cmd("! chmod +x %")
                 cmd("! ./%")
         else
-                notify("File has no shebang.", vim.log.levels.WARN, { title = "Run", icon = "󰜎" })
+                vim.notify("File has no shebang.", vim.log.levels.WARN, { title = "Run", icon = "󰜎" })
         end
 end
 
@@ -169,5 +170,5 @@ function M.inspectNodeAncestors()
         vim.notify(out, nil, { title = "Node ancestors" })
 end
 
-------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 return M

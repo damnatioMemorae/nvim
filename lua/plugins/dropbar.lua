@@ -39,12 +39,15 @@ end
 
 return {
         "Bekaboo/dropbar.nvim",
-        enabled      = false,
         event        = "BufReadPre",
         dependencies = { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
-        keys         = { { "<LocalLeader>w", function() require("dropbar.api").pick() end, desc = "Toggle dropbar", mode = { "n" } } },
         opts         = {
                 bar     = {
+                        enable        = function()
+                                if not pcall(require, "incline") then
+                                        return true
+                                end
+                        end,
                         truncate      = true,
                         pick          = { pivots = "hjklfdsa" },
                         padding       = { left = 1, right = 2 },
@@ -57,11 +60,9 @@ return {
                                 if vim.bo[buf].ft == "neo-tree" or vim.bo[buf].ft == "Outline" then
                                         return {}
                                 end
-
                                 if vim.bo[buf].ft == "markdown" then
                                         return { sources.path, sources.markdown }
                                 end
-
                                 if vim.bo[buf].buftype == "terminal" then
                                         return { sources.terminal }
                                 end
@@ -72,7 +73,6 @@ return {
                                 win = {
                                         "CursorHold",
                                         "CursorHoldI",
-                                        "BufModifiedSet",
                                         "CursorMoved",
                                         "CursorMovedI",
                                         "FileChangedShellPost",
@@ -85,7 +85,6 @@ return {
                                 buf = {
                                         "CursorHold",
                                         "CursorHoldI",
-                                        "BufModifiedSet",
                                         "FileChangedShellPost",
                                         "LspAttach",
                                         "ModeChanged",
@@ -96,8 +95,9 @@ return {
                 },
                 menu    = {
                         quick_navigation = true,
-                        scrollbar        = { enable = false, background = true },
-                        win_configs      = { style = "minimal", border = Border.borderStyleNone },
+                        entry            = { padding = { left = 1, right = 1 } },
+                        scrollbar        = { enable = false, background = false },
+                        win_configs      = { style = "minimal", border = Border.borderStyleNone, zindex = 3000 },
                         keymaps          = {
                                 ["<Esc>"] = "<C-w>q",
                                 ["h"]     = "<C-w>q",
@@ -130,17 +130,21 @@ return {
                                 bar  = { separator = " " .. Icons.Arrows.rightBig .. " ", extends = " " .. Icons.Misc.ellipsis .. " " },
                                 menu = { separator = " ", indicator = Icons.Misc.squareFilled .. " " },
                         },
-                        kinds  = { symbols = addSpace(Icons.Kinds) },
+                        kinds  = {
+                                symbols = addSpace(Icons.Kinds),
+                        },
                 },
                 sources = {
                         path = {
-                                max_depth = 2,
+                                max_depth = 3,
+                                preview   = false,
+                                filter    = function(_) return true end,
                                 modified  = function(sym)
                                         return sym:merge({
-                                                name    = sym.name .. " ",
-                                                icon    = " ",
-                                                name_hl = "LspInlayHint",
-                                                icon_hl = "LspInlayHint",
+                                                name    = sym.name,
+                                                icon    = "*",
+                                                -- name_hl = "LspInlayHint",
+                                                icon_hl = "Special",
                                         })
                                 end,
                         },
@@ -152,28 +156,28 @@ return {
                 vim.ui.select = require("dropbar.utils.menu").select
 
                 local groups = {
-                        ---- DROPBAR -----------------------------------------------------------------------------------
+                        ---- DROPBAR -------------------------------------------------------------------------------------------------------------------------------------------------------
 
                         { "Hover",                     "Visual" },
                         { "FzfMatch",                  "Special" },
                         { "CurrentContext",            "Visual" },
                         { "Preview",                   "PmenuSbar" },
 
-                        ---- DROPBAR-ICON-UI ---------------------------------------------------------------------------
+                        ---- DROPBAR-ICON-UI -----------------------------------------------------------------------------------------------------------------------------------------------
 
-                        { "IconUiIndicator",           "NonText" },
+                        { "IconUiIndicator",           "Comment" },
                         { "IconUiSeparator",           "NonText" },
+                        { "IconKindDefaultNC",         "WinBarNC" },
                         { "MenuCurrentContext",        "Visual" },
-                        { "MenuHoverEntry",            "Visual" },
-                        { "MenuHoverIcon",             "IncSearch" },
-                        { "MenuHoverSymbol",           "Visual" },
+                        { "MenuHoverEntry",            "PmenuSel" },
+                        { "MenuHoverIcon",             "PmenuSel" },
+                        { "MenuHoverSymbol",           "PmenuSel" },
                         { "MenuFloatBorder",           "DropBarMenuNormalFloat" },
-                        { "MenuNormalFloat",           "WinBar" },
+                        { "MenuNormalFloat",           "NormalFloat" },
                         { "MenuSbar",                  "PmenuSbar" },
                         { "MenuThumb",                 "PmenuThumb" },
-                        { "IconKindDefaultNC",         "WinBarNC" },
 
-                        ---- DROPBAR KIND ------------------------------------------------------------------------------
+                        ---- DROPBAR KIND --------------------------------------------------------------------------------------------------------------------------------------------------
 
                         { "KindDefault",               "Comment" },
                         { "KindArray",                 "Comment" },
@@ -245,7 +249,7 @@ return {
                         { "KindVariable",              "Comment" },
                         { "KindWhileStatement",        "Comment" },
 
-                        ---- DROPBAR ICON KIND -------------------------------------------------------------------------
+                        ---- DROPBAR ICON KIND ---------------------------------------------------------------------------------------------------------------------------------------------
 
                         { "IconKindDefault",           "WinBar" },
                         { "IconKindArray",             "@string" },
@@ -294,7 +298,7 @@ return {
                         { "IconKindNamespace",         "@lsp.type.namespace" },
                         { "IconKindNull",              "@lsp.type.boolean" },
                         { "IconKindNumber",            "@lsp.type.number" },
-                        { "IconKindObject",            "@keyword.function" },
+                        { "IconKindObject",            "@class" },
                         { "IconKindOperator",          "@lsp.type.operator" },
                         { "IconKindPackage",           "Conditional" },
                         { "IconKindPair",              "@keyword" },
@@ -317,6 +321,8 @@ return {
                         { "IconKindVariable",          "@lsp.type.variable" },
                         { "IconKindWhileStatement",    "@keyword.repeat" },
                 }
-                require("core.utils").linkHl(groups, "DropBar")
+                vim.iter(groups):each(function(group)
+                        vim.api.nvim_set_hl(0, "DropBar" .. group[1], { link = group[2] })
+                end)
         end,
 }

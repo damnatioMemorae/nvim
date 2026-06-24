@@ -375,5 +375,8 @@
 		"altfont",
 		"nohlsearch",
 		"autojump"
-	]
+	],
+    "diagnostics.globals": [
+        "Snacks"
+    ]
 }

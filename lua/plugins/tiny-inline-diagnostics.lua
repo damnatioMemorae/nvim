@@ -30,7 +30,7 @@ return {
                         overflow                     = { mode = "wrap" },
                         break_line                   = { enabled = false, after = 25 },
                         virt_texts                   = { priority = 10000 },
-                        experimental                 = { use_window_local_extmarks = true },
+                        experimental                 = { use_window_local_extmarks = false },
                         format                       = function(diag) return diag.message end,
                 },
         },

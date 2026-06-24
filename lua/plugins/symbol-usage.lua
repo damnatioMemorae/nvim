@@ -4,7 +4,6 @@ return {
         keys   = { { "<leader>os", Toggle.codeLens, desc = "LSP Codelens - Toggle" } },
         config = function()
                 local bg          = {}
-                -- local bg        = "LspInlayHint"
                 local _groups_col = {
                         { "Def",  "@lsp.type.parameter", "DiagnosticUnderlineError" },
                         { "Ref",  "@keyword",            "DiagnosticUnderlineWarn" },
@@ -30,45 +29,27 @@ return {
                 hl(groups)
 
                 local function textFormat(symbol)
-                        local res    = {}
-                        local empty  = ""
-                        local sep    = " "
-                        local border = " "
+                        local b = bg and " " or ""
 
-                        local stacked_functions_content = symbol.stacked_count > 0
-                                   and ("+%s"):format(symbol.stacked_count) or ""
+                        return vim.iter({
+                                           { symbol.definition, Icons.Misc.definiton, "Def" },
+                                           { symbol.references, Icons.Misc.reference, "Ref" },
+                                           { symbol.implementation, Icons.Misc.implementation, "Impl" },
+                                           { symbol.stacked_count > 0 and ("+%d"):format(symbol.stacked_count), "", "@define" },
+                                   })
+                                   :filter(function(i) return i[1] end)
+                                   :fold({}, function(acc, i)
+                                           if #acc > 0 then
+                                                   acc[#acc + 1] = { " ", "NonText" }
+                                           end
 
-                        local function insert(icon, sym, hlStr)
-                                if bg == nil then border = "" end
-                                return table.insert(res, { border .. icon .. sep .. tostring(sym) .. border,
-                                        "SymbolUsage" .. hlStr })
-                        end
+                                           acc[#acc + 1] = {
+                                                   b .. i[2] .. " " .. i[1] .. b,
+                                                   i[3]:match("^@") and i[3] or "SymbolUsage" .. i[3],
+                                           }
 
-                        if symbol.definition then
-                                if #res > 0 then table.insert(res, { " ", "NonText" }) end
-                                insert(Icons.Misc.definiton, symbol.definition, "Def")
-                        end
-
-                        if symbol.references then
-                                if #res > 0 then table.insert(res, { " ", "NonText" }) end
-                                insert(Icons.Misc.reference, symbol.definition, "Ref")
-                        end
-
-                        if symbol.implementation then
-                                if #res > 0 then table.insert(res, { " ", "NonText" }) end
-                                insert(Icons.Misc.implementation, symbol.implementation, "Impl")
-                        end
-
-                        if stacked_functions_content ~= "" then
-                                if #res > 0 then table.insert(res, { " ", "NonText" }) end
-
-                                table.insert(res, { border, "SymbolUsageDef" })
-                                table.insert(res, { " " .. tostring(stacked_functions_content), "@define" })
-                                table.insert(res, { border, "SymbolUsageDef" })
-                                -- insert("", tostring(stacked_functions_content), "SymbolUsageImpl")
-                        end
-
-                        return res
+                                           return acc
+                                   end)
                 end
 
                 require("symbol-usage").setup({

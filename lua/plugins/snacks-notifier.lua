@@ -1,3 +1,5 @@
+local enabled = false
+
 local h = require("core.utils").getHl
 
 vim.api.nvim_set_hl(0, "SnacksNotifierBorderInfo",  { fg = h("DiagnosticInfo").fg, bg = h("NormalFloat").bg })
@@ -61,7 +63,6 @@ local function openNotif(idx)
                 "FloatBorder:SnacksNotifierBorder" .. level_capitalized,
                 "FloatTitle:SnacksNotifierTitle" .. level_capitalized,
                 "FloatFooter:SnacksNotifierFooter" .. level_capitalized,
-                "NormalFloat:NormalFloat" .. level_capitalized,
         }
         local winhighlights     = table.concat(highlights, ",")
 
@@ -72,7 +73,7 @@ local function openNotif(idx)
                 title      = vim.trim(title) ~= "" and " " .. title .. " " or nil,
                 footer     = footer and " " .. footer .. " " or nil,
                 footer_pos = footer and "right" or nil,
-                border     = Border.borderStyle,
+                border     = vim.o.winborder,
                 bo         = { ft = notif.ft or "markdown" },
                 wo         = {
                         wrap         = notif.ft ~= "lua",
@@ -104,7 +105,11 @@ end
 
 return {
         "folke/snacks.nvim",
-        keys   = { { "<leader><leader>n", function() Snacks.picker.notifications() end, desc = "󰎟 Notification history" } },
+        keys   = {
+                -- { "<Esc>", function() Snacks.notifier.hide() vim.snippet.stop() end, desc = "Dismiss notice" },
+                -- { "<C-n>", function() openNotif("last") end, desc = "󰎟 Last notification" },
+                { "<leader><leader>n", function() Snacks.picker.notifications() end, desc = "Notification history" },
+        },
         opts   = {
                 picker   = {
                         sources = {
@@ -118,7 +123,7 @@ return {
                         },
                 },
                 notifier = {
-                        enabled = false,
+                        enabled = enabled,
                         icons   = Icons.Notifier,
                         sort    = { "added" },
                         timeout = 2000,
@@ -135,7 +140,7 @@ return {
                                 wo       = { winhighlight = "NormalFloat:SnacksNotifierHistory,FloatBorder:SnacksNotifierHistoryBorder" },
                         },
                         notification         = {
-                                enabled = false,
+                                enabled = enabled,
                                 border  = Border.borderStyleNone,
                                 wo      = { winblend = Config.blend },
                                 icons   = Icons.Notifier,
@@ -159,7 +164,7 @@ return {
                                 return
                         end
 
-                        if vim.startswithl(msg, "[nvim-treesitter/") then
+                        if vim.startswith(msg, "[nvim-treesitter/") then
                                 notiOpts = { id = "treesitter-update" }
                         end
                         Snacks.notifier(msg, lvl, notiOpts)

@@ -8,7 +8,7 @@ return {
                 { "<LocalLeader>D", "<cmd>Glance type_definitions<CR>" },
         },
         opts   = {
-                height               = 18,
+                height               = 20,
                 preserve_win_context = true,
                 preview_win_opts     = { cursorline = false, number = false, wrap = false },
                 border               = { enable = false, top_char = " ", bottom_char = " " },
@@ -72,6 +72,8 @@ return {
                         -- { "Indent"              , "" },
                         -- { "BorderTop",            "PmenuDoc" },
                 }
-                require("core.utils").linkHl(groups, "Glance")
+                vim.iter(groups):each(function(group)
+                        vim.api.nvim_set_hl(0, "Glance" .. group[1], { link = group[2] })
+                end)
         end,
 }

@@ -1,11 +1,11 @@
-local keymap = require("core.utils").uniqueKeymap
+local map = _G.smartMap
 
 return {
         "nvim-treesitter/nvim-treesitter",
         event  = "BufReadPre",
         build  = ":TSUpdate",
         init   = function()
-                ---- HIGHLIGHTS ----------------------------------------------------------------------------------------
+                ---- HIGHLIGHTS ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
                 local highlight = function(bufnr, lang)
                         if not vim.treesitter.language.add(lang) then
@@ -32,7 +32,7 @@ return {
                                         return
                                 end
 
-                                ---- FOLDS -----------------------------------------------------------------------------
+                                ---- FOLDS -------------------------------------------------------------------------------------------------------------------------------------------------
 
                                 if ft == "javascriptreact" or ft == "typescript" then
                                         vim.opt_local.foldmethod = "indent"
@@ -47,7 +47,7 @@ return {
                                         end
                                 end)
 
-                                ---- INDENT ----------------------------------------------------------------------------
+                                ---- INDENT ------------------------------------------------------------------------------------------------------------------------------------------------
 
                                 local dont_use_treesitter_indent = {
                                         "zsh",
@@ -63,7 +63,7 @@ return {
                                         vim.bo.indentexpr = "v:lua.require('nvim-treesitter').indentexpr()"
                                 end
 
-                                ---- INSTALL PARSERS -------------------------------------------------------------------
+                                ---- INSTALL PARSERS ---------------------------------------------------------------------------------------------------------------------------------------
 
                                 if vim.fn.executable("tree-sitter") ~= 1 then
                                         vim.api.nvim_echo(
@@ -86,10 +86,10 @@ return {
                         end,
                 })
 
-                keymap("v",          "n", "]n", { remap = true, desc = "Select next node" })
-                keymap("v",          "N", "[n", { remap = true, desc = "Select previous node" })
-                keymap({ "v", "o" }, "m", "an", { remap = true, desc = "Select child node" })
-                keymap({ "v", "o" }, "M", "in", { remap = true, desc = "Select parent node" })
+                map({ "n", "]n", mode = "v", remap = true, desc = "Select next node" })
+                map({ "N", "[n", mode = "v", remap = true, desc = "Select previous node" })
+                map({ "m", "an", mode = { "v", "o" }, remap = true, desc = "Select child node" })
+                map({ "M", "in", mode = { "v", "o" }, remap = true, desc = "Select parent node" })
         end,
         opts   = { install_dir = vim.fn.stdpath("data") .. "/treesitter" },
         config = function(_, opts)

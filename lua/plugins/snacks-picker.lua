@@ -7,6 +7,17 @@ local none   = Border.borderStyleNone
 
 local insertOnShow = function() vim.cmd.stopinsert() end
 
+local function getPicker(picker)
+        local fzf_lua = pcall(require, "fzf-lua")
+        local snacks  = pcall(require, "snacks")
+
+        if snacks then
+                return require("snacks.picker")[picker]()
+        elseif fzf_lua then
+                return require("fzf-lua")[picker]()
+        end
+end
+
 local function importLuaModule()
         Snacks.picker.grep{
                 title  = "󰢱 Import module",
@@ -42,48 +53,45 @@ end
 return {
         "folke/snacks.nvim",
         keys = {
-                { leader .. "<leader>", function() Snacks.picker() end,                           desc = "Main Picker",       mode = { "n" } },
-                { leader .. "f",        function() Snacks.picker.files() end,                     desc = "File Picker",       mode = { "n" } },
-                { leader .. "k",        function() Snacks.picker.keymaps({ global = false }) end, desc = "Keymap (buffer)",   mode = { "n" } },
-                { leader .. "K",        function() Snacks.picker.keymaps() end,                   desc = "Keymap (global)",   mode = { "n" } },
-                { leader .. "w",        function() Snacks.picker.grep() end,                      desc = "Grep Picker",       mode = { "n" } },
-                { leader .. "W",        function() Snacks.picker.grep_word() end,                 desc = "Grep Word",         mode = { "n", "x" } },
-                { leader .. "B",        function() Snacks.picker.grep_buffers() end,              desc = "Grep Word",         mode = { "n" } },
-                { leader .. "R",        function() Snacks.picker.registers() end,                 desc = "Register Picker",   mode = { "n" } },
-                { leader .. "h",        function() Snacks.picker.highlights() end,                desc = "Highlight Picker",  mode = { "n" } },
-                { leader .. "H",        function() Snacks.picker.help() end,                      desc = "Help Picker",       mode = { "n" } },
-                { leader .. "l",        function() Snacks.picker.lsp_config() end,                desc = "Lazy Picker",       mode = { "n" } },
-                { leader .. "b",        function() Snacks.picker.buffers() end,                   desc = "Buffer Picker",     mode = { "n" } },
-                { leader .. "u",        function() Snacks.picker.undo() end,                      desc = "Undo Picker",       mode = { "n" } },
-                { leader .. "j",        function() Snacks.picker.jumps() end,                     desc = "Jumps Picker",      mode = { "n" } },
-                { leader .. "e",        function() Snacks.explorer() end,                         desc = "Buffer Picker",     mode = { "n" } },
-                { leader .. "i",        importLuaModule,                                          desc = "Import Lua Module", mode = { "n" },     ft = "lua" },
-                {
-                        leader .. "p",
-                        function()
-                                Snacks.picker.files({
-                                        title      = "󰈮 Local plugins",
-                                        cwd        = vim.fn.stdpath("data") .. "/lazy",
-                                        exclude    = { "*/tests/*", "*.toml", "*.tmux", "*.txt" },
-                                        matcher    = { filename_bonus = false },
-                                        formatters = { file = { filename_first = false } },
-                                })
-                        end,
-                        desc = "Import Lua Module",
-                        mode = { "n" },
-                        ft   = "lua",
-                },
-
-                ---- LSP -----------------------------------------------------------------------------------------------
-
+                -- { leader .. "<leader>", function() Snacks.picker() end,                           desc = "Main Picker",       mode = { "n" } },
+                -- { leader .. "f",        function() Snacks.picker.files() end,                     desc = "File Picker",       mode = { "n" } },
+                -- { leader .. "k",        function() Snacks.picker.keymaps({ global = false }) end, desc = "Keymap (buffer)",   mode = { "n" } },
+                -- { leader .. "K",        function() Snacks.picker.keymaps() end,                   desc = "Keymap (global)",   mode = { "n" } },
+                -- { leader .. "w",        function() Snacks.picker.grep() end,                      desc = "Grep Picker",       mode = { "n" } },
+                -- { leader .. "W",        function() Snacks.picker.grep_word() end,                 desc = "Grep Word",         mode = { "n", "x" } },
+                -- { leader .. "B",        function() Snacks.picker.grep_buffers() end,              desc = "Grep Word",         mode = { "n" } },
+                -- { leader .. "R",        function() Snacks.picker.registers() end,                 desc = "Register Picker",   mode = { "n" } },
+                -- { leader .. "h",        function() Snacks.picker.highlights() end,                desc = "Highlight Picker",  mode = { "n" } },
+                -- { leader .. "H",        function() Snacks.picker.help() end,                      desc = "Help Picker",       mode = { "n" } },
+                -- { leader .. "l",        function() Snacks.picker.lsp_config() end,                desc = "Lazy Picker",       mode = { "n" } },
+                -- { leader .. "b",        function() Snacks.picker.buffers() end,                   desc = "Buffer Picker",     mode = { "n" } },
+                -- { leader .. "u",        function() Snacks.picker.undo() end,                      desc = "Undo Picker",       mode = { "n" } },
+                -- { leader .. "j",        function() Snacks.picker.jumps() end,                     desc = "Jumps Picker",      mode = { "n" } },
+                -- { leader .. "e",        function() Snacks.explorer() end,                         desc = "Buffer Picker",     mode = { "n" } },
+                -- { leader .. "i",        importLuaModule,                                          desc = "Import Lua Module", mode = { "n" },     ft = "lua" },
                 -- { "<LocalLeader>r", function() Snacks.picker.lsp_references() end,        desc = "Show References",         mode = { "n" } },
                 -- { "<LocalLeader>i", function() Snacks.picker.lsp_implementations() end,   desc = "Show Implementations",    mode = { "n" } },
                 -- { "<LocalLeader>d", function() Snacks.picker.lsp_definitions() end,       desc = "Show Definitions",        mode = { "n" } },
                 -- { "<LocalLeader>D", function() Snacks.picker.lsp_declarations() end,      desc = "Show Declarations",       mode = { "n" } },
-                { leader .. "s",    function() Snacks.picker.lsp_symbols() end,           desc = "Show LSP Symbols",        mode = { "n" } },
-                { leader .. "S",    function() Snacks.picker.lsp_workspace_symbols() end, desc = "Show Workspace Symbols",  mode = { "n" } },
-                { leader .. "d",    function() Snacks.picker.diagnostics_buffer() end,    desc = "Show Buffer Diagnostics", mode = { "n" } },
-                { leader .. "D",    function() Snacks.picker.diagnostics() end,           desc = "Show Workspace Symbols",  mode = { "n" } },
+                -- { leader .. "s",    function() Snacks.picker.lsp_symbols() end,           desc = "Show LSP Symbols",        mode = { "n" } },
+                -- { leader .. "S",    function() Snacks.picker.lsp_workspace_symbols() end, desc = "Show Workspace Symbols",  mode = { "n" } },
+                -- { leader .. "d",    function() Snacks.picker.diagnostics_buffer() end,    desc = "Show Buffer Diagnostics", mode = { "n" } },
+                -- { leader .. "D",    function() Snacks.picker.diagnostics() end,           desc = "Show Workspace Symbols",  mode = { "n" } },
+                -- {
+                --         leader .. "p",
+                --         function()
+                --                 Snacks.picker.files({
+                --                         title      = "󰈮 Local plugins",
+                --                         cwd        = vim.fn.stdpath("data") .. "/lazy",
+                --                         exclude    = { "*/tests/*", "*.toml", "*.tmux", "*.txt" },
+                --                         matcher    = { filename_bonus = false },
+                --                         formatters = { file = { filename_first = false } },
+                --                 })
+                --         end,
+                --         desc = "Import Lua Module",
+                --         mode = { "n" },
+                --         ft   = "lua",
+                -- },
         },
         opts = {
                 picker = {
@@ -92,10 +100,10 @@ return {
                         hidden    = true,
                         ignored   = true,
                         formats   = { file = { filename_only = true } },
-                        layout    = { preset = "default" },
+                        layout    = { preset = "vertical" },
                         sources   = {
                                 files        = {
-                                        layout  = "vertical",
+                                        layout  = "vscode",
                                         cmd     = "rg",
                                         follow  = true,
                                         args    = {
@@ -241,6 +249,7 @@ return {
                                                 ["K"]     = { "preview_scroll_up", mode = { "i", "n" } },
                                                 ["H"]     = { "preview_scroll_left", mode = { "i", "n" } },
                                                 ["L"]     = { "preview_scroll_right", mode = { "i", "n" } },
+                                                ["<C-p>"] = { "toggle_preview", mode = { "i", "n" } },
                                         },
                                 },
                         },
@@ -281,14 +290,15 @@ return {
                                         layout  = {
                                                 backdrop  = true,
                                                 row       = 1,
-                                                width     = 0.3,
-                                                height    = 0.45,
+                                                width     = 0.7,
+                                                height    = 0.7,
                                                 min_width = 60,
                                                 border    = none,
                                                 box       = "vertical",
-                                                { win = "input",   height = 1,          border = border, title = "{title} {live} {flags}", title_pos = "center" },
-                                                { win = "list",    border = border },
-                                                { win = "preview", title = "{preview}", border = border },
+                                                title     = "",
+                                                { win = "input",   height = 1,  border = Border.borderTopEmpty, title = "" },
+                                                { win = "list",    border = bot },
+                                                { win = "preview", title = "",  border = border },
                                         },
                                 },
                                 select   = {
@@ -311,17 +321,22 @@ return {
                                 vertical = {
                                         layout = {
                                                 backdrop   = true,
-                                                width      = 0.8,
-                                                height     = 0.95,
+                                                width      = 0.7,
+                                                height     = 0.7,
                                                 min_width  = 70,
                                                 min_height = 30,
                                                 box        = "vertical",
                                                 border     = border,
-                                                title      = "{title} {live} {flags}",
+                                                title      = "",
                                                 title_pos  = "center",
-                                                { win = "list",    border = none },
-                                                { win = "input",   height = 1,          border = bot },
-                                                { win = "preview", title = "{preview}", height = 0.6, border = top },
+                                                {
+                                                        box       = "vertical",
+                                                        border    = border,
+                                                        title     = "",
+                                                        title_pos = "center",
+                                                        { win = "input", height = 1,   border = none },
+                                                        { win = "list",  border = none },
+                                                },
                                         },
                                 },
                                 default  = {

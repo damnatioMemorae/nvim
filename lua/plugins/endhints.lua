@@ -1,8 +1,8 @@
 return {
         "chrisgrieser/nvim-lsp-endhints",
-        event = "LspAttach",
-        keys  = { { "<leader>oh", Toggle.inlayHints, desc = "LSP Inlay Hints - Toggle" } },
-        opts  = {
+        event  = "LspAttach",
+        keys   = { { "<leader>oh", Toggle.inlayHints, desc = "LSP Inlay Hints - Toggle" } },
+        opts   = {
                 icons = {
                         type      = Icons.KindsAlt.Type .. " ",
                         parameter = Icons.Kinds.Parameter .. " ",

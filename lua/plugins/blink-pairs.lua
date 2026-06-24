@@ -1,12 +1,12 @@
 return {
         "saghen/blink.pairs",
-        build = "cargo build --release",
-        event = { "InsertEnter", "CmdlineEnter", "BufReadPre" },
-        keys  = {
+        build   = function() require("blink.pairs").build():pwait(60000) end,
+        event   = { "InsertEnter", "CmdlineEnter", "BufReadPre" },
+        keys    = {
                 { "<A-i>", "a{<CR><down>,<up><esc>i", mode = "n", desc = " Open new scope", remap = true },
                 { "<A-i>", "{<CR>", mode = "i", desc = " Open new scope", remap = true },
         },
-        opts  = {
+        opts    = {
                 mappings = {
                         enabled            = true,
                         cmdline            = true,

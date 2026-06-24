@@ -1,5 +1,110 @@
+local _repeat = { lhs = nil, buf = nil }
+
+vim.keymap.set("n", ".", function()
+                       local b = vim.api.nvim_get_current_buf()
+                       if _repeat.lhs and _repeat.buf == b then
+                               return vim.api.nvim_feedkeys(
+                                       vim.keycode((vim.v.count > 0 and vim.v.count or "") .. _repeat.lhs), "m", false)
+                       end
+                       vim.api.nvim_feedkeys(vim.keycode("."), "n", false)
+               end, { silent = true })
+
+---@class MyConfig.Keymap : vim.keymap.set.Opts
+---@field [1] string
+---@field [2] string|function
+---@field mode? string|string[]
+---@field ft? string|string[]
+---@field dotmap? boolean
+
+---@param map MyConfig.Keymap
+function _G.smartMap(map)
+        local mode = map.mode or "n"
+        local lhs  = map[1]
+        local rhs  = map[2]
+        local opts = vim.deepcopy(map)
+
+        opts.ft, opts.mode, opts[1], opts[2] = nil, nil, nil, nil
+
+        local caller = debug.getinfo(2, "Sl")
+        local source = vim.fs.basename(caller.source) .. ":" .. caller.currentline
+
+        if map[3] then
+                vim.defer_fn(function()
+                                     local msg = ("%s  %s"):format(lhs, source)
+                                     vim.notify(msg, vim.log.levels.WARN,
+                                                { title = "Keymap with 3 args", timeout = false })
+                             end, 1000)
+                return
+        end
+
+        local dotrepeat = opts.dotmap
+        opts.dotmap     = nil
+
+        if dotrepeat then
+                local f = rhs
+                rhs = (type(f) == "function") and function(...)
+                        _repeat.lhs, _repeat.buf = lhs, vim.api.nvim_get_current_buf()
+                        return f(...)
+                end or function()
+                        _repeat.lhs, _repeat.buf = lhs, vim.api.nvim_get_current_buf()
+                        ---@cast f string
+                        vim.api.nvim_feedkeys(vim.keycode(f), "m", false)
+                end
+        end
+
+        if not map.ft then
+                if opts.unique == nil and opts.buf == nil then
+                        opts.unique = true
+                end
+
+                local success, _ = pcall(vim.keymap.set, mode, lhs, rhs, opts)
+                if success then
+                        return
+                end
+
+                local modes = type(mode) == "table" and table.concat(mode, ", ") or mode
+                local msg   = ("[%s]  %s  %s"):format(modes, lhs, source)
+
+                vim.defer_fn(function()
+                                     vim.notify(msg, vim.log.levels.WARN, { title = "Duplicate keymap", timeout = false })
+                             end, 1000)
+        else
+                vim.api.nvim_create_autocmd("FileType", {
+                        desc     = "User: plugin filetype-keymap",
+                        pattern  = map.ft,
+                        callback = function(args)
+                                opts.buf = args.buf
+                                vim.keymap.set(mode, lhs, rhs, opts)
+                        end,
+                })
+        end
+end
+
+---@param map MyConfig.Keymap
+function _G.bufMap(map)
+        map.buf = 0
+        _G.smartMap(map)
+end
+
+---@param text string
+---@param replace string
+function _G.bufAbbr(text, replace)
+        vim.keymap.set("ia", text, replace, { buf = 0 })
+end
+
+---@param module string
+function _G.safeRequire(module)
+        local success, errmsg = pcall(require, module)
+        if success then return end
+
+        local msg = ("Error loading `%s`: %s"):format(module, errmsg)
+        vim.defer_fn(function()
+                             vim.notify(msg, vim.log.levels.ERROR, { title = "User config", timeout = false })
+                     end, 1000)
+end
+
 local M = {}
-------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 M.extraTextobjMaps = {
         func      = "f",
@@ -8,91 +113,25 @@ M.extraTextobjMaps = {
         wikilink  = "R",
 }
 
----@param mode string|string[]
----@param lhs string
----@param rhs string|function
----@param opts? vim.keymap.set.Opts
-function M.uniqueKeymap(mode, lhs, rhs, opts)
-        if not opts then opts = {} end
-
-        if opts.unique == nil then opts.unique = true end
-
-        local success, _ = pcall(vim.keymap.set, mode, lhs, rhs, opts)
-        if not success then
-                local modes = type(mode) == "table" and table.concat(mode, ", ") or mode
-                local msg   = ("Duplicate keymap\n[%s] %s"):format(modes, lhs)
-                vim.defer_fn(function()
-                                     vim.notify(msg, vim.log.levels.WARN, { title = "Keymaps", timeout = 4000 })
-                             end, 1000)
-        end
-        pcall(vim.keymap.set, mode, lhs, rhs, opts)
-end
-
----@param mode string|string[]
----@param lhs string
----@param rhs string|function
----@param opts? {desc?: string, unique?: boolean, buffer?: number|boolean, remap?: boolean, silent?:boolean, nowait?: boolean}
-function M.bufKeymap(mode, lhs, rhs, opts)
-        opts = vim.tbl_extend("force", { buffer = true, silent = true, nowait = true }, opts or {})
-        vim.keymap.set(mode, lhs, rhs, opts)
-end
-
----@param text string
----@param replace string
-function M.bufAbbrev(text, replace) vim.keymap.set("ia", text, replace, { buffer = true }) end
-
----@param client string|function
-function M.supportsMethod(client)
-        ---@param method string
-        return function(method, opts)
-                ---@diagnostic disable-next-line: undefined-field
-                return client.supports_method(client, method, opts)
-        end
-end
+---- SMALL STUFF ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ---@param name string
 function M.getHl(name)
         return vim.api.nvim_get_hl(0, { name = name })
 end
 
----- SMALL STUFF -------------------------------------------------------------------------------------------------------
+local function hlLink(group, prefix)
+        vim.api.nvim_set_hl(0, prefix .. group[1], { link = group[2] })
+end
 
 ---@param groups table
----@param shortName? string
-function M.linkHl(groups, shortName)
-        shortName = shortName or ""
-
-        for _, group in ipairs(groups) do
-                vim.api.nvim_set_hl(0, shortName .. group[1], { link = group[2] })
-        end
+---@param prefix? string
+function M.hlBulk(groups, prefix)
+        prefix = prefix or ""
+        vim.iter(groups):each(function(group) hlLink(group, prefix) end)
 end
 
-function M.getRowCol()
-        local cursor = unpack(vim.api.nvim_win_get_cursor(0))
-        return cursor[1], cursor[2]
-end
-
-function M.merge(...)
-        local args = { ... }
-        return vim.tbl_extend("force", {}, unpack(args))
-end
-
-function M.concat(...)
-        local result = {}
-        local args   = { ... }
-        for _, i in ipairs(args) do
-                for _, j in ipairs(i) do
-                        table.insert(result, j)
-                end
-        end
-        return result
-end
-
-function M.exec(cmd)
-        return vim.trim(vim.fn.system(cmd))
-end
-
----- COLORS ------------------------------------------------------------------------------------------------------------
+---- COLORS --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- https://github.com/EmmanuelOga/columns/blob/master/utils/color.lua
 
 local hex_chars = "0123456789abcdef"
@@ -171,7 +210,7 @@ function M.hslToRgb(h, s, l)
         if s == 0 then
                 r, g, b = l, l, l
         else
-                function hue2rgb(p, q, t)
+                local function hue2rgb(p, q, t)
                         if t < 0 then
                                 t = t + 1
                         end
@@ -255,12 +294,12 @@ function M.allowBufferForAi(bufnr, filepath)
         end
 end
 
----- MISC --------------------------------------------------------------------------------------------------------------
+---- MISC ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 function M.playSound(file)
         local path = vim.fn.stdpath("config") .. "/sounds/"
         vim.fn.system("paplay " .. path .. file .. ".mp3")
 end
 
-------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 return M

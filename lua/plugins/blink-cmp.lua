@@ -1,14 +1,15 @@
 return {
         "saghen/blink.cmp",
-        enabled      = true,
+        version      = "*",
         event        = { "InsertEnter", "CmdLineEnter" },
         dependencies = { "saghen/blink.lib", "cushycush/quickshell-completions.nvim", "niuiic/blink-cmp-rg.nvim" },
-        build        = function()
-                require("blink.cmp").build():wait(60000)
-        end,
+        build        = function() require("blink.cmp").download():wait(60000) end,
         opts         = {
                 -- snippets   = { preset = "luasnip" },
-                cmdline    = { enabled = false },
+                cmdline    = {
+                        enabled    = false,
+                        completion = { menu = { auto_show = true } },
+                },
                 completion = {
                         keyword       = { range = "full" },
                         accept        = { auto_brackets = { enabled = true } },
@@ -50,7 +51,7 @@ return {
                                         gap        = 0,
                                         align_to   = "kind_icon",
                                         treesitter = { "lsp" },
-                                        columns    = { { "kind_icon", gap = 0 }, { "label", gap = 0 }, { "source_name", gap = 0 } },
+                                        columns    = { { "kind_icon" }, { "label" } },
                                         components = {
                                                 kind_icon   = { ellipsis = false },
                                                 label       = { ellipsis = true },
@@ -95,8 +96,10 @@ return {
                                         max_items    = 40,
                                         enabled      = function()
                                                 if vim.bo.ft ~= "lua" then return true end
-                                                local col = vim.api.nvim_win_get_cursor(0)[2]
+
+                                                local col          = vim.api.nvim_win_get_cursor(0)[2]
                                                 local chars_before = vim.api.nvim_get_current_line():sub(col - 2, col)
+
                                                 local luadoc_but_not_comment = not chars_before:find("^%-%-?$")
                                                            and not chars_before:find("%s%-%-?")
                                                 return luadoc_but_not_comment
@@ -126,6 +129,7 @@ return {
                                                 trailing_slash               = true,
                                                 label_trailing_slash         = true,
                                                 show_hidden_files_by_default = true,
+                                                ignore_root_slash            = true,
                                                 get_cwd                      = vim.uv.cwd,
                                         },
                                 },
@@ -134,22 +138,6 @@ return {
                                         score_offset = -7,
                                         max_items    = 8,
                                         opts         = { get_bufnrs = vim.api.nvim_list_bufs },
-                                        --[[
-                                        get_bufnrs   = function()
-                                                local last_xmins       = 15
-                                                local all_open_buffers = vim.fn.getbufinfo{ buflisted = 1, bufloaded = 1 }
-                                                local recent_bufs      = vim.iter(all_open_buffers)
-                                                           :filter(function(buf)
-                                                                   local recently_used = os.time() - buf.lastused <
-                                                                              (60 * last_xmins)
-                                                                   local non_special = vim.bo[buf.bufnr].buftype == ""
-                                                                   return recently_used and non_special
-                                                           end)
-                                                           :map(function(buf) return buf.bufnr end)
-                                                           :totable()
-                                                return recent_bufs
-                                        end,
-                                        --]]
                                 },
                                 omni       = {
                                         name         = "omni",
@@ -264,7 +252,7 @@ return {
                         { "Menu",                "Pmenu" },
                         { "MenuBorder",          "PmenuBorder" },
                         { "MenuSelection",       "pmenuSel" },
-                        { "Doc",                 "NormalFloat" },
+                        { "Doc",                 "WildMenu" },
                         { "DocBorder",           "BlinkCmpDoc" },
                         { "DocSeparator",        "BlinkCmpDoc" },
                         { "SignatureHelp",       "BlinkCmpDoc" },
@@ -273,6 +261,8 @@ return {
                         { "ScrollBarThumb",      "PmenuThumb" },
                         { "ScrollBarGutter",     "PmenuSbar" },
                 }
-                require("core.utils").linkHl(groups, "BlinkCmp")
+                vim.iter(groups):each(function(group)
+                        vim.api.nvim_set_hl(0, "BlinkCmp" .. group[1], { link = group[2] })
+                end)
         end,
 }

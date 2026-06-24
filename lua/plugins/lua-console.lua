@@ -7,7 +7,7 @@ return {
         },
         opts = {
                 buffer   = {
-                        result_prefix    = ">>> ",
+                        result_prefix    = "-->>> ",
                         autosave         = false,
                         load_on_start    = false,
                         strip_local      = false,
@@ -16,7 +16,7 @@ return {
                 window   = {
                         title = "",
                         border = Border.borderStyle,
-                        height = 0.4,
+                        height = 0.6,
                 },
                 mappings = {
                         quit = "<Esc>",

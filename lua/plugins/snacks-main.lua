@@ -19,7 +19,7 @@ local groups = {
         { "DiffRemoved",          "DiffDelete" },
         { "DiffCurrent",          "DiffText" },
 }
-require("core.utils").linkHl(groups, "Snacks")
+require("core.utils").hlBulk(groups, "Snacks")
 
 local border = Border.borderStyle
 local none   = Border.borderStyleNone
@@ -94,12 +94,13 @@ return {
                 },
                 styles    = {
                         input                = {
-                                backdrop = true,
-                                border   = border,
-                                row      = math.ceil(vim.o.lines / 10),
-                                b        = { completion = true },
-                                width    = 100,
-                                wo       = {
+                                backdrop  = true,
+                                border    = border,
+                                row       = math.ceil(vim.o.lines / 10),
+                                b         = { completion = true },
+                                width     = 100,
+                                title_pos = "left",
+                                wo        = {
                                         cursorline   = false,
                                         winhighlight =
                                         "NormalFloat:SnacksInputNormal,FloatBorder:SnacksInputBorder,FloatTitle:SnacksInputTitle",

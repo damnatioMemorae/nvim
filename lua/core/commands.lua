@@ -1,7 +1,9 @@
 local M = {}
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 local command = vim.api.nvim_create_user_command
 
----- SCRATCH BUFFER ----------------------------------------------------------------------------------------------------
+---- SCRATCH BUFFER ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 command("Scratch", function()
                 vim.cmd"rightb 10new"
@@ -17,7 +19,7 @@ command("Scratch", function()
                 end
         end, { desc = "Open a scratch buffer", nargs = 0 })
 
----- DELETE COMMENTS ---------------------------------------------------------------------------------------------------
+---- DELETE COMMENTS -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 command("RemoveComments", function()
                 local ts         = vim.treesitter
@@ -49,7 +51,7 @@ command("RemoveComments", function()
                 end
         end, {})
 
----- LSP CAPABILITIES --------------------------------------------------------------------------------------------------
+---- LSP CAPABILITIES ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 command("LspCapabilities", function(ctx)
                 local client  = vim.lsp.get_clients({ name = ctx.args })[1]
@@ -75,5 +77,64 @@ command("LspCapabilities", function(ctx)
                 end,
         })
 
-------------------------------------------------------------------------------------------------------------------------
+---- RUN ON SAVE ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+local current_job = nil
+local function startTast(cmd, data)
+        local old   = current_job
+        current_job = vim.fn.jobstart(cmd, {
+                stdout_buffered = false,
+                on_stdout       = data,
+                on_err          = data,
+                on_exit         = function()
+                        if current_job == old then
+                                current_job = nil
+                        end
+                end,
+        })
+        if old then vim.fn.jobstop(old) end
+end
+
+local function attachToBuf(pattern, cmd)
+        local width = 30
+        local buf   = vim.api.nvim_create_buf(false, true)
+
+        vim.cmd("vsplit")
+
+        local win = vim.api.nvim_get_current_win()
+
+        vim.api.nvim_win_set_buf(win, buf)
+        vim.api.nvim_win_set_width(win, math.floor(vim.o.columns * 0.01 * width))
+        vim.wo[win].number         = false
+        vim.wo[win].relativenumber = false
+        vim.wo[win].statuscolumn   = " "
+        vim.api.nvim_create_autocmd("BufWritePost", {
+                group    = vim.api.nvim_create_augroup("RunOnSave", { clear = true }),
+                pattern  = pattern,
+                callback = function()
+                        local ns         = vim.api.nvim_create_namespace("AutoRunner")
+                        local file       = vim.api.nvim_buf_get_name(0)
+                        local root       = vim.fs.root(0, { ".git" }) or ""
+                        local file_path  = vim.fs.relpath(root, file)
+                        local line_count = vim.api.nvim_buf_line_count(buf)
+
+                        vim.api.nvim_buf_set_lines(buf, -1, -1, false, { file_path })
+                        vim.api.nvim_buf_set_extmark(buf, ns, line_count, 0, { line_hl_group = "LspInlayHint" })
+                        local append_data = function(_, data)
+                                if data then
+                                        vim.api.nvim_buf_set_lines(buf, -1, -1, false, data)
+                                end
+                        end
+                        startTast(cmd, append_data)
+                end,
+        })
+end
+
+command("AutoRun", function()
+                local pattern = vim.fn.input("Pattern: ")
+                local cmd     = vim.split(vim.fn.input("Command: "), " ")
+                attachToBuf(pattern, cmd)
+        end, {})
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 return M

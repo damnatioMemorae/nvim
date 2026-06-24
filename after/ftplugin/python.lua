@@ -14,21 +14,21 @@ vim.defer_fn(function()
 
 ---- ABBREVIATIONS -----------------------------------------------------------------------------------------------------
 
-local abbr = require("core.utils").bufAbbrev
-abbr("true",     "True")
-abbr("false",    "False")
-abbr("//",       "#")
-abbr("--",       "#")
-abbr("null",     "None")
-abbr("nil",      "None")
-abbr("none",     "None")
-abbr("trim",     "strip")
-abbr("function", "def")
+_G.bufAbbr("true",     "True")
+_G.bufAbbr("false",    "False")
+_G.bufAbbr("//",       "#")
+_G.bufAbbr("--",       "#")
+_G.bufAbbr("null",     "None")
+_G.bufAbbr("nil",      "None")
+_G.bufAbbr("none",     "None")
+_G.bufAbbr("trim",     "strip")
+_G.bufAbbr("function", "def")
 
 ---- KEYMAPS -----------------------------------------------------------------------------------------------------------
 
-local bkeymap = require("core.utils").bufKeymap
-bkeymap("n", "g/", function()
+_G.bufMap({
+        "g/",
+        function()
                 vim.cmd.normal{ '"zyi"vi"', bang = true }
 
                 local flag_in_line = vim.api.nvim_get_current_line():match("re%.([MIDSUA])")
@@ -42,13 +42,26 @@ bkeymap("n", "g/", function()
                 }
 
                 require("rip-substitute.open-at-regex101").open(data)
-        end, { desc = " Open in regex101" })
+        end,
+        mode = "n",
+        desc = " Open in regex101",
+})
 
-bkeymap("n", "<A-s>", function()
-                vim.lsp.buf.code_action{ context = { only = { "source.fixAll.ruff" } }, apply = true } ---@diagnostic disable-line: assign-type-mismatch,missing-fields
+_G.bufMap({
+        "<A-s>",
+        function()
+                vim.lsp.buf.code_action({ context = { only = { "source.fixAll.ruff" } }, apply = true }) ---@diagnostic disable-line: assign-type-mismatch,missing-fields
                 vim.defer_fn(vim.lsp.buf.format, 50)
-        end, { desc = " Fixall & Format" })
+        end,
+        mode = "n",
+        desc = " Fixall & Format",
+})
 
-bkeymap("n", "<leader>ci", function()
-                vim.lsp.buf.code_action{ filter = function(a) return a.title:find("import") ~= nil end, apply = true }
-        end, { desc = " Import word under cursor" })
+_G.bufMap({
+        "<leader>ci",
+        function()
+                vim.lsp.buf.code_action({ filter = function(a) return a.title:find("import") ~= nil end, apply = true })
+        end,
+        mode = "n",
+        desc = " Import word under cursor",
+})

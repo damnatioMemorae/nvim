@@ -1,49 +1,68 @@
 local ensure_installed = {
-        -- LSP
-        "asm-lsp",
+        -- ASM
+        -- "asm-lsp",
+
+        ---- BASH --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
         "shfmt",
         "shellcheck",
         "bash-language-server",
+
+        ---- C/C++ --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
         "clangd",
         "clang-format",
-        "biome",
+
+        ---- WEB ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+        -- "tsgo",
         "css-lsp",
         "html-lsp",
         "json-lsp",
         "superhtml",
         "emmet-language-server",
         "css-variables-language-server",
-        "gopls",
-        "jdtls",
-        "kotlin-lsp",
-        "lua-language-server",
-        "ty",
-        "ruff",
-        -- "ltex-ls-plus",
-        -- "markdown-oxide",
-        "tsgo",
         -- "typescript-language-server",
-        "rust-analyzer",
-        "systemd-lsp",
-        "omnisharp",
         -- "phpactor",
         "intelephense",
-        "stimulus-language-server",
-        -- FORMATTERS
         "prettier",
         "prettierd",
-        -- "ts_query_ls",
-        "qmlls",
 
-        -- DEBUGGERS
+        ---- GO ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+        "gopls",
+        -- "templ",
+        -- "golangci-lint-langserver",
+        -- "delve",
+        -- "go-debug-adapter",
+
+        ---- LUA ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+        "lua-language-server",
+        -- "luaformatter",
+        -- "emmylua_ls",
+        -- "emmylua-codeformat",
         "local-lua-debugger-vscode",
 
-        -- OTHER
-        "just-lsp",
+        ---- PYTHON ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+        -- "ty",
+        -- "ruff",
+
+        ---- OTHER -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+        -- "rust-analyzer",
+        -- "omnisharp",
+        -- "markdown-oxide",
+        -- "ts_query_ls",
+        -- "qmlls",
+        -- "ltex-ls-plus",
+        -- "systemd-lsp",
+        -- "just-lsp",
         -- "kakehashi",
         "tree-sitter-cli",
         "yaml-language-server",
-        "gh-actions-language-server",
+        -- "gh-actions-language-server",
 }
 
 ---@param msg string
@@ -172,6 +191,8 @@ return {
                         { "HighlightBlockBoldSecondary", "Search" },
                         { "Normal",                      "Normal" },
                 }
-                require("core.utils").linkHl(groups, "Mason")
+                vim.iter(groups):each(function(group)
+                        vim.api.nvim_set_hl(0, "Mason" .. group[1], { link = group[2] })
+                end)
         end,
 }

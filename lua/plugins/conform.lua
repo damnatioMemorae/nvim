@@ -19,19 +19,26 @@ return {
                         python     = { "ruff", "isort", "black" },
                         sh         = { "shfmt" },
                         zsh        = { "shfmt" },
+                        -- lua        = { lsp_format = "prefer", "emmylua-codeformat" },
+                        lua        = { lsp_format = "prefer" },
+                        -- lua        = { "emmylua-codeformat" },
+                        -- lua        = { "luaformatter" },
                         _          = { "trim_whitespace", "trim_newlines", "squeeze_blanks" },
                 },
                 formatters          = {
-                        clang_format   = { args = { "--style=file" } },
-                        shfmt          = { args = { "-ln=bash", "-i=8", "-ci" } },
-                        shellcheck     = { args = "'$FILENAME' --format=diff --shell=bash | patch -p1 '$FILENAME'" },
-                        ["shell-home"] = {
+                        ["emmylua-codeformat"] = { args = { "-d" } },
+                        clang_format           = { args = { "--style=file" } },
+                        shfmt                  = { args = { "-ln=bash", "-i=8", "-ci" } },
+                        shellcheck             = { args = "'$FILENAME' --format=diff --shell=bash | patch -p1 '$FILENAME'" },
+                        ["shell-home"]         = {
                                 format = function(_self, _ctx, lines, callback)
-                                        local updated = vim.tbl_map(function(line)
-                                                                            return line
-                                                                                       :gsub("/Users/%a+", "$HOME")
-                                                                                       :gsub("([^/\\])~/", "%1$HOME/")
-                                                                    end, lines)
+                                        local updated = vim.tbl_map(
+                                                function(line)
+                                                        return line:gsub("/Users/%a+",
+                                                                         "$HOME"):gsub("([^/\\])~/", "%1$HOME/")
+                                                end,
+                                                lines
+                                        )
                                         callback(nil, updated)
                                 end,
                         },

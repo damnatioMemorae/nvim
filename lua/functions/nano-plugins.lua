@@ -5,20 +5,34 @@ local M = {}
 ---@param toggleKey string
 ---@param reg string
 function M.startOrStopRecording(toggleKey, reg)
+        assert(#toggleKey == 1, "toggleKey must be a single character")
         local not_recording = vim.fn.reg_recording() == ""
-
         if not_recording then
-                vim.cmd.normal{ "q" .. reg, bang = true }
+                vim.cmd.normal{ "q" .. reg, bang = true } -- start recording to register
+                return
+        end
+
+        local prev_macro = vim.fn.getreg(reg)
+        vim.cmd.normal{ "q", bang = true }
+        local macro = vim.fn.getreg(reg):sub(1, -(#toggleKey + 1)) -- since the key itself is also recorded
+        if macro ~= "" then
+                vim.fn.setreg(reg, macro)
+                local msg = vim.fn.keytrans(macro)
+                vim.notify(msg, vim.log.levels.TRACE, { title = "Recorded", icon = "󰃽" })
         else
-                vim.cmd.normal{ "q", bang = true }
-                local macro = vim.fn.getreg(reg):sub(1, -(#toggleKey + 1))
-                if macro ~= "" then
-                        vim.fn.setreg(reg, macro)
-                        local msg = vim.fn.keytrans(macro)
-                        vim.notify(msg, vim.log.levels.TRACE, { title = "Recorded", icon = "󰃽" })
-                else
-                        vim.notify("Aborted.", vim.log.levels.TRACE, { title = "Recording", icon = "󰜺" })
-                end
+                vim.fn.setreg(reg, prev_macro) -- prevent `toggleKey` filling the register
+                vim.notify("Aborted.", vim.log.levels.TRACE, { title = "Recording", icon = "󰃾" })
+        end
+end
+
+---@param reg string vim register (single letter)
+function M.playRecording(reg)
+        local has_recording = vim.fn.getreg(reg) ~= ""
+        if has_recording then
+                vim.cmd.normal{ "@" .. reg, bang = true }
+        else
+                local msg = "There is no recording."
+                vim.notify(msg, vim.log.levels.WARN, { title = "Recording", icon = "󰃾" })
         end
 end
 
@@ -164,7 +178,7 @@ end
 ---- FORMATTING --------------------------------------------------------------------------------------------------------
 
 function M.formatWithFallback()
-        local formatting_lsp = vim.lsp.get_clients{ method = "textDocument/formatting", bufnr = 0 }
+        local formatting_lsp = vim.lsp.get_clients({ method = "textDocument/formatting", bufnr = 0 })
 
         if #formatting_lsp > 0 then
                 if vim.bo.ft == "markdown" then

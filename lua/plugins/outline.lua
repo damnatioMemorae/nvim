@@ -35,7 +35,7 @@ local icons = {
 
 return {
         "hedyhli/outline.nvim",
-        keys = { { "<LocalLeader>s", "<cmd>Outline<cr>", desc = "Outline", mode = { "n" } } },
+        keys = { { "<leader>s", "<cmd>Outline<cr>", desc = "Outline", mode = { "n" } } },
         opts = {
                 outline_window = { position = "right", width = 20, focus_on_open = false },
                 outline_items  = { show_symbol_details = true, auto_set_cursor = false },
@@ -87,6 +87,8 @@ return {
                         { "Details",    "Comment" },
                         { "FoldMarker", "Comment" },
                 }
-                require("core.utils").linkHl(groups, "Outline")
+                vim.iter(groups):each(function(group)
+                        vim.api.nvim_set_hl(0, "Outline" .. group[1], { link = group[2] })
+                end)
         end,
 }

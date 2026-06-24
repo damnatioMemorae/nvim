@@ -1,15 +1,33 @@
 local style   = {
-        local_name_style             = { "snake_case" },
-        function_param_name_style    = { "camel_case", "pascal_case" },
-        function_name_style          = "camel_case",
-        local_function_name_style    = "camel_case",
-        global_variable_name_style   = "camel_case",
-        module_name_style            = "upper_snake_case",
-        module_local_name_style      = { "camel_case", "snake_case" },
+        function_param_name_style    = {
+                "camel_case",
+                { type = "pattern", param = "_(\\w+)", ["$1"] = "camel_case" },
+                { type = "pattern", param = "_" },
+                { type = "pattern", param = "__" },
+        },
+        global_variable_name_style   = {
+                "pascal_case",
+                { type = "pattern", param = "_(\\w+)", ["$1"] = "pascal_case" },
+                { type = "pattern", param = "_(\\w+)", ["$1"] = "snake_case" },
+                { type = "pattern", param = "_" },
+                { type = "pattern", param = "__" },
+        },
+        module_local_name_style      = {
+                "pascal_case",
+                "snake_case",
+                { type = "pattern", param = "_(\\w+)", ["$1"] = "pascal_case" },
+                { type = "pattern", param = "_(\\w+)", ["$1"] = "snake_case" },
+                { type = "pattern", param = "_" },
+                { type = "pattern", param = "__" },
+        },
+        local_name_style             = { "snake_case", { type = "pattern", param = "_(\\w+)", ["$1"] = "snake_case" } },
+        local_function_name_style    = { "camel_case", { type = "pattern", param = "_(\\w+)", ["$1"] = "camel_case" } },
+        table_field_name_style       = { "snake_case", "camel_case", "pascal_case", { type = "pattern", param = "_(\\w+)" } },
+        function_name_style          = { "camel_case" },
+        module_name_style            = { "upper_snake_case" },
         require_module_name_style    = { "upper_snake_case", "snake_case" },
-        class_name_style             = "upper_snake_case",
-        constant_variable_name_style = "camel_case",
-        table_field_name_style       = { "snake_case", "camel_case", "pascal_case" },
+        class_name_style             = { "upper_snake_case" },
+        constant_variable_name_style = { "camel_case", "pascal_case" },
 }
 local format  = {
         indent_style = "space",
@@ -36,7 +54,7 @@ local format  = {
         space_around_math_operator                   = "true",
         space_around_table_append_operator           = "false",
         space_around_table_field_list                = "true",
-        space_before_attribute                       = "false",
+        space_before_attribute                       = "true",
         space_before_closure_open_parenthesis        = "false",
         space_before_function_call_open_parenthesis  = "false",
         space_before_function_call_single_arg        = "none",
@@ -119,9 +137,6 @@ local nvim_libs = {
         vim.env.VIMRUNTIME,
         "${3rd}/luv/library",
         "${3rd}/busted/library",
-        lazy .. "/snacks.nvim/lua",
-        lazy .. "/blink.pairs/lua",
-        -- vim.api.nvim_get_runtime_file("", true),
 }
 local on_init   = function(client)
         local path = vim.uv.cwd()

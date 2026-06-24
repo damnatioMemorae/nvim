@@ -20,4 +20,6 @@ local groups = {
         { "@lsp.typemod.variable.defaultLibrary.c", "@variable.builtin" },
         { "@lsp.typemod.function.defaultLibrary.c", "@function.builtin" },
 }
-require("core.utils").linkHl(groups)
+vim.iter(groups):each(function(group)
+        vim.api.nvim_set_hl(0, group[1], { link = group[2] })
+end)

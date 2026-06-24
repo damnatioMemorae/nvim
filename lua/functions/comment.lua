@@ -60,7 +60,8 @@ function M.commentHr(replaceModeLabel)
 
         local indent_length  = vim.bo.expandtab and #indent or #indent * vim.bo.tabstop
         local com_str_length = #(vim.bo.commentstring:format(""))
-        local textwidth      = vim.o.textwidth > 0 and vim.o.textwidth or 80
+        -- local textwidth      = vim.o.textwidth > 0 and vim.o.textwidth or 80
+        local textwidth      = vim.api.nvim_win_get_width(0) * 1
         local hr_length      = textwidth - (indent_length + com_str_length)
 
         local hr              = config.hrChar:rep(hr_length)

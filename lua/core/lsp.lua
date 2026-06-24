@@ -1,4 +1,4 @@
----- DIAGNOSTISCS ------------------------------------------------------------------------------------------------------
+---- DIAGNOSTICS ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local hl    = "DiagnosticVirtualText"
 local signs = {
@@ -23,65 +23,64 @@ vim.diagnostic.config({
         severity_sort    = true,
 })
 
----- HANDLERS ----------------------------------------------------------------------------------------------------------
+---- HANDLERS ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-local handlers = vim.lsp.handlers
-local methods  = vim.lsp.protocol.Methods
-
-local originalInlayHintHandler              = handlers[methods["textDocument_inlayHint"]]
-handlers[methods["textDocument_inlayHint"]] = function(err, result, ctx, config)
-        local client = vim.lsp.get_client_by_id(ctx.client_id)
-        if client then
-                local row, col = unpack(vim.api.nvim_win_get_cursor(0)) ---@diagnostic disable-line: unused-local
-                result         = vim.iter(result):filter(function(hint)
-                        return hint.position.line + 1 == row
-                end):totable()
-        end
-        originalInlayHintHandler(err, result, ctx, config)
-end
-
-local originalRenameHandler              = handlers[methods["textDocument_rename"]]
-handlers[methods["textDocument_rename"]] = function(err, result, ctx, config)
-        originalRenameHandler(err, result, ctx, config)
-        if err or not result then return end
-
-        local changes       = result.changes or result.documentChanges or {}
-        local changed_files = vim.iter(vim.tbl_keys(changes))
-                   :filter(function(file) return #changes[file] > 0 end)
-                   :map(function(file) return "- " .. vim.fs.basename(file) end)
-                   :totable()
-        local change_count  = 0
-        for _, change in pairs(changes) do
-                change_count = change_count + #(change.edits or change)
+local OriginalRenameHandler             = vim.lsp.handlers["textDocument/rename"]
+vim.lsp.handlers["textDocument/rename"] = function(err, result, ctx, config)
+        OriginalRenameHandler(err, result, ctx, config)
+        if err or not result then
+                return
         end
 
-        local plural = change_count > 1 and "s" or ""
-        local msg    = ("%d instance%s"):format(change_count, plural)
+        local changed_files, change_count = {}, 0
+        if result.changes then
+                changed_files = vim.iter(vim.tbl_keys(result.changes))
+                           :map(function(uri) return "- " .. vim.fs.basename(vim.uri_to_fname(uri)) end)
+                           :totable()
+                change_count  = vim.iter(result.changes)
+                           :fold(0, function(sum, _, ch) return sum + #(ch.edits or ch) end)
+        elseif result.documentChanges then
+                changed_files = vim.iter(result.documentChanges)
+                           :map(function(file)
+                                   local uri   = file.textDocument and file.textDocument.uri or file.newUri
+                                   local extra = file.kind == "rename" and " (renamed)" or ""
+                                   return "* " .. vim.fs.basename(vim.uri_to_fname(uri)) .. extra
+                           end)
+                           :totable()
+                change_count  = vim.iter(result.documentChanges)
+                           :fold(0, function(sum, ch) return sum + (ch.edits and #ch.edits or 1) end)
+        end
+        assert(change_count > 0, "Unknown form of changes reported by LSP.")
+
+        local s   = change_count > 1 and "s" or ""
+        local msg = ("[%d] change%s"):format(change_count, s)
         if #changed_files > 1 then
-                msg = ("%s in %d files\n%s"):format(msg, #changed_files, table.concat(changed_files, "\n"))
+                local file_list = table.concat(changed_files, "\n")
+                msg             = ("%s in [%d] files\n%s"):format(msg, #changed_files, file_list)
         end
-        vim.notify(msg, vim.log.levels.WARN, { title = "Renamed with LSP", icon = Icons.Kinds.Parameter })
+        vim.notify(msg, vim.log.levels.WARN, { title = "Renamed with LSP", icon = "󰑕" })
 
-        if #changed_files > 1 then vim.cmd.wall() end
+        if #changed_files > 1 then
+                vim.cmd("silent! wall")
+        end
 end
 
----- POPUP -------------------------------------------------------------------------------------------------------------
+---- POPUP ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+local border      = Border.borderStyle
+local title       = ""
 local title_pos   = "left"
 local anchor_bias = "below"
 local relative    = "cursor"
 local wrap        = true
 local max_height  = math.floor(vim.o.lines * 0.7)
 local max_width   = math.floor(vim.o.columns * 0.6)
-local border      = Border.borderStyle
 
 local hover       = vim.lsp.buf.hover
----@diagnostic disable-next-line: duplicate-set-field
-vim.lsp.buf.hover = function()
+vim.lsp.buf.hover = function() ---@diagnostic disable-line: duplicate-set-field
         return hover{
                 border      = border,
-                -- title       = Icons.symbolKinds.Parameter .. " " .. "Hover",
-                title       = "",
+                title       = title,
                 title_pos   = title_pos,
                 anchor_bias = anchor_bias,
                 relative    = relative,
@@ -92,11 +91,10 @@ vim.lsp.buf.hover = function()
 end
 
 local signature_help       = vim.lsp.buf.signature_help
----@diagnostic disable-next-line: duplicate-set-field
-vim.lsp.buf.signature_help = function()
+vim.lsp.buf.signature_help = function() ---@diagnostic disable-line: duplicate-set-field
         return signature_help{
                 border      = border,
-                title       = "",
+                title       = title,
                 title_pos   = title_pos,
                 anchor_bias = anchor_bias,
                 relative    = relative,
@@ -107,8 +105,7 @@ vim.lsp.buf.signature_help = function()
 end
 
 local float               = vim.diagnostic.open_float
----@diagnostic disable-next-line: duplicate-set-field
-vim.diagnostic.open_float = function()
+vim.diagnostic.open_float = function() ---@diagnostic disable-line: duplicate-set-field
         return float{
                 title_pos     = "left",
                 title         = "",

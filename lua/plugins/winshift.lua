@@ -39,6 +39,8 @@ return {
                         { "LineNrBelow",  "LineNr" },
                         { "CursorLineNr", "CursorLineNr" },
                 }
-                require("core.utils").linkHl(groups, "WinShift")
+                vim.iter(groups):each(function(group)
+                        vim.api.nvim_set_hl(0, "Winshift" .. group[1], { link = group[2] })
+                end)
         end,
 }

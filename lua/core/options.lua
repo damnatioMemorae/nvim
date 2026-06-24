@@ -1,155 +1,128 @@
-local arr  = Icons.Arrows
-local misc = Icons.Misc
-local opt  = vim.opt
-
-vim.g.mapleader      = " "
-vim.g.maplocalleader = ","
-
----- FILETYPES ---------------------------------------------------------------------------------------------------------
-
-vim.filetype.add{
-        extension = { rasi = "rasi", rofi = "rasi", wofi = "rasi" },
-        filename  = { [".ignore"] = "gitignore" },
-        pattern   = { [".*/kitty/.+%.conf"] = "kitty", [".*/hypr/.+%.conf"] = "hyprlang" },
+return {
+        editor   = {
+                o = {
+                        backup         = false,
+                        swapfile       = false,
+                        writebackup    = false,
+                        clipboard      = "unnamedplus",
+                        completeopt    = "menu,menuone,noselect",
+                        ignorecase     = true,
+                        nrformats      = "bin,hex,blank,unsigned",
+                        smartcase      = true,
+                        startofline    = false,
+                        autowriteall   = false,
+                        autowrite      = false,
+                        confirm        = true,
+                        exrc           = true,
+                        formatoptions  = "",
+                        grepformat     = "%f:%l:%c:%m",
+                        grepprg        = "rg --vimgrep",
+                        hidden         = true,
+                        jumpoptions    = "stack",
+                        linebreak      = false,
+                        list           = true,
+                        mouse          = "a",
+                        mousemoveevent = true,
+                        shell          = "zsh",
+                        termsync       = false,
+                        timeoutlen     = 500,
+                        undofile       = true,
+                        undolevels     = 10000,
+                        whichwrap      = "<>[]hl",
+                        wildmode       = "",
+                        wrap           = false,
+                        wrapmargin     = 120,
+                        updatetime     = 2000,
+                        redrawtime     = 2000,
+                },
+                opt = {
+                        iskeyword      = vim.opt.iskeyword:append("@,48-57,_,-,192-255"),
+                        sessionoptions = { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp", "folds" },
+                },
+        },
+        ui       = {
+                o = {
+                        laststatus    = {
+                                value = 0,
+                                when  = function() return not pcall(require, "incline") or pcall(require, "dropbar") end,
+                        },
+                        statusline    = {
+                                value = " ",
+                                when  = function() return not pcall(require, "incline") or pcall(require, "dropbar") end,
+                        },
+                        rnu           = {
+                                value = true,
+                                when  = function() return vim.o.number end,
+                        },
+                        number        = true,
+                        pumheight     = 20,
+                        ruler         = false,
+                        winborder     = Border.borderStyleNone,
+                        cursorline    = true,
+                        hlsearch      = false,
+                        smoothscroll  = true,
+                        termguicolors = true,
+                        winminwidth   = 5,
+                        inccommand    = "split",
+                        pumblend      = 0,
+                        shortmess     = "tF" .. "TIcC" .. "as" .. "WoO" .. "Sl",
+                        showbreak     = " 󰘍 ",
+                        incsearch     = true,
+                        scrolloff     = 20,
+                        showmode      = false,
+                        sidescrolloff = 4,
+                        splitbelow    = true,
+                        splitright    = true,
+                        foldmarker    = "[[[,]]]",
+                },
+                opt = {
+                        guicursor = {
+                                "n-v-c-sm:block-Cursor",
+                                "i-ci-ve:ver25-Cursor",
+                                "r-cr-o:hor20-Cursor",
+                                "a:blinkwait500-blinkoff500-blinkon500",
+                        },
+                        fillchars = {
+                                fold      = " ",
+                                vert      = "│",
+                                eob       = " ",
+                                foldclose = Icons.Arrows.close,
+                                foldopen  = Icons.Arrows.open,
+                                foldsep   = "│",
+                                foldinner =
+                                " ",
+                                diff      = "╱",
+                        },
+                        listchars = {
+                                nbsp       = "_",
+                                precedes   = Icons.Misc.ellipsis,
+                                extends    = Icons.Misc.ellipsis,
+                                multispace = " ",
+                                lead       = " ",
+                                trail      =
+                                " ",
+                                tab        = "  ",
+                        },
+                },
+        },
+        tabspace = {
+                o = {
+                        autoindent  = true,
+                        shiftround  = true,
+                        shiftwidth  = 8,
+                        tabstop     = 2,
+                        smartindent = true,
+                        breakindent = true,
+                        copyindent  = true,
+                        expandtab   = true,
+                        textwidth   = 120,
+                },
+        },
+        spell    = {
+                opt = {
+                        spell        = false,
+                        spelllang    = "en_us",
+                        spelloptions = "noplainbuffer",
+                },
+        },
 }
-
-vim.api.nvim_create_autocmd("BufEnter", {
-        pattern  = "*",
-        callback = function()
-                for _, plugin in pairs({
-                        "netrwFileHandler",
-                        "getscript",
-                        "getscriptPlugin",
-                        "vimball",
-                        "vimballPlugin",
-                        "2html_plugin",
-                        "logipat",
-                        "rrhelper",
-                        "spellfile_plugin",
-                }) do
-                        vim.g["loaded_" .. plugin] = 1
-                end
-        end,
-})
-
-local cursor = {
-        "n-v-c-sm:block-Cursor",
-        "i-ci-ve:ver25-Cursor",
-        "r-cr-o:hor20-Cursor",
-        "a:blinkwait500-blinkoff500-blinkon500",
-}
-
----- GENERAL -----------------------------------------------------------------------------------------------------------
-
-opt.autowriteall   = false
-opt.autowrite      = false
-opt.cmdheight      = 0
-opt.concealcursor  = "n"
-opt.conceallevel   = 2
-opt.confirm        = true
-opt.exrc           = true
-opt.formatoptions  = ""
-opt.grepformat     = "%f:%l:%c:%m"
-opt.grepprg        = "rg --vimgrep"
-opt.hidden         = true
-opt.jumpoptions    = "stack"
-opt.linebreak      = false
-opt.list           = true
-opt.mouse          = "a"
-opt.mousemoveevent = true
-opt.ruler          = false
-opt.sessionoptions = { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp", "folds" }
-opt.shell          = "zsh"
-opt.spell          = false
-opt.spelllang      = "en_us"
-opt.spelloptions   = "noplainbuffer"
-opt.startofline    = true
-opt.termsync       = false
-opt.timeoutlen     = 500
-opt.undofile       = true
-opt.undolevels     = 10000
-opt.whichwrap      = "<>[]hl"
-opt.wildmode       = ""
-opt.winborder      = Border.borderStyleNone
-opt.winminwidth    = 5
-opt.wrap           = false
-opt.wrapmargin     = 120
-opt.updatetime     = 2000
-opt.redrawtime     = 2000
-
----- BACKUP ------------------------------------------------------------------------------------------------------------
-
-opt.backup      = false
-opt.swapfile    = false
-opt.writebackup = false
-
----- LAYOUT ------------------------------------------------------------------------------------------------------------
-
-opt.inccommand    = "nosplit"
-opt.incsearch     = true
-opt.pumheight     = 20
-opt.scrolloff     = 20
-opt.showmode      = false
-opt.sidescrolloff = 4
-opt.splitbelow    = true
-opt.splitright    = true
-
----- EDIT --------------------------------------------------------------------------------------------------------------
-
-opt.clipboard   = "unnamedplus"
-opt.completeopt = "menu,menuone,noselect"
-opt.ignorecase  = true
-opt.iskeyword   = opt.iskeyword:append("@,48-57,_,-,192-255")
-opt.smartcase   = true
-
----- FOLD --------------------------------------------------------------------------------------------------------------
-
-opt.list = true
-
----- UI ----------------------------------------------------------------------------------------------------------------
-
-opt.cursorline    = true
-opt.guicursor     = table.concat(cursor, ",")
-opt.hlsearch      = false
-opt.inccommand    = "split"
-opt.nrformats     = "bin,hex,blank,unsigned"
-opt.number        = true
-opt.pumblend      = 0
-opt.rnu           = true
-opt.shortmess     = "tF" .. "TIcC" .. "as" .. "WoO" .. "Sl"
-opt.showbreak     = " 󰘍 "
-opt.smoothscroll  = true
-opt.termguicolors = true
-opt.fillchars     = {
-        fold      = " ",
-        vert      = "│",
-        eob       = " ",
-        foldclose = arr.close,
-        foldopen  = arr.open,
-        foldsep   = "│",
-        foldinner =
-        " ",
-        diff      = "╱",
-}
-opt.listchars     = {
-        nbsp       = "_",
-        precedes   = misc.ellipsis,
-        extends    = misc.ellipsis,
-        multispace = " ",
-        lead       = " ",
-        trail      =
-        " ",
-        tab        = "  ",
-}
-
----- TABSPACE ----------------------------------------------------------------------------------------------------------
-
-opt.autoindent  = true
-opt.shiftround  = true
-opt.shiftwidth  = 8
-opt.tabstop     = 2
-opt.smartindent = true
-opt.breakindent = true
-opt.copyindent  = true
-opt.expandtab   = true
-opt.textwidth   = 120
