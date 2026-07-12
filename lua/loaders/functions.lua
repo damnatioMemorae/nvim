@@ -1,0 +1,5 @@
+_G.lazySafeRequire("functions.statusline")
+_G.lazySafeRequire("functions.statuscol", "BufReadPost")
+_G.lazySafeRequire("functions.folding", "BufReadPost")
+_G.lazySafeRequire("functions.toggle")
+_G.lazySafeRequire("functions.ui2", "BufReadPost")

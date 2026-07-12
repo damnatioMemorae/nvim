@@ -1,6 +1,13 @@
 local map = _G.smartMap
 
-local o       = vim.o
+local g         = vim.g
+local o         = vim.o
+local bo        = vim.bo
+local opt       = vim.opt
+local opt_local = vim.opt_local
+
+local fn      = vim.fn
+local uv      = vim.uv
 local api     = vim.api
 local augroup = vim.api.nvim_create_augroup
 local autocmd = vim.api.nvim_create_autocmd
@@ -9,13 +16,13 @@ local general = augroup("General Autocmds", { clear = true })
 
 ---- GENERAL -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-vim.opt.wildmode = "noselect"
+opt.wildmode = "noselect"
 autocmd("CmdlineChanged", {
         desc     = "User: Add fuzzy completion for command line",
         group    = general,
         pattern  = { ":", "/", "!", "?" },
         callback = function()
-                vim.fn.wildtrigger()
+                fn.wildtrigger()
         end,
 })
 
@@ -40,7 +47,7 @@ autocmd("WinScrolled", { -- SNIPPET
 autocmd("BufEnter", { -- STOP COMMENT
         group    = general,
         callback = function()
-                vim.opt.formatoptions:remove({ "c", "r", "o" })
+                opt.formatoptions:remove({ "c", "r", "o" })
         end,
 })
 
@@ -49,7 +56,7 @@ autocmd("BufWritePre", { -- TRAILING WHITESPACE
         group    = general,
         pattern  = "*",
         callback = function()
-                if vim.bo.filetype ~= "markdown" then
+                if bo.filetype ~= "markdown" then
                         vim.cmd([[%s/\s\+$//e]])
                 end
         end,
@@ -59,15 +66,15 @@ autocmd("ModeChanged", { -- VIRTUAL EDIT
         pattern  = "*:*",
         group    = general,
         callback = function()
-                local mode = vim.fn.mode()
+                local mode = fn.mode()
                 if mode == "n" or mode == "\22" then
-                        vim.opt.virtualedit = "all"
+                        opt.virtualedit = "all"
                 end
                 if mode == "i" then
-                        vim.opt.virtualedit = "block"
+                        opt.virtualedit = "block"
                 end
                 if mode == "v" or mode == "V" then
-                        vim.opt.virtualedit = "none"
+                        opt.virtualedit = "none"
                 end
         end,
 })
@@ -76,8 +83,8 @@ autocmd("FocusGained", { -- CWD
         desc     = "User: FIX `cwd` being not available when it is deleted outside nvim.",
         group    = general,
         callback = function()
-                if not vim.uv.cwd() then
-                        vim.uv.chdir("/")
+                if not uv.cwd() then
+                        uv.chdir("/")
                 end
         end,
 })
@@ -92,12 +99,12 @@ autocmd("FileType", { -- NOFILE
         pattern  = "*",
         group    = general,
         callback = function(args)
-                if vim.bo[args.buf].buftype == "nofile" then
+                if bo[args.buf].buftype == "nofile" then
                         _G.bufMap({ "<Esc>", "<cmd>q<CR>", silent = true })
-                        vim.opt_local.number         = false
-                        vim.opt_local.relativenumber = false
-                        vim.opt_local.statuscolumn   = ""
-                        vim.opt_local.signcolumn     = "no"
+                        opt_local.number         = false
+                        opt_local.relativenumber = false
+                        opt_local.statuscolumn   = ""
+                        opt_local.signcolumn     = "no"
                 end
         end,
 })
@@ -162,7 +169,7 @@ autocmd("FileType", {
 autocmd("FocusGained", {
         desc     = "User: Close all non-existing buffers on `FocusGained`.",
         callback = function()
-                local all_bufs       = vim.fn.getbufinfo{ buflisted = 1 }
+                local all_bufs       = fn.getbufinfo{ buflisted = 1 }
                 local closed_buffers = vim
                            .iter(all_bufs)
                            :fold({}, function(acc, buf)
@@ -170,8 +177,8 @@ autocmd("FocusGained", {
                                            return acc
                                    end
 
-                                   local still_exists   = vim.uv.fs_stat(buf.name) ~= nil
-                                   local special_buffer = vim.bo[buf.bufnr].buftype ~= ""
+                                   local still_exists   = uv.fs_stat(buf.name) ~= nil
+                                   local special_buffer = bo[buf.bufnr].buftype ~= ""
                                    local new_buffer     = buf.name == ""
 
                                    if still_exists or special_buffer or new_buffer then
@@ -197,7 +204,7 @@ autocmd("FocusGained", {
                 vim.schedule(function()
                         if api.nvim_buf_get_name(0) ~= "" then return end
                         for _, file in ipairs(vim.v.oldfiles) do
-                                if vim.uv.fs_stat(file) and vim.fs.basename(file) ~= "COMMIT_EDITMSG" then
+                                if uv.fs_stat(file) and vim.fs.basename(file) ~= "COMMIT_EDITMSG" then
                                         vim.cmd.edit(file)
                                         return
                                 end
@@ -212,7 +219,7 @@ do
         local prev_key
         local config = {
                 scrollbarWidth            = 3,
-                ignoredPrevNormalModeKeys = { "g", vim.g.mapleader },
+                ignoredPrevNormalModeKeys = { "g", g.mapleader },
         }
 
         ---@param mode? "clear"
@@ -222,10 +229,10 @@ do
                 if mode == "clear" then return end
 
                 local row   = api.nvim_win_get_cursor(0)[1]
-                local count = vim.fn.searchcount()
+                local count = fn.searchcount()
                 if vim.tbl_isempty(count) or count.total == 0 then return end
                 local text           = (" %d/%d "):format(count.current, count.total)
-                local line           = api.nvim_get_current_line():gsub("\t", (" "):rep(vim.bo.shiftwidth))
+                local line           = api.ng.t_current_line():gsub("\t", (" "):rep(bo.shiftwidth))
                 local signcolumn     = tonumber(vim.wo.signcolumn:match("%d+") or "0") * 2
                 local viewport_width = api.nvim_win_get_width(0) - signcolumn - config.scrollbarWidth
                 local line_full      = #line + #text > viewport_width
@@ -243,9 +250,9 @@ do
                            prev_key     = typed
                            if ignore then return end
 
-                           key                     = vim.fn.keytrans(key)
-                           local is_cmdline_search = vim.fn.getcmdtype():find("[/?]") ~= nil
-                           local is_normal_mode    = api.nvim_get_mode().mode == "n"
+                           key                     = fn.keytrans(key)
+                           local is_cmdline_search = fn.getcmdtype():find("[/?]") ~= nil
+                           local line              = api.nvim_get_current_line():gsub("\t", (" "):rep(bo.shiftwidth))
                            local search_started    = (key == "/" or key == "?") and is_normal_mode
                            local search_confirmed  = (key == "<CR>" and is_cmdline_search)
                            local search_cancelled  = (key == "<Esc>" and is_cmdline_search)
@@ -254,10 +261,10 @@ do
                            local search_movement = vim.tbl_contains({ "n", "N", "*", "#" }, key)
 
                            if search_cancelled or (not search_movement and not search_confirmed) then
-                                   vim.opt.hlsearch = false
+                                   opt.hlsearch = false
                                    searchCountIndicator("clear")
                            elseif search_movement or search_confirmed or search_started then
-                                   vim.opt.hlsearch = true
+                                   opt.hlsearch = true
                                    vim.defer_fn(searchCountIndicator, 1)
                            end
                    end, api.nvim_create_namespace("autoNohlAndSearchCount"))
@@ -266,15 +273,15 @@ end
 --[[ TEMPLATES -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local template_config = {
-        templateDir       = vim.fn.stdpath("config") .. "/templates",
+        templateDir       = fn.stdpath("config") .. "/templates",
         ignoreDirs        = {
-                vim.fn.stdpath("data"),
-                vim.fn.stdpath("config") .. "/after/ftplugin/",
+                fn.stdpath("data"),
+                fn.stdpath("config") .. "/after/ftplugin/",
                 "/tmp/",
         },
         globToTemplateMap = {
-                [vim.fn.stdpath("config") .. "/lsp/*.lua"]              = "lsp-server-config.lua",
-                [vim.fn.stdpath("config") .. "/lua/plugin-specs/*.lua"] = "vim-pack-plugin.lua",
+                [fn.stdpath("config") .. "/lsp/*.lua"]              = "lsp-server-config.lua",
+                [fn.stdpath("config") .. "/lua/plugin-specs/*.lua"] = "vim-pack-plugin.lua",
                 ["**/*.lua"]                                            = "module.lua",
 
                 ["**/*.py"]            = "template.py",
@@ -289,7 +296,7 @@ local template_config = {
                 ["**/Justfile"]                                   = "justfile.just",
                 ["**/.github/workflows/*.{yml,yaml}"]             = "github-action.yaml",
 
-                -- [vim.g.notesDir .. "/**/*.md"] = "note.md",
+                -- [g.notesDir .. "/**/*.md"] = "note.md",
         },
 }
 
@@ -297,7 +304,7 @@ autocmd({ "BufNewFile", "BufReadPost" }, {
         desc     = "User: Apply templates",
         callback = function(ctx)
                 vim.defer_fn(function()
-                                     local stats = vim.uv.fs_stat(ctx.file)
+                                     local stats = uv.fs_stat(ctx.file)
 
                                      if not stats or stats.size > 10 then
                                              return
@@ -314,7 +321,7 @@ autocmd({ "BufNewFile", "BufReadPost" }, {
                                      end
 
                                      local longest_matching_glob = vim.iter(conf.globToTemplateMap)
-                                                :filter(function(glob) return vim.glob.to_lpeg(glob):match(filepath) end)
+                                                :filter(function(glob) return g.ob.to_lpeg(glob):match(filepath) end)
                                                 :fold("", function(longGlob, glob)
                                                         return #longGlob < #glob and glob or longGlob
                                                 end)
@@ -325,13 +332,13 @@ autocmd({ "BufNewFile", "BufReadPost" }, {
                                      local template_file = conf.globToTemplateMap[longest_matching_glob]
                                      local template_path = vim.fs.normalize(conf.templateDir .. "/" .. template_file)
 
-                                     local content = table.concat(vim.fn.readfile(template_path), "\n")
+                                     local content = table.concat(fn.readfile(template_path), "\n")
                                      vim.snippet.expand(content)
 
                                      local new_ft = vim.filetype.match{ buf = bufnr }
 
-                                     if new_ft and vim.bo[bufnr].ft ~= new_ft then
-                                             vim.bo[bufnr].ft = new_ft
+                                     if new_ft and bo[bufnr].ft ~= new_ft then
+                                             bo[bufnr].ft = new_ft
                                      end
                              end, 100)
         end,

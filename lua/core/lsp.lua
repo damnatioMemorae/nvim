@@ -1,3 +1,4 @@
+local v   = vim.v
 local o   = vim.o
 local wo  = vim.wo
 local bo  = vim.bo
@@ -144,16 +145,14 @@ local timer    = vim.uv.new_timer()
 local autocmd  = api.nvim_create_autocmd
 local augroup  = api.nvim_create_augroup
 
-local _hint_augroup    = augroup("lsp-inlay-hint", { clear = false })
 local _lsp_augroup     = augroup("LSP", { clear = true })
+local _hint_augroup    = augroup("lsp-inlay-hint", { clear = false })
 local _doc_augroup     = augroup("LSP document highlight", { clear = true })
 local _col_augroup     = augroup("LSP document color", { clear = true })
 local _comp_augroup    = augroup("LSP completion", { clear = true })
 local _compdoc_augroup = augroup("LSP completion doc", { clear = true })
 local _detatch_augroup = augroup("LSP detatch", { clear = true })
 
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-local F = {}
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local function compDoc(client, _group, bufnr)
@@ -168,14 +167,13 @@ local function compDoc(client, _group, bufnr)
                 callback = function()
                         timer:stop()
 
-                        local client_id = vim.tbl_get(vim.v.completed_item, "user_data", "nvim", "lsp", "client_id")
+                        local client_id = vim.tbl_get(v.completed_item, "user_data", "nvim", "lsp", "client_id")
                         if client_id ~= client.id then
                                 return
                         end
 
-                        local completion_item = vim.tbl_get(vim.v.completed_item, "user_data", "nvim", "lsp",
-                                                            "completion_item")
-                        if not completion_item then
+                        local item = vim.tbl_get(v.completed_item, "user_data", "nvim", "lsp", "completion_item")
+                        if not item then
                                 return
                         end
 
@@ -187,7 +185,7 @@ local function compDoc(client, _group, bufnr)
                         timer:start(debounce, 0, vim.schedule_wrap(function()
                                 client:request(
                                         lsp.protocol.Methods.completionItem_resolve,
-                                        completion_item,
+                                        item,
                                         function(err, result)
                                                 if err ~= nil then
                                                         -- vim.notify("client" .. " " .. client.id .. vim.inspect(err),
@@ -220,13 +218,12 @@ local function compDoc(client, _group, bufnr)
                                         end,
                                         bufnr
                                 )
-                        end)
-                        )
+                        end))
                 end,
         })
 end
 
-function F.completion(client, buf)
+function completion(client, buf)
         if client:supports_method("textDocument/completion") and not pcall(require, "blink.cmp") then
                 lsp.completion.enable(true, client.id, buf, {
                         autotrigger = false,
@@ -254,8 +251,8 @@ function F.completion(client, buf)
         end
 end
 
-function F.inlayHints(client, buf)
-        if fn.has("nvim-0.10") == 1 and client:supports_method("textDocument/inlayHint") and vim.g.inlayHints then
+function inlayHints(client, buf)
+        if fn.has("nvim-0.10") == 1 and vim.g.inlayHints and client:supports_method("textDocument/inlayHint") then
                 autocmd({ "CursorHold", "CursorMoved" }, {
                         desc     = "LSP inlay hints",
                         group    = _hint_augroup,
@@ -265,7 +262,7 @@ function F.inlayHints(client, buf)
         end
 end
 
-function F.documentColor(client, buf)
+function documentColor(client, buf)
         if fn.has("nvim-0.12") == 1 and client:supports_method("textDocument/documentColor") then
                 autocmd({ "CursorHold", "CursorMoved" }, {
                         desc     = "LSP document color",
@@ -277,7 +274,7 @@ function F.documentColor(client, buf)
         end
 end
 
-function F.documentHighlight(client, buf)
+function documentHighlight(client, buf)
         if fn.mode() ~= "i" and fn.has("nvim-0.11") == 1 and client:supports_method("textDocument/documentHighlight", 0) then
                 autocmd({ "CursorMoved" }, {
                         desc     = "LSP Highlight symbol under cursor",
@@ -295,6 +292,34 @@ function F.documentHighlight(client, buf)
                         callback = lsp.buf.clear_references,
                 })
         end
+end
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+local F = {}
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+---@param client vim.lsp.Client? client rpc object
+---@param buf (`number`) [<abuf>]
+function F.completion(client, buf)
+        completion(client, buf)
+end
+
+---@param client vim.lsp.Client? client rpc object
+---@param buf (`number`) [<abuf>]
+function F.inlayHints(client, buf)
+        inlayHints(client, buf)
+end
+
+---@param client vim.lsp.Client? client rpc object
+---@param buf (`number`) [<abuf>]
+function F.documentColor(client, buf)
+        documentColor(client, buf)
+end
+
+---@param client vim.lsp.Client? client rpc object
+---@param buf (`number`) [<abuf>]
+function F.documentHighlight(client, buf)
+        documentHighlight(client, buf)
 end
 
 local opts = {

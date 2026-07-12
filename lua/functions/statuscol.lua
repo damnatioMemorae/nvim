@@ -26,4 +26,4 @@ function _G.render()
 end
 
 vim.o.statuscolumn = "%s%{%v:lua.render()%}"
-vim.o.signcolumn   = "no"
+vim.o.signcolumn   = "yes:1"

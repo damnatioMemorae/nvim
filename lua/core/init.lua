@@ -9,14 +9,16 @@ end
 
 require("core.utils.global")
 
-_G.lazySafeRequire("core.globals.options", "BufReadPre")
-_G.safeRequire("core.globals.icons")
-_G.safeRequire("core.globals.ui")
+-- _G.safeRequire("core.globals.options")
+_G.lazySafeRequire("core.globals.options")
+_G.lazySafeRequire("core.globals.icons")
+_G.lazySafeRequire("core.globals.ui")
 
-_G.safeRequire("core.lsp")
+-- _G.safeRequire("core.lsp")
+_G.lazySafeRequire("core.lsp", "BufReadPost")
 
-_G.safeRequire("loaders.modules")
-_G.safeRequire("loaders.options")
+_G.safeRequire("loaders.functions")
+_G.lazySafeRequire("loaders.options")
 
 if not vim.env.NO_PLUGINS then
         _G.safeRequire("core.lazy")
@@ -25,6 +27,8 @@ if not vim.env.NO_PLUGINS then
         end
 end
 
-_G.lazySafeRequire("core.keymaps",  "BufReadPre")
+-- _G.safeRequire("core.keymaps")
+-- _G.safeRequire("core.commands")
+_G.lazySafeRequire("core.keymaps",  "BufReadPost")
 _G.lazySafeRequire("core.commands", "CmdlineEnter")
 _G.safeRequire("core.autocmds")

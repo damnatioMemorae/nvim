@@ -132,12 +132,15 @@ local function lazySafeRequire(module, event, pattern)
         if event then
                 autocmd(event, {
                         pattern  = pattern or nil,
+                        once     = true,
                         callback = function()
                                 safeRequire(module)
+                                vim.notify(module)
                         end,
                 })
         else
                 safeRequire(module)
+                vim.notify(module)
         end
 end
 

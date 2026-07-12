@@ -23,7 +23,9 @@ local function toggleCodeLens()
         g.codeLens = not g.codeLens
         local msg  = misc.reference .. " " .. "CodeLens - "
 
-        if loaded and g.codeLens then
+        if not loaded then
+                return
+        elseif g.codeLens then
                 symbol.toggle_globally()
                 symbol.refresh()
                 notify(msg, "Enabled")
@@ -40,7 +42,9 @@ local function toggleInlayHints()
         g.inlayHints = not g.inlayHints
         local msg    = kinds.Parameter .. " " .. "Inlay Hints - "
 
-        if loaded and g.inlayHints then
+        if not loaded then
+                return
+        elseif g.inlayHints then
                 endhints.enable()
                 lsp.inlay_hint.enable(g.inlayHints)
                 notify(msg, "Enabled")
@@ -57,7 +61,9 @@ local function toggleIndentLines()
         g.indentLines = not g.indentLines
         local msg     = misc.verticalBar .. " " .. "Indent Lines - "
 
-        if loaded and g.indentLines then
+        if not loaded then
+                return
+        elseif g.indentLines then
                 ibl.update({ enabled = g.indentLines })
                 notify(msg, "Enabled")
         else
@@ -72,7 +78,9 @@ local function toggleDiagnostics()
         g.conceal = not g.conceal
         local msg = diag.ERROR .. " " .. "Diagnostics - "
 
-        if loaded and g.conceal then
+        if not loaded then
+                return
+        elseif g.conceal then
                 diagnostics.enable()
                 vim.diagnostic.enable(g.conceal)
                 notify(msg, "Enabled")
