@@ -7,7 +7,7 @@ return {
                         sections          = { "watches", "scopes", "exceptions", "breakpoints", "threads", "repl", "disassembly" },
                 },
                 windows = { size = 0.3, position = "right" },
-                help    = { border = Border.borderStyle },
+                help    = { border = Border.Default.Normal },
                 icons   = {
                         collapsed  = "󰅂 ",
                         disabled   = "",

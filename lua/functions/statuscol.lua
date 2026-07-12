@@ -1,23 +1,29 @@
 local function numberLine()
-        local v = vim.v
-
-        if v.virtnum ~= 0 then
+        if vim.v.virtnum ~= 0 then
                 return "%="
         end
 
-        local lnum     = v.relnum > 0 and v.relnum or v.lnum
-        local lnum_str = tostring(lnum)
-        local pad      = (""):rep(vim.wo.numberwidth - #lnum_str)
+        if vim.fn.foldclosed(vim.v.lnum) == vim.v.lnum then
+                local line = vim.fn.getline(vim.v.lnum)
 
-        return "%=" .. pad .. lnum_str .. " "
+                if line:match("^%S") then
+                        local count = vim.fn.foldclosedend(vim.v.lnum) - vim.v.lnum + 1
+                        local text  = tostring(count)
+                        local pad   = (""):rep(math.max(0, vim.wo.numberwidth - #text))
+                        return "%#FoldNumber#%=" .. pad .. text .. "%#FoldNumber# "
+                end
+        end
+
+        local num  = vim.v.relnum > 0 and vim.v.relnum or vim.v.lnum
+        local text = tostring(num)
+        local pad  = (""):rep(math.max(0, vim.wo.numberwidth - #text))
+
+        return "%=" .. pad .. text .. " "
 end
 
 function _G.render()
-        if vim.bo[0].buftype == "quickfix" then
-                return numberLine()
-        end
-
         return numberLine()
 end
 
 vim.o.statuscolumn = "%s%{%v:lua.render()%}"
+vim.o.signcolumn   = "no"

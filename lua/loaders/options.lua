@@ -1,16 +1,20 @@
-local function apply(spec)
-        for _, group in pairs(spec) do
-                for scope, opts in pairs(group) do
-                        for k, v in pairs(opts) do
-                                if type(v) == "table" and v.when then
-                                        if v.when() then
-                                                vim[scope][k] = v.value
-                                        end
-                                else
-                                        vim[scope][k] = v
-                                end
-                        end
-                end
-        end
-end
-apply(require("core.options"))
+vim
+           .iter(require("core.options"))
+           :each(function(_, group)
+                   vim
+                              .iter(group)
+                              :each(function(scope, opts)
+                                      vim
+                                                 .iter(opts)
+                                                 :each(function(key, value)
+                                                         if type(value) == "table" and value.when then
+                                                                 if not value.when() then
+                                                                         return
+                                                                 end
+                                                                 value = value.value
+                                                         end
+
+                                                         vim[scope][key] = value
+                                                 end)
+                              end)
+           end)

@@ -1,12 +1,11 @@
 return {
         "Mirsmog/real-icons.nvim",
-        enabled = true,
-        event = "VeryLazy",
+        event = "BufReadPre",
         build = ":RealIconsInstallPack material",
         opts  = {
-                pack         = "flow",
+                pack         = "datapack",
                 packs        = {
-                        flow = {
+                        datapack = {
                                 type = "vscode",
                                 path = vim.fn.expand("~/.vscode-oss/extensions/superant.mc-dp-icons-4.0.2-universal/"),
                         },
@@ -19,7 +18,7 @@ return {
                         trim    = true,
                 },
                 integrations = {
-                        fzf_lua       = false,
+                        fzf_lua       = true,
                         mini_files    = true,
                         snacks_picker = true,
                 },

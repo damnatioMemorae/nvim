@@ -1,22 +1,22 @@
 return {
         "dnlhc/glance.nvim",
-        cmd    = "Glance",
         keys   = {
-                { "<LocalLeader>r", "<cmd>Glance references<CR>" },
-                { "<LocalLeader>d", "<cmd>Glance definitions<CR>" },
-                { "<LocalLeader>i", "<cmd>Glance implementations<CR>" },
-                { "<LocalLeader>D", "<cmd>Glance type_definitions<CR>" },
+                { "<LocalLeader>r", desc = "Glance ref",     "<cmd>Glance references<CR>" },
+                { "<LocalLeader>d", desc = "Glance def",     "<cmd>Glance definitions<CR>" },
+                { "<LocalLeader>i", desc = "Glance impl",    "<cmd>Glance implementations<CR>" },
+                { "<LocalLeader>D", desc = "Glance typedef", "<cmd>Glance type_definitions<CR>" },
+                { "<LocalLeader>j", desc = "Glance resume",  "<cmd>Glance resume<CR>" },
         },
         opts   = {
-                height               = 20,
+                height               = 25,
                 preserve_win_context = true,
                 preview_win_opts     = { cursorline = false, number = false, wrap = false },
                 border               = { enable = false, top_char = " ", bottom_char = " " },
-                list                 = { width = 0.30 },
-                indent_lines         = { enable = false },
-                winbar               = { enable = true },
+                list                 = { width = 0.35 },
+                indent_lines         = { enable = true, icon = " " },
+                winbar               = { enable = false },
                 mappings             = {
-                        list = {
+                        list    = {
                                 ["j"]       = function() require("glance").actions.next() end,
                                 ["k"]       = function() require("glance").actions.previous() end,
                                 ["<Down>"]  = function() require("glance").actions.next() end,
@@ -49,31 +49,25 @@ return {
         config = function(_, opts)
                 require("glance").setup(opts)
 
-                local groups = {
-                        { "PreviewNormal",       "Normal" },
-                        { "PreviewMatch",        "LspReferenceWrite" },
-                        { "PreviewCursorLine",   "CursorLine" },
-                        -- { "PreviewSignColumn"   , "" },
-                        { "PreviewEndOfBuffer",  "Normal" },
-                        { "PreviewLineNr",       "LineNr" },
-                        { "PreviewBorderBottom", "Normal" },
-                        { "WinBarFilename",      "LspKindFile" },
-                        { "WinBarFilepath",      "LspKindFile" },
-                        { "WinBarTitle",         "Title" },
-                        { "ListNormal",          "NormalFloat" },
-                        { "ListFilename",        "LspKindFile" },
-                        { "ListFilepath",        "LspKindFile" },
-                        { "ListCount",           "LspReferenceWrite" },
-                        { "ListMatch",           "LspReferenceWrite" },
-                        { "ListCursorLine",      "Visual" },
-                        { "ListEndOfBuffer",     "NormalFloat" },
-                        { "ListBorderBottom",    "NormalFloat" },
-                        -- { "FoldIcon"            , "" },
-                        -- { "Indent"              , "" },
-                        -- { "BorderTop",            "PmenuDoc" },
-                }
-                vim.iter(groups):each(function(group)
-                        vim.api.nvim_set_hl(0, "Glance" .. group[1], { link = group[2] })
-                end)
+                _G.hlLink({
+                                  { "FoldIcon",            "Comment" },
+                                  { "ListNormal",          "Normal" },
+                                  { "ListFilename",        "Directory" },
+                                  { "ListFilepath",        "Comment" },
+                                  { "ListMatch",           "Search" },
+                                  { "ListCursorLine",      "PmenuSel" },
+                                  { "ListEndOfBuffer",     "Normal" },
+                                  { "ListBorderBottom",    "Normal" },
+                                  { "ListCount",           "DiagnosticVirtualTextWarn" },
+                                  { "PreviewNormal",       "Normal" },
+                                  { "PreviewMatch",        "Search" },
+                                  { "PreviewCursorLine",   "CursorLine" },
+                                  { "PreviewEndOfBuffer",  "Normal" },
+                                  { "PreviewLineNr",       "LineNr" },
+                                  { "PreviewBorderBottom", "Normal" },
+                                  { "WinBarFilename",      "LspKindFile" },
+                                  { "WinBarFilepath",      "LspKindFile" },
+                                  { "WinBarTitle",         "Title" },
+                          }, "Glance")
         end,
 }

@@ -37,7 +37,8 @@ M.colors = {
         surface1  = "#45475a",
         surface0  = "#313244",
         base      = "#1e1e2e",
-        mantle    = "#14141f",
+        mantle0   = "#191927",
+        mantle1   = "#14141f",
         crust1    = "#11111b",
         crust0    = "#0e0e16",
 
@@ -49,7 +50,8 @@ M.colors = {
         -- yellow_transparent = "#554e44",
         -- red_transparent    = "#533342",
 
-        teal_transparent   = "#29383c",
+        teal_transparent   = "#273741",
+        sky_transparent    = "#29383c",
         green_transparent  = "#2c3932",
         yellow_transparent = "#3d3835",
         red_transparent    = "#3c2733",
@@ -87,7 +89,7 @@ local groups = {
         ---- TITLES ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
         Title      = { fg = colors.teal },
-        FloatTitle = { fg = colors.teal, bg = colors.mantle },
+        FloatTitle = { fg = colors.teal, bg = "NONE" },
 
         ---- SEARCH ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -111,9 +113,9 @@ local groups = {
         LineNr           = { link = "NonText" },
         CursorLineNr     = { fg = colors.ivory },
         ActiveLineNumber = { link = "CursorLineNr" },
-        Folded           = { fg = colors.surface2, bg = colors.crust },
-        -- Folded           = { link = "lspinlayhint" },
-        FoldMark         = { link = "Comment" },
+        Folded           = { fg = "NONE", bg = "NONE" },
+        FoldText         = { fg = colors.surface2, bg = colors.base },
+        FoldNumber       = { link = "FoldText" },
         FoldColumn       = { link = "NonText" },
         SignColumn       = { link = "NonText" },
 
@@ -121,8 +123,8 @@ local groups = {
 
         Pmenu       = { bg = colors.crust1 },
         PmenuDoc    = { bg = colors.base },
-        PmenuSel    = { bg = colors.mantle, bold = true },
-        PmenuSbar   = { bg = colors.mantle },
+        PmenuSel    = { bg = colors.mantle1, bold = true },
+        PmenuSbar   = { bg = colors.mantle1 },
         PmenuThumb  = { bg = colors.surface0 },
         PmenuBorder = { link = "borderStyle" },
 
@@ -148,7 +150,7 @@ local groups = {
         SpellRare  = { sp = colors.green, underline = true },
 
         TSDefinitionUsage  = { link = "LspReferenceText" },
-        WildMenu           = { bg = colors.mantle },
+        WildMenu           = { bg = colors.mantle1 },
         markdownBlockquote = { bg = "none" },
         QuickFixLine       = { link = "Visual" },
 
@@ -160,9 +162,9 @@ local groups = {
         DiffAdded   = { fg = colors.green },
         DiffChanged = { fg = colors.yellow },
         DiffRemoved = { fg = colors.red },
-        DiffAdd     = { fg = colors.green, bg = colors.green_transparent },
-        DiffChange  = { fg = colors.yellow, bg = colors.yellow_transparent },
-        DiffDelete  = { fg = colors.red, bg = colors.red_transparent },
+        DiffAdd     = { fg = colors.green },
+        DiffChange  = { fg = colors.yellow },
+        DiffDelete  = { fg = colors.red },
         DiffText    = { fg = colors.teal, bg = colors.teal_transparent },
 
         ---- MSG ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -177,7 +179,7 @@ local groups = {
 
         ---- LSP ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        LspInlayHint                = { fg = colors.overlay0, bg = colors.base },
+        LspInlayHint                = { fg = colors.surface2, bg = colors.mantle0 },
         LspCodeLens                 = { link = "LspInlayHint" },
         LspReferenceText            = { link = "Visual" },
         LspReferenceRead            = { link = "Visual" },
@@ -190,17 +192,30 @@ local groups = {
 
         ---- DIAGNOSTIC --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        DiagnosticVirtualTextError = { fg = colors.red, bg = colors.base },
-        DiagnosticVirtualTextWarn  = { fg = colors.yellow, bg = colors.base },
-        DiagnosticVirtualTextInfo  = { fg = colors.sky, bg = colors.base },
-        DiagnosticVirtualTextHint  = { fg = colors.teal, bg = colors.base },
-        DiagnosticError            = { fg = colors.red },
-        DiagnosticWarn             = { fg = colors.yellow },
-        DiagnosticInfo             = { fg = colors.sky },
-        DiagnosticHint             = { fg = colors.teal },
+        DiagnosticVirtualTextError = { fg = colors.red, bg = colors.red_transparent },
+        DiagnosticVirtualTextWarn  = { fg = colors.yellow, bg = colors.yellow_transparent },
+        DiagnosticVirtualTextInfo  = { fg = colors.sky, bg = colors.sky_transparent },
+        DiagnosticVirtualTextHint  = { fg = colors.teal, bg = colors.teal_transparent },
+
+        -- DiagnosticVirtualTextError = { fg = colors.red, bg = colors.base },
+        -- DiagnosticVirtualTextWarn  = { fg = colors.yellow, bg = colors.base },
+        -- DiagnosticVirtualTextInfo  = { fg = colors.sky, bg = colors.base },
+        -- DiagnosticVirtualTextHint  = { fg = colors.teal, bg = colors.base },
+
+        DiagnosticUnderlineError = { bg = colors.base },
+        DiagnosticUnderlineWarn  = { bg = colors.base },
+        DiagnosticUnderlineInfo  = { bg = colors.base },
+        DiagnosticUnderlineHint  = { bg = colors.base },
+
+        DiagnosticError = { fg = colors.red },
+        DiagnosticWarn  = { fg = colors.yellow },
+        DiagnosticInfo  = { fg = colors.sky },
+        DiagnosticHint  = { fg = colors.teal },
 
         ---- BORDERS -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+        Border            = { fg = colors.crust0, bg = colors.crust0 },
+        FloatBorder       = { fg = colors.crust1, bg = colors.crust1 },
         borderStyle       = { fg = colors.crust0, bg = colors.crust0 },
         borderTop         = { fg = colors.crust0, bg = colors.crust0 },
         borderBottom      = { fg = colors.crust0, bg = colors.crust0 },
@@ -211,7 +226,6 @@ local groups = {
         borderLeftEmpty   = { fg = colors.crust0, bg = colors.crust0 },
         borderRightEmpty  = { fg = colors.crust0, bg = colors.crust0 },
         borderStyleNone   = { fg = colors.crust0, bg = colors.crust0 },
-        FloatBorder       = { fg = colors.crust1, bg = colors.crust1 },
 
         ---- SYNTAX ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -264,14 +278,15 @@ local groups = {
         ["@lsp.type.variable"]   = { link = "@variable" },
         --]=]
 
-        ---- TREESITTER --`a------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        ---- TREESITTER ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        ["@comment.todo"]    = { fg = colors.crust0, bg = colors.rosewater, italic = false, bold = true }, -- TODO
-        ["@comment.note"]    = { fg = colors.crust0, bg = colors.blue, italic = false, bold = true },      -- NOTE
-        ["@comment.hint"]    = { fg = colors.crust0, bg = colors.sky, italic = false, bold = true },       -- HINT
-        ["@comment.warning"] = { fg = colors.crust0, bg = colors.yellow, italic = false, bold = true },    -- WARNING
-        ["@comment.error"]   = { fg = colors.crust0, bg = colors.red, italic = false, bold = true },       -- ERROR
+        ["@comment.todo"]    = { fg = colors.crust0, bg = colors.rosewater, italic = false, bold = true }, -- TODO:
+        ["@comment.note"]    = { fg = colors.crust0, bg = colors.blue, italic = false, bold = true },      -- NOTE: XXX:
+        ["@comment.hint"]    = { fg = colors.crust0, bg = colors.sky, italic = false, bold = true },       -- HINT: WIP:
+        ["@comment.warning"] = { fg = colors.crust0, bg = colors.yellow, italic = false, bold = true },    -- WARNING:
+        ["@comment.error"]   = { fg = colors.crust0, bg = colors.red, italic = false, bold = true },       -- FIXME:
         ["@comment.code"]    = { fg = colors.teal, bg = colors.base, italic = false, bold = false },       -- `code`
+        ["@comment.url"]     = { link = "@markup.link.url" },                                              -- https://google.com
         ["@comment.bold"]    = { fg = colors.surface2, bold = true },                                      -- BOLD
 
         ["@punctuation.bracket"]   = { link = "Comment" },
@@ -325,20 +340,30 @@ local groups = {
         ["@markup"]           = { link = "Special" },
         ["@markup.link.url"]  = { link = "Special" },
         ["@markup.list"]      = { link = "Special" },
-        ["@markup.strong"]    = { link = "lspinlayhint" },
+        ["@markup.strong"]    = { bold = true },
         ["@markup.underline"] = { link = "Special" },
-        ["@markup.raw"]       = { fg = colors.teal, bg = colors.base },
+        ["@markup.raw"]       = { fg = colors.teal, bg = colors.mantle1 },
 
-        ["@markup.heading.1.markdown"] = { fg = colors.ivory, bg = colors.base, bold = true },
-        ["@markup.heading.2.markdown"] = { fg = colors.subtext1, bg = colors.base, bold = true },
-        ["@markup.heading.3.markdown"] = { fg = colors.subtext0, bg = colors.base, bold = true },
-        ["@markup.heading.4.markdown"] = { fg = colors.overlay2, bg = colors.base, bold = true },
-        ["@markup.heading.5.markdown"] = { fg = colors.overlay1, bg = colors.base, bold = true },
-        ["@markup.heading.6.markdown"] = { fg = colors.overlay0, bg = colors.base, bold = true },
+        ["@markup.heading.1.markdown"] = { fg = colors.ivory, bg = colors.base, bold = false },
+        ["@markup.heading.2.markdown"] = { fg = colors.subtext1, bg = colors.base, bold = false },
+        ["@markup.heading.3.markdown"] = { fg = colors.overlay2, bg = colors.base, bold = false },
+        ["@markup.heading.4.markdown"] = { fg = colors.overlay1, bg = colors.base, bold = false },
+        ["@markup.heading.5.markdown"] = { fg = colors.overlay0, bg = colors.base, bold = false },
+        ["@markup.heading.6.markdown"] = { fg = colors.surface2, bg = colors.base, bold = false },
 
-        ["@markup.italic.markdown_inline"] = { underline = true },
-        ["@conceal.heading.markdown"]      = { fg = colors.teal, bg = colors.base },
-        ["@conceal.list"]                  = { fg = colors.teal, bg = colors.base },
+        ["@conceal.heading.1"] = { link = "@markup.heading.1.markdown" },
+        ["@conceal.heading.2"] = { link = "@markup.heading.2.markdown" },
+        ["@conceal.heading.3"] = { link = "@markup.heading.3.markdown" },
+        ["@conceal.heading.4"] = { link = "@markup.heading.4.markdown" },
+        ["@conceal.heading.5"] = { link = "@markup.heading.5.markdown" },
+        ["@conceal.heading.6"] = { link = "@markup.heading.6.markdown" },
+
+        ["@conceal.unchecked"] = { link = "DiagnosticError" },
+        ["@conceal.checked"]   = { link = "DiagnosticOk" },
+
+        ["@markup.link.label.markdown_inline"] = { fg = colors.spark, underline = true },
+        ["@markup.italic.markdown_inline"]     = { underline = true },
+        ["@conceal.list"]                      = { fg = colors.teal, bg = colors.base },
 
         -- ["@neorg.headings.1.title.norg"] = { link = "Function" },
         -- ["@neorg.headings.2.title.norg"] = { link = "Comment" },
@@ -373,11 +398,6 @@ local groups = {
         ["@string.special.url"]         = { link = "@string.escape" },
         ["@string.special.url.html"]    = { link = "@string.escape" },
         ["@string.special.url.comment"] = { link = "@string.escape" },
-
-        ["@constructor.lua"]     = { link = "Delimiter" },
-        ["@type.luadoc"]         = { link = "Comment" },
-        ["@type.builtin.luadoc"] = { link = "@type.luadoc" },
-        -- { "@variable.parameter",  "Type" },
 
         ---- LSP KINDS ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

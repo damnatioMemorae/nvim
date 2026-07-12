@@ -25,55 +25,11 @@ local words = {
         ["colors.surface1"]  = "#45475a",
         ["colors.surface0"]  = "#313244",
         ["colors.base"]      = "#1e1e2e",
-        ["colors.mantle"]    = "#14141f",
+        ["colors.mantle0"]   = "#191927",
+        ["colors.mantle1"]   = "#14141f",
         ["colors.crust1"]    = "#11111b",
         ["colors.crust0"]    = "#0e0e16",
 }
-
-local theme   = vim.g.colors_name
-local module  = "colors." .. theme
-local cache   = {}
-local globals = { vim = vim }
-
-local function reset()
-        local colors   = require("colors." .. theme).colors
-        globals.colors = colors
-        globals.c      = colors
-end
-
-local function hlGroup(name, buf)
-        return vim.api.nvim_buf_get_name(buf):find("kinds") and "LspKinds" .. name or name
-end
-
-
-local function reload()
-        for k in pairs(package.loaded) do
-                if k:find("^" .. module) then
-                        package.loaded[k] = nil
-                end
-        end
-        cache = {}
-        require(module)
-        reset()
-        local colorscheme = vim.g.colors_name or theme
-        colorscheme = colorscheme:find(colorscheme) and colorscheme or colorscheme
-        vim.cmd.colorscheme(colorscheme)
-        local hi = require("mini.hipatterns")
-        for _, buf in ipairs(require("mini.hipatterns").get_enabled_buffers()) do
-                hi.update(buf)
-        end
-end
-
-vim.api.nvim_create_autocmd("User", {
-        pattern  = "VeryLazy",
-        group    = vim.api.nvim_create_augroup("colorscheme_dev", { clear = true }),
-        callback = vim.schedule_wrap(reload),
-})
-vim.api.nvim_create_autocmd("BufWritePost", {
-        group    = vim.api.nvim_create_augroup("colorscheme_dev", { clear = true }),
-        pattern  = "*/lua/" .. module .. "/**.lua",
-        callback = vim.schedule_wrap(reload),
-})
 
 return {
         "nvim-mini/mini.hipatterns",
@@ -84,65 +40,101 @@ return {
 
                 opts.highlighters = opts.highlighters or {}
 
+                local function notInTsCapture(capture, groupFn)
+                        return function(bufId, match, data)
+                                local caps = vim.treesitter.get_captures_at_pos(bufId, data.line - 1, data.from_col - 1)
+                                for _, c in ipairs(caps) do
+                                        if c.capture == capture then
+                                                return groupFn(bufId, match, data)
+                                        end
+                                end
+
+                                return nil
+                        end
+                end
+
+                local function getHighlight(cb)
+                        return function(_, match)
+                                return hi.compute_hex_color_group(cb(match), "bg")
+                        end
+                end
+
+                local function getHexLong(match)
+                        return match
+                end
+
                 local function wordColorGroup(_, match)
                         local hex = words[match]
                         if hex == nil then return nil end
                         return hi.compute_hex_color_group(hex, "bg")
                 end
 
-                local highlighters = {
-                        hex_color  = hi.gen_highlighter.hex_color({ priority = 2000 }),
-                        word_color = { pattern = "%f[%w]()%S+()%f[%W]", group = wordColorGroup },
-                        hl_group   = {
-                                pattern      = function(buf)
-                                        return vim.api.nvim_buf_get_name(buf):find("lua/" .. module) and
-                                                   '^%s*%[?"?()[%w%.@]+()"?%]?%s*='
-                                end,
-                                group        = function(buf, match)
-                                        local api   = vim.api
-                                        local get   = api.nvim_get_hl
-                                        local group = hlGroup(match, buf)
+                local function inComment(bufnr, row, col)
+                        local ok, captures = pcall(vim.treesitter.get_captures_at_pos, bufnr, row, col)
+                        if not ok then
+                                return false
+                        end
 
-                                        if group then
-                                                if cache[group] == nil then
-                                                        cache[group] = false
-                                                        local hl = get(0, { name = group, link = false, create = false })
-                                                        if not vim.tbl_isempty(hl) then
-                                                                hl.fg = hl.fg or
-                                                                           get(0, { name = "Normal", link = false }).fg
-                                                                cache[group] = true
-                                                                api.nvim_set_hl(0, group .. "Dev", hl)
-                                                        end
-                                                end
-                                                return cache[group] and group .. "Dev" or nil
+                        for _, cap in ipairs(captures or {}) do
+                                if cap.capture:match("comment") then
+                                        return true
+                                end
+                        end
+
+                        return false
+                end
+
+                local function hlComKeyword(_words, hl)
+                        local keywords = {}
+
+                        for _, word in ipairs(_words) do
+                                keywords[word] = true
+                        end
+
+                        return {
+                                pattern = "()%u+:()",
+                                group   = function(bufnr, match, data)
+                                        if not inComment(bufnr, data.line, data.from_col) then
+                                                return nil
+                                        end
+
+                                        if keywords[match:sub(1, -2)] then
+                                                return hl or "Todo"
                                         end
                                 end,
-                                extmark_opts = { priority = 2000 },
-                        },
-                        hl_color   = {
-                                patter = {
-                                        "%f[%w]()c%.[%w_%.]+()%f[%W]",
-                                        "%f[%w]()colors%.[%w_%.]+()%f[%W]",
-                                        "%f[%w]()vim%.g%.terminal_color_%d+()%f[%W]",
-                                },
-                                group  = function(_, match)
-                                        local parts = vim.split(match, ".", { plain = true })
-                                        local color = vim.tbl_get(globals, unpack(parts))
-                                        return type(color) == "string" and hi.compute_hex_color_group(color, "bg")
+                        }
+                end
+
+                local highlighters = {
+                        code       = {
+                                pattern = "`[^`]+`",
+                                group   = function(bufnr, _match, data)
+                                        if not inComment(bufnr, data.line, data.from_col) then
+                                                return nil
+                                        end
+                                        return "MiniHipatternsCode"
                                 end,
                         },
+                        fixme      = hlComKeyword({ "FIXME", "BUG", "ERROR" }, "MiniHipatternsFixme"),
+                        hack       = hlComKeyword({ "HACK", "WARNING", "WARN", "FIX" }, "MiniHipatternsHack"),
+                        todo       = hlComKeyword({ "TODO", "WIP" }, "MiniHipatternsTodo"),
+                        hint       = hlComKeyword({ "HINT", "DONE" }, "MiniHipatternsHint"),
+                        note       = hlComKeyword({ "NOTE", "XXX", "INFO", "DOCS", "PERF", "TEST" }, "MiniHipatternsNote"),
+                        url        = { pattern = "https?://%S+", group = "MiniHipatternsUrl" },
+                        hex_color  = { pattern = "#%x%x%x%x%x%x%f[%X]", group = getHighlight(getHexLong) },
+                        word_color = { pattern = "%f[%w]()%S+()%f[%W]", group = wordColorGroup },
                 }
 
                 opts.highlighters = vim.tbl_extend("keep", opts.highlighters or {}, highlighters)
 
-                local groups = {
-                        { "Note",  "@comment.note" },
-                        { "Todo",  "@comment.todo" },
-                        { "Hack",  "@comment.hack" },
-                        { "Fixme", "@comment.error" },
-                }
-                vim.iter(groups):each(function(group)
-                        vim.api.nvim_set_hl(0, "MiniHipatterns" .. group[1], { link = group[2] })
-                end)
+                _G.hlLink({
+                                  { "Fixme", "@comment.error" },
+                                  { "Hack",  "@comment.warning" },
+                                  { "Todo",  "@comment.todo" },
+                                  { "Hint",  "@comment.hint" },
+                                  { "Note",  "@comment.note" },
+                                  { "Code",  "@comment.code" },
+                                  { "Url",   "@comment.url" },
+                          }, "MiniHipatterns")
         end,
 }

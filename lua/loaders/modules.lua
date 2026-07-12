@@ -1,0 +1,5 @@
+_G.safeRequire("functions.statusline")
+_G.safeRequire("functions.statuscol")
+_G.safeRequire("functions.folding")
+_G.safeRequire("functions.toggle")
+_G.safeRequire("functions.ui2")

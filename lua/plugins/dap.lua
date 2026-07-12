@@ -24,7 +24,7 @@ return {
                 ui.setup({
                         expand_lines = true,
                         -- controls       = { enabled   = false },
-                        floating     = { border = Border.borderStyle },
+                        floating     = { border = Border.Default.Normal },
                         render       = {
                                 max_type_length = 60,
                                 max_value_lines = 200,

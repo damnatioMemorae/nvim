@@ -30,17 +30,14 @@ return {
         config = function(_, opts)
                 require("winshift").setup(opts)
 
-                local groups = {
-                        { "Normal",       "NormalFloat" },
-                        { "FoldColumn",   "NormalFloat" },
-                        { "SignColumn",   "NormalFloat" },
-                        { "LineNr",       "LineNr" },
-                        { "LineNrAbove",  "LineNr" },
-                        { "LineNrBelow",  "LineNr" },
-                        { "CursorLineNr", "CursorLineNr" },
-                }
-                vim.iter(groups):each(function(group)
-                        vim.api.nvim_set_hl(0, "Winshift" .. group[1], { link = group[2] })
-                end)
+                _G.hlLink({
+                                  { "Normal",       "NormalFloat" },
+                                  { "FoldColumn",   "NormalFloat" },
+                                  { "SignColumn",   "NormalFloat" },
+                                  { "LineNr",       "LineNr" },
+                                  { "LineNrAbove",  "LineNr" },
+                                  { "LineNrBelow",  "LineNr" },
+                                  { "CursorLineNr", "CursorLineNr" },
+                          }, "Winshift")
         end,
 }

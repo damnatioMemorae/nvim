@@ -1,6 +1,6 @@
 local enabled = false
 
-local h = require("core.utils").getHl
+local h = require("core.utils.misc").getHl
 
 vim.api.nvim_set_hl(0, "SnacksNotifierBorderInfo",  { fg = h("DiagnosticInfo").fg, bg = h("NormalFloat").bg })
 vim.api.nvim_set_hl(0, "SnacksNotifierBorderWarn",  { fg = h("DiagnosticWarn").fg, bg = h("NormalFloat").bg })
@@ -124,13 +124,13 @@ return {
                 },
                 notifier = {
                         enabled = enabled,
-                        icons   = Icons.Notifier,
+                        icons   = Icon.Notifier,
                         sort    = { "added" },
                         timeout = 2000,
                 },
                 styles   = {
                         notification_history = {
-                                border   = Border.borderRight,
+                                border   = Border.Plain.Right,
                                 height   = 0.9,
                                 width    = 0.9,
                                 title    = "",
@@ -141,9 +141,9 @@ return {
                         },
                         notification         = {
                                 enabled = enabled,
-                                border  = Border.borderStyleNone,
-                                wo      = { winblend = Config.blend },
-                                icons   = Icons.Notifier,
+                                border  = Border.Default.None,
+                                wo      = { winblend = vim.g.blend },
+                                icons   = Icon.Notifier,
                                 timeout = 2000,
                                 style   = "minimal",
                         },

@@ -1,12 +1,15 @@
+local icons = Icon.Kinds
+
 return {
         "chrisgrieser/nvim-lsp-endhints",
-        event  = "LspAttach",
-        keys   = { { "<leader>oh", Toggle.inlayHints, desc = "LSP Inlay Hints - Toggle" } },
-        opts   = {
+        enabled = false,
+        event   = "LspAttach",
+        keys    = { { "<leader>oh", Toggle.inlayHints, desc = "LSP Inlay Hints - Toggle" } },
+        opts    = {
                 icons = {
-                        type      = Icons.KindsAlt.Type .. " ",
-                        parameter = Icons.Kinds.Parameter .. " ",
-                        offspec   = Icons.Misc.offSpec .. " ",
+                        type      = icons.Type .. " ",
+                        parameter = icons.Parameter .. " ",
+                        offspec   = "o ",
                         unknown   = "?" .. " ",
                 },
                 label = {

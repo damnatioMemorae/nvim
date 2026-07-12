@@ -1,12 +1,11 @@
 return {
         "nvim-treesitter/nvim-treesitter-context",
-        -- event        = "BufReadPre",
-        event        = "VeryLazy",
+        event        = "BufReadPre",
         dependencies = "nvim-treesitter",
-        keys         = { { "<LocalLeader>c", function() require("treesitter-context").go_to_context(vim.v.count1) end } },
+        keys         = { { "<LocalLeader>c", desc = "Goto context", function() require("treesitter-context").go_to_context(vim.v.count1) end } },
         opts         = {
                 enable              = true,
-                multiwindow         = false,
+                multiwindow         = true,
                 max_lines           = 2,
                 min_window_height   = 1,
                 line_numbers        = true,
@@ -20,10 +19,12 @@ return {
         config       = function(_, opts)
                 require("treesitter-context").setup(opts)
 
-                local h = require("core.utils").getHl
+                local h = require("core.utils.misc").getHl
 
-                vim.api.nvim_set_hl(0, "TreesitterContextLineNumberBottom", { underline = false })
-                vim.api.nvim_set_hl(0, "TreesitterContextLineNumber",       { fg = h("NonText").fg, bg = h("Folded").bg })
-                vim.api.nvim_set_hl(0, "TreesitterContextBottom",           { underline = false })
+                _G.hlDyn({
+                                 { "LineNumberBottom", { underline = false } },
+                                 { "LineNumber",       { fg = h("NonText").fg, bg = h("NormalFloat").bg } },
+                                 { "Bottom",           { underline = false } },
+                         }, "TreesitterContext")
         end,
 }

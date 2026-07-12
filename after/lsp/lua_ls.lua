@@ -15,6 +15,7 @@ local style   = {
         module_local_name_style      = {
                 "pascal_case",
                 "snake_case",
+                "upper_snake_case",
                 { type = "pattern", param = "_(\\w+)", ["$1"] = "pascal_case" },
                 { type = "pattern", param = "_(\\w+)", ["$1"] = "snake_case" },
                 { type = "pattern", param = "_" },
@@ -24,7 +25,7 @@ local style   = {
         local_function_name_style    = { "camel_case", { type = "pattern", param = "_(\\w+)", ["$1"] = "camel_case" } },
         table_field_name_style       = { "snake_case", "camel_case", "pascal_case", { type = "pattern", param = "_(\\w+)" } },
         function_name_style          = { "camel_case" },
-        module_name_style            = { "upper_snake_case" },
+        module_name_style            = { "upper_snake_case", "pascal_case" },
         require_module_name_style    = { "upper_snake_case", "snake_case" },
         class_name_style             = { "upper_snake_case" },
         constant_variable_name_style = { "camel_case", "pascal_case" },

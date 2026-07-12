@@ -1,11 +1,11 @@
 local M = {}
 
-local lsp    = vim.lsp
-local bo     = vim.bo
-local cmd    = vim.cmd
-local api    = vim.api
-local fn     = vim.fn
-local notify = vim.notify
+local lsp = vim.lsp
+local cmd = vim.cmd
+local api = vim.api
+local fn  = vim.fn
+local bo  = vim.bo
+local wo  = vim.wo
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -31,14 +31,15 @@ function M.bufferInfo()
                 "[winid]     " .. api.nvim_get_current_win(),
                 "[filetype]  " .. (bo.filetype == "" and '""' or bo.filetype),
                 "[buftype]   " .. (bo.buftype == "" and '""' or bo.buftype),
+                "[foldlevel] " .. (wo.foldlevel == "" and '""' or wo.foldlevel),
                 ("[indent]    %s (%s)"):format(indent_type, indent_amount),
                 "[cwd]       " .. (vim.uv.cwd() or "nil"):gsub("/Users/%w+", pseudo_tilde),
                 "",
         }
         if #lsps > 0 then
-                vim.list_extend(out, { "**Attached LSPs with root**", unpack(lsps) })
+                vim.list_extend(out, { "Attached LSPs with root", unpack(lsps) })
         else
-                vim.list_extend(out, { "*No LSPs attached.*" })
+                vim.list_extend(out, { "No LSPs attached." })
         end
         local opts = { title = "Inspect buffer", icon = "󰽙", timeout = 10000 }
         vim.notify(table.concat(out, "\n"), vim.log.levels.DEBUG, opts)

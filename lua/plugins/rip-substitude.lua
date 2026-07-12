@@ -17,7 +17,7 @@ return {
         opts = {
                 popupWin        = {
                         title                   = "",
-                        border                  = Border.borderStyle,
+                        border                  = Border.Default.Normal,
                         position                = "top",
                         hideSearchReplaceLabels = true,
                         hideKeymapHints         = true,

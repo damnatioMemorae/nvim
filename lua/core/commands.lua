@@ -21,7 +21,7 @@ command("Scratch", function()
 
 ---- DELETE COMMENTS -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-command("RemoveComments", function()
+command("DeleteComments", function()
                 local ts         = vim.treesitter
                 local bufnr      = vim.api.nvim_get_current_buf()
                 local ft         = vim.bo[bufnr].filetype
@@ -71,8 +71,11 @@ command("LspCapabilities", function(ctx)
         end, {
                 nargs    = 1,
                 complete = function()
-                        return vim.iter(vim.lsp.get_clients{ bufnr = 0 })
-                                   :map(function(client) return client.name end)
+                        return vim
+                                   .iter(vim.lsp.get_clients{ bufnr = 0 })
+                                   :map(function(client)
+                                           return client.name
+                                   end)
                                    :totable()
                 end,
         })

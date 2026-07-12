@@ -29,7 +29,6 @@ return {
                         enabled         = true,
                         cmdline         = true,
                         groups          = { "BlinkPairsOrange", "BlinkPairsPurple", "BlinkPairsBlue" },
-                        -- groups          = { "BlinkPairs" },
                         unmatched_group = "MatchParen",
                         matchparen      = {
                                 enabled             = true,

@@ -1,30 +1,12 @@
-local groups = {
-        { "Title",                "DiagnosticError" },
+local git   = Icon.Git
+local misc  = Icon.Misc
+local diag  = Icon.Diagnostics
+local kinds = Icon.Kinds
 
-        { "PickerTitle",          "DiagnosticError" },
-        { "Picker",               "Normal" },
-        { "PickerBorder",         "borderStyle" },
-        { "PickerListCursorLine", "Visual" },
-        { "PickerCursorLine",     "TinyInlineDiagnosticVirtualTextError" },
-        { "PickerSelected",       "Error" },
-        { "PickerIconFile",       "BlinkCmpKindFile" },
-
-        { "PickerUndoAdded",      "SnacksDiffAdd" },
-        { "PickerUndoSaved",      "SnacksDiffContext" },
-        { "PickerUndoRemoved",    "SnacksDiffDelete" },
-        { "PickerUndoCurrent",    "DiffText" },
-
-        { "DiffAdded",            "DiffAdd" },
-        { "DiffSaved",            "DiffChange" },
-        { "DiffRemoved",          "DiffDelete" },
-        { "DiffCurrent",          "DiffText" },
-}
-require("core.utils").hlBulk(groups, "Snacks")
-
-local border = Border.borderStyle
-local none   = Border.borderStyleNone
-local top    = Border.borderTop
-local bot    = Border.borderBottom
+local border = Border.Default.Normal
+local none   = Border.Default.NormalNone
+local top    = Border.Plain.Top
+local bot    = Border.Plain.Bottom
 
 local loaded, _ = pcall(require, "snacks")
 local toggle    = Snacks.toggle
@@ -145,23 +127,23 @@ return {
                                 },
                         },
                         icons     = {
-                                Diagnostics = Icons.Diagnostics,
-                                kinds       = Icons.Kinds,
+                                Diagnostics = diag,
+                                kinds       = kinds,
                                 tree        = { vertical = " ", middle = " ", last = " " },
                                 files       = {
                                         enabled  = true,
-                                        dir      = Icons.Kinds.Folder,
-                                        dir_open = Icons.Misc.folderOpen,
-                                        file     = Icons.Kinds.File,
+                                        dir      = kinds.Folder,
+                                        dir_open = misc.folderOpen,
+                                        file     = kinds.File,
                                 },
                                 ui          = {
-                                        selected   = Icons.Diagnostics.HINT .. " ",
+                                        selected   = diag.HINT .. " ",
                                         unselected = "",
                                 },
                                 git         = {
-                                        added     = Icons.Git.Added,
-                                        deleted   = Icons.Git.Deleted,
-                                        modified  = Icons.Git.Modified,
+                                        added     = git.Added,
+                                        deleted   = git.Deleted,
+                                        modified  = git.Modified,
                                         enabled   = true,
                                         commit    = "󰜘 ",
                                         staged    = "●",

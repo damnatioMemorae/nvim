@@ -1,6 +1,8 @@
 local map = _G.smartMap
 
-local border_width = 1
+local kinds = Icon.Kinds
+
+local border_width = 0
 
 local function filterShow(_fsEntry)
         return true
@@ -49,7 +51,7 @@ local function uiOpen()
 end
 
 local function prefix(fsEntry)
-        local icon_dir = Icons.Kinds.Folder .. " "
+        local icon_dir = kinds.Folder .. " "
         if fsEntry.fs_type == "directory" then
                 return icon_dir, "MiniFilesDirectory"
         end
@@ -104,11 +106,21 @@ end
 return {
         "nvim-mini/mini.files",
         keys   = {
-                { "<leader>e", function(...)
-                        if not require("mini.files").close() then
-                                require("mini.files").open(...)
-                        end
-                end,
+                { -- OPEN
+                        "<leader>e",
+                        function(...)
+                                if not require("mini.files").close() then
+                                        require("mini.files").open(...)
+                                end
+                        end,
+                },
+                { -- OPEN ON FOCUSED BUFFER
+                        "<leader>E",
+                        function()
+                                local mf = require("mini.files")
+                                local _  = mf.close() or mf.open(vim.api.nvim_buf_get_name(0), false)
+                                vim.defer_fn(function() mf.reveal_cwd() end, 30)
+                        end,
                 },
         },
         opts   = {
@@ -165,6 +177,8 @@ return {
                 vim.api.nvim_create_autocmd("User", {
                         pattern  = "MiniFilesExplorerOpen",
                         callback = function()
+                                require("core.utils.misc").addBackdrop("User", "MiniFilesExplorerClose")
+                                -- vim.fn.confirm = function() return 1 end ---@diagnostic disable-line: duplicate-set-field
                                 setMark("n", vim.fn.stdpath("config"),          "Config")
                                 setMark("w", vim.fn.getcwd,                     "Working directory")
                                 setMark("l", vim.fn.stdpath("data") .. "/lazy", "Lazy directory")
@@ -173,12 +187,12 @@ return {
                         end,
                 })
                 vim.api.nvim_create_autocmd("User", {
-                        pattern  = "MiniFilesWindowUpdate",
-                        callback = function(args) sideScroll(args, 60, 30) end,
+                        pattern  = "MiniFilesExplorerClose",
+                        callback = function() vim.fn.confirm = vim.fn.confirm end,
                 })
                 vim.api.nvim_create_autocmd("User", {
-                        pattern  = { "MiniFilesExplorerOpen" },
-                        callback = function() _G.addBackdrop("User", "MiniFilesExplorerClose") end,
+                        pattern  = "MiniFilesWindowUpdate",
+                        callback = function(args) sideScroll(args, 60, 30) end,
                 })
                 vim.api.nvim_create_autocmd("User", {
                         pattern  = "MiniFilesWindowOpen",
@@ -187,22 +201,19 @@ return {
                                         border_width  = 1
                                         local win_id  = args.data.win_id
                                         local config  = vim.api.nvim_win_get_config(win_id)
-                                        config.border = Border.borderStyle
+                                        config.border = Border.Default.Normal
                                         vim.api.nvim_win_set_config(win_id, config)
                                 end
                         end,
                 })
 
-                local groups = {
-                        { "TitleFocused",   "Special" },
-                        { "Title",          "Special" },
-                        { "Normal",         "Normal" },
-                        { "Border",         "Normal" },
-                        { "BorderModified", "Normal" },
-                        { "CursorLine",     "PmenuSel" },
-                }
-                vim.iter(groups):each(function(group)
-                        vim.api.nvim_set_hl(0, "MiniFiles" .. group[1], { link = group[2] })
-                end)
+                _G.hlLink({
+                                  { "TitleFocused",   "Special" },
+                                  { "Title",          "Special" },
+                                  { "Normal",         "Normal" },
+                                  { "Border",         "Normal" },
+                                  { "BorderModified", "Normal" },
+                                  { "CursorLine",     "PmenuSel" },
+                          }, "MiniFiles")
         end,
 }

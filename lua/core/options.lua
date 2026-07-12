@@ -1,6 +1,10 @@
+local misc   = Icon.Misc
+local arrows = Icon.Arrows
+
+---@type table<string, vim.Option>
 return {
         editor   = {
-                o = {
+                o   = {
                         backup         = false,
                         swapfile       = false,
                         writebackup    = false,
@@ -14,7 +18,6 @@ return {
                         autowrite      = false,
                         confirm        = true,
                         exrc           = true,
-                        formatoptions  = "",
                         grepformat     = "%f:%l:%c:%m",
                         grepprg        = "rg --vimgrep",
                         hidden         = true,
@@ -36,12 +39,13 @@ return {
                         redrawtime     = 2000,
                 },
                 opt = {
+                        formatoptions  = "",
                         iskeyword      = vim.opt.iskeyword:append("@,48-57,_,-,192-255"),
                         sessionoptions = { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp", "folds" },
                 },
         },
         ui       = {
-                o = {
+                o   = {
                         laststatus    = {
                                 value = 0,
                                 when  = function() return not pcall(require, "incline") or pcall(require, "dropbar") end,
@@ -54,10 +58,20 @@ return {
                                 value = true,
                                 when  = function() return vim.o.number end,
                         },
+                        signcolumn    = {
+                                value = "no",
+                                when  = function()
+                                        return not pcall(require, "mini.diff")
+                                                   or pcall(require, "nvim-lightbulb")
+                                end,
+                        },
+                        cmdheight     = 0,
+                        showcmd       = false,
+                        showcmdloc    = "last",
                         number        = true,
                         pumheight     = 20,
                         ruler         = false,
-                        winborder     = Border.borderStyleNone,
+                        winborder     = Border.Default.None,
                         cursorline    = true,
                         hlsearch      = false,
                         smoothscroll  = true,
@@ -66,9 +80,10 @@ return {
                         inccommand    = "split",
                         pumblend      = 0,
                         shortmess     = "tF" .. "TIcC" .. "as" .. "WoO" .. "Sl",
-                        showbreak     = " 󰘍 ",
+                        showbreak     = "󰘍",
                         incsearch     = true,
-                        scrolloff     = 20,
+                        scrolloff     = 99,
+                        scrolloffpad  = 0,
                         showmode      = false,
                         sidescrolloff = 4,
                         splitbelow    = true,
@@ -86,8 +101,8 @@ return {
                                 fold      = " ",
                                 vert      = "│",
                                 eob       = " ",
-                                foldclose = Icons.Arrows.close,
-                                foldopen  = Icons.Arrows.open,
+                                foldclose = arrows.close,
+                                foldopen  = arrows.open,
                                 foldsep   = "│",
                                 foldinner =
                                 " ",
@@ -95,8 +110,8 @@ return {
                         },
                         listchars = {
                                 nbsp       = "_",
-                                precedes   = Icons.Misc.ellipsis,
-                                extends    = Icons.Misc.ellipsis,
+                                precedes   = misc.ellipsis,
+                                extends    = misc.ellipsis,
                                 multispace = " ",
                                 lead       = " ",
                                 trail      =

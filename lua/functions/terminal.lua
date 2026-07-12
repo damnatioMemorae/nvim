@@ -12,7 +12,7 @@ function M.createWindow()
         vim.bo[buf].filetype = "terminal"
         vim.api.nvim_open_win(buf, true, {
                 relative = "editor",
-                border   = Border.borderStyle,
+                border   = Border.Default.Normal,
                 height   = height,
                 width    = width,
                 col      = (max_width - width) * 0.5,

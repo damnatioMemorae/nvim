@@ -24,8 +24,8 @@ return {
                 jump      = { nohlsearch = true, autojump = true },
                 label     = { uppercase = false },
                 prompt    = {
-                        prefix     = { { Icons.Arrows.rightBig, "FlashPromptIcon" } },
-                        win_config = { border = Border.borderStyleNone, row = -1 },
+                        prefix     = { { Icon.Arrows.rightBig, "FlashPromptIcon" } },
+                        win_config = { border = Border.Default.None, row = -1 },
                 },
                 search    = {
                         enabled = false,
@@ -50,14 +50,11 @@ return {
         config = function(_, opts)
                 require("flash").setup(opts)
 
-                local groups = {
-                        { "Backdrop", "NonText" },
-                        { "Match",    "LspInlayHint" },
-                        { "Current",  "LspInlayHint" },
-                        { "Label",    "DiagnosticVirtualTextInfo" },
-                }
-                vim.iter(groups):each(function(group)
-                        vim.api.nvim_set_hl(0, "Flash" .. group[1], { link = group[2] })
-                end)
+                _G.hlLink({
+                                  { "Backdrop", "NonText" },
+                                  { "Match",    "LspInlayHint" },
+                                  { "Current",  "LspInlayHint" },
+                                  { "Label",    "DiagnosticVirtualTextInfo" },
+                          }, "Flash")
         end,
 }

@@ -74,3 +74,9 @@ vim.api.nvim_create_autocmd("LspTokenUpdate", {
 })
 --]]
 
+_G.hlLink({
+        { "@constructor.lua",     "Delimiter" },
+        { "@type.luadoc",         "Comment" },
+        { "@type.builtin.luadoc", "@type.luadoc" },
+        -- { "@variable.parameter",  "Type" },
+})

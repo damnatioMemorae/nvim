@@ -7,7 +7,7 @@ return {
                 highlight_duration     = 1000,
                 n_lines                = 80,
                 silent                 = true,
-                search_method          = "cover_or_next",
+                search_method          = "next",
                 respect_selection_type = true,
                 mappings               = {
                         add            = "ss",

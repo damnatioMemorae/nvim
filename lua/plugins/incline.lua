@@ -1,3 +1,100 @@
+local fn   = vim.fn
+local api  = vim.api
+local diag = vim.diagnostic
+
+local function getIcon(category, type)
+        return require("core.utils.icons").makeIcon("real-icons", category, type)
+end
+
+local function diff(props)
+        local signs = vim.b[props.buf].minidiff_summary
+
+        if not signs then
+                return {}
+        end
+
+        return vim
+                   .iter({ { "add", "+" }, { "change", "~" }, { "delete", "-" } })
+                   :map(function(i)
+                           local n = signs[i[1]]
+                           return (n and n > 0) and { i[2] .. n .. " ", group = "Diff" .. i[1] }
+                   end)
+                   :totable()
+end
+
+local function path(props)
+        local relhead = fn.fnamemodify(api.nvim_buf_get_name(props.buf), ":~:.:h")
+        local arrow   = " " .. Icon.Arrows.rightBig .. " "
+        local parts   = vim.split(relhead, "/")
+
+        return vim
+                   .iter(parts)
+                   :enumerate()
+                   :map(function(i, item)
+                           return {
+                                   {
+                                           getIcon("directory", "general")[1],
+                                           group = getIcon("directory", "general")[2],
+                                   },
+                                   { " " .. item, group = "Comment" },
+                                   {
+                                           i < #parts and arrow or " ",
+                                           group = "Comment",
+                                   },
+                           }
+                   end)
+                   :totable()
+end
+
+local function ftName(props)
+        local filename = fn.fnamemodify(api.nvim_buf_get_name(props.buf), ":t:r")
+
+        return vim.list_extend(
+                { { filename, group = "Comment" } },
+                vim.bo[props.buf].modified and { { "*", group = "Special" } } or {})
+end
+
+local function ftType(props)
+        local filetype = fn.fnamemodify(api.nvim_buf_get_name(props.buf), ":e")
+
+        return { getIcon("extension", filetype)[1] .. " ", group = getIcon("extension", filetype)[2] }
+end
+
+local function diagnostics(props)
+        return vim
+                   .iter({ "error", "warn", "hint" })
+                   :map(function(severity)
+                           local count = #diag.get(props.buf, { severity = diag.severity[string.upper(severity)] })
+
+                           if count == 0 then
+                                   return { "-" .. " ", group = "DiagnosticSign" .. severity }
+                           end
+
+                           return { count .. " ", group = "DiagnosticSign" .. severity }
+                   end)
+                   :totable()
+end
+
+local function macro()
+        local rec  = fn.reg_recording()
+        local icon = getIcon("extension", "mcfunction")
+
+        return { rec ~= "" and (icon[1] .. " ") or "", group = icon[2] }
+end
+
+local function render(props)
+        return {
+                { " " },
+                { macro() },
+                { path(props) },
+                -- { diff(props) },
+                { diagnostics(props) },
+                { ftType(props) },
+                { ftName(props) },
+                { " " },
+        }
+end
+
 return {
         "b0o/incline.nvim",
         event        = "BufReadPre",
@@ -13,131 +110,18 @@ return {
                 },
                 highlight          = {
                         groups = {
-                                InclineNormal   = { default = true, group = "LspInlayHint" },
-                                InclineNormalNC = { default = true, group = "LspInlayHint" },
+                                InclineNormal   = { default = true, group = "PmenuDoc" },
+                                InclineNormalNC = { default = true, group = "PmenuDoc" },
                         },
                 },
-                render             = function(props)
-                        local loaded_d, devicons   = pcall(require, "nvim-web-devicons")
-                        local loaded_r, real_icons = pcall(require, "real-icons")
-                        local filename             = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(props.buf), ":t")
-
-                        local ft_icon  = (function()
-                                if loaded_r then
-                                        local render  = require("real-icons.render.placeholder")
-                                        local icon    = real_icons.get(filename, { is_dir = false })
-                                        local segment = render.segment(icon)
-
-                                        return { segment.text, segment.hl }
-                                elseif loaded_d then
-                                        return { devicons.get_icon(filename) }
-                                end
-                        end)()
-                        local dir_icon = (function()
-                                if loaded_r then
-                                        local render  = require("real-icons.render.placeholder")
-                                        local icon    = real_icons.get(filename, { is_dir = true })
-                                        local segment = render.segment(icon)
-
-                                        return { segment.text, segment.hl }
-                                else
-                                        return { devicons.get_icon(filename) }
-                                end
-                        end)()
-
-                        local function getDiff()
-                                local signs = vim.b[props.buf].gitsigns_status_dict
-                                if not signs then return {} end
-
-                                return vim.iter({ { "added", "" }, { "changed", "" }, { "removed", "" } })
-                                           :map(function(i)
-                                                   local n = signs[i[1]]
-                                                   return (n and n > 0) and {
-                                                           n .. i[2] .. " ",
-                                                           group = "Diff" .. i[1],
-                                                   }
-                                           end)
-                                           :totable()
-                        end
-
-                        local function getPath()
-                                local arrow = " " .. Icons.Arrows.rightBig .. " "
-                                local parts = vim.split(vim.fn.fnamemodify(
-                                                                vim.api.nvim_buf_get_name(props.buf), ":~:.:h"), "/")
-
-                                return vim.iter(parts)
-                                           :enumerate()
-                                           :map(function(i, item)
-                                                   return {
-                                                           { dir_icon[1], group = dir_icon[2] },
-                                                           { " " .. item, group = "Comment" },
-                                                           {
-                                                                   i < #parts and arrow or " ",
-                                                                   group = "Comment",
-                                                           },
-                                                   }
-                                           end)
-                                           :totable()
-                        end
-
-                        local function getFt()
-                                local label = { { vim.fn.fnamemodify(vim.api.nvim_buf_get_name(props.buf), ":t:r"), group = "Comment" } }
-
-                                if vim.bo[props.buf].modified then
-                                        label[#label + 1] = { "*", group = "Special" }
-                                end
-
-                                return label
-                        end
-
-                        local function getDiagnostic()
-                                return vim.iter({ "error", "warn", "hint" })
-                                           :map(function(severity)
-                                                   local count = #vim.diagnostic.get(props.buf, {
-                                                           severity = vim.diagnostic.severity[string.upper(severity)] })
-
-                                                   return { count .. " ", group = "DiagnosticSign" .. severity }
-                                           end)
-                                           :totable()
-                        end
-
-                        local function breadCrumbs(source)
-                                local ok, dropbar = pcall(require, "dropbar.sources")
-                                if not ok or not props.focused then
-                                        return {}
-                                end
-                                local arrow   = " " .. Icons.Arrows.rightBig .. " "
-                                local symbols = dropbar[source].get_symbols(props.buf, 0, vim.api.nvim_win_get_cursor(0))
-
-                                return vim.iter(symbols or {})
-                                           :enumerate()
-                                           :map(function(i, item)
-                                                   return {
-                                                           { item._.icon, group = item._.icon_hl },
-                                                           { item._.name, group = item._.name_hl },
-                                                           {
-                                                                   i < #symbols and arrow or " ",
-                                                                   group = "Comment",
-                                                           },
-                                                   }
-                                           end)
-                                           :totable()
-                        end
-
-                        return {
-                                { " " },
-                                { getPath() },
-                                -- { breadCrumbs("lsp") },
-                                { getDiagnostic() },
-                                { ft_icon[1],     group = ft_icon[2] },
-                                { " " },
-                                { getFt() },
-                                { " " },
-                                -- { getDiff() },
-                        }
-                end,
+                render             = render,
         },
         config       = function(_, opts)
                 require("incline").setup(opts)
+
+                local timer = vim.loop.new_timer()
+                timer:start(0, 50, vim.schedule_wrap(function()
+                        require("incline.manager").update({ refresh = true })
+                end))
         end,
 }

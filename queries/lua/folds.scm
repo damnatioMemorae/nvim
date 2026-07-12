@@ -14,4 +14,11 @@
         (repeat_statement)
         (table_constructor)
         (while_statement)
+        (return_statement (_))
+        (function_call
+                name: (method_index_expression
+                        table: (function_call
+                                name: (dot_index_expression
+                                        table: (identifier) @start
+                                                (#eq? @start "vim")))))
  ] @fold

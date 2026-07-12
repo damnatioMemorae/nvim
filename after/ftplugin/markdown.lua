@@ -2,6 +2,13 @@ local md    = require("functions.md-tools")
 local map   = _G.bufMap
 local opt_l = vim.opt_local
 
+if vim.bo[vim.api.nvim_get_current_buf()].buftype == "help" then
+        vim.opt_local.colorcolumn  = ""
+        vim.opt_local.statuscolumn = ""
+        vim.cmd("wincmd L")
+        return
+end
+
 ---- OPTIONS -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 vim.opt_local.shiftwidth = 8
@@ -43,7 +50,7 @@ map({ "<CR>", function() md.autoBullet("<CR>") end, mode = "i", desc = "Auto-bul
 ---- FORMATTING ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 map({ "<A-t>", function() md.cycle("list") end, mode = { "n", "x", "i" }, desc = "Cycle list types", dotmap = true })
--- map({ "<A-a>", function() md.cycle("task") end, mode = { "n", "x", "i" }, desc = "Cycle task states" })
+map({ "<C-a>", function() md.cycle("task") end, mode = { "n", "x", "i" }, desc = "Cycle task states" })
 map({ "<A-u>", function() md.wrap("mdlink") end, mode = { "n", "x", "i" }, desc = "Link" })
 map({ "<A-s>", function() md.wrap("**") end, mode = { "n", "x", "i" }, desc = "Bold" })
 map({ "<A-i>", function() md.wrap("_") end, mode = { "n", "x", "i" }, desc = "Italic" })
@@ -51,7 +58,7 @@ map({ "<A-e>", function() md.wrap("`") end, mode = { "n", "x", "i" }, desc = "In
 
 ---- HEADINGS ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-map({ "<C-j>", "]]zzzz", desc = "Next heading", remap = true, silent = true })
-map({ "<C-k>", "[[zzzz", desc = "Prev heading", remap = true, silent = true })
-map({ "<C-Down>", "]]zzzz", desc = "Next heading", remap = true, silent = true })
-map({ "<C-Up>", "[[zzzz", desc = "Prev heading", remap = true, silent = true })
+map({ "<C-j>", "]]", desc = "Next heading", remap = true, silent = true })
+map({ "<C-k>", "[[", desc = "Prev heading", remap = true, silent = true })
+map({ "<C-Down>", "]]", desc = "Next heading", remap = true, silent = true })
+map({ "<C-Up>", "[[", desc = "Prev heading", remap = true, silent = true })

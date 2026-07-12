@@ -1,6 +1,6 @@
-local textObj = require("core.utils").extraTextobjMaps
+local text_obj = require("core.utils.misc").extraTextobjMaps
 
-local icon = Icons.Kinds
+local icon = Icon.Kinds
 local mode = { "n", "v", "x", "o" }
 
 local function select(obj, pos)
@@ -40,8 +40,11 @@ local function addDocstring()
                 local param_line = vim.api.nvim_get_current_line():match("function.*%((.*)%)$")
                 if not param_line then return end
                 local params       = vim.split(param_line, ", ?")
-                local luadoc_lines = vim.iter(params)
-                           :map(function(param) return ("%s---@param %s any"):format(indent, param) end)
+                local luadoc_lines = vim
+                           .iter(params)
+                           :map(function(param)
+                                   return ("%s---@param %s any"):format(indent, param)
+                           end)
                            :totable()
                 vim.api.nvim_buf_set_lines(0, ln - 1, ln - 1, false, luadoc_lines)
                 vim.api.nvim_win_set_cursor(0, { ln, #luadoc_lines[1] })
@@ -106,47 +109,49 @@ return {
 
                 ---- MOVE ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-                { "<A-q>", function() gotoObj("comment", "outer", "next") end, mode = mode, desc = " Goto next comment" },
-                { "<A-Q>", function() gotoObj("comment", "outer", "prev") end, mode = mode, desc = " Goto prev comment" },
-                { "<A-f>", function() gotoObj("function", "name", "next") end, mode = mode, desc = icon.Function .. "Goto next function" },
-                { "<A-F>", function() gotoObj("function", "name", "prev") end, mode = mode, desc = icon.Function .. "Goto next function" },
-                { "<A-a>", function() gotoObj("parameter", "outer", "next") end, mode = mode, desc = icon.Parameter .. "Goto next parameter" },
-                { "<A-A>", function() gotoObj("parameter", "outer", "prev") end, mode = mode, desc = icon.Parameter .. "Goto prev parameter" },
-                { "<A-o>", function() gotoObj("conditional", "inner", "next") end, mode = mode, desc = icon.IfStatement .. "Goto next condition" },
-                { "<A-O>", function() gotoObj("conditional", "inner", "prev") end, mode = mode, desc = icon.IfStatement .. "Goto prev condition" },
-                { "<A-c>", function() gotoObj("call", "outer", "next") end, mode = mode, desc = icon.Call .. "Goto next call" },
-                { "<A-C>", function() gotoObj("call", "outer", "prev") end, mode = mode, desc = icon.Call .. "Goto prev call" },
-                { "<A-u>", function() gotoObj("loop", "outer", "next") end, mode = mode, desc = icon.Repeat .. "Goto next loop" },
-                { "<A-U>", function() gotoObj("loop", "outer", "prev") end, mode = mode, desc = icon.Repeat .. "Goto prev loop" },
-                { "<A-s>", function() gotoObj("assignment", "lhs", "next") end, mode = mode, desc = icon.Variable .. "Goto next assignment" },
-                { "<A-S>", function() gotoObj("assignment", "lhs", "prev") end, mode = mode, desc = icon.Variable .. "Goto prev assignment" },
-                { "<A-v>", function() gotoObj("assignment", "rhs", "next") end, mode = mode, desc = icon.Value .. "Goto next value" },
-                { "<A-V>", function() gotoObj("assignment", "rhs", "prev") end, mode = mode, desc = icon.Value .. "Goto prev value" },
-                { "<A-t>", function() gotoObj("assignment", "outer", "next") end, mode = mode, desc = icon.Type .. "Goto next type" },
-                { "<A-T>", function() gotoObj("assignment", "outer", "prev") end, mode = mode, desc = icon.Type .. "Goto prev type" },
+                { "<A-q>",                   function() gotoObj("comment", "outer", "next") end,     mode = mode,                         desc = "Goto next comment" },
+                { "<A-Q>",                   function() gotoObj("comment", "outer", "prev") end,     mode = mode,                         desc = "Goto prev comment" },
+                { "<A-f>",                   function() gotoObj("function", "name", "next") end,     mode = mode,                         desc = icon.Function .. "Goto next function" },
+                { "<A-F>",                   function() gotoObj("function", "name", "prev") end,     mode = mode,                         desc = icon.Function .. "Goto next function" },
+                { "<A-a>",                   function() gotoObj("parameter", "outer", "next") end,   mode = mode,                         desc = icon.Parameter .. "Goto next parameter" },
+                { "<A-A>",                   function() gotoObj("parameter", "outer", "prev") end,   mode = mode,                         desc = icon.Parameter .. "Goto prev parameter" },
+                { "<A-o>",                   function() gotoObj("conditional", "inner", "next") end, mode = mode,                         desc = icon.IfStatement .. "Goto next condition" },
+                { "<A-O>",                   function() gotoObj("conditional", "inner", "prev") end, mode = mode,                         desc = icon.IfStatement .. "Goto prev condition" },
+                { "<A-c>",                   function() gotoObj("call", "outer", "next") end,        mode = mode,                         desc = icon.Call .. "Goto next call" },
+                { "<A-C>",                   function() gotoObj("call", "outer", "prev") end,        mode = mode,                         desc = icon.Call .. "Goto prev call" },
+                { "<A-u>",                   function() gotoObj("loop", "outer", "next") end,        mode = mode,                         desc = icon.Repeat .. "Goto next loop" },
+                { "<A-U>",                   function() gotoObj("loop", "outer", "prev") end,        mode = mode,                         desc = icon.Repeat .. "Goto prev loop" },
+                { "<A-s>",                   function() gotoObj("assignment", "lhs", "next") end,    mode = mode,                         desc = icon.Variable .. "Goto next assignment" },
+                { "<A-S>",                   function() gotoObj("assignment", "lhs", "prev") end,    mode = mode,                         desc = icon.Variable .. "Goto prev assignment" },
+                { "<A-v>",                   function() gotoObj("assignment", "rhs", "next") end,    mode = mode,                         desc = icon.Value .. "Goto next value" },
+                { "<A-V>",                   function() gotoObj("assignment", "rhs", "prev") end,    mode = mode,                         desc = icon.Value .. "Goto prev value" },
+                { "<A-t>",                   function() gotoObj("assignment", "outer", "next") end,  mode = mode,                         desc = icon.Type .. "Goto next type" },
+                { "<A-T>",                   function() gotoObj("assignment", "outer", "prev") end,  mode = mode,                         desc = icon.Type .. "Goto prev type" },
 
                 ---- SWAP ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-                { "<A-}>", function() swapObj("parameter", "inner", "next") end, desc = icon.Parameter .. "Swap arg" },
-                { "<A-{>", function() swapObj("parameter", "inner", "prev") end, desc = icon.Parameter .. "Swap arg" },
+                { "<A-}>",                   function() swapObj("parameter", "inner", "next") end,   desc = icon.Parameter .. "Swap arg" },
+                { "<A-{>",                   function() swapObj("parameter", "inner", "prev") end,   desc = icon.Parameter .. "Swap arg" },
 
-                { "<A-}>", function() swapObj("md_section", "inner", "next") end, desc = icon.Parameter .. "Swap arg", ft = "markdown" },
-                { "<A-{>", function() swapObj("md_section", "inner", "prev") end, desc = icon.Parameter .. "Swap arg", ft = "markdown" },
+                { "<A-}>",                   function() swapObj("md_section", "inner", "next") end,  desc = icon.Parameter .. "Swap arg", ft = "markdown" },
+                { "<A-{>",                   function() swapObj("md_section", "inner", "prev") end,  desc = icon.Parameter .. "Swap arg", ft = "markdown" },
 
                 ---- TEXT OBJECTS ----------------------------------------------------------------------------------------------------------------------------------------------------------
 
-                { "a/", select("regex", "outer"), mode = { "x", "o" }, desc = icon.Regex .. "outer regex" },
-                { "i/", select("regex", "inner"), mode = { "x", "o" }, desc = icon.Regex .. "inner regex" },
-                { "aa", select("parameter", "outer"), mode = { "x", "o" }, desc = icon.Parameter .. "outer arg" },
-                { "ia", select("parameter", "inner"), mode = { "x", "o" }, desc = icon.Parameter .. "inner arg" },
-                { "au", select("loop", "outer"), mode = { "x", "o" }, desc = icon.Repeat .. "outer loop" },
-                { "iu", select("loop", "inner"), mode = { "x", "o" }, desc = icon.Repeat .. "inner loop" },
-                { "a" .. textObj.call, select("call", "outer"), mode = { "x", "o" }, desc = icon.Call .. "outer call" },
-                { "i" .. textObj.call, select("call", "inner"), mode = { "x", "o" }, desc = icon.Call .. "inner call" },
-                { "a" .. textObj.func, select("function", "outer"), mode = { "x", "o" }, desc = icon.Function .. "outer function" },
-                { "i" .. textObj.func, select("function", "inner"), mode = { "x", "o" }, desc = icon.Function .. "inner function" },
-                { "a" .. textObj.condition, select("conditional", "outer"), mode = { "x", "o" }, desc = icon.IfStatement .. "outer condition" },
-                { "i" .. textObj.condition, select("conditional", "inner"), mode = { "x", "o" }, desc = icon.IfStatement .. "inner condition" },
+                { "a/",                      select("regex", "outer"),                               mode = { "x", "o" },                 desc = icon.Regex .. "outer regex" },
+                { "i/",                      select("regex", "inner"),                               mode = { "x", "o" },                 desc = icon.Regex .. "inner regex" },
+                { "aa",                      select("parameter", "outer"),                           mode = { "x", "o" },                 desc = icon.Parameter .. "outer arg" },
+                { "ia",                      select("parameter", "inner"),                           mode = { "x", "o" },                 desc = icon.Parameter .. "inner arg" },
+                { "au",                      select("loop", "outer"),                                mode = { "x", "o" },                 desc = icon.Repeat .. "outer loop" },
+                { "iu",                      select("loop", "inner"),                                mode = { "x", "o" },                 desc = icon.Repeat .. "inner loop" },
+                { "aE",                      select("codeblock", "outer"),                           mode = { "x", "o" },                 desc = icon.Repeat .. "outer codeblock" },
+                { "iE",                      select("codeblock", "inner"),                           mode = { "x", "o" },                 desc = icon.Repeat .. "inner codeblock" },
+                { "a" .. text_obj.call,      select("call", "outer"),                                mode = { "x", "o" },                 desc = icon.Call .. "outer call" },
+                { "i" .. text_obj.call,      select("call", "inner"),                                mode = { "x", "o" },                 desc = icon.Call .. "inner call" },
+                { "a" .. text_obj.func,      select("function", "outer"),                            mode = { "x", "o" },                 desc = icon.Function .. "outer function" },
+                { "i" .. text_obj.func,      select("function", "inner"),                            mode = { "x", "o" },                 desc = icon.Function .. "inner function" },
+                { "a" .. text_obj.condition, select("conditional", "outer"),                         mode = { "x", "o" },                 desc = icon.IfStatement .. "outer condition" },
+                { "i" .. text_obj.condition, select("conditional", "inner"),                         mode = { "x", "o" },                 desc = icon.IfStatement .. "inner condition" },
         },
         opts         = { select = { lookahead = true, include_surrounding_whitespace = true } },
 }

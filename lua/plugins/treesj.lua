@@ -5,7 +5,7 @@ return {
         opts         = {
                 use_default_keymaps = false,
                 check_syntax_error  = true,
-                max_join_length     = 800,
+                max_join_length     = math.huge,
                 cursor_behavior     = "start",
                 notify              = true,
                 dot_repeat          = true,

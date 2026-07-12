@@ -90,33 +90,15 @@ return {
                                         augend.constant.alias.Alpha,
                                 },
                                 css            = {
-                                        augend.hexcolor.new({
-                                                case = "lower",
-                                        }),
-                                        augend.hexcolor.new({
-                                                case = "upper",
-                                        }),
+                                        augend.hexcolor.new({ case = "lower" }),
+                                        augend.hexcolor.new({ case = "upper" }),
                                 },
-                                markdown       = {
-                                        augend.constant.new({
-                                                elements = { "[ ]", "[x]", "[-]" },
-                                                word     = false,
-                                                cyclic   = true,
-                                        }),
-                                        augend.misc.alias.markdown_header,
-                                },
-                                json           = {
-                                        augend.semver.alias.semver,
-                                },
+                                json           = { augend.semver.alias.semver },
                                 lua            = {
                                         augend.constant.new({ elements = { "and", "or" }, word = true, cyclic = true }),
                                         augend.constant.new({ elements = { "==", "~=" }, word = false, cyclic = true }),
                                 },
-                                python         = {
-                                        augend.constant.new({
-                                                elements = { "and", "or" },
-                                        }),
-                                },
+                                python         = { augend.constant.new({ elements = { "and", "or" } }) },
                         },
                 }
         end,

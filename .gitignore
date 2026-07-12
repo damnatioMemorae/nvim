@@ -2,3 +2,6 @@ sga
 lazyvim.json
 lazy-lock.json
 /lua/plugins/aboba.md
+/icons
+/lua/core/icons.lua
+/icons

@@ -1,7 +1,8 @@
-local border = Border.borderStyleNone
+local border = Border.Default.None
 
 return {
         "ibhagwan/fzf-lua",
+        enabled      = false,
         dependencies = { "nvim-tree/nvim-web-devicons" },
         keys         = {
                 { -- FILES
@@ -63,7 +64,7 @@ return {
                                 title_flags = false,
                                 fullscreen  = false,
                                 border      = border,
-                                backdrop    = Config.backdrop,
+                                backdrop    = vim.g.backdrop,
                                 preview     = {
                                         title      = false,
                                         title_pos  = "left",

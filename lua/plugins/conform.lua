@@ -11,6 +11,7 @@ return {
                         cs         = { "clang_format" },
                         css        = { "prettierd", "prettier" },
                         go         = { "gofmt", "goimports" },
+                        haskell    = { "ormolu" },
                         html       = { "prettierd", "prettier" },
                         javascript = { "prettierd", "prettier" },
                         jsonc      = { "prettierd", "prettier" },

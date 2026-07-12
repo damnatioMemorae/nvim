@@ -15,7 +15,7 @@ return {
                 },
                 window   = {
                         title = "",
-                        border = Border.borderStyle,
+                        border = Border.Default.Normal,
                         height = 0.6,
                 },
                 mappings = {

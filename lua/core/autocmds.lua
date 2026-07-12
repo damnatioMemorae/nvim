@@ -1,93 +1,191 @@
-local api     = vim.api
-local augroup = api.nvim_create_augroup
-local autocmd = api.nvim_create_autocmd
+local map = _G.smartMap
+
 local o       = vim.o
-local wo      = vim.wo
-local fn      = vim.fn
-local map     = _G.smartMap
+local api     = vim.api
+local augroup = vim.api.nvim_create_augroup
+local autocmd = vim.api.nvim_create_autocmd
 
----- AUTO CD TO PROJECT ROOT ---------------------------------------------------------------------------------------------------------------------------------------------------------------
+local general = augroup("General Autocmds", { clear = true })
 
---[=[
-local autoCdConfig = {
-        childOfRoot  = { ".git" },
-        parentOfRoot = { ".config", vim.fs.basename(vim.env.HOME) },
-}
+---- GENERAL -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-autocmd("VimEnter", {
-        desc     = "User: Auto-cd to project root",
-        callback = function(args)
-                local root = vim.fs.root(args.buf, function(name, path)
-                        local parent_name           = vim.fs.basename(vim.fs.dirname(path))
-                        local dir_has_parent_marker = vim.tbl_contains(autoCdConfig.parentOfRoot, parent_name)
-                        local dir_has_child_marker  = vim.tbl_contains(autoCdConfig.childOfRoot, name)
-                        return dir_has_child_marker or dir_has_parent_marker
-                end)
-                if root and root ~= "" then vim.uv.chdir(root) end
-        end,
-})
---]=]
-
----- `q` and `Esc` -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-autocmd("FileType", {
-        desc     = "Quit windows with both `Esc` and `q`",
-        group    = augroup("Close with <q>", { clear = true }),
-        pattern  = {
-                "gitcommit",
-                "pager",
-                "nvim-undotree",
-                "checkhealth",
-                -- "help",
-                "lazy",
-                "lspinfo",
-                "man",
-                "neotest-output",
-                "neotest-output-panel",
-                "neotest-summary",
-                "neo-tree",
-                "nofile",
-                "notify",
-                "PlenaryTestPopup",
-                -- "qf",
-                "spectre_panel",
-                "startuptime",
-                "terminal",
-                "tsplayground",
-                -- "query",
-        },
-        callback = function(args)
-                map({ "<Esc>", "<cmd>q<CR>", buf = args.buf, silent = true })
+vim.opt.wildmode = "noselect"
+autocmd("CmdlineChanged", {
+        desc     = "User: Add fuzzy completion for command line",
+        group    = general,
+        pattern  = { ":", "/", "!", "?" },
+        callback = function()
+                vim.fn.wildtrigger()
         end,
 })
 
----- BUFFER --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+autocmd("TextYankPost", {
+        desc     = "User: Highlighted Yank",
+        group    = general,
+        callback = function() vim.hl.hl_op() end,
+})
 
-autocmd("FocusGained", {
+autocmd("VimResized", { -- RESIZE SPLITS
+        desc    = "User: Automatically resize splits",
+        group   = general,
+        command = "wincmd =",
+})
+
+autocmd("WinScrolled", { -- SNIPPET
+        desc     = "User: Exit snippet on window scroll",
+        group    = general,
+        callback = function() vim.snippet.stop() end,
+})
+
+autocmd("BufEnter", { -- STOP COMMENT
+        group    = general,
+        callback = function()
+                vim.opt.formatoptions:remove({ "c", "r", "o" })
+        end,
+})
+
+autocmd("BufWritePre", { -- TRAILING WHITESPACE
+        desc     = "User: Remove trailing whitespace",
+        group    = general,
+        pattern  = "*",
+        callback = function()
+                if vim.bo.filetype ~= "markdown" then
+                        vim.cmd([[%s/\s\+$//e]])
+                end
+        end,
+})
+
+autocmd("ModeChanged", { -- VIRTUAL EDIT
+        pattern  = "*:*",
+        group    = general,
+        callback = function()
+                local mode = vim.fn.mode()
+                if mode == "n" or mode == "\22" then
+                        vim.opt.virtualedit = "all"
+                end
+                if mode == "i" then
+                        vim.opt.virtualedit = "block"
+                end
+                if mode == "v" or mode == "V" then
+                        vim.opt.virtualedit = "none"
+                end
+        end,
+})
+
+autocmd("FocusGained", { -- CWD
         desc     = "User: FIX `cwd` being not available when it is deleted outside nvim.",
-        group    = augroup("Fix cwd", { clear = true }),
+        group    = general,
         callback = function()
                 if not vim.uv.cwd() then
                         vim.uv.chdir("/")
                 end
         end,
 })
+
+autocmd("FileType", { -- JSON
+        pattern = { "json", "jsonc", "json5" },
+        group   = general,
+        command = "setlocal conceallevel=0",
+})
+
+autocmd("FileType", { -- NOFILE
+        pattern  = "*",
+        group    = general,
+        callback = function(args)
+                if vim.bo[args.buf].buftype == "nofile" then
+                        _G.bufMap({ "<Esc>", "<cmd>q<CR>", silent = true })
+                        vim.opt_local.number         = false
+                        vim.opt_local.relativenumber = false
+                        vim.opt_local.statuscolumn   = ""
+                        vim.opt_local.signcolumn     = "no"
+                end
+        end,
+})
+
+autocmd({ "FocusGained", "BufWinEnter", "FileType" }, { -- BACKDROP
+        desc     = "User: Add backdrop to floating windows",
+        group    = general,
+        pattern  = { "dropbar_menu", "Glance", "rip-substitute", "terminal" },
+        callback = function() require("core.utils.misc").addBackdrop() end,
+})
+
+autocmd({ "FocusGained", "TermClose", "TermLeave" }, { -- RELOAD ON CHANGE
+        desc     = "User: Reload files if they changed externaly",
+        group    = general,
+        callback = function()
+                if o.buftype ~= "nofile" then
+                        vim.cmd.checktime()
+                end
+        end,
+})
+
+autocmd({ "BufReadPost", "BufReadPre", "BufWinEnter" }, { -- RESTORE CURSOR
+        desc     = "User: Restore cursor position",
+        group    = general,
+        pattern  = "*",
+        callback = function(args)
+                local mark       = api.nvim_buf_get_mark(args.buf, '"')
+                local line_count = api.nvim_buf_line_count(args.buf)
+                if mark[1] > 0 and mark[1] <= line_count then
+                        api.nvim_win_set_cursor(0, mark)
+                end
+        end,
+})
+
+---- `q` and `Esc` -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+autocmd("FileType", {
+        desc     = "User: Quit windows with both `Esc` and `q`",
+        group    = general,
+        pattern  = {
+                "gitcommit",
+                "pager",
+                "nvim-undotree",
+                "checkhealth",
+                "lazy",
+                "lspinfo",
+                "man",
+                "nofile",
+                "notify",
+                "PlenaryTestPopup",
+                "spectre_panel",
+                "startuptime",
+                "terminal",
+        },
+        callback = function(args)
+                map({ "<Esc>", "<cmd>q<CR>", buf = args.buf, silent = true })
+        end,
+})
+
+---- AUTO-CLOSE DELETED BUFFERS ------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 autocmd("FocusGained", {
         desc     = "User: Close all non-existing buffers on `FocusGained`.",
-        group    = augroup("Close non-existing", { clear = true }),
         callback = function()
-                local closed_buffers = {}
-                local all_bufs       = fn.getbufinfo{ buflisted = 1 }
-                vim.iter(all_bufs):each(function(buf)
-                        if not api.nvim_buf_is_valid(buf.bufnr) then return end
-                        local still_exists   = vim.uv.fs_stat(buf.name) ~= nil
-                        local special_buffer = vim.bo[buf.bufnr].buftype ~= ""
-                        local new_buffer     = buf.name == ""
-                        if still_exists or special_buffer or new_buffer then return end
-                        table.insert(closed_buffers, vim.fs.basename(buf.name))
-                        api.nvim_buf_delete(buf.bufnr, { force = false })
-                end)
-                if #closed_buffers == 0 then return end
+                local all_bufs       = vim.fn.getbufinfo{ buflisted = 1 }
+                local closed_buffers = vim
+                           .iter(all_bufs)
+                           :fold({}, function(acc, buf)
+                                   if not api.nvim_buf_is_valid(buf.bufnr) then
+                                           return acc
+                                   end
+
+                                   local still_exists   = vim.uv.fs_stat(buf.name) ~= nil
+                                   local special_buffer = vim.bo[buf.bufnr].buftype ~= ""
+                                   local new_buffer     = buf.name == ""
+
+                                   if still_exists or special_buffer or new_buffer then
+                                           return acc
+                                   end
+
+                                   table.insert(acc, vim.fs.basename(buf.name))
+                                   api.nvim_buf_delete(buf.bufnr, { force = false })
+                                   return acc
+                           end)
+
+                if #closed_buffers == 0 then
+                        return
+                end
 
                 if #closed_buffers == 1 then
                         vim.notify(closed_buffers[1], nil, { title = "Buffer closed", icon = "󰅗" })
@@ -96,488 +194,146 @@ autocmd("FocusGained", {
                         vim.notify(text, nil, { title = "Buffers closed", icon = "󰅗" })
                 end
 
-                vim.defer_fn(function()
-                                     if api.nvim_buf_get_name(0) ~= "" then return end
-                                     for _, file in ipairs(vim.v.oldfiles) do
-                                             if vim.uv.fs_stat(file) and vim.fs.basename(file) ~= "COMMIT_EDITMSG" then
-                                                     vim.cmd.edit(file)
-                                                     return
-                                             end
-                                     end
-                             end, 1)
+                vim.schedule(function()
+                        if api.nvim_buf_get_name(0) ~= "" then return end
+                        for _, file in ipairs(vim.v.oldfiles) do
+                                if vim.uv.fs_stat(file) and vim.fs.basename(file) ~= "COMMIT_EDITMSG" then
+                                        vim.cmd.edit(file)
+                                        return
+                                end
+                        end
+                end)
         end,
 })
 
 ---- AUTO-NOHL & INLINE SEARCH COUNT -------------------------------------------------------------------------------------------------------------------------------------------------------
 
---[=[
----@param mode? "clear"
-local function searchCountIndicator(mode)
-        local sign_column_plus_scrollbar_width = 2 + 3
+do
+        local prev_key
+        local config = {
+                scrollbarWidth            = 3,
+                ignoredPrevNormalModeKeys = { "g", vim.g.mapleader },
+        }
 
-        local count_ns = api.nvim_create_namespace("searchCounter")
-        api.nvim_buf_clear_namespace(0, count_ns, 0, -1)
-        if mode == "clear" then return end
+        ---@param mode? "clear"
+        local function searchCountIndicator(mode)
+                local count_ns = api.nvim_create_namespace("searchCounter")
+                api.nvim_buf_clear_namespace(0, count_ns, 0, -1)
+                if mode == "clear" then return end
 
-        local row   = api.nvim_win_get_cursor(0)[1]
-        local count = fn.searchcount()
-        if count.total == 0 then return end
-        local text      = (" %d/%d "):format(count.current, count.total)
-        local line      = api.nvim_get_current_line():gsub("\t", (" "):rep(vim.bo.shiftwidth))
-        local line_full = #line + sign_column_plus_scrollbar_width >= api.nvim_win_get_width(0)
-        local margin    = { (" "):rep(line_full and sign_column_plus_scrollbar_width or 0) }
+                local row   = api.nvim_win_get_cursor(0)[1]
+                local count = vim.fn.searchcount()
+                if vim.tbl_isempty(count) or count.total == 0 then return end
+                local text           = (" %d/%d "):format(count.current, count.total)
+                local line           = api.nvim_get_current_line():gsub("\t", (" "):rep(vim.bo.shiftwidth))
+                local signcolumn     = tonumber(vim.wo.signcolumn:match("%d+") or "0") * 2
+                local viewport_width = api.nvim_win_get_width(0) - signcolumn - config.scrollbarWidth
+                local line_full      = #line + #text > viewport_width
+                local margin         = { line_full and (" "):rep(config.scrollbarWidth) or "" }
 
-        api.nvim_buf_set_extmark(0, count_ns, row - 1, 0, {
-                virt_text     = { { text, "IncSearch" }, margin },
-                virt_text_pos = line_full and "right_align" or "eol",
-                priority      = 200,
-        })
+                api.nvim_buf_set_extmark(0, count_ns, row - 1, 0, {
+                        virt_text     = { { text, "IncSearch" }, margin },
+                        virt_text_pos = line_full and "right_align" or "eol",
+                        priority      = 49,
+                })
+        end
+
+        vim.on_key(function(key, typed)
+                           local ignore = vim.tbl_contains(config.ignoredPrevNormalModeKeys, prev_key)
+                           prev_key     = typed
+                           if ignore then return end
+
+                           key                     = vim.fn.keytrans(key)
+                           local is_cmdline_search = vim.fn.getcmdtype():find("[/?]") ~= nil
+                           local is_normal_mode    = api.nvim_get_mode().mode == "n"
+                           local search_started    = (key == "/" or key == "?") and is_normal_mode
+                           local search_confirmed  = (key == "<CR>" and is_cmdline_search)
+                           local search_cancelled  = (key == "<Esc>" and is_cmdline_search)
+                           if not (search_started or search_confirmed or search_cancelled or is_normal_mode) then return end
+
+                           local search_movement = vim.tbl_contains({ "n", "N", "*", "#" }, key)
+
+                           if search_cancelled or (not search_movement and not search_confirmed) then
+                                   vim.opt.hlsearch = false
+                                   searchCountIndicator("clear")
+                           elseif search_movement or search_confirmed or search_started then
+                                   vim.opt.hlsearch = true
+                                   vim.defer_fn(searchCountIndicator, 1)
+                           end
+                   end, api.nvim_create_namespace("autoNohlAndSearchCount"))
 end
 
--- without the `searchCountIndicator`, this `on_key` simply does `auto-nohl`
-vim.on_key(function(key, _typed)
-                   key                     = fn.keytrans(key)
-                   local is_cmdline_search = fn.getcmdtype():find("[/?]") ~= nil
-                   local is_normal_mode    = api.nvim_get_mode().mode == "n"
-                   local search_started    = (key == "/" or key == "?") and is_normal_mode
-                   local search_confirmed  = (key == "<CR>" and is_cmdline_search)
-                   local search_cancelled  = (key == "<Esc>" and is_cmdline_search)
-                   if not (search_started or search_confirmed or search_cancelled or is_normal_mode) then return end
+--[[ TEMPLATES -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-                   -- works for RHS, therefore no need to consider remaps
-                   local search_movement = vim.tbl_contains({ "n", "N", "*", "#" }, key)
-                   local short_pattern   = fn.getreg("/"):gsub([[\V\C]], ""):len() <= 1 -- for `fF` function
+local template_config = {
+        templateDir       = vim.fn.stdpath("config") .. "/templates",
+        ignoreDirs        = {
+                vim.fn.stdpath("data"),
+                vim.fn.stdpath("config") .. "/after/ftplugin/",
+                "/tmp/",
+        },
+        globToTemplateMap = {
+                [vim.fn.stdpath("config") .. "/lsp/*.lua"]              = "lsp-server-config.lua",
+                [vim.fn.stdpath("config") .. "/lua/plugin-specs/*.lua"] = "vim-pack-plugin.lua",
+                ["**/*.lua"]                                            = "module.lua",
 
-                   if search_cancelled or (not search_movement and not search_confirmed) then
-                           vim.opt.hlsearch = false
-                           searchCountIndicator("clear")
-                   elseif (search_movement and not short_pattern) or search_confirmed or search_started then
-                           vim.opt.hlsearch = true
-                           vim.defer_fn(searchCountIndicator, 1)
-                   end
-           end, api.nvim_create_namespace("autoNohlAndSearchCount"))
---]=]
+                ["**/*.py"]            = "template.py",
+                ["**/*.scm"]           = "template.scm",
+                ["**/*.swift"]         = "template.swift",
+                ["**/*.{sh,zsh}"]      = "template.zsh",
+                ["**/zsh/utilities/*"] = "template.zsh",
+                ["**/*.applescript"]   = "template.applescript",
 
----- SKELETONS (TEMPLATES) -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+                ["**/*.mjs"]                                      = "node-module.mjs",
+                ["**/Alfred.alfredpreferences/workflows/**/*.js"] = "jxa.js",
+                ["**/Justfile"]                                   = "justfile.just",
+                ["**/.github/workflows/*.{yml,yaml}"]             = "github-action.yaml",
 
-local template_dir         = fn.stdpath("config") .. "/templates"
-local home_dir             = os.getenv("HOME")
-local glob_to_template_map = {
-        [home_dir .. "/.local/share/bin/lua/*.lua"]      = "script.lua",
-        [Config.localRepos .. "/**/*.lua"]               = "module.lua",
-        [fn.stdpath("config") .. "/lua/functions/*.lua"] = "module.lua",
-        [fn.stdpath("config") .. "/lua/plugins/*.lua"]   = "plugin-spec.lua",
-        [fn.stdpath("config") .. "/lsp/*.lua"]           = "lsp.lua",
-
-        -- ["**/*.py"]                                           = "template.py",
-        ["**/*.sh"]  = "template.zsh",
-        ["**/*.*sh"] = "template.zsh",
+                -- [vim.g.notesDir .. "/**/*.md"] = "note.md",
+        },
 }
 
 autocmd({ "BufNewFile", "BufReadPost" }, {
-        desc     = "User: Apply templates (`BufReadPost` for files created outside of nvim.)",
-        group    = augroup("Templates", { clear = true }),
-        callback = function(args)
-                vim.defer_fn(
-                        function()
-                                local stats = vim.uv.fs_stat(args.file)
-                                if not stats or stats.size > 10 then return end
-                                local filepath, bufnr = args.file, args.buf
+        desc     = "User: Apply templates",
+        callback = function(ctx)
+                vim.defer_fn(function()
+                                     local stats = vim.uv.fs_stat(ctx.file)
 
-                                local matched_glob = vim.iter(glob_to_template_map):find(function(glob)
-                                        local glob_matches_filename = vim.glob.to_lpeg(glob):match(filepath)
-                                        return glob_matches_filename
-                                end)
-                                if not matched_glob then return end
-                                local template_file = glob_to_template_map[matched_glob]
-                                local template_path = vim.fs.normalize(template_dir .. "/" .. template_file)
-                                if not vim.uv.fs_stat(template_path) then return end
+                                     if not stats or stats.size > 10 then
+                                             return
+                                     end
 
-                                local content = {}
-                                local cursor
-                                local row     = 1
-                                for line in io.lines(template_path) do
-                                        local placeholder_pos = line:find("%$0")
-                                        if placeholder_pos then
-                                                line   = line:gsub("%$0", "")
-                                                cursor = { row, placeholder_pos - 1 }
-                                        end
-                                        table.insert(content, line)
-                                        row = row + 1
-                                end
-                                api.nvim_buf_set_lines(0, 0, -1, false, content)
-                                if cursor then api.nvim_win_set_cursor(0, cursor) end
+                                     local filepath = ctx.file
+                                     local bufnr    = ctx.buf
+                                     local conf     = template_config
+                                     local ignore   = vim.iter(conf.ignoreDirs)
+                                                :any(function(dir) return vim.startswith(filepath, dir) end)
 
-                                local new_ft = vim.filetype.match{ buf = bufnr }
-                                ---@diagnostic disable-next-line: assign-type-mismatch
-                                if vim.bo[bufnr].ft ~= new_ft then vim.bo[bufnr].ft = new_ft end
-                        end, 100)
+                                     if ignore then
+                                             return
+                                     end
+
+                                     local longest_matching_glob = vim.iter(conf.globToTemplateMap)
+                                                :filter(function(glob) return vim.glob.to_lpeg(glob):match(filepath) end)
+                                                :fold("", function(longGlob, glob)
+                                                        return #longGlob < #glob and glob or longGlob
+                                                end)
+                                     if longest_matching_glob == "" then
+                                             return
+                                     end
+
+                                     local template_file = conf.globToTemplateMap[longest_matching_glob]
+                                     local template_path = vim.fs.normalize(conf.templateDir .. "/" .. template_file)
+
+                                     local content = table.concat(vim.fn.readfile(template_path), "\n")
+                                     vim.snippet.expand(content)
+
+                                     local new_ft = vim.filetype.match{ buf = bufnr }
+
+                                     if new_ft and vim.bo[bufnr].ft ~= new_ft then
+                                             vim.bo[bufnr].ft = new_ft
+                                     end
+                             end, 100)
         end,
 })
-
----- SMART VIRTUAL EDITING -----------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-autocmd("ModeChanged", {
-        pattern  = "*:*",
-        group    = augroup("Virtual editing", { clear = true }),
-        callback = function()
-                local mode = vim.fn.mode()
-                if mode == "n" or mode == "\22" then vim.opt.virtualedit = "all" end
-                if mode == "i" then vim.opt.virtualedit = "block" end
-                if mode == "v" or mode == "V" then vim.opt.virtualedit = "none" end
-        end,
-})
-
----- LSP -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-local debounce = 100
-local timer    = vim.uv.new_timer()
-
-local function compDoc(client, group, bufnr)
-        if not timer then
-                vim.notify("Cannot create timer", vim.log.levels.ERROR)
-        end
-
-        autocmd("CompleteChanged", {
-                group    = group,
-                buffer   = bufnr,
-                callback = function()
-                        timer:stop()
-
-                        local client_id = vim.tbl_get(vim.v.completed_item, "user_data", "nvim", "lsp", "client_id")
-                        if client_id ~= client.id then
-                                return
-                        end
-
-                        local completion_item = vim.tbl_get(vim.v.completed_item, "user_data", "nvim", "lsp",
-                                                            "completion_item")
-                        if not completion_item then
-                                return
-                        end
-
-                        local complete_info = vim.fn.complete_info({ "selected" })
-                        if vim.tbl_isempty(complete_info) then
-                                return
-                        end
-
-                        timer:start(debounce, 0, vim.schedule_wrap(function()
-                                client:request(
-                                        vim.lsp.protocol.Methods.completionItem_resolve,
-                                        completion_item,
-                                        function(err, result)
-                                                if err ~= nil then
-                                                        -- vim.notify("client" .. " " .. client.id .. vim.inspect(err),
-                                                        --            vim.log.levels.ERROR)
-                                                        return
-                                                end
-
-                                                local docs = vim.tbl_get(result, "documentation", "value")
-                                                if not docs then
-                                                        return
-                                                end
-
-                                                local wininfo = vim.api.nvim__complete_set(complete_info.selected,
-                                                                                           { info = docs })
-                                                if vim.tbl_isempty(wininfo) or not vim.api.nvim_win_is_valid(wininfo.winid) then
-                                                        return
-                                                end
-
-                                                vim.api.nvim_win_set_config(wininfo.winid, { border = "single" })
-                                                vim.wo[wininfo.winid].conceallevel  = 2
-                                                vim.wo[wininfo.winid].concealcursor = "niv"
-                                                vim.wo[wininfo.winid].winhighlight  = "PmenuDoc:Normal"
-
-                                                if not vim.api.nvim_buf_is_valid(wininfo.bufnr) then
-                                                        return
-                                                end
-
-                                                vim.bo[wininfo.bufnr].syntax = "markdown"
-                                                vim.treesitter.start(wininfo.bufnr, "markdown")
-                                        end,
-                                        bufnr
-                                )
-                        end)
-                        )
-                end,
-        })
-end
-
-autocmd("LspAttach", {
-        desc     = "LSP stuff",
-        group    = augroup("lsp-attach", { clear = true }),
-        callback = function(args)
-                local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
-
-                --[[ COMPLETION
-                if client:supports_method("textDocument/completion") and not pcall(require, "blink.cmp") then
-                        vim.lsp.completion.enable(true, client.id, args.buf, {
-                                autotrigger = false,
-                                convert     = function(item)
-                                        return {
-                                                abbr         = Icons.Kinds.Array .. " " .. item.label:gsub("%b()", ""),
-                                                abbr_hlgroup = "LspKind" ..
-                                                           (vim.lsp.protocol.CompletionItemKind[item.kind] or ""),
-                                                -- kind         = "",
-                                                kind_hlgroup = "LspKind" ..
-                                                           (vim.lsp.protocol.CompletionItemKind[item.kind] or ""),
-                                                menu         = "",
-                                        }
-                                end,
-                        })
-
-                        local group = augroup("CompletionDocumentation" .. client.id, { clear = true })
-                        compDoc(client, group, args.buf)
-
-                        vim.opt.complete:append("o")
-                        vim.o.autocomplete  = true
-                        vim.o.completeopt   = "fuzzy,menuone,noinsert,noselect,popup"
-                        vim.o.pummaxwidth   = 80
-                        vim.o.complete      = "o,.,w,b,u"
-                        vim.o.previewheight = 3
-                end
-                --]]
-
-                ---[[ DOCUMENT HIGHLIGHT
-                if vim.fn.mode() ~= "i" and fn.has("nvim-0.11") == 1 and client:supports_method("textDocument/documentHighlight", 0) then
-                        local buf               = args.buf
-                        local highlight_augroup = augroup("lsp-highlight", { clear = true })
-
-                        autocmd({ "CursorMoved" }, {
-                                desc     = "Highlight LSP symbol under cursor",
-                                buffer   = buf,
-                                group    = highlight_augroup,
-                                callback = function()
-                                        vim.lsp.buf.clear_references()
-                                        vim.lsp.buf.document_highlight()
-                                end,
-                        })
-                        autocmd({ "CursorMoved" }, {
-                                desc     = "Clear LSP symbol highlight",
-                                buffer   = buf,
-                                group    = highlight_augroup,
-                                callback = vim.lsp.buf.clear_references,
-                        })
-                end
-                --]]
-
-                --[[ INLAY HINTS
-                if fn.has("nvim-0.10") == 1 and client:supports_method("textDocument/inlayHint") then
-                        local hint_augroup = augroup("lsp-inlay-hint", { clear = false })
-                        autocmd({ "CursorHold", "CursorMoved" }, {
-                                buffer   = args.buf,
-                                group    = hint_augroup,
-                                callback = function() lsp.inlay_hint.enable(false) end,
-                        })
-                end
-                --]]
-
-                ---[[ COLOR
-                if fn.has("nvim-0.12") == 1 and client:supports_method("textDocument/documentColor") then
-                        local color_augroup = augroup("lsp-color", { clear = false })
-                        autocmd({ "CursorHold", "CursorMoved" }, {
-                                desc     = "LSP colors",
-                                buffer   = args.buf,
-                                group    = color_augroup,
-                                -- callback = function() vim.lsp.document_color.enable(true, nil, { style = "background" }) end,
-                                callback = function() vim.lsp.document_color.enable(false) end,
-                        })
-                end
-                --]]
-
-                --[[ CODELENSE
-                if fn.has("nvim-0.11") == 1 and client:supports_method("textDocument/codeLens") then
-                        local codelens_augroup = augroup("lsd-codelens", { clear = false })
-                        autocmd({ "BufEnter", "FocusGained", "LspAttach", "LspProgress" }, {
-                                desc     = "Enable LSP codelenses",
-                                callback = function(ctx)
-                                        local lsp_progress_end = ctx.event == "LspProgress"
-                                            and ctx.data.params.value.kind == "end"
-                                            and ctx.data.params.value.title == "Loading Workspace"
-                                        if ctx.event == "LspProgress" and not lsp_progress_end then return end
-                                        vim.lsp.codelens.refresh({ bufnr = ctx.buf })
-                                        keymap("n", ",l", vim.lsp.codelens.run)
-                                end
-                        })
-                end
-                --]]
-        end,
-})
-autocmd("LspDetach", {
-        desc     = "Stop LSP when no buffer",
-        group    = augroup("lsp-detach", { clear = true }),
-        callback = function(args)
-                local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
-
-                if not client or not client.attached_buffers then
-                        return
-                end
-
-                for bufnr in pairs(client.attached_buffers) do
-                        if bufnr ~= args.buf then
-                                return
-                        end
-                end
-                client:stop()
-        end,
-})
-
----- SWITCH BETWEEN `rlnu` & `lnu` ---------------------------------------------------------------------------------------------------------------------------------------------------------
-
-autocmd({ "BufEnter", "FocusGained", "InsertLeave", "WinEnter" }, {
-        desc     = "Enable relative line numbers in active window",
-        pattern  = "*",
-        group    = augroup("Relative line numbers", { clear = true }),
-        callback = function()
-                if wo.number and api.nvim_get_mode().mode ~= "i" then
-                        wo.relativenumber = true
-                        wo.signcolumn     = "yes"
-                end
-        end,
-})
-autocmd({ "BufLeave", "FocusLost", "InsertEnter", "WinLeave" }, {
-        desc     = "Disable relative line numbers in inactive window",
-        pattern  = "*",
-        group    = augroup("Line numbers", { clear = true }),
-        callback = function()
-                if wo.number then
-                        wo.relativenumber = false
-                        wo.foldcolumn     = "0"
-                end
-        end,
-})
-
----- RESTORE CURSOR POSITION ---------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-autocmd({ "BufReadPost", "BufReadPre", "BufWinEnter" }, {
-        desc     = "Restore cursor position",
-        pattern  = "*",
-        group    = augroup("Restore cursor position", { clear = true }),
-        callback = function(args)
-                local mark       = vim.api.nvim_buf_get_mark(args.buf, '"')
-                local line_count = vim.api.nvim_buf_line_count(args.buf)
-                if mark[1] > 0 and mark[1] <= line_count then
-                        vim.api.nvim_win_set_cursor(0, mark)
-                        vim.cmd("normal! zz")
-                end
-        end,
-})
-
----- TRIM TRAILING WHITESPACES -------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-autocmd({ "BufWritePre" }, {
-        desc     = "Remove trailing whitespace",
-        pattern  = "*",
-        group    = augroup("Remove trailing whitespace", { clear = true }),
-        callback = function()
-                if vim.bo.filetype ~= "markdown" then
-                        vim.cmd([[%s/\s\+$//e]])
-                end
-        end,
-})
-
----- SPLITS --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-autocmd("FileType", {
-        desc    = "Automatically split help buffers to the right",
-        pattern = "help",
-        group   = augroup("Help right split", { clear = true }),
-        command = "wincmd L",
-})
-autocmd("VimResized", {
-        desc    = "Automatically resize splits",
-        group   = augroup("Split resize", { clear = true }),
-        command = "wincmd =",
-})
-
----- CMDLINE COMPLETION --------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-vim.opt.wildmode = "noselect"
-autocmd("CmdlineChanged", {
-        desc     = "Add fuzzy completion for command line",
-        pattern  = { ":", "/", "!", "?" },
-        group    = augroup("cmdline fuzzy completion", { clear = true }),
-        callback = function()
-                vim.fn.wildtrigger()
-        end,
-})
-
----- SNIPPET -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-autocmd("WinScrolled", {
-        desc     = "Exit snippet on window scroll",
-        group    = augroup("Exit snippet", { clear = true }),
-        callback = function() vim.snippet.stop() end,
-})
-
----- RELOAD ON CHANGE ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
-        desc     = "Reload files if they changed externaly",
-        group    = augroup("Refresh file", { clear = true }),
-        callback = function()
-                if o.buftype ~= "nofile" then
-                        vim.cmd.checktime()
-                end
-        end,
-})
-
----- STATUSCOL -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-autocmd("BufWinEnter", {
-        desc     = "Reset statuscolumn for miscellaneous buffers",
-        group    = augroup("Reset statuscol", { clear = true }),
-        callback = function()
-                if vim.tbl_contains({ "nofile", "help", "prompt", "terminal" }, vim.bo[0].buftype) then
-                        vim.wo[0][0].statuscolumn = ""
-                end
-        end,
-})
-
----- JSON ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-autocmd("FileType", {
-        pattern = { "json", "jsonc", "json5" },
-        group   = augroup("Conceal json", { clear = true }),
-        command = "setlocal conceallevel=0",
-})
-
----- DONT CONTINUE COMMENTS ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-autocmd("FileType", {
-        pattern  = "*",
-        group    = augroup("Comments", { clear = true }),
-        callback = function()
-                vim.opt_local.formatoptions:remove({ "c", "r", "o" })
-        end,
-})
-
----- ENV SYNTAX HIGHLIGHTING ---------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-autocmd("BufRead", {
-        group    = augroup("dotenv_ft", { clear = true }),
-        pattern  = { ".env", ".env.*" },
-        callback = function()
-                vim.bo.filetype = "dosini"
-        end,
-})
-
----- TERMINAL BUFFER -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-autocmd("FileType", {
-        pattern  = "*",
-        group    = augroup("Terminal", { clear = true }),
-        callback = function()
-                if vim.bo.buftype == "terminal" then
-                        map({ "<C-Escape>", "<C-\\><C-n>", mode = "i", unique = false })
-                end
-        end,
-})
-
----- BACKDROP ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-autocmd({ "FocusGained", "BufWinEnter", "FileType" }, {
-        desc     = "Add backdrop to floating windows",
-        group    = augroup("Backdrop", { clear = true }),
-        pattern  = { "dropbar_menu", "Glance", "rip-substitute" },
-        callback = function() _G.addBackdrop() end,
-})
+--]]

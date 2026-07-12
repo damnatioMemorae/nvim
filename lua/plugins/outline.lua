@@ -33,6 +33,8 @@ local icons = {
         Variable      = { icon = "", hl = "@lsp.type.variable" },
 }
 
+local arrows = Icon.Arrows
+
 return {
         "hedyhli/outline.nvim",
         keys = { { "<leader>s", "<cmd>Outline<cr>", desc = "Outline", mode = { "n" } } },
@@ -44,7 +46,7 @@ return {
                 symbol_folding = {
                         autofold_depth = 1,
                         auto_unfold    = { hovered = true, only = true },
-                        markers        = { Icons.Arrows.rightSmol, Icons.Arrows.downSmol },
+                        markers        = { arrows.rightSmol, arrows.downSmol },
                 },
                 preview_window = {
                         auto_preview = false,
@@ -52,9 +54,9 @@ return {
                         min_width    = 30,
                         height       = 50,
                         min_height   = 10,
-                        border       = Border.borderStyle,
+                        border       = Border.Default.Normal,
                         winhl        = "NormalFloat:NormalFloat",
-                        winblend     = Config.blend,
+                        winblend     = vim.g.blend,
                         live         = true,
                 },
                 keymaps        = {
@@ -82,13 +84,10 @@ return {
         config = function(_, opts)
                 require("outline").setup(opts)
 
-                local groups = {
-                        { "Current",    "LspInlayHint" },
-                        { "Details",    "Comment" },
-                        { "FoldMarker", "Comment" },
-                }
-                vim.iter(groups):each(function(group)
-                        vim.api.nvim_set_hl(0, "Outline" .. group[1], { link = group[2] })
-                end)
+                _G.hlLink({
+                                  { "Current",    "LspInlayHint" },
+                                  { "Details",    "Comment" },
+                                  { "FoldMarker", "Comment" },
+                          }, "Outline")
         end,
 }

@@ -1,4 +1,4 @@
-local groups = {
+_G.hlLink({
         { "@keyword.type.cpp",                        "@keyword" },
         { "@keyword.import.cpp",                      "Preproc" },
         { "@keyword.repeat.cpp",                      "@keyword.repeat" },
@@ -18,7 +18,4 @@ local groups = {
         { "@lsp.typemod.variable.functionScope.cpp",  "@character" },
         { "@lsp.typemod.variable.defaultLibrary.cpp", "@variable.builtin" },
         { "@lsp.typemod.function.defaultLibrary.cpp", "@function.builtin" },
-}
-vim.iter(groups):each(function(group)
-        vim.api.nvim_set_hl(0, group[1], { link = group[2] })
-end)
+})

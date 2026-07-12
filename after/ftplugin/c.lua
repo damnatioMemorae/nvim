@@ -1,4 +1,4 @@
-local groups = {
+_G.hlLink({
         -- { "cType",                                    "Type" },
         -- { "cTypedef",                                 "TypeDef" },
         -- { "cBlock",                                   "Statement" },
@@ -19,7 +19,4 @@ local groups = {
         { "@lsp.typemod.variable.functionScope.c",  "@string" },
         { "@lsp.typemod.variable.defaultLibrary.c", "@variable.builtin" },
         { "@lsp.typemod.function.defaultLibrary.c", "@function.builtin" },
-}
-vim.iter(groups):each(function(group)
-        vim.api.nvim_set_hl(0, group[1], { link = group[2] })
-end)
+})

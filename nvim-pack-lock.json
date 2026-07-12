@@ -1,0 +1,12 @@
+{
+  "plugins": {
+    "async.nvim": {
+      "rev": "e2a813be9cd143ab1181de6d8a0720e0230cd86e",
+      "src": "https://github.com/lewis6991/async.nvim"
+    },
+    "refactoring.nvim": {
+      "rev": "7eaa150061ea18fdbe18fbb924d236e3ddccc57d",
+      "src": "https://github.com/theprimeagen/refactoring.nvim"
+    }
+  }
+}

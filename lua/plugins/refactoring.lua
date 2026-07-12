@@ -1,36 +1,31 @@
 return {
         "ThePrimeagen/refactoring.nvim",
-        dependencies = { "kevinhwang91/promise-async" },
-        event        = "VeryLazy",
+        dependencies = { "lewis6991/async.nvim" },
+        event        = "BufReadPre",
+        opts         = {
+                prompt_func_return_type = {
+                        go   = true,
+                        cpp  = true,
+                        c    = true,
+                        java = true,
+                        h    = false,
+                        hpp  = false,
+                        cxx  = false,
+                },
+                prompt_func_param_type  = {
+                        go   = true,
+                        cpp  = true,
+                        c    = true,
+                        java = true,
+                        h    = false,
+                        hpp  = false,
+                        cxx  = false,
+                },
+                printf_statements       = { cpp = { 'std::cout << "%s" << "\\n";' } },
+                print_var_statements    = { cpp = { 'std::cout << "%s" << %s << "\\n";' } },
+                show_success_message    = true,
+        },
         config       = function()
-                require("refactoring").setup({
-                        -- prompt_func_return_type = {
-                        --         go   = true,
-                        --         cpp  = true,
-                        --         c    = true,
-                        --         java = true,
-                        --         h    = false,
-                        --         hpp  = false,
-                        --         cxx  = false,
-                        -- },
-                        -- prompt_func_param_type  = {
-                        --         go   = true,
-                        --         cpp  = true,
-                        --         c    = true,
-                        --         java = true,
-                        --         h    = false,
-                        --         hpp  = false,
-                        --         cxx  = false,
-                        -- },
-                        -- printf_statements       = {
-                        --         cpp = { 'std::cout << "%s" << "\\n";' },
-                        -- },
-                        -- print_var_statements    = {
-                        --         cpp = { 'std::cout << "%s" << %s << "\\n";' },
-                        -- },
-                        -- show_success_message    = true,
-                })
-
                 local map = _G.smartMap
                 local d   = require("refactoring.debug")
                 local r   = require("refactoring")
