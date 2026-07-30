@@ -1,26 +1,36 @@
+local o       = vim.o
+local fn      = vim.fn
+local api     = vim.api
+local cmd     = vim.cmd
+local log     = vim.log
+
+local levels = log.levels
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 local enabled = false
 
 local h = require("core.utils.misc").getHl
 
-vim.api.nvim_set_hl(0, "SnacksNotifierBorderInfo",  { fg = h("DiagnosticInfo").fg, bg = h("NormalFloat").bg })
-vim.api.nvim_set_hl(0, "SnacksNotifierBorderWarn",  { fg = h("DiagnosticWarn").fg, bg = h("NormalFloat").bg })
-vim.api.nvim_set_hl(0, "SnacksNotifierBorderError", { fg = h("DiagnosticError").fg, bg = h("NormalFloat").bg })
-vim.api.nvim_set_hl(0, "SnacksNotifierBorderTrace", { link = "FloatBorder" })
-vim.api.nvim_set_hl(0, "SnacksNotifierBorderDebug", { link = "FloatBorder" })
+-- api.nvim_set_hl(0, "SnacksNotifierBorderInfo",  { fg = h("DiagnosticInfo").fg, bg = h("NormalFloat").bg })
+-- api.nvim_set_hl(0, "SnacksNotifierBorderWarn",  { fg = h("DiagnosticWarn").fg, bg = h("NormalFloat").bg })
+-- api.nvim_set_hl(0, "SnacksNotifierBorderError", { fg = h("DiagnosticError").fg, bg = h("NormalFloat").bg })
+-- api.nvim_set_hl(0, "SnacksNotifierBorderTrace", { link = "FloatBorder" })
+-- api.nvim_set_hl(0, "SnacksNotifierBorderDebug", { link = "FloatBorder" })
 
-vim.api.nvim_set_hl(0, "SnacksNotifierFooterInfo",  { fg = h("DiagnosticInfo").fg, bg = h("NormalFloat").bg })
-vim.api.nvim_set_hl(0, "SnacksNotifierFooterWarn",  { fg = h("DiagnosticWarn").fg, bg = h("NormalFloat").bg })
-vim.api.nvim_set_hl(0, "SnacksNotifierFooterError", { fg = h("DiagnosticError").fg, bg = h("NormalFloat").bg })
-vim.api.nvim_set_hl(0, "SnacksNotifierFooterTrace", { link = "NormalFloat" })
-vim.api.nvim_set_hl(0, "SnacksNotifierFooterDebug", { link = "NormalFloat" })
+-- api.nvim_set_hl(0, "SnacksNotifierFooterInfo",  { fg = h("DiagnosticInfo").fg, bg = h("NormalFloat").bg })
+-- api.nvim_set_hl(0, "SnacksNotifierFooterWarn",  { fg = h("DiagnosticWarn").fg, bg = h("NormalFloat").bg })
+-- api.nvim_set_hl(0, "SnacksNotifierFooterError", { fg = h("DiagnosticError").fg, bg = h("NormalFloat").bg })
+-- api.nvim_set_hl(0, "SnacksNotifierFooterTrace", { link = "NormalFloat" })
+-- api.nvim_set_hl(0, "SnacksNotifierFooterDebug", { link = "NormalFloat" })
 
-vim.api.nvim_set_hl(0, "SnacksNotifierTitleInfo",  { link = "DiagnosticInfo" })
-vim.api.nvim_set_hl(0, "SnacksNotifierTitleWarn",  { link = "DiagnosticWarn" })
-vim.api.nvim_set_hl(0, "SnacksNotifierTitleError", { link = "DiagnosticError" })
-vim.api.nvim_set_hl(0, "SnacksNotifierTitleDebug", { link = "NormalFloat" })
-vim.api.nvim_set_hl(0, "SnacksNotifierTitleTrace", { link = "NormalFloat" })
+-- api.nvim_set_hl(0, "SnacksNotifierTitleInfo",  { link = "DiagnosticInfo" })
+-- api.nvim_set_hl(0, "SnacksNotifierTitleWarn",  { link = "DiagnosticWarn" })
+-- api.nvim_set_hl(0, "SnacksNotifierTitleError", { link = "DiagnosticError" })
+-- api.nvim_set_hl(0, "SnacksNotifierTitleDebug", { link = "NormalFloat" })
+-- api.nvim_set_hl(0, "SnacksNotifierTitleTrace", { link = "NormalFloat" })
 
-vim.api.nvim_set_hl(0, "SnacksNotifierMinimal", { fg = h("DiagnosticInfo").fg, bg = h("NormalFloat").bg })
+-- api.nvim_set_hl(0, "SnacksNotifierMinimal", { fg = h("DiagnosticInfo").fg, bg = h("NormalFloat").bg })
 
 ---@param idx number|"last"
 local function openNotif(idx)
@@ -28,13 +38,13 @@ local function openNotif(idx)
         local max_height = 0.85
 
         if idx == "last" then idx = 1 end
-        local history = Snacks.notifier.get_history{
+        local history = Snacks.notifier.get_history {
                 filter  = function(notif) return notif.level ~= "trace" end,
                 reverse = true,
         }
         if #history == 0 then
                 local msg = "No notifications yet."
-                vim.notify(msg, vim.log.levels.TRACE, { title = "Last notification", icon = "󰎟" })
+                vim.notify(msg, levels.TRACE, { title = "Last notification", icon = "󰎟" })
                 return
         end
         local notif = assert(history[idx], "Notification not found.")
@@ -44,14 +54,16 @@ local function openNotif(idx)
         local title = vim.trim((notif.icon or "") .. " " .. (notif.title or ""))
 
         local min_height   = 5
-        local height       = math.min(#lines + 2, math.ceil(vim.o.lines * max_height))
+        local height       = math.min(#lines + 2, math.ceil(o.lines * max_height))
         height             = math.max(height, min_height)
-        local longest_line = vim.iter(lines):fold(0, function(acc, line)
-                local len = #(line:gsub("\t", "    "))
-                return math.max(acc, len)
-        end)
+        local longest_line = vim
+                   .iter(lines)
+                   :fold(0, function(acc, line)
+                           local len = #(line:gsub("\t", "    "))
+                           return math.max(acc, len)
+                   end)
         longest_line       = math.max(longest_line, #title)
-        local width        = math.min(longest_line + 3, math.ceil(vim.o.columns * max_width))
+        local width        = math.min(longest_line + 3, math.ceil(o.columns * max_width))
 
         local overflow   = #lines + 2 - height
         local more_lines = overflow > 0 and ("↓ %d lines"):format(overflow) or ""
@@ -66,14 +78,14 @@ local function openNotif(idx)
         }
         local winhighlights     = table.concat(highlights, ",")
 
-        local win = Snacks.win{
+        local win = Snacks.win {
                 text       = lines,
                 height     = height,
                 width      = width,
                 title      = vim.trim(title) ~= "" and " " .. title .. " " or nil,
                 footer     = footer and " " .. footer .. " " or nil,
                 footer_pos = footer and "right" or nil,
-                border     = vim.o.winborder,
+                border     = o.winborder,
                 bo         = { ft = notif.ft or "markdown" },
                 wo         = {
                         wrap         = notif.ft ~= "lua",
@@ -81,35 +93,31 @@ local function openNotif(idx)
                         cursorline   = true,
                         winfixbuf    = true,
                         fillchars    = "fold: ,eob: ",
-                        foldmethod   = "expr",
-                        foldexpr     = "v:lua.vim.treesitter.foldexpr()",
+                        -- foldmethod   = "expr",
+                        -- foldexpr     = "v:lua.vim.treesitter.foldexpr()",
                         winhighlight = winhighlights,
                 },
                 keys       = {
                         ["<Tab>"]   = function()
                                 if idx == #history then return end
-                                vim.cmd.close()
+                                cmd.close()
                                 openNotif(idx + 1)
                         end,
                         ["<S-Tab>"] = function()
                                 if idx == 1 then return end
-                                vim.cmd.close()
+                                cmd.close()
                                 openNotif(idx - 1)
                         end,
                 },
         }
-        vim.api.nvim_win_call(win.win, function()
-                vim.fn.matchadd("DiagnosticInfo", [[[^/]\+\.lua:\d\+\ze:]])
+        api.nvim_win_call(win.win, function()
+                fn.matchadd("DiagnosticInfo", [[[^/]\+\.lua:\d\+\ze:]])
         end)
 end
 
 return {
         "folke/snacks.nvim",
-        keys   = {
-                -- { "<Esc>", function() Snacks.notifier.hide() vim.snippet.stop() end, desc = "Dismiss notice" },
-                -- { "<C-n>", function() openNotif("last") end, desc = "󰎟 Last notification" },
-                { "<leader><leader>n", function() Snacks.picker.notifications() end, desc = "Notification history" },
-        },
+        keys   = { { "<leader><leader>n", function() Snacks.picker.notifications() end, desc = "Notification history" } },
         opts   = {
                 picker   = {
                         sources = {

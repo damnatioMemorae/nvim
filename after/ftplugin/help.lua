@@ -1,14 +1,23 @@
-vim.diagnostic.enable(false, { bufnr = 0 })
-vim.opt_local.wrap         = true
-vim.opt_local.colorcolumn  = ""
-vim.opt_local.statuscolumn = ""
+local cmd       = vim.cmd
+local api       = vim.api
+local diag      = vim.diagnostic
+local opt_l = vim.opt_local
 
-_G.bufMap({ "q", vim.cmd.bwipeout, desc = "Quit" })
-_G.bufMap({ "<A-w>", vim.cmd.bwipeout, desc = "Quit" })
+local map = _G.bufMap
 
-local ext = vim.api.nvim_buf_get_name(0):match("%.(%w+)$")
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+diag.enable(false, { bufnr = 0 })
+opt_l.wrap         = true
+opt_l.colorcolumn  = ""
+opt_l.statuscolumn = ""
+
+map({ "q", cmd.bwipeout, desc = "Quit" })
+map({ "<M-w>", cmd.bwipeout, desc = "Quit" })
+
+local ext = api.nvim_buf_get_name(0):match("%.(%w+)$")
 if ext == "txt" then
-        _G.bufMap({ "<LocalLeader>s", "gO", mode = "n", remap = true })
+        map({ "<LocalLeader>s", "gO", mode = "n", remap = true })
 end
 
-vim.cmd("wincmd L")
+cmd("wincmd L")

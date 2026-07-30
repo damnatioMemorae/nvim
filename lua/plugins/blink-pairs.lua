@@ -1,12 +1,13 @@
 return {
         "saghen/blink.pairs",
-        build   = function() require("blink.pairs").build():pwait(60000) end,
-        event   = { "InsertEnter", "CmdlineEnter", "BufReadPre" },
-        keys    = {
-                { "<A-i>", "a{<CR><down>,<up><esc>i", mode = "n", desc = " Open new scope", remap = true },
-                { "<A-i>", "{<CR>", mode = "i", desc = " Open new scope", remap = true },
+        build        = function() require("blink.pairs").build():pwait(60000) end,
+        event        = "BufReadPost",
+        dependencies = { "saghen/blink.lib" },
+        keys         = {
+                { "<M-i>", "a{<CR><down>,<up><esc>i", mode = "n", desc = " Open new scope", remap = true },
+                { "<M-i>", "{<CR>", mode = "i", desc = " Open new scope", remap = true },
         },
-        opts    = {
+        opts         = {
                 mappings = {
                         enabled            = true,
                         cmdline            = true,
@@ -28,7 +29,7 @@ return {
                 highlights = {
                         enabled         = true,
                         cmdline         = true,
-                        groups          = { "BlinkPairsOrange", "BlinkPairsPurple", "BlinkPairsBlue" },
+                        groups          ={},
                         unmatched_group = "MatchParen",
                         matchparen      = {
                                 enabled             = true,

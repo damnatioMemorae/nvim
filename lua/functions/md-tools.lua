@@ -1,3 +1,18 @@
+local b   = vim.b
+local bo  = vim.bo
+local fn  = vim.fn
+local ui  = vim.ui
+local ts  = vim.ts
+local api = vim.api
+local cmd = vim.cmd
+local log = vim.log
+local lsp = vim.lsp
+local opt = vim.opt
+local net = vim.net
+
+local levels = log.levels
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 local M = {}
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -5,33 +20,33 @@ local M = {}
 ---@param endWrap? string
 function M.wrap(startWrap, endWrap)
         if not endWrap then endWrap = startWrap end
-        local mode = vim.fn.mode()
+        local mode = fn.mode()
         if mode == "V" then
-                vim.notify("Visual line mode not supported", vim.log.levels.WARN)
+                vim.notify("Visual line mode not supported", levels.WARN)
                 return
         end
-        local row, col     = unpack(vim.api.nvim_win_get_cursor(0))
+        local row, col     = unpack(api.nvim_win_get_cursor(0))
         local use_big_word = startWrap == "`"
 
         -- determine text
         local text = ""
         if mode == "n" then
-                local cursor_char = vim.api.nvim_get_current_line():sub(col + 1, col + 1)
+                local cursor_char = api.nvim_get_current_line():sub(col + 1, col + 1)
                 if not cursor_char:find("%w") and not use_big_word then
-                        vim.notify("String under cursor is not a word or number.", vim.log.levels.WARN)
+                        vim.notify("String under cursor is not a word or number.", levels.WARN)
                         return
                 end
-                text = startWrap == "`" and vim.fn.expand("<cWORD>") or vim.fn.expand("<cword>")
+                text = startWrap == "`" and fn.expand("<cWORD>") or fn.expand("<cword>")
         elseif mode == "v" then
-                vim.cmd.normal{ '"zy', bang = true }
-                text = vim.fn.getreg("z")
+                cmd.normal { '"zy', bang = true }
+                text = fn.getreg("z")
         end
 
         -- wrap text
         local insert = startWrap .. text .. endWrap
         local clipboard_url
         if startWrap == "mdlink" then
-                local clipb   = vim.fn.getreg("+")
+                local clipb   = fn.getreg("+")
                 clipboard_url = clipb:match("^#[%w-]+$")                 -- heading-link
                            or clipb:match([[^%l%l%l+://[^%s)%]}"'`>]+]]) -- url
                            or ""
@@ -39,11 +54,11 @@ function M.wrap(startWrap, endWrap)
         end
 
         -- normal mode: check whether to undo instead
-        local prev_opt    = vim.opt.iskeyword:get()
+        local prev_opt    = opt.iskeyword:get()
         local should_undo = false
         if mode == "n" then
-                vim.opt.iskeyword:append{ startWrap:sub(1, 1), endWrap:sub(1, 1) }
-                local cword = use_big_word and vim.fn.expand("<cWORD>") or vim.fn.expand("<cword>")
+                opt.iskeyword:append { startWrap:sub(1, 1), endWrap:sub(1, 1) }
+                local cword = use_big_word and fn.expand("<cWORD>") or fn.expand("<cword>")
                 should_undo = (not use_big_word and cword == insert)
                            or (use_big_word and vim.startswith(insert, startWrap:rep(2)))
                 if should_undo then insert = use_big_word and text:sub(2, -2) or text end
@@ -52,26 +67,26 @@ function M.wrap(startWrap, endWrap)
         -- insert
         if mode == "n" then
                 local word_arg = startWrap == "`" and "W" or "w"
-                vim.cmd.normal{ '"_ci' .. word_arg .. insert, bang = true }
-                vim.opt.iskeyword = prev_opt
+                cmd.normal { '"_ci' .. word_arg .. insert, bang = true }
+                opt.iskeyword = prev_opt
         elseif mode == "v" then
-                vim.cmd.normal{ "gv", bang = true } -- re-select, since yank put us in normal mode
-                vim.cmd.normal{ '"_c' .. insert, bang = true }
+                cmd.normal { "gv", bang = true } -- re-select, since yank put us in normal mode
+                cmd.normal { '"_c' .. insert, bang = true }
         elseif mode == "i" then
-                local cur_line = vim.api.nvim_get_current_line()
+                local cur_line = api.nvim_get_current_line()
                 local new_line = cur_line:sub(1, col) .. insert .. cur_line:sub(col + 1)
-                vim.api.nvim_set_current_line(new_line)
+                api.nvim_set_current_line(new_line)
         end
 
         -- cursor movement
         if startWrap == "mdlink" then
-                vim.api.nvim_win_set_cursor(0, { row, col + 1 })
-                if clipboard_url == "" and text ~= "" then vim.cmd.normal{ "f)", bang = true } end
+                api.nvim_win_set_cursor(0, { row, col + 1 })
+                if clipboard_url == "" and text ~= "" then cmd.normal { "f)", bang = true } end
         else
                 local offset = should_undo and - #startWrap or #startWrap
-                vim.api.nvim_win_set_cursor(0, { row, col + offset })
+                api.nvim_win_set_cursor(0, { row, col + offset })
         end
-        if text == "" or clipboard_url == "" then vim.cmd.startinsert() end
+        if text == "" or clipboard_url == "" then cmd.startinsert() end
 end
 
 ---@param key "o"|"O"|"<CR>"
@@ -80,11 +95,11 @@ function M.autoBullet(key)
                 key == "o" or key == "O" or key == "<CR>",
                 "`autoBullet()` only accepts `o`, `O`, or `<CR>`"
         )
-        local row, col          = unpack(vim.api.nvim_win_get_cursor(0))
+        local row, col          = unpack(api.nvim_win_get_cursor(0))
         local indent, continued = "", ""
         local ln                = row
         repeat
-                local line = vim.api.nvim_buf_get_lines(0, ln - 1, ln, false)[1]
+                local line = api.nvim_buf_get_lines(0, ln - 1, ln, false)[1]
                 ln         = ln - 1
                 if ln == 0 then break end
                 indent           = line:match("^%s*")
@@ -97,22 +112,22 @@ function M.autoBullet(key)
         until continued ~= "" or indent == "" -- loop to consider bullets on hard-wrapped lines
         if continued ~= "" then continued = indent .. continued end
 
-        local line       = vim.api.nvim_get_current_line()
+        local line       = api.nvim_get_current_line()
         local empty_list = ((continued ~= "") and vim.trim(indent .. continued) == vim.trim(line))
                    or line:match("^%s*%d+%. $")
         if key == "o" or key == "O" then
                 if key == "O" then row = row - 1 end
-                vim.api.nvim_buf_set_lines(0, row, row, false, { continued })
-                vim.api.nvim_win_set_cursor(0, { row + 1, 1 })
-                vim.cmd.startinsert{ bang = true } -- bang -> insert at EoL
+                api.nvim_buf_set_lines(0, row, row, false, { continued })
+                api.nvim_win_set_cursor(0, { row + 1, 1 })
+                cmd.startinsert { bang = true } -- bang -> insert at EoL
         elseif key == "<CR>" and empty_list then
-                vim.api.nvim_set_current_line("")
+                api.nvim_set_current_line("")
         elseif key == "<CR>" and not empty_list then
                 local before_cur, after_cur = line:sub(1, col), line:sub(col + 1)
                 if vim.startswith(after_cur, continued) then continued = "" end -- cursor before list markers
                 local next_line = continued .. after_cur
-                vim.api.nvim_buf_set_lines(0, row - 1, row, false, { before_cur, next_line })
-                vim.api.nvim_win_set_cursor(0, { row + 1, #continued })
+                api.nvim_buf_set_lines(0, row - 1, row, false, { before_cur, next_line })
+                api.nvim_win_set_cursor(0, { row + 1, #continued })
         end
 end
 
@@ -120,10 +135,10 @@ function M.followMdlinkOrWikilink()
         local mdlink_pattern   = "%[.-]%((.-)%)"
         local wikilink_pattern = "%[%[.-]]"
         local url_pattern      = [[%l+://[^%s)%]}"'`>]+]]
-        local row, col         = unpack(vim.api.nvim_win_get_cursor(0))
+        local row, col         = unpack(api.nvim_win_get_cursor(0))
         local mdlink, wikilink, url
         local ln               = row
-        local line             = vim.api.nvim_get_current_line()
+        local line             = api.nvim_get_current_line()
 
         -- look in current line
         local idx = 0
@@ -154,15 +169,15 @@ function M.followMdlinkOrWikilink()
 
         -- look forward in upcoming lines
         local max_forward = 10
-        local total_lines = vim.api.nvim_buf_line_count(0)
+        local total_lines = api.nvim_buf_line_count(0)
         while not (mdlink or wikilink or url) do
                 ln = ln + 1
                 if ln > total_lines or ln > row + max_forward then
                         local msg = ("Could not find URL, mdlink, or wikilink within %d lines."):format(max_forward)
-                        vim.notify(msg, vim.log.levels.WARN)
+                        vim.notify(msg, levels.WARN)
                         return
                 end
-                line               = vim.api.nvim_buf_get_lines(0, ln - 1, ln, false)[1]
+                line               = api.nvim_buf_get_lines(0, ln - 1, ln, false)[1]
                 local mdlink_start = line:find(mdlink_pattern)
                 local wiki_start   = line:find(wikilink_pattern)
                 local url_start    = line:find(url_pattern)
@@ -175,20 +190,20 @@ function M.followMdlinkOrWikilink()
 
         if mdlink or url then
                 local is_file_link = not url and not vim.startswith(mdlink, "http")
-                if is_file_link then return vim.cmd.edit(vim.uri_decode(mdlink)) end
+                if is_file_link then return cmd.edit(vim.uri_decode(mdlink)) end
 
                 -- move cursor to start of mdlink or url
                 local target_col = mdlink and line:find(mdlink_pattern) or line:find(url_pattern)
-                vim.api.nvim_win_set_cursor(0, { ln, target_col - 1 })
-                vim.ui.open(mdlink or url)
+                api.nvim_win_set_cursor(0, { ln, target_col - 1 })
+                ui.open(mdlink or url)
         elseif wikilink then
                 -- `vim.lsp.buf.definition` requires that cursor is on the link
                 local target_col = line:find(wikilink, nil, true)
-                vim.api.nvim_win_set_cursor(0, { ln, target_col - 1 })
+                api.nvim_win_set_cursor(0, { ln, target_col - 1 })
                 local has_definition_provider =
-                           vim.lsp.get_clients({ bufnr = 0, method = "textDocument/definition" })[1]
+                           lsp.get_clients({ bufnr = 0, method = "textDocument/definition" })[1]
                 assert(has_definition_provider, "No LSP client supporting `textDocument/definition` found.")
-                vim.lsp.buf.definition() -- requires marksman, zk, or markdown-oxide
+                lsp.buf.definition() -- requires marksman, zk, or markdown-oxide
         end
 end
 
@@ -196,8 +211,8 @@ end
 
 ---@param type "list"|"task"
 function M.cycle(type)
-        local lnum, col = unpack(vim.api.nvim_win_get_cursor(0))
-        local cur_line  = vim.api.nvim_get_current_line()
+        local lnum, col = unpack(api.nvim_win_get_cursor(0))
+        local cur_line  = api.nvim_get_current_line()
         local updated
 
         if type == "list" then
@@ -233,25 +248,25 @@ function M.cycle(type)
                 error(("Unknown type for `.cycle()`: `%s`"):format(type))
         end
 
-        vim.api.nvim_set_current_line(updated)
+        api.nvim_set_current_line(updated)
         local diff = #updated - #cur_line
-        vim.api.nvim_win_set_cursor(0, { lnum, math.max(1, col + diff) })
+        api.nvim_win_set_cursor(0, { lnum, math.max(1, col + diff) })
 end
 
 function M.codeBlockFromClipboard()
-        assert(vim.bo.ft == "markdown", "Only for Markdown files.")
+        assert(bo.ft == "markdown", "Only for Markdown files.")
         -- dedent clipboard content
-        local code     = vim.fn.getreg("+"):gsub("%s*$", ""):gsub("^%s*\n", "") -- trim, but not 1st indent
+        local code     = fn.getreg("+"):gsub("%s*$", ""):gsub("^%s*\n", "") -- trim, but not 1st indent
         local dedented = vim.text.indent(0, code)
         local lines    = vim.split(dedented, "\n")
 
         -- insert
-        local row = vim.api.nvim_win_get_cursor(0)[1]
+        local row = api.nvim_win_get_cursor(0)[1]
         table.insert(lines, 1,     "```")
         table.insert(lines, "```")
-        vim.api.nvim_buf_set_lines(0, row - 1, row, false, lines)
-        vim.api.nvim_win_set_cursor(0, { row, 1 })
-        vim.cmd.startinsert{ bang = true }
+        api.nvim_buf_set_lines(0, row - 1, row, false, lines)
+        api.nvim_win_set_cursor(0, { row, 1 })
+        cmd.startinsert { bang = true }
 end
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -260,15 +275,15 @@ end
 ---@return string placeholder
 ---@async
 local function getTitleForUrl(url)
-        vim.b.fetch_count = (vim.b.fetch_count or 0) + 1
-        local placeholder = " fetching title #" .. vim.b.fetch_count
-        local bufnr       = vim.api.nvim_get_current_buf()
+        b.fetch_count     = (b.fetch_count or 0) + 1
+        local placeholder = " fetching title #" .. b.fetch_count
+        local bufnr       = api.nvim_get_current_buf()
 
-        vim.net.request(
+        net.request(
                 url,
                 {},
                 vim.schedule_wrap(function(err, out)
-                        if err then return vim.notify(err, vim.log.levels.ERROR) end
+                        if err then return vim.notify(err, levels.ERROR) end
                         local title = vim.trim(out.body:match("<title.->(.-)</title>") or "")
                         title       = title -- cleanup
                                    :gsub("[\n\r]+", " ")
@@ -282,7 +297,7 @@ local function getTitleForUrl(url)
                                    :gsub("%]", "\\]")
                         if title == "" then vim.notify("No title found.") end
 
-                        local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+                        local lines = api.nvim_buf_get_lines(bufnr, 0, -1, false)
                         local row, col
                         for lnum, line in ipairs(lines) do
                                 col = line:find(placeholder, nil, true)
@@ -291,10 +306,10 @@ local function getTitleForUrl(url)
                         end
                         assert(col, "Placeholder not found, it has likely been changed.")
                         local updated_line = lines[row]:gsub(vim.pesc(placeholder), vim.pesc(title))
-                        vim.api.nvim_buf_set_lines(bufnr, row - 1, row, false, { updated_line })
-                        if title == "" and vim.api.nvim_get_current_buf() == bufnr then
-                                vim.api.nvim_win_set_cursor(0, { row, col - 1 })
-                                vim.cmd.startinsert()
+                        api.nvim_buf_set_lines(bufnr, row - 1, row, false, { updated_line })
+                        if title == "" and api.nvim_get_current_buf() == bufnr then
+                                api.nvim_win_set_cursor(0, { row, col - 1 })
+                                cmd.startinsert()
                         end
                 end)
         )
@@ -303,9 +318,9 @@ local function getTitleForUrl(url)
 end
 
 function M.addTitleToUrl()
-        assert(vim.bo.ft == "markdown", "Only for Markdown files.")
+        assert(bo.ft == "markdown", "Only for Markdown files.")
 
-        local line = vim.api.nvim_get_current_line()
+        local line = api.nvim_get_current_line()
         local url  = line:match([[<?%l+://%S+>?]])
         if vim.endswith(url, ")") then return vim.notify("Already Markdown link.") end
         local inner_url   = url:gsub(">$", ""):gsub("^<", "") -- bare URL enclosed in `<>` due to MD034
@@ -316,7 +331,7 @@ function M.addTitleToUrl()
         local updated_line       = line:sub(1, url_start - 1)
                    .. ("[%s](%s)"):format(placeholder, inner_url)
                    .. line:sub(url_end + 1)
-        vim.api.nvim_set_current_line(updated_line)
+        api.nvim_set_current_line(updated_line)
 end
 
 ---updates any url in the register to a mdlink if in a Markdown buffer
@@ -324,22 +339,22 @@ end
 ---@return nil
 function M.addTitleToUrlIfMarkdown(reg)
         -- GUARD silently instead of assert, since it could be used for all paste commands
-        if vim.bo.ft ~= "markdown" or vim.bo.buftype ~= "" then return end
+        if bo.ft ~= "markdown" or bo.buftype ~= "" then return end
 
-        local node = vim.treesitter.get_node()
+        local node = ts.get_node()
         if node and node:type() == "code_fence_content" then return end
         if node and node:type() == "html_block" then return end
-        local col               = vim.api.nvim_win_get_cursor(0)[2]
-        local char_under_cursor = vim.api.nvim_get_current_line():sub(col + 1, col + 1)
+        local col               = api.nvim_win_get_cursor(0)[2]
+        local char_under_cursor = api.nvim_get_current_line():sub(col + 1, col + 1)
         if char_under_cursor:find("[()<>]") then return end -- inserting into mdlink / bare link
 
-        local clipb = vim.fn.getreg(reg)
+        local clipb = fn.getreg(reg)
         local url   = clipb:match("^%l+://%S+$") -- not ending with `)` to not match mdlinks
         if not url then return end
 
         local placeholder = getTitleForUrl(url)
         local mdlink      = ("[%s](%s)"):format(placeholder, url)
-        vim.fn.setreg(reg, mdlink)
+        fn.setreg(reg, mdlink)
 end
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

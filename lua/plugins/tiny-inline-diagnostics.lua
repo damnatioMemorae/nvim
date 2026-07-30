@@ -1,6 +1,5 @@
 return {
         "rachartier/tiny-inline-diagnostic.nvim",
-        enabled  = true,
         event    = "LspAttach",
         priority = 8000,
         keys     = { { "<leader>od", Toggle.diagnostics, desc = "LSP Diagnostics - Toggle" } },
@@ -39,11 +38,11 @@ return {
                 require("tiny-inline-diagnostic").setup(opts)
                 vim.diagnostic.config({ virtual_text = false })
 
-                _G.hlLink({
-                                  { "Error", "DiagnosticVirtualTextError" },
-                                  { "Warn",  "DiagnosticVirtualTextWarn" },
-                                  { "Info",  "DiagnosticVirtualTextInfo" },
-                                  { "Hint",  "DiagnosticVirtualTextHint" },
-                          }, "TinyInlineDiagnosticVirtualText")
+                _G.linq
+                "TinyInlineDiagnosticVirtualText"
+                           { "Error", "DiagnosticVirtualTextError" }
+                           { "Warn", "DiagnosticVirtualTextWarn" }
+                           { "Info", "DiagnosticVirtualTextInfo" }
+                           { "Hint", "DiagnosticVirtualTextHint" }
         end,
 }

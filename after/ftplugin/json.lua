@@ -1,21 +1,27 @@
-_G.bufMap({
+local api = vim.api
+
+local map = _G.bufMap
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+map({
         "<leader>fp",
         "<cmd>%! yq --output-format=json --prettyPrint<CR>",
         mode = "n",
         desc = " Prettify Buffer",
 })
 
-_G.bufMap({
+map({
         "<leader>fm",
         "<cmd>%! yq --output-format=json --indent=0<CR>",
         mode = "n",
         desc = " Minify Buffer",
 })
 
-_G.bufMap({
+map({
         "o",
         function()
-                local line = vim.api.nvim_get_current_line()
+                local line = api.nvim_get_current_line()
                 if line:find("[^,{[]$") then return "A,<cr>" end
                 return "o"
         end,

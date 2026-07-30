@@ -39,10 +39,16 @@ return {
         "hedyhli/outline.nvim",
         keys = { { "<leader>s", "<cmd>Outline<cr>", desc = "Outline", mode = { "n" } } },
         opts = {
-                outline_window = { position = "right", width = 20, focus_on_open = false },
-                outline_items  = { show_symbol_details = true, auto_set_cursor = false },
+                outline_items  = { show_symbol_details = false, auto_set_cursor = false },
                 guides         = { enabled = false },
                 symbols        = { icons = icons },
+                outline_window = {
+                        position              = "right",
+                        width                 = 20,
+                        focus_on_open         = false,
+                        show_numbers          = false,
+                        show_relative_numbers = false,
+                },
                 symbol_folding = {
                         autofold_depth = 1,
                         auto_unfold    = { hovered = true, only = true },
@@ -60,8 +66,8 @@ return {
                         live         = true,
                 },
                 keymaps        = {
-                        show_help        = "?",
                         close            = { "<Esc>", "q" },
+                        show_help        = "?",
                         goto_location    = "<CR>",
                         peek_location    = "o",
                         goto_and_close   = "<S-Cr>",
@@ -84,10 +90,10 @@ return {
         config = function(_, opts)
                 require("outline").setup(opts)
 
-                _G.hlLink({
-                                  { "Current",    "LspInlayHint" },
-                                  { "Details",    "Comment" },
-                                  { "FoldMarker", "Comment" },
-                          }, "Outline")
+                _G.linq
+                "Outline"
+                           { "Current", "Visual" }
+                           { "Details", "Comment" }
+                           { "FoldMarker", "Comment" }
         end,
 }

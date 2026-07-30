@@ -1,7 +1,13 @@
+local cmd = vim.cmd
+local function toggle()
+        require("treesj").toggle()
+        cmd.normal("^")
+end
+
 return {
         "Wansmer/treesj",
         dependencies = "nvim-treesitter",
-        keys         = { { "<LocalLeader>s", function() require("treesj").toggle() end, desc = "TreeSJ toggle split/join" } },
+        keys         = { { "<LocalLeader>s", toggle, desc = "TreeSJ toggle split/join" } },
         opts         = {
                 use_default_keymaps = false,
                 check_syntax_error  = true,

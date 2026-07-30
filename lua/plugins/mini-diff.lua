@@ -1,8 +1,7 @@
 return {
         "nvim-mini/mini.diff",
-        enabled = true,
         version = false,
-        event   = "BufReadPre",
+        event   = "BufReadPost",
         init    = function() vim.o.signcolumn = "yes:1" end,
         keys    = { { "<leader>g", function() require("mini.diff").toggle_overlay() end } },
         opts    = {
@@ -13,6 +12,8 @@ return {
                         signs    = {
                                 add    = "▐",
                                 change = "🮍",
+                                -- add    = "▌",
+                                -- change = "🮌",
                                 delete = "🭻",
                         },
                 },
@@ -21,16 +22,16 @@ return {
         config  = function(_, opts)
                 require("mini.diff").setup(opts)
 
-                _G.hlLink({
-                                  { "SignAdd",        "DiffChanged" },
-                                  { "SignChange",     "DiffChanged" },
-                                  { "SignDelete",     "DiffRemoved" },
-                                  { "OverAdd",        "DiffAdd" },
-                                  { "OverChange",     "DiffChange" },
-                                  { "OverDelete",     "DiffDelete" },
-                                  { "OverContext",    "DiffText" },
-                                  { "OverChangeBuf",  "DiffText" },
-                                  { "OverContextBuf", "DiffText" },
-                          }, "MiniDiff")
+                _G.linq
+                "MiniDiff"
+                           { "SignAdd", "DiffChanged" }
+                           { "SignChange", "DiffChanged" }
+                           { "SignDelete", "DiffRemoved" }
+                           { "OverAdd", "DiffAdd" }
+                           { "OverChange", "DiffChange" }
+                           { "OverDelete", "DiffDelete" }
+                           { "OverContext", "DiffText" }
+                           { "OverChangeBuf", "DiffText" }
+                           { "OverContextBuf", "DiffText" }
         end,
 }

@@ -1,2 +1,8 @@
-vim.cmd.source(vim.fn.stdpath("config") .. "/after/ftplugin/json.lua")
-vim.bo.commentstring = "// %s"
+local bo  = vim.bo
+local fn  = vim.fn
+local cmd = vim.cmd
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+cmd.source(fn.stdpath("config") .. "/after/ftplugin/json.lua")
+bo.commentstring = "// %s"

@@ -23,8 +23,8 @@ return {
         lazy     = false,
         priority = 1000,
         keys     = {
-                -- { "<A-b>",      function() Snacks.bufdelete() end,          desc = "Delete Buffer" },
-                { "<A-b>",      "<cmd>b #<CR>",                             desc = "Swap buffer" },
+                -- { "<M-b>",      function() Snacks.bufdelete() end,          desc = "Delete Buffer" },
+                { "<M-b>",      "<cmd>b #<CR>",                             desc = "Swap buffer" },
                 { "<leader>fr", function() Snacks.rename.rename_file() end, desc = "Rename File" },
                 { "<leader>lg", function() Snacks.lazygit() end,            desc = "Lazygit" },
         },

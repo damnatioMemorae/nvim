@@ -1,3 +1,38 @@
+_G.linq
+"Mason"
+           { "Error", "DiagnosticError" }
+           { "Muted", "Comment" }
+           { "Highlight", "DiagnosticError" }
+           { "HighlightSecondary", "Structure" }
+           { "Backdrop", "Backdrop" }
+           { "MutedBlock", "LspInlayHint" }
+           { "HighlightBlock", "CurSearch" }
+           { "HighlightBlockSecondary", "Search" }
+           { "Heading", "Directory" }
+           { "Doc", "Comment" }
+           { "Pod", "Comment" }
+           { "Header", "Border" }
+           { "MutedBlockBold", "LspInlayHint" }
+           { "HeaderSecondary", "Search" }
+           { "HighlightBlockBold", "CurSearch" }
+           { "Warning", "DiagnosticWarn" }
+           { "Link", "Special" }
+           { "HighlightBlockBoldSecondary", "Search" }
+           { "Normal", "Normal" }
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+local g   = vim.g
+local api = vim.api
+local env = vim.env
+local cmd = vim.cmd
+local log = vim.log
+local lsp = vim.lsp
+
+local autocmd = api.nvim_create_autocmd
+local icons   = Icon.Misc
+local levels  = log.levels
+
 local ensure_installed = {
         ---- ASM ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -16,7 +51,6 @@ local ensure_installed = {
 
         ---- WEB ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        -- "tsgo",
         "vtsls",
         "css-lsp",
         "html-lsp",
@@ -24,57 +58,36 @@ local ensure_installed = {
         "superhtml",
         "emmet-language-server",
         "css-variables-language-server",
-        -- "typescript-language-server",
-        -- "phpactor",
         "intelephense",
         "prettier",
         "prettierd",
 
+        ---- ODIN --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+        "ols",
+
         ---- GO ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
         "gopls",
-        -- "templ",
-        -- "golangci-lint-langserver",
-        -- "delve",
-        -- "go-debug-adapter",
 
         ---- LUA ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
         "lua-language-server",
-        -- "luaformatter",
-        -- "emmylua_ls",
-        -- "emmylua-codeformat",
         "local-lua-debugger-vscode",
-
-        ---- PYTHON ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-        -- "ty",
-        -- "ruff",
+        "vim-language-server",
+        "vimt",
 
         ---- HASKELL -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
         "haskell-language-server",
-        -- "haskell-debug-adapter",
         "fourmolu",
         "hlint",
 
         ---- OTHER -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        -- "rust-analyzer",
-        -- "omnisharp",
-        -- "markdown-oxide",
-        -- "ts_query_ls",
-        -- "qmlls",
-        -- "ltex-ls-plus",
-        -- "systemd-lsp",
-        -- "just-lsp",
-        -- "kakehashi",
         "tree-sitter-cli",
         "yaml-language-server",
-        -- "gh-actions-language-server",
 }
-
-local icons = Icon.Misc
 
 ---@param msg string
 ---@param level "info"|"warn"|"error"|"debug"|"trace"
@@ -83,7 +96,7 @@ local function notify(msg, level, opts)
         if not opts then opts = {} end
         opts.title = "Mason"
         opts.icon  = ""
-        vim.notify(msg, vim.log.levels[level:upper()], opts)
+        vim.notify(msg, levels[level:upper()], opts)
 end
 
 local function enableLsps()
@@ -94,7 +107,7 @@ local function enableLsps()
                            table.insert(acc, pack.spec.neovim and pack.spec.neovim.lspconfig)
                            return acc
                    end)
-        vim.lsp.enable(lsp_config_names)
+        lsp.enable(lsp_config_names)
 end
 
 ---@param pack { name: string, install: function }
@@ -128,7 +141,7 @@ local function syncPackages()
                            :each(function(packName)
                                    if not mason_reg.has_package(packName) then
                                            local msg = ("No package [%s] available."):format(packName)
-                                           vim.notify(msg, vim.log.levels.WARN, { title = "mason" })
+                                           vim.notify(msg, levels.WARN, { title = "mason" })
                                            return
                                    end
                                    local pack = mason_reg.get_package(packName)
@@ -160,14 +173,14 @@ end
 return {
         "mason-org/mason.nvim",
         event  = "BufReadPre",
-        keys   = { { "<leader>m", vim.cmd.Mason, desc = " Mason Home" } },
+        keys   = { { "<leader>m", cmd.Mason, desc = " Mason Home" } },
         opts   = {
                 registries = { "github:mason-org/mason-registry" },
                 ui         = {
                         border   = Border.Default.None,
                         height   = 0.9,
                         width    = 0.8,
-                        backdrop = vim.g.backdrop,
+                        backdrop = g.backdrop,
                         icons    = {
                                 package_installed   = icons.package_installed,
                                 package_pending     = icons.package_pending,
@@ -182,32 +195,12 @@ return {
                 },
         },
         config = function(_, opts)
-                vim.env.npm_config_cache = vim.env.HOME .. "/.cache/npm"
+                env.npm_config_cache = env.HOME .. "/.cache/npm"
                 require("mason").setup(opts)
                 enableLsps()
-                vim.defer_fn(syncPackages, 2000)
-
-                _G.hlLink({
-                                  { "Error",                       "DiagnosticError" },
-                                  { "Muted",                       "Comment" },
-                                  { "Highlight",                   "Special" },
-                                  { "HighlightSecondary",          "Structure" },
-                                  { "Backdrop",                    "Backdrop" },
-                                  { "MutedBlock",                  "LspInlayHint" },
-                                  { "HighlightBlock",              "CurSearch" },
-                                  { "HighlightBlockSecondary",     "Search" },
-                                  { "Heading",                     "FloatTitle" },
-                                  { "Doc",                         "Comment" },
-                                  { "Pod",                         "Comment" },
-                                  { "Header",                      "Title" },
-                                  { "MutedBlockBold",              "LspInlayHint" },
-                                  { "HeaderSecondary",             "Search" },
-                                  { "HighlightBlockBold",          "CurSearch" },
-                                  { "Warning",                     "DiagnosticWarn" },
-                                  { "Link",                        "Special" },
-                                  { "HighlightBlockBoldSecondary", "Search" },
-                                  { "Normal",                      "Normal" },
-                          }, "Mason")
-                -- vim.lsp.enable("hover-ls")
+                autocmd("UIEnter", {
+                        desc     = "User: Sync mason packages",
+                        callback = function(_ctx) vim.defer_fn(syncPackages, 1000) end,
+                })
         end,
 }

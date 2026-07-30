@@ -1,14 +1,27 @@
+local g   = vim.g
+local o   = vim.o
+local fn  = vim.fn
+local cmd = vim.cmd
+local api = vim.api
+
+local function h(name)
+        return function(opts)
+                api.nvim_set_hl(0, name, opts)
+        end
+end
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 local M = {}
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-vim.cmd("highlight clear")
+cmd("highlight clear")
 
-if vim.fn.exists("syntax_on") then
-        vim.cmd("syntax reset")
+if fn.exists("syntax_on") then
+        cmd("syntax reset")
 end
 
-vim.o.termguicolors = true
-vim.g.colors_name   = "darkppuccin"
+o.termguicolors = true
+g.colors_name   = "darkppuccin"
 
 M.colors = {
         ivory     = "#dce0e8",
@@ -41,6 +54,7 @@ M.colors = {
         mantle1   = "#14141f",
         crust1    = "#11111b",
         crust0    = "#0e0e16",
+        -- crust0    = "#0e0d0d",
 
         -- green_transparent  = "#1d2324",
         -- yellow_transparent = "#262325",
@@ -59,381 +73,527 @@ M.colors = {
 
 local colors = M.colors
 
-vim.g.terminal_color_0          = colors.crust0
-vim.g.terminal_color_1          = colors.red
-vim.g.terminal_color_2          = colors.green
-vim.g.terminal_color_3          = colors.yellow
-vim.g.terminal_color_4          = colors.lavender
-vim.g.terminal_color_5          = colors.pink
-vim.g.terminal_color_6          = colors.sky
-vim.g.terminal_color_7          = colors.text
-vim.g.terminal_color_8          = colors.base
-vim.g.terminal_color_9          = colors.maroon
-vim.g.terminal_color_10         = colors.green
-vim.g.terminal_color_11         = colors.peach
-vim.g.terminal_color_12         = colors.sapphire
-vim.g.terminal_color_13         = colors.mauve
-vim.g.terminal_color_14         = colors.teal
-vim.g.terminal_color_15         = colors.subtext0
-vim.g.terminal_color_background = colors.crust0
-vim.g.terminal_color_foreground = colors.text
+g.terminal_color_0          = colors.crust0
+g.terminal_color_1          = colors.red
+g.terminal_color_2          = colors.green
+g.terminal_color_3          = colors.yellow
+g.terminal_color_4          = colors.lavender
+g.terminal_color_5          = colors.pink
+g.terminal_color_6          = colors.sky
+g.terminal_color_7          = colors.text
+g.terminal_color_8          = colors.base
+g.terminal_color_9          = colors.maroon
+g.terminal_color_10         = colors.green
+g.terminal_color_11         = colors.peach
+g.terminal_color_12         = colors.sapphire
+g.terminal_color_13         = colors.mauve
+g.terminal_color_14         = colors.teal
+g.terminal_color_15         = colors.subtext0
+g.terminal_color_background = colors.crust0
+g.terminal_color_foreground = colors.text
 
----@type table<string, vim.api.keyset.highlight>
-local groups = {
+---- COMMENTS ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+h "@comment.todo" { fg = colors.crust0, bg = colors.rosewater, italic = true, bold = true } -- TODO:
+h "@comment.note" { fg = colors.crust0, bg = colors.blue, italic = true, bold = true }      -- NOTE: XXX:
+h "@comment.hint" { fg = colors.crust0, bg = colors.sky, italic = true, bold = true }       -- HINT: WIP:
+h "@comment.warning" { fg = colors.crust0, bg = colors.yellow, italic = true, bold = true } -- WARNING:
+h "@comment.error" { fg = colors.crust0, bg = colors.red, italic = true, bold = true }      -- FIXME:
+h "@comment.code" { fg = colors.teal, bg = colors.base, italic = false, bold = false }       -- `code`
+h "@comment.url" { link = "@markup.link.url" }                                              -- https://google.com
+h "@comment.bold" { fg = colors.surface2, bold = true }                                     -- BOLD
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        ---- BLEND -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---- DIANGOSTICS ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+h "DiagnosticError" { fg = colors.red }
+h "DiagnosticWarn" { fg = colors.yellow }
+h "DiagnosticInfo" { fg = colors.sky }
+h "DiagnosticHint" { fg = colors.teal }
+h "DiagnosticOk" { fg = colors.green }
 
-        WinBlend = { bg = "#000000" },
-        Backdrop = { bg = "#000000" },
+h "DiagnosticUnderlineError" { bg = colors.base }
+h "DiagnosticUnderlineWarn" { bg = colors.base }
+h "DiagnosticUnderlineInfo" { bg = colors.base }
+h "DiagnosticUnderlineHint" { bg = colors.base }
+h "DiagnosticUnderlineOk" { bg = colors.base }
 
-        ---- TITLES ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+h "DiagnosticVirtualTextError" { fg = colors.red, bg = colors.red_transparent }
+h "DiagnosticVirtualTextWarn" { fg = colors.yellow, bg = colors.yellow_transparent }
+h "DiagnosticVirtualTextInfo" { fg = colors.sky, bg = colors.sky_transparent }
+h "DiagnosticVirtualTextHint" { fg = colors.teal, bg = colors.teal_transparent }
+h "DiagnosticVirtualTextOk" { fg = colors.green, bg = colors.green_transparent }
 
-        Title      = { fg = colors.teal },
-        FloatTitle = { fg = colors.teal, bg = "NONE" },
+h "SymbolDef" { fg = colors.spark, bg = colors.crust0 }
+h "SymbolRef" { fg = colors.red, bg = colors.crust0 }
+h "SymbolImp" { fg = colors.teal, bg = colors.crust0 }
 
-        ---- SEARCH ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+h "DiagnosticUnnecessary" { link = "Comment" }
+h "DiagnosticDeprecated" { strikethrough = true }
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        Search    = { fg = colors.crust0, bg = colors.spark },
-        CurSearch = { fg = colors.teal, bg = colors.base },
-        IncSearch = { fg = colors.teal, bg = colors.base },
+_G.hi
+"DiagnosticError"
+           "DiagnosticVirtualLinesError"
+           "DiagnosticFloatingError"
+           "DiagnosticSignError"
+           "DiffDelete"
+           "DiffRemoved"
+           "SpellBad"
 
-        ---- UI ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+_G.hi
+"DiagnosticWarn"
+           "DiagnosticVirtualLinesWarn"
+           "DiagnosticFloatingWarn"
+           "DiagnosticSignWarn"
+           "DiffChange"
+           "DiffChanged"
+           "SpellCap"
+           "WarningMsg"
 
-        CursorLine   = { fg = "none", bg = "none" },
-        Visual       = { bg = "none", bold = true },
-        VisualNOS    = { bg = "none", bold = true },
-        WinBar       = { link = "Normal" },
-        WinBarNC     = { link = "Winbar" },
-        StatusLine   = { link = "Normal" },
-        StatusLineNC = { link = "Normal", underline = true },
-        Label        = { fg = colors.sky },
+_G.hi
+"DiagnosticInfo"
+           "DiagnosticVirtualLinesInfo"
+           "DiagnosticFloatingInfo"
+           "DiagnosticSignInfo"
+           "SpellRare"
 
-        ---- COLUMN ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+_G.hi
+"DiagnosticHint"
+           "DiagnosticVirtualLinesHint"
+           "DiagnosticFloatingHint"
+           "DiagnosticSignHint"
+           "DiffText"
 
-        LineNr           = { link = "NonText" },
-        CursorLineNr     = { fg = colors.ivory },
-        ActiveLineNumber = { link = "CursorLineNr" },
-        Folded           = { fg = "NONE", bg = "NONE" },
-        FoldText         = { fg = colors.surface2, bg = colors.base },
-        FoldNumber       = { link = "FoldText" },
-        FoldColumn       = { link = "NonText" },
-        SignColumn       = { link = "NonText" },
+_G.hi
+"DiagnosticOk"
+           "DiagnosticVirtualLinesOk"
+           "DiagnosticFloatingOk"
+           "DiagnosticSignOk"
+           "DiffAdd"
+           "DiffAdded"
+           "OkMsg"
+           "ModeMsg"
+           "SpellLocal"
 
-        ---- MENU --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+_G.hi
+"DiagnosticDeprecated"
+           "LspAbbrDeprecated"
 
-        Pmenu       = { bg = colors.crust1 },
-        PmenuDoc    = { bg = colors.base },
-        PmenuSel    = { bg = colors.mantle1, bold = true },
-        PmenuSbar   = { bg = colors.mantle1 },
-        PmenuThumb  = { bg = colors.surface0 },
-        PmenuBorder = { link = "borderStyle" },
+---- SEARCH --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+h "Search" { bg = colors.yellow_transparent }
+h "CurSearch" { fg = colors.yellow, reverse = true }
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        ---- EDITOR ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+_G.hi --> colors.yellow,
+"CurSearch"
+           "IncSearch"
+           "Substitute"
 
-        Normal         = { bg = colors.crust0 },
-        NormalFloat    = { bg = colors.crust1 },
-        NormalNC       = { link = "Normal" },
-        WinSeparator   = { link = "NonText" },
-        VertSplit      = { link = "WinSeparator" },
-        Error          = { link = "DiagnosticError" },
-        Question       = { fg = colors.teal },
-        SpecialKey     = { link = "NonText" },
-        Special        = { fg = colors.pink },
-        SpecialComment = { link = "Special" },
-        NonText        = { fg = colors.surface0 },
+---- GENERAL -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+h "Normal" { bg = colors.crust0 }
+h "NormalFloat" { bg = colors.mantle1 }
+h "NonText" { fg = colors.surface0 }
+h "Underlined" { underline = true }
+h "Dimmed" { dim = true }
+h "Todo" { bg = colors.rosewater, bold = true }
+h "Directory" { fg = colors.ivory }
+h "Visual" { bg = colors.surface0 }
+h "CursorLine" { fg = "NONE", bg = "NONE" }
+h "CursorLineNr" { fg = colors.ivory }
+h "Border" { fg = colors.crust0, bg = colors.crust0 }
+-- h "FloatBorder" { fg = colors.crust1, bg = colors.crust1 }
+h "Backdrop" { bg = "#000000" }
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        ---- SPELL -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+_G.hi --> Special
+"Title"
+           "FloatTitle"
+           "FloatFooter"
 
-        SpellBad   = { sp = colors.red, underline = true },
-        SpellCap   = { sp = colors.yellow, underline = true },
-        SpellLocal = { sp = colors.blue, underline = true },
-        SpellRare  = { sp = colors.green, underline = true },
+_G.hi --> Special
+"NormalFloat"
+           "FloatBorder"
 
-        TSDefinitionUsage  = { link = "LspReferenceText" },
-        WildMenu           = { bg = colors.mantle1 },
-        markdownBlockquote = { bg = "none" },
-        QuickFixLine       = { link = "Visual" },
+_G.hi --> NONE
+"CursorLine"
+           "Folded"
 
-        ---- DIFF --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+_G.hi --> colors.surface2 colors.mantle0
+"LspCodeLens"
+           "FoldText"
 
-        Added       = { fg = colors.green },
-        Changed     = { fg = colors.yellow },
-        Removed     = { fg = colors.red },
-        DiffAdded   = { fg = colors.green },
-        DiffChanged = { fg = colors.yellow },
-        DiffRemoved = { fg = colors.red },
-        DiffAdd     = { fg = colors.green },
-        DiffChange  = { fg = colors.yellow },
-        DiffDelete  = { fg = colors.red },
-        DiffText    = { fg = colors.teal, bg = colors.teal_transparent },
+_G.hi --> colors.crust0
+"Normal"
+           "NormalNC"
+           "Ignore"
+           "StdoutMsg"
+           "WinBar"
+           "StatusLine"
 
-        ---- MSG ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+_G.hi --> colors.surface1
+"NonText"
+           "LineNr"
+           "SignColumn"
+           "ComplHint"
+           "Whitespace"
+           "WinSeparator"
+           "EndOfBuffer"
 
-        OkMsg      = { link = "DiagnosticOk" },
-        WarningMsg = { link = "DiagnosticWarn" },
-        ErrorMsg   = { link = "DiagnosticError" },
-        StderrMsg  = { link = "ErrorMsg" },
-        StdoutMsg  = { link = "Normal" },
-        MoreMsg    = { link = "Comment" },
-        MsgArea    = { link = "NormalFloat" },
+_G.hi --> colors.surface0
+"Visual"
+           "ColorColumn"
+           "CursorColumn"
+           "LspReferenceText"
+           "QuickFixLine"
+           "SnippetTabstop"
+           "SnippetTabstopActive"
+           "VisualNOS"
+           "PmenuSel"
+           "PmenuThumb"
+           "MatchParen"
 
-        ---- LSP ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+_G.hi --> Normal
+"StatusLine"
+           "StatusLineTerm"
+           "MsgSeparator"
+           "StatusLineNC"
 
-        LspInlayHint                = { fg = colors.surface2, bg = colors.mantle0 },
-        LspCodeLens                 = { link = "LspInlayHint" },
-        LspReferenceText            = { link = "Visual" },
-        LspReferenceRead            = { link = "Visual" },
-        LspReferenceWrite           = { bg = colors.surface0 },
-        LspReferenceTarget          = { link = "LspReferenceWrite" },
-        SnippetTabstop              = { fg = colors.surface1, bg = colors.base },
-        SnippetTabstopActive        = { bg = colors.surface0 },
-        LspSignatureActiveParameter = { link = "LspReferenceWrite" },
-        LspCodeAction               = { fg = colors.spark },
+_G.hi --> StatusLine
+"WinSeparator"
+           "VertSplit"
 
-        ---- DIAGNOSTIC --------------------------------------------------------------------------------------------------------------------------------------------------------------------
+_G.hi --> StatusLine
+"StatusLineNC"
+           "TabLine"
+           "StatusLineTermNC"
 
-        DiagnosticVirtualTextError = { fg = colors.red, bg = colors.red_transparent },
-        DiagnosticVirtualTextWarn  = { fg = colors.yellow, bg = colors.yellow_transparent },
-        DiagnosticVirtualTextInfo  = { fg = colors.sky, bg = colors.sky_transparent },
-        DiagnosticVirtualTextHint  = { fg = colors.teal, bg = colors.teal_transparent },
+_G.hi --> Normal
+"WinBar"
+           "WinBarNC"
 
-        -- DiagnosticVirtualTextError = { fg = colors.red, bg = colors.base },
-        -- DiagnosticVirtualTextWarn  = { fg = colors.yellow, bg = colors.base },
-        -- DiagnosticVirtualTextInfo  = { fg = colors.sky, bg = colors.base },
-        -- DiagnosticVirtualTextHint  = { fg = colors.teal, bg = colors.base },
+_G.hi --> NonText
+"SignColumn"
+           "CursorLineSign"
 
-        DiagnosticUnderlineError = { bg = colors.base },
-        DiagnosticUnderlineWarn  = { bg = colors.base },
-        DiagnosticUnderlineInfo  = { bg = colors.base },
-        DiagnosticUnderlineHint  = { bg = colors.base },
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+h "LspCodeLens" { fg = colors.surface2, bg = colors.base }
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        DiagnosticError = { fg = colors.red },
-        DiagnosticWarn  = { fg = colors.yellow },
-        DiagnosticInfo  = { fg = colors.sky },
-        DiagnosticHint  = { fg = colors.teal },
+_G.hi --> colors.surface2 colors.mantle0
+"LspCodeLens"
+           "LspInlayHint"
 
-        ---- BORDERS -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+_G.hi --> Visual
+"LspReferenceText"
+           "LspReferenceRead"
+           "LspReferenceTarget"
+           "LspReferenceWrite"
+           "LspSignatureActiveParameter"
 
-        Border            = { fg = colors.crust0, bg = colors.crust0 },
-        FloatBorder       = { fg = colors.crust1, bg = colors.crust1 },
-        borderStyle       = { fg = colors.crust0, bg = colors.crust0 },
-        borderTop         = { fg = colors.crust0, bg = colors.crust0 },
-        borderBottom      = { fg = colors.crust0, bg = colors.crust0 },
-        borderLeft        = { fg = colors.crust0, bg = colors.crust0 },
-        borderRight       = { fg = colors.crust0, bg = colors.crust0 },
-        borderTopEmpty    = { fg = colors.crust0, bg = colors.crust0 },
-        borderBottomEmpty = { fg = colors.crust0, bg = colors.crust0 },
-        borderLeftEmpty   = { fg = colors.crust0, bg = colors.crust0 },
-        borderRightEmpty  = { fg = colors.crust0, bg = colors.crust0 },
-        borderStyleNone   = { fg = colors.crust0, bg = colors.crust0 },
+---- PMENU ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+h "Pmenu" { bg = colors.mantle1 }
+h "PmenuDoc" { bg = colors.base }
+h "PmenuMatch" { bold = true }
+h "FloatShadow" { bg = colors.surface1, blend = 80 }
+h "FloatShadowThrough" { bg = colors.surface1, blend = 100 }
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        ---- SYNTAX ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+_G.hi --> colors.crust1
+"Pmenu"
+           "PmenuBorder"
+           "PmenuExtra"
+           "PmenuKind"
+           "PmenuSbar"
 
-        MatchParen   = { fg = colors.ivory, bg = colors.crust0, bold = true, reverse = true },
-        Conceal      = { link = "Folded" },
-        Comment      = { fg = colors.surface2 },
-        Directory    = { fg = colors.ivory },
-        Delimiter    = { link = "Comment" },
-        Conditional  = { fg = colors.sapphire, italic = true },
-        Repeat       = { link = "Conditional" },
-        Operator     = { fg = colors.sapphire },
-        PreProc      = { fg = colors.pink },
-        Define       = { link = "PreProc" },
-        Include      = { link = "PreProc" },
-        PreCondit    = { link = "PreProc" },
-        Function     = { fg = colors.ivory },
-        String       = { fg = colors.green },
-        Character    = { link = "String" },
-        Identifier   = { fg = colors.lavender },
-        Keyword      = { fg = colors.yellow, italic = true },
-        Exception    = { fg = colors.yellow },
-        Constant     = { fg = colors.peach },
-        Boolean      = { link = "Constant" },
-        Number       = { link = "Constant" },
-        Macro        = { link = "Constant" },
-        Statement    = { fg = colors.red },
-        Structure    = { fg = colors.teal },
-        StorageClass = { link = "Structure" },
-        Type         = { fg = colors.mauve },
-        TypeDef      = { link = "Type" },
+_G.hi --> Visual
+"PmenuSel"
+           "PmenuKindSel"
+           "PmenuExtraSel"
 
-        ---- SEMANTIC TOKENS ---------------------------------------------------------------------------------------------------------------------------------------------------------------
+_G.hi --> bold
+"PmenuMatch"
+           "PmenuMatchSel"
 
-        --[=[
-        ["@lsp.type.keyword"]    = { link = "Keyword" },
-        ["@lsp.type.class"]      = { link = "Structure" },
-        ["@lsp.type.decorator"]  = { link = "Constant" },
-        ["@lsp.type.enum"]       = { link = "Constant" },
-        ["@lsp.type.enumMember"] = { link = "Constant" },
-        ["@lsp.type.macro"]      = { link = "Macro" },
-        ["@lsp.type.interface"]  = { link = "Structure" },
-        ["@lsp.type.function"]   = { link = "Function" },
-        ["@lsp.type.method"]     = { link = "Function" },
-        ["@lsp.type.namespace"]  = { link = "Include" },
-        ["@lsp.type.parameter"]  = { link = "@typeParameter" },
-        ["@lsp.type.property"]   = { link = "Identifier" },
-        ["@lsp.type.struct"]     = { link = "Structure" },
-        ["@lsp.type.comment"]    = { link = "Comment" },
-        ["@lsp.type.type"]       = { link = "Comment" },
-        ["@lsp.type.variable"]   = { link = "@variable" },
-        --]=]
+_G.hi --> Pmenu
+"PmenuSbar"
+           "PmenuThumb"
 
-        ---- TREESITTER ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+_G.hi --> Pmenu
+"FloatShadow"
+           "PmenuShadow"
 
-        ["@comment.todo"]    = { fg = colors.crust0, bg = colors.rosewater, italic = false, bold = true }, -- TODO:
-        ["@comment.note"]    = { fg = colors.crust0, bg = colors.blue, italic = false, bold = true },      -- NOTE: XXX:
-        ["@comment.hint"]    = { fg = colors.crust0, bg = colors.sky, italic = false, bold = true },       -- HINT: WIP:
-        ["@comment.warning"] = { fg = colors.crust0, bg = colors.yellow, italic = false, bold = true },    -- WARNING:
-        ["@comment.error"]   = { fg = colors.crust0, bg = colors.red, italic = false, bold = true },       -- FIXME:
-        ["@comment.code"]    = { fg = colors.teal, bg = colors.base, italic = false, bold = false },       -- `code`
-        ["@comment.url"]     = { link = "@markup.link.url" },                                              -- https://google.com
-        ["@comment.bold"]    = { fg = colors.surface2, bold = true },                                      -- BOLD
+_G.hi --> Pmenu
+"FloatShadowThrough"
+           "PmenuShadowThrough"
 
-        ["@punctuation.bracket"]   = { link = "Comment" },
-        ["@punctuation.delimiter"] = { link = "Comment" },
+---- SYNTAX --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+h "Conditional" { fg = colors.sapphire, italic = true }
+h "Identifier" { fg = colors.lavender }
+h "Delimiter" { fg = colors.surface2 }
+h "Operator" { fg = colors.sapphire }
+h "Comment" { fg = colors.surface2 }
+h "Function" { fg = colors.ivory }
+h "Constant" { fg = colors.peach }
+h "Keyword" { fg = colors.yellow, italic = true }
+h "Special" { fg = colors.pink }
+h "PreProc" { fg = colors.pink }
+h "String" { fg = colors.green }
+h "Type" { fg = colors.mauve }
+h "Conceal" { fg = "NONE", bg = "NONE" }
+h "Statement" { fg = colors.red }
+h "Error" { fg = colors.red }
+h "Label" { fg = colors.red }
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        ["@module"]     = { link = "Include" },
-        ["@class"]      = { link = "Structure" },
-        ["@decorator"]  = { link = "Constant" },
-        ["@enum"]       = { link = "Constant" },
-        ["@enumMember"] = { link = "Constant" },
-        ["@event"]      = { link = "keyword" },
-        ["@modifier"]   = { link = "Type" },
-        -- ["@typeParameter"] = { fg = colors.maroon },
-        ["@namespace"]  = { link = "Function" },
-        ["@method"]     = { link = "Function" },
-        ["@attribute"]  = { fg = colors.teal },
-        ["@label"]      = { link = "Label" },
-        ["@error"]      = { link = "Error" },
+_G.hi --> colors.sapphire
+"Conditional"
+           "Repeat"
+           "@conditional"
+           "@keyword.conditional"
+           "@keyword.repeat"
 
-        ["@type"]           = { link = "Type" },
-        ["@type.builtin"]   = { link = "Type" },
-        ["@type.qualifier"] = { link = "Type" },
+_G.hi --> colors.lavender
+"Identifier"
+           "NvimIdentifier"
+           "@property"
 
-        ["@tag"]           = { fg = colors.red },
-        ["@tag.delimiter"] = { fg = colors.sky },
-        ["@tag.attribute"] = { fg = colors.teal },
+_G.hi --> colors.sapphire
+"Operator"
+           "NvimAssignment"
+           "NvimOperator"
+           "@operator"
+           "@keyword.operator"
+           "@lsp.type.operator"
 
-        ["@constant"]         = { link = "Constant" },
-        ["@constant.builtin"] = { link = "Constant" },
-        ["@constant.macro"]   = { link = "Constant" },
+_G.hi --> colors.surface2
+"Delimiter"
+           "NvimParenthesis"
+           "NvimColon"
+           "NvimComma"
+           "NvimArrow"
+           "@constructor"
+           "@punctuation"
 
-        ["@boolean"]      = { link = "Boolean" },
-        ["@number"]       = { link = "Number" },
-        ["@number.float"] = { link = "Number" },
+_G.hi --> colors.surface2
+"Comment"
+           "MoreMsg"
+           "@comment"
+           "@lsp.type.comment"
 
-        ["aboba"]     = { fg = colors.flamingo },
-        ["@keyword"]  = { link = "Keyword" },
-        ["@operator"] = { link = "Operator" },
+_G.hi --> colors.yellow
+"Keyword"
+           "@keyword"
+           "@lsp.type.keyword"
 
-        ["@variable"]           = { fg = colors.red },
-        ["@variable.builtin"]   = { link = "Constant" },
-        ["@variable.parameter"] = { fg = colors.red },
-        ["@variable.member"]    = { fg = colors.ivory },
+_G.hi --> colors.mauve
+"Type"
+           "Typedef"
+           "Structure"
+           "StorageClass"
+           "NvimNumberPrefix"
+           "NvimOptionSigil"
+           "@type"
 
-        ["@function"]             = { link = "Function" },
-        ["@function.macro"]       = { link = "Function" },
-        ["@function.method"]      = { link = "Function" },
-        ["@function.builtin"]     = { link = "Constant" },
-        ["@function.method.call"] = { link = "Function" },
+_G.hi --> colors.ivory
+"Function"
+           "@function"
+           "@keyword.function"
+           "@variable.member"
+           "@namespace"
+           "@lsp.type.namespace"
 
-        ["@markup"]           = { link = "Special" },
-        ["@markup.link.url"]  = { link = "Special" },
-        ["@markup.list"]      = { link = "Special" },
-        ["@markup.strong"]    = { bold = true },
-        ["@markup.underline"] = { link = "Special" },
-        ["@markup.raw"]       = { fg = colors.teal, bg = colors.mantle1 },
+_G.hi --> colors.peach
+"Constant"
+           "Number"
+           "Boolean"
+           "@constant"
+           "@boolean"
+           "@number"
 
-        ["@markup.heading.1.markdown"] = { fg = colors.ivory, bg = colors.base, bold = false },
-        ["@markup.heading.2.markdown"] = { fg = colors.subtext1, bg = colors.base, bold = false },
-        ["@markup.heading.3.markdown"] = { fg = colors.overlay2, bg = colors.base, bold = false },
-        ["@markup.heading.4.markdown"] = { fg = colors.overlay1, bg = colors.base, bold = false },
-        ["@markup.heading.5.markdown"] = { fg = colors.overlay0, bg = colors.base, bold = false },
-        ["@markup.heading.6.markdown"] = { fg = colors.surface2, bg = colors.base, bold = false },
+_G.hi --> colors.green
+"String"
+           "NvimString"
+           "@string"
 
-        ["@conceal.heading.1"] = { link = "@markup.heading.1.markdown" },
-        ["@conceal.heading.2"] = { link = "@markup.heading.2.markdown" },
-        ["@conceal.heading.3"] = { link = "@markup.heading.3.markdown" },
-        ["@conceal.heading.4"] = { link = "@markup.heading.4.markdown" },
-        ["@conceal.heading.5"] = { link = "@markup.heading.5.markdown" },
-        ["@conceal.heading.6"] = { link = "@markup.heading.6.markdown" },
+_G.hi --> colors.pink
+"Special"
+           "Title"
+           "Character"
+           "SpecialKey"
+           "Tag"
+           "SpecialComment"
+           "SpecialChar"
+           "Debug"
+           "@tag"
+           "@attribute"
+           "@punctuation.special"
+           "@variable.builtin"
+           "@module.builtin"
 
-        ["@conceal.unchecked"] = { link = "DiagnosticError" },
-        ["@conceal.checked"]   = { link = "DiagnosticOk" },
+_G.hi --> colors.pink
+"PreProc"
+           "Include"
+           "Define"
+           "Macro"
+           "PreCondit"
+           "@keyword.include"
+           "@lsp.type.macro"
 
-        ["@markup.link.label.markdown_inline"] = { fg = colors.spark, underline = true },
-        ["@markup.italic.markdown_inline"]     = { underline = true },
-        ["@conceal.list"]                      = { fg = colors.teal, bg = colors.base },
+_G.hi --> colors.red
+"Error"
+           "NvimInvalid"
+           "NvimInternalError"
+           "ErrorMsg"
+           "@error"
 
-        -- ["@neorg.headings.1.title.norg"] = { link = "Function" },
-        -- ["@neorg.headings.2.title.norg"] = { link = "Comment" },
-        -- ["@neorg.headings.3.title.norg"] = { link = "DiagnosticVirtualTextError" },
-        -- ["@neorg.headings.4.title.norg"] = { link = "DiagnosticVirtualTextError" },
-        -- ["@neorg.headings.5.title.norg"] = { link = "DiagnosticVirtualTextError" },
+_G.hi --> colors.red
+"Label"
+           "@variable"
+           "@variable.parameter"
+           "@variable.parameter.builtin"
+           "@lsp.type.variable"
+           "@lsp.type.parameter"
 
-        ["@keyword.return"]      = { link = "Statement" },
-        ["@keyword.repeat"]      = { link = "Conditional" },
-        ["@keyword.include"]     = { link = "Include" },
-        ["@keyword.function"]    = { link = "Function" },
-        ["@keyword.operator"]    = { link = "Operator" },
-        ["@keyword.exception"]   = { link = "Exception" },
-        ["@keyword.conditional"] = { link = "Conditional" },
+_G.hi --> colors.red
+"Statement"
+           "Exception"
+           "@keyword.return"
+           "@keyword.exception"
 
-        ["@field"]       = { link = "Identifier" },
-        ["@property"]    = { link = "Identifier" },
-        ["@annotation"]  = { link = "Keyword" },
-        ["@conditional"] = { link = "Conditional" },
-        ["@constructor"] = { link = "Operator" },
-        ["@struct"]      = { link = "Structure" },
-        ["@structure"]   = { link = "Structure" },
-        ["@interface"]   = { link = "Structure" },
+_G.hi --> Type
+"Structure"
+           "@struct"
+           "@structure"
+           "@module"
+           "@lsp.type.struct"
 
-        ["@regexp"]                     = { fg = colors.peach },
-        ["@string"]                     = { link = "String" },
-        ["@character"]                  = { link = "Character" },
-        ["@string.regexp"]              = { link = "@refexp" },
-        ["@string.escape"]              = { fg = colors.pink },
-        ["@string.special"]             = { link = "@string.escape" },
-        ["@string.special.symbol"]      = { link = "@string.escape" },
-        ["@string.special.url"]         = { link = "@string.escape" },
-        ["@string.special.url.html"]    = { link = "@string.escape" },
-        ["@string.special.url.comment"] = { link = "@string.escape" },
+_G.hi --> Special
+"SpecialChar"
+           "NvimRegister"
+           "NvimRegister"
+           "luaSpecial"
+           "@string.special"
 
-        ---- LSP KINDS ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        LspKindClass         = { link = "@class" },
-        LspKindColor         = { link = "DevIconDss" },
-        LspKindConstant      = { link = "@constant" },
-        LspKindConstructor   = { link = "@constructor" },
-        LspKindEnum          = { link = "@enum" },
-        LspKindEnumMember    = { link = "@enumMember" },
-        LspKindEvent         = { link = "@event" },
-        LspKindField         = { link = "@field" },
-        LspKindFile          = { link = "Structure" },
-        LspKindFolder        = { link = "Directory" },
-        LspKindFunction      = { link = "@function" },
-        LspKindInterface     = { link = "@interface" },
-        LspKindKeyword       = { link = "aboba" },
-        LspKindMethod        = { link = "@method" },
-        LspKindModule        = { link = "@module" },
-        LspKindOperator      = { link = "@operator" },
-        LspKindProperty      = { link = "@property" },
-        LspKindReference     = { link = "@function.call" },
-        LspKindSnippet       = { link = "Keyword" },
-        LspKindStruct        = { link = "@struct" },
-        LspKindText          = { link = "@markup" },
-        LspKindTypeParameter = { link = "@variable.parameter" },
-        LspKindUnit          = { link = "@number" },
-        LspKindValue         = { link = "@number" },
-        LspKindVariable      = { link = "@variable" },
-        LspAbbrDeprecated    = { link = "DiagnosticDeprecated" },
-}
+_G.hi --> Conceal
+"@conceal"
+           "@conceal.heading.1"
+           "@conceal.heading.2"
+           "@conceal.heading.3"
+           "@conceal.heading.4"
+           "@conceal.heading.5"
+           "@conceal.heading.6"
+           "@conceal.unchecked"
+           "@conceal.checked"
+           "@conceal.list"
 
-vim.iter(groups)
-           :each(function(group, opts)
-                   vim.api.nvim_set_hl(0, group, opts)
-           end)
-vim.hl.priorities.syntax = 200
+_G.hi --> Constant
+"@constant"
+           "@function.builtin"
+           "@constant.builtin"
+           "@constant.macro"
+           "@enum"
+           "@enumMember"
+           "@lsp.type.enum"
+           "@lsp.type.enumMember"
+
+_G.hi --> Type
+"@tag"
+           "@tag.builtin"
+           "@tag.delimiter"
+           "@tag.attribute"
+           "@attribute.builtin"
+
+_G.hi --> Number
+"@number"
+           "@number.float"
+           "@lsp.type.number"
+
+_G.hi --> Type
+"@type"
+           "@type.builtin"
+           "@type.qualifier"
+           "@type.builtin.luadoc"
+           "@lsp.type.type"
+
+_G.hi --> Function
+"@function"
+           "@method"
+           "@function.macro"
+           "@function.method"
+           "@function.method.call"
+           "@lsp.type.function"
+           "@lsp.type.method"
+
+_G.hi --> Special
+"@attribute"
+           "@attribute.builtin"
+
+_G.hi --> Character
+"@character"
+           "@character.special"
+
+_G.hi --> Identifier
+"@property"
+           "@field"
+           "@lsp.type.property"
+
+_G.hi --> SpecialChar
+"@string.special"
+           "@string.regex"
+           "@string.escape"
+           "@string.special.url"
+           "@lsp.type.string"
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+h "Added" { fg = colors.green }
+h "Changed" { fg = colors.yellow }
+h "Removed" { fg = colors.red }
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+_G.hi --> colors.green
+"Added"
+           "@diff.plus"
+           "PreInsert"
+
+_G.hi --> colors.yellow
+"Changed"
+           "@diff.minus"
+
+_G.hi --> colors.red
+"Removed"
+           "@diff.delta"
+
+-- "@markup"
+-- "@markup.heading"                    = { link      = "Title"          },
+-- "@markup.heading.1.delimiter.vimdoc"
+-- "@markup.heading.1.markdown"         = { fg        = colors.ivory,    bg        = colors.base, bold = false },
+-- "@markup.heading.2.delimiter.vimdoc"
+-- "@markup.heading.2.markdown"         = { fg        = colors.subtext1, bg        = colors.base, bold = false },
+-- "@markup.heading.3.markdown"         = { fg        = colors.overlay2, bg        = colors.base, bold = false },
+-- "@markup.heading.4.markdown"         = { fg        = colors.overlay1, bg        = colors.base, bold = false },
+-- "@markup.heading.5.markdown"         = { fg        = colors.overlay0, bg        = colors.base, bold = false },
+-- "@markup.heading.6.markdown"         = { fg        = colors.surface2, bg        = colors.base, bold = false },
+-- "@markup.italic"
+-- "@markup.italic.markdown_inline"     = { underline = true             },
+-- "@markup.link"                       = { link      = "Underlined"     },
+-- "@markup.link.label.markdown_inline" = { fg        = colors.spark,    underline = true         },
+-- "@markup.link.url"
+-- "@markup.list"
+-- "@markup.raw"                        = { fg        = colors.teal      },
+-- "@markup.strikethrough"
+-- "@markup.strong"
+-- "@markup.underline"
+
+-- "@lsp"
+-- "@lsp.mod.deprecated"
+-- "@lsp.type.class"
+-- "@lsp.type.decorator"
+-- "@lsp.type.event"
+-- "@lsp.type.interface"
+-- "@lsp.type.modifier"
+-- "@lsp.type.regexp"
+-- "@lsp.type.typeParameter"
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 return M

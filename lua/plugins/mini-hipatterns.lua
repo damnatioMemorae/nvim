@@ -29,12 +29,18 @@ local words = {
         ["colors.mantle1"]   = "#14141f",
         ["colors.crust1"]    = "#11111b",
         ["colors.crust0"]    = "#0e0e16",
+
+        ["colors.teal_transparent"]   = "#273741",
+        ["colors.sky_transparent"]    = "#29383c",
+        ["colors.green_transparent"]  = "#2c3932",
+        ["colors.yellow_transparent"] = "#3d3835",
+        ["colors.red_transparent"]    = "#3c2733",
 }
 
 return {
         "nvim-mini/mini.hipatterns",
         version = false,
-        event   = "BufReadPre",
+        event   = "BufReadPost",
         opts    = function(_, opts)
                 local hi = require("mini.hipatterns")
 
@@ -94,7 +100,7 @@ return {
                         return {
                                 pattern = "()%u+:()",
                                 group   = function(bufnr, match, data)
-                                        if not inComment(bufnr, data.line, data.from_col) then
+                                        if not inComment(bufnr, data.line - 1, data.from_col) then
                                                 return nil
                                         end
 
@@ -120,21 +126,21 @@ return {
                         todo       = hlComKeyword({ "TODO", "WIP" }, "MiniHipatternsTodo"),
                         hint       = hlComKeyword({ "HINT", "DONE" }, "MiniHipatternsHint"),
                         note       = hlComKeyword({ "NOTE", "XXX", "INFO", "DOCS", "PERF", "TEST" }, "MiniHipatternsNote"),
-                        url        = { pattern = "https?://%S+", group = "MiniHipatternsUrl" },
+                        -- url        = { pattern = "https?://%S+", group = "MiniHipatternsUrl" },
                         hex_color  = { pattern = "#%x%x%x%x%x%x%f[%X]", group = getHighlight(getHexLong) },
                         word_color = { pattern = "%f[%w]()%S+()%f[%W]", group = wordColorGroup },
                 }
 
                 opts.highlighters = vim.tbl_extend("keep", opts.highlighters or {}, highlighters)
 
-                _G.hlLink({
-                                  { "Fixme", "@comment.error" },
-                                  { "Hack",  "@comment.warning" },
-                                  { "Todo",  "@comment.todo" },
-                                  { "Hint",  "@comment.hint" },
-                                  { "Note",  "@comment.note" },
-                                  { "Code",  "@comment.code" },
-                                  { "Url",   "@comment.url" },
-                          }, "MiniHipatterns")
+                _G.linq
+                "MiniHipatterns"
+                           { "Fixme", "@comment.error" }
+                           { "Hack", "@comment.warning" }
+                           { "Todo", "@comment.todo" }
+                           { "Hint", "@comment.hint" }
+                           { "Note", "@comment.note" }
+                           { "Code", "@comment.code" }
+                           { "Url", "@comment.url" }
         end,
 }

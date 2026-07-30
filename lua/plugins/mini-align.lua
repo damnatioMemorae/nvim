@@ -1,13 +1,11 @@
-local prefix = "<LocalLeader>"
-
 return {
         "echasnovski/mini.align",
         version = false,
-        event   = "BufReadPre",
+        event   = "BufReadPost",
         opts    = {
                 mappings = {
-                        start              = prefix .. "a",
-                        start_with_preview = prefix .. "A",
+                        start              = "&",
+                        start_with_preview = "<LocalLeader>&",
                 },
                 options = {
                         split_pattern   = "",

@@ -1,8 +1,19 @@
+local o       = vim.o
+local v       = vim.v
+local fn      = vim.fn
+local fs      = vim.fs
+local ui      = vim.ui
+local api     = vim.api
+local cmd     = vim.cmd
+local autocmd = api.nvim_create_autocmd
+
 local map = _G.smartMap
 
 local kinds = Icon.Kinds
 
-local border_width = 0
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+local border_width = 1
 
 local function filterShow(_fsEntry)
         return true
@@ -22,9 +33,9 @@ end
 local function mapSplit(buf, lhs, direction)
         local rhs = function()
                 local cur_target = require("mini.files").get_explorer_state().target_window
-                local new_target = vim.api.nvim_win_call(cur_target, function()
-                        vim.cmd(direction .. " split")
-                        return vim.api.nvim_get_current_win()
+                local new_target = api.nvim_win_call(cur_target, function()
+                        cmd(direction .. " split")
+                        return api.nvim_get_current_win()
                 end)
 
                 require("mini.files").set_target_window(new_target)
@@ -37,17 +48,17 @@ end
 local function setCwd()
         local path = (require("mini.files").get_fs_entry() or {}).path
         if path == nil then return vim.notify("Cursor is not on valid entry") end
-        vim.fn.chdir(vim.fs.dirname(path))
+        fn.chdir(fs.dirname(path))
 end
 
 local function yankPath()
         local path = (require("mini.files").get_fs_entry() or {}).path
         if path == nil then return vim.notify("Cursor is not on valid entry") end
-        vim.fn.setreg(vim.v.register, path)
+        fn.setreg(v.register, path)
 end
 
 local function uiOpen()
-        vim.ui.open(require("mini.files").get_fs_entry().path)
+        ui.open(require("mini.files").get_fs_entry().path)
 end
 
 local function prefix(fsEntry)
@@ -62,7 +73,7 @@ local function setMark(id, path, desc)
         require("mini.files").set_bookmark(id, path, { desc = desc })
 end
 
-local function sideScroll(args, width, height)
+local function layout(args, width, height)
         local state   = require("mini.files").get_explorer_state() or {}
         local win_ids = vim.tbl_map(function(t) return t.win_id end, state.windows or {})
 
@@ -76,11 +87,11 @@ local function sideScroll(args, width, height)
 
         local widths          = { width, width }
         local this_win_idx    = idx(args.data.win_id)
-        local focused_win_idx = idx(vim.api.nvim_get_current_win())
+        local focused_win_idx = idx(api.nvim_get_current_win())
         local idx_offset      = this_win_idx - focused_win_idx
 
         local i          = math.abs(idx_offset) + 1
-        local win_config = vim.api.nvim_win_get_config(args.data.win_id)
+        local win_config = api.nvim_win_get_config(args.data.win_id)
         win_config.width = i <= #widths and widths[i] or widths[#widths]
 
         if this_win_idx and focused_win_idx then
@@ -96,10 +107,10 @@ local function sideScroll(args, width, height)
                 end
 
                 win_config.height   = idx_offset == 0 and height or height
-                win_config.row      = math.floor(0.5 * (vim.o.lines - win_config.height))
-                win_config.col      = math.floor(0.5 * (vim.o.columns - win_config.width - win_config.width) + offset)
+                win_config.row      = math.floor(0.5 * (o.lines - win_config.height))
+                win_config.col      = math.floor(0.5 * (o.columns - win_config.width - win_config.width) + offset)
                 win_config.relative = "editor"
-                vim.api.nvim_win_set_config(args.data.win_id, win_config)
+                api.nvim_win_set_config(args.data.win_id, win_config)
         end
 end
 
@@ -118,7 +129,7 @@ return {
                         "<leader>E",
                         function()
                                 local mf = require("mini.files")
-                                local _  = mf.close() or mf.open(vim.api.nvim_buf_get_name(0), false)
+                                local _  = mf.close() or mf.open(api.nvim_buf_get_name(0), false)
                                 vim.defer_fn(function() mf.reveal_cwd() end, 30)
                         end,
                 },
@@ -159,8 +170,9 @@ return {
         },
         config = function(_, opts)
                 require("mini.files").setup(opts)
+                require("real-icons.integrations.mini_files").opts()
 
-                vim.api.nvim_create_autocmd("User", {
+                autocmd("User", { -- SPLITS
                         pattern  = "MiniFilesBufferCreate",
                         callback = function(args)
                                 local buf = args.data.buf_id
@@ -174,46 +186,47 @@ return {
                                 mapSplit(buf, "<C-t>", "tab")
                         end,
                 })
-                vim.api.nvim_create_autocmd("User", {
+                autocmd("User", { -- MARKS
                         pattern  = "MiniFilesExplorerOpen",
                         callback = function()
                                 require("core.utils.misc").addBackdrop("User", "MiniFilesExplorerClose")
-                                -- vim.fn.confirm = function() return 1 end ---@diagnostic disable-line: duplicate-set-field
-                                setMark("n", vim.fn.stdpath("config"),          "Config")
-                                setMark("w", vim.fn.getcwd,                     "Working directory")
-                                setMark("l", vim.fn.stdpath("data") .. "/lazy", "Lazy directory")
-                                setMark("h", vim.fn.expand("~/.config/hypr"),   "Hypr directory")
-                                setMark("~", "~",                               "Home directory")
+                                -- fn.confirm = function() return 1 end ---@diagnostic disable-line: duplicate-set-field
+                                setMark("n", fn.stdpath("config"),                      "Config")
+                                setMark("w", fn.getcwd,                                 "Working directory")
+                                setMark("l", fn.stdpath("data") .. "/lazy",             "Lazy directory")
+                                setMark("t", fn.stdpath("data") .. "/mini.files/trash", "Lazy directory")
+                                setMark("h", fn.expand("~/.config/hypr"),               "Hypr directory")
+                                setMark("~", "~",                                       "Home directory")
                         end,
                 })
-                vim.api.nvim_create_autocmd("User", {
+                autocmd("User", { -- CONFIRM
                         pattern  = "MiniFilesExplorerClose",
-                        callback = function() vim.fn.confirm = vim.fn.confirm end,
+                        callback = function() fn.confirm = fn.confirm end,
                 })
-                vim.api.nvim_create_autocmd("User", {
+                autocmd("User", { -- LAZYOUT
                         pattern  = "MiniFilesWindowUpdate",
-                        callback = function(args) sideScroll(args, 60, 30) end,
+                        callback = function(args) layout(args, 60, 30) end,
                 })
-                vim.api.nvim_create_autocmd("User", {
+                autocmd("User", { -- BORDER
                         pattern  = "MiniFilesWindowOpen",
                         callback = function(args)
                                 if border_width == 1 then
                                         border_width  = 1
                                         local win_id  = args.data.win_id
-                                        local config  = vim.api.nvim_win_get_config(win_id)
+                                        local config  = api.nvim_win_get_config(win_id)
                                         config.border = Border.Default.Normal
-                                        vim.api.nvim_win_set_config(win_id, config)
+                                        api.nvim_win_set_config(win_id, config)
                                 end
                         end,
                 })
 
-                _G.hlLink({
-                                  { "TitleFocused",   "Special" },
-                                  { "Title",          "Special" },
-                                  { "Normal",         "Normal" },
-                                  { "Border",         "Normal" },
-                                  { "BorderModified", "Normal" },
-                                  { "CursorLine",     "PmenuSel" },
-                          }, "MiniFiles")
+                _G.linq
+                "MiniFiles"
+                           { "TitleFocused", "Border" }
+                           { "Title", "Border" }
+                           { "Normal", "Normal" }
+                           { "Border", "Normal" }
+                           { "BorderModified", "Normal" }
+                           { "CursorLine", "PmenuSel" }
         end,
 }

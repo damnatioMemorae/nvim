@@ -61,23 +61,8 @@ local function getDiff()
 
                 local changed = math.min(added, removed)
                 -- return string.format("+%d ~%d -%d", added, changed, removed)
-                return "%#DiffAdded#+" .. added .. " %#DiffChanged#~" .. changed .. " %#DiffRemoved#-" .. removed
+                return "%#DiffAdd#+" .. added .. " %#DiffChange#~" .. changed .. " %#DiffDelete#-" .. removed
         end
-
-        -- local statuses = io.popen("git status"):read("*a")
-        -- statuses       = statuses:match("%w+")
-
-        -- local changes   = 0
-        -- local additions = 0
-        -- local deletions = 0
-
-        -- if statuses ~= nil then
-        --         changes   = statuses.changed or 0
-        --         additions = statuses.added or 0
-        --         deletions = statuses.removed or 0
-        -- end
-
-        -- return "%#DiffAdded#+" .. additions .. " %#DiffChanged#~" .. changes .. " %#DiffRemoved#-" .. deletions
 end
 
 local function getModified()
@@ -123,7 +108,7 @@ local function componentSeparator()
         return "%="
 end
 
-function statusline()
+function _G.statusline()
         local severity = vim.diagnostic.severity
 
         return table.concat({
@@ -137,6 +122,3 @@ function statusline()
                 getComponent("DiagnosticSignHint", getDiagnostic(severity.HINT)),
         })
 end
-
-vim.o.laststatus = 3
-vim.o.statusline = "%!v:lua.statusline()"

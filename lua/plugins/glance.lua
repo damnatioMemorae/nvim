@@ -1,13 +1,15 @@
 return {
         "dnlhc/glance.nvim",
-        keys   = {
+        enabled = true,
+        event   = "LspAttach",
+        keys    = {
                 { "<LocalLeader>r", desc = "Glance ref",     "<cmd>Glance references<CR>" },
                 { "<LocalLeader>d", desc = "Glance def",     "<cmd>Glance definitions<CR>" },
                 { "<LocalLeader>i", desc = "Glance impl",    "<cmd>Glance implementations<CR>" },
-                { "<LocalLeader>D", desc = "Glance typedef", "<cmd>Glance type_definitions<CR>" },
+                { "<LocalLeader>t", desc = "Glance typedef", "<cmd>Glance type_definitions<CR>" },
                 { "<LocalLeader>j", desc = "Glance resume",  "<cmd>Glance resume<CR>" },
         },
-        opts   = {
+        opts    = {
                 height               = 25,
                 preserve_win_context = true,
                 preview_win_opts     = { cursorline = false, number = false, wrap = false },
@@ -46,28 +48,28 @@ return {
                         },
                 },
         },
-        config = function(_, opts)
+        config  = function(_, opts)
                 require("glance").setup(opts)
 
-                _G.hlLink({
-                                  { "FoldIcon",            "Comment" },
-                                  { "ListNormal",          "Normal" },
-                                  { "ListFilename",        "Directory" },
-                                  { "ListFilepath",        "Comment" },
-                                  { "ListMatch",           "Search" },
-                                  { "ListCursorLine",      "PmenuSel" },
-                                  { "ListEndOfBuffer",     "Normal" },
-                                  { "ListBorderBottom",    "Normal" },
-                                  { "ListCount",           "DiagnosticVirtualTextWarn" },
-                                  { "PreviewNormal",       "Normal" },
-                                  { "PreviewMatch",        "Search" },
-                                  { "PreviewCursorLine",   "CursorLine" },
-                                  { "PreviewEndOfBuffer",  "Normal" },
-                                  { "PreviewLineNr",       "LineNr" },
-                                  { "PreviewBorderBottom", "Normal" },
-                                  { "WinBarFilename",      "LspKindFile" },
-                                  { "WinBarFilepath",      "LspKindFile" },
-                                  { "WinBarTitle",         "Title" },
-                          }, "Glance")
+                _G.linq
+                "Glance"
+                           { "FoldIcon", "Comment" }
+                           { "ListNormal", "Normal" }
+                           { "ListFilename", "Directory" }
+                           { "ListFilepath", "Comment" }
+                           { "ListMatch", "LspReferenceWrite" }
+                           { "ListCursorLine", "PmenuSel" }
+                           { "ListEndOfBuffer", "Normal" }
+                           { "ListBorderBottom", "Normal" }
+                           { "ListCount", "DiagnosticVirtualTextWarn" }
+                           { "PreviewNormal", "Normal" }
+                           { "PreviewMatch", "LspReferenceWrite" }
+                           { "PreviewCursorLine", "CursorLine" }
+                           { "PreviewEndOfBuffer", "Normal" }
+                           { "PreviewLineNr", "LineNr" }
+                           { "PreviewBorderBottom", "Normal" }
+                           { "WinBarFilename", "LspKindFile" }
+                           { "WinBarFilepath", "LspKindFile" }
+                           { "WinBarTitle", "Title" }
         end,
 }

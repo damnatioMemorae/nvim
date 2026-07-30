@@ -1,0 +1,27 @@
+local o = vim.o
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+return {
+        "arborist-ts/arborist.nvim",
+        event  = "BufReadPost",
+        init   = function()
+                o.foldmethod = "expr"
+                o.foldexpr   = "v:lua.vim.treesitter.foldexpr()"
+        end,
+        opts   = {
+                overrides = { qf = { url = "https://github.com/OXY2DEV/tree-sitter-qf" } },
+        },
+        config = function(_, opts)
+                require("arborist").setup(opts)
+
+                vim
+                           .iter({
+                                   { "N",         "in", mode = { "x", "v" }, remap = true, desc = "Select parent node" },
+                                   { "<M-Space>", "an", mode = { "x", "v" }, remap = true, desc = "Select child node" },
+                                   { "M",         "[n", mode = { "x", "v" }, remap = true, desc = "Select previous node" },
+                                   { "m",         "]n", mode = { "x", "v" }, remap = true, desc = "Select next node" },
+                           })
+                           :each(function(map) _G.smartMap(map) end)
+        end,
+}

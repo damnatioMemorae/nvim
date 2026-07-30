@@ -1,39 +1,53 @@
-vim.bo.expandtab  = true
-vim.bo.shiftwidth = 4
-vim.bo.tabstop    = 4
+local bo        = vim.bo
+local fn        = vim.fn
+local uv        = vim.uv
+local cmd       = vim.cmd
+local api       = vim.api
+local env       = vim.env
+local lsp       = vim.lsp
+local opt_l = vim.opt_local
 
-vim.opt_local.listchars:append{ multispace = " " }
-vim.opt_local.formatoptions:append("r")
+local map  = _G.bufMap
+local abbr = _G.bufAbbr
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+bo.expandtab  = true
+bo.shiftwidth = 4
+bo.tabstop    = 4
+
+opt_l.listchars:append{ multispace = " " }
+opt_l.formatoptions:append("r")
 
 ---- VIRTUAL ENVIRONMENT -----------------------------------------------------------------------------------------------
 
 vim.defer_fn(function()
-                     local venv = (vim.uv.cwd() or "") .. "/.venv"
-                     if vim.uv.fs_stat(venv) then vim.env.VIRTUAL_ENV = venv end ---@diagnostic disable-line: name-style-check
+                     local venv = (uv.cwd() or "") .. "/.venv"
+                     if uv.fs_stat(venv) then env.VIRTUAL_ENV = venv end ---@diagnostic disable-line: name-style-check
              end, 1)
 
 ---- ABBREVIATIONS -----------------------------------------------------------------------------------------------------
 
-_G.bufAbbr("true",     "True")
-_G.bufAbbr("false",    "False")
-_G.bufAbbr("//",       "#")
-_G.bufAbbr("--",       "#")
-_G.bufAbbr("null",     "None")
-_G.bufAbbr("nil",      "None")
-_G.bufAbbr("none",     "None")
-_G.bufAbbr("trim",     "strip")
-_G.bufAbbr("function", "def")
+abbr("true",     "True")
+abbr("false",    "False")
+abbr("//",       "#")
+abbr("--",       "#")
+abbr("null",     "None")
+abbr("nil",      "None")
+abbr("none",     "None")
+abbr("trim",     "strip")
+abbr("function", "def")
 
 ---- KEYMAPS -----------------------------------------------------------------------------------------------------------
 
-_G.bufMap({
+map({
         "g/",
         function()
-                vim.cmd.normal{ '"zyi"vi"', bang = true }
+                cmd.normal{ '"zyi"vi"', bang = true }
 
-                local flag_in_line = vim.api.nvim_get_current_line():match("re%.([MIDSUA])")
+                local flag_in_line = api.nvim_get_current_line():match("re%.([MIDSUA])")
                 local data         = {
-                        regex        = vim.fn.getreg("z"),
+                        regex        = fn.getreg("z"),
                         flags        = flag_in_line and "g" .. flag_in_line:gsub("D", "S"):lower() or "g",
                         substitution = "", -- TODO
                         delimiter    = '"',
@@ -47,20 +61,20 @@ _G.bufMap({
         desc = " Open in regex101",
 })
 
-_G.bufMap({
-        "<A-s>",
+map({
+        "<M-s>",
         function()
-                vim.lsp.buf.code_action({ context = { only = { "source.fixAll.ruff" } }, apply = true }) ---@diagnostic disable-line: assign-type-mismatch,missing-fields
-                vim.defer_fn(vim.lsp.buf.format, 50)
+                lsp.buf.code_action({ context = { only = { "source.fixAll.ruff" } }, apply = true }) ---@diagnostic disable-line: assign-type-mismatch,missing-fields
+                vim.defer_fn(lsp.buf.format, 50)
         end,
         mode = "n",
         desc = " Fixall & Format",
 })
 
-_G.bufMap({
+map({
         "<leader>ci",
         function()
-                vim.lsp.buf.code_action({ filter = function(a) return a.title:find("import") ~= nil end, apply = true })
+                lsp.buf.code_action({ filter = function(a) return a.title:find("import") ~= nil end, apply = true })
         end,
         mode = "n",
         desc = " Import word under cursor",

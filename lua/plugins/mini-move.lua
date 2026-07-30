@@ -6,13 +6,13 @@ return {
                 mappings = {
 
                         left  = "<S-Tab>",
-                        down  = "<A-j>",
-                        up    = "<A-k>",
+                        down  = "<M-j>",
+                        up    = "<M-k>",
                         right = "<Tab>",
 
                         line_left  = "<S-Tab>",
-                        line_down  = "<A-j>",
-                        line_up    = "<A-k>",
+                        line_down  = "<M-j>",
+                        line_up    = "<M-k>",
                         -- line_right = "<Tab>",
                 },
                 options  = { reindent_linewise = true },

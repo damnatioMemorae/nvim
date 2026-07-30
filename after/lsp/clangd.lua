@@ -1,3 +1,17 @@
+local api    = vim.api
+local cmd    = vim.cmd
+local log    = vim.log
+local lsp    = vim.lsp
+local keymap = vim.keymap
+
+local autocmd   = api.nvim_create_autocmd
+local command   = api.nvim_buf_create_user_command
+local levels   = log.levels
+local tokens    = lsp.semantic_tokens
+local modifiers = tokens.modifiers
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 local function switchSourceHeader(bufnr, client)
         local method_name = "textDocument/switchSourceHeader"
         ---@diagnostic disable-next-line:param-type-mismatch
@@ -5,7 +19,7 @@ local function switchSourceHeader(bufnr, client)
                 return vim.notify(("method %s is not supported by any servers active on the current buffer"):format(
                         method_name))
         end
-        local params = vim.lsp.util.make_text_document_params(bufnr)
+        local params = lsp.util.make_text_document_params(bufnr)
         ---@diagnostic disable-next-line:param-type-mismatch
         client:request(method_name, params, function(err, result)
                                if err then
@@ -15,7 +29,7 @@ local function switchSourceHeader(bufnr, client)
                                        vim.notify("corresponding file cannot be determined")
                                        return
                                end
-                               vim.cmd.edit(vim.uri_to_fname(result))
+                               cmd.edit(vim.uri_to_fname(result))
                        end, bufnr)
 end
 
@@ -23,10 +37,10 @@ local function symbolInfo(bufnr, client)
         local method_name = "textDocument/symbolInfo"
         ---@diagnostic disable-next-line:param-type-mismatch
         if not client or not client:supports_method(method_name) then
-                return vim.notify("Clangd client not found", vim.log.levels.ERROR)
+                return vim.notify("Clangd client not found", levels.ERROR)
         end
-        local win    = vim.api.nvim_get_current_win()
-        local params = vim.lsp.util.make_position_params(win, client.offset_encoding)
+        local win    = api.nvim_get_current_win()
+        local params = lsp.util.make_position_params(win, client.offset_encoding)
         ---@diagnostic disable-next-line:param-type-mismatch
         client:request(method_name, params, function(err, res)
                                if err or #res == 0 then
@@ -34,7 +48,7 @@ local function symbolInfo(bufnr, client)
                                end
                                local container = string.format("container: %s", res[1].containerName) ---@type string
                                local name      = string.format("name: %s", res[1].name) ---@type string
-                               vim.lsp.util.open_floating_preview({ name, container }, "", {
+                               lsp.util.open_floating_preview({ name, container }, "", {
                                        anchor_bias = "below",
                                        border      = Border.Default.Normal,
                                        height      = 2,
@@ -48,16 +62,16 @@ end
 
 local function semanticTokens()
         ---[[ GLOBAL SCOPE
-        vim.api.nvim_create_autocmd("LspTokenUpdate", {
+        autocmd("LspTokenUpdate", {
                 callback = function(args)
                         local token = args.data.token
                         if
                                    token.type == "variable"
-                                   and token.modifiers.globalScope
-                                   and not token.modifiers.readonly
-                                   and not token.modifiers.defaultLibrary
+                                   and modifiers.globalScope
+                                   and not modifiers.readonly
+                                   and not modifiers.defaultLibrary
                         then
-                                vim.lsp.semantic_tokens.highlight_token(
+                                tokens.highlight_token(
                                         token, args.buf, args.data.client_id, "varGlobScope")
                         end
                 end,
@@ -65,15 +79,15 @@ local function semanticTokens()
         --]]
 
         ---[[ FUNCTION SCOPE
-        vim.api.nvim_create_autocmd("LspTokenUpdate", {
+        autocmd("LspTokenUpdate", {
                 callback = function(args)
                         local token = args.data.token
                         if
                                    token.type == "variable"
-                                   and token.modifiers.functionScope
-                                   and not token.modifiers.readonly
+                                   and modifiers.functionScope
+                                   and not modifiers.readonly
                         then
-                                vim.lsp.semantic_tokens.highlight_token(
+                                tokens.highlight_token(
                                         token, args.buf, args.data.client_id, "varFuncScope")
                         end
                 end,
@@ -81,15 +95,15 @@ local function semanticTokens()
         --]]
 
         ---[[ CLASS SCOPE
-        vim.api.nvim_create_autocmd("LspTokenUpdate", {
+        autocmd("LspTokenUpdate", {
                 callback = function(args)
                         local token = args.data.token
                         if
                                    token.type == "constructor"
-                                   and token.modifiers.identifier
-                                   and not token.modifiers.readonly
+                                   and modifiers.identifier
+                                   and not modifiers.readonly
                         then
-                                vim.lsp.semantic_tokens.highlight_token(
+                                tokens.highlight_token(
                                         token, args.buf, args.data.client_id, "varClassScope")
                         end
                 end,
@@ -97,15 +111,15 @@ local function semanticTokens()
         --]]
 
         ---[[
-        vim.api.nvim_create_autocmd("LspTokenUpdate", {
+        autocmd("LspTokenUpdate", {
                 callback = function(args)
                         local token = args.data.token
                         if
                                    token.type == "cppType"
-                                   and token.modifiers.identifier
-                                   and not token.modifiers.readonly
+                                   and modifiers.identifier
+                                   and not modifiers.readonly
                         then
-                                vim.lsp.semantic_tokens.highlight_token(
+                                tokens.highlight_token(
                                         token, args.buf, args.data.client_id, "LspInlayHint")
                         end
                 end,
@@ -113,7 +127,7 @@ local function semanticTokens()
         --]]
 end
 
-local cmd = {
+local cmds = {
         "clangd",
 
         "--all-scopes-completion=true",
@@ -147,7 +161,7 @@ local cmd = {
 
 ---@type vim.lsp.Config
 return {
-        cmd             = cmd,
+        cmd             = cmds,
         filetypes       = { "c", "cpp" },
         root_markers    = {
                 "build.ninja",
@@ -199,14 +213,12 @@ return {
                 end
         end,
         on_attach       = function(client, bufnr)
-                local command = vim.api.nvim_buf_create_user_command
-
                 command(bufnr, "ClangdSwitchSourceHeader", function() switchSourceHeader(bufnr, client) end,
                         { desc = "Switch between source/header" })
                 command(bufnr, "ClangdSymbolInfo", function() symbolInfo(bufnr, client) end, {
                         desc = "Show symbol info" })
 
-                vim.keymap.set("n", "&", "<cmd>ClangdSwitchSourceHeader<CR>")
+                keymap.set("n", "&", "<cmd>ClangdSwitchSourceHeader<CR>")
 
                 semanticTokens()
         end,

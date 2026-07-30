@@ -39,7 +39,7 @@ local function diagnose(args)
                                                         end_lnum  = end_lnum,
                                                         col       = col,
                                                         end_col   = end_col,
-                                                        message   = require("core.icons").diagnostics.ERROR,
+                                                        message   = Icon.Diagnostics.ERROR,
                                                         code      = string.format("%s-syntax", ltree:lang()),
                                                         bufnr     = args.buf,
                                                         namespace = namespace,

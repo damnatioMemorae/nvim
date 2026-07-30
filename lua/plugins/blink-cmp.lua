@@ -164,8 +164,8 @@ local sources    = {
 }
 local keymap     = {
         preset        = "none",
-        ["<A-j>"]     = { "scroll_signature_down", "scroll_documentation_down" },
-        ["<A-k>"]     = { "scroll_signature_up", "scroll_documentation_up" },
+        ["<M-j>"]     = { "scroll_signature_down", "scroll_documentation_down" },
+        ["<M-k>"]     = { "scroll_signature_up", "scroll_documentation_up" },
         ["<C-j>"]     = { "select_next", "fallback" },
         ["<C-k>"]     = { "select_prev", "fallback" },
         ["<C-Down>"]  = { "select_next", "fallback" },
@@ -204,9 +204,51 @@ local signature  = {
         window  = { direction_priority = { "n", "s" }, scrollbar = false, show_documentation = false },
 }
 
+_G.linq
+"BlinkCmp"
+           { "KindClass", "@lsp.type.class" }
+           { "KindColor", "DevIconDss" }
+           { "KindConstant", "@constant" }
+           { "KindConstructor", "@constructor" }
+           { "KindEnum", "@lsp.type.enum" }
+           { "KindEnumMember", "@lsp.type.enumMember" }
+           { "KindEvent", "@lsp.type.event" }
+           { "KindField", "@lsp.type.property" }
+           { "KindFile", "@lsp.type.struct" }
+           { "KindFolder", "Directory" }
+           { "KindFunction", "@lsp.type.function" }
+           { "KindInterface", "@lsp.type.interface" }
+           { "KindKeyword", "@lsp.type.keyword" }
+           { "KindMethod", "@lsp.type.method" }
+           { "KindModule", "@module" }
+           { "KindOperator", "@lsp.type.operator" }
+           { "KindProperty", "@lsp.type.property" }
+           { "KindReference", "@lsp.type.function" }
+           { "KindSnippet", "@lsp.type.keyword" }
+           { "KindStruct", "@lsp.type.struct" }
+           { "KindText", "@lsp.type.string" }
+           { "KindTypeParameter", "@lsp.type.typeParameter" }
+           { "KindUnit", "@lsp.type.number" }
+           { "KindValue", "@lsp.type.number" }
+           { "KindVariable", "@lsp.type.variable" }
+           { "AbbrDeprecated", "DiagnosticDeprecated" }
+           { "LabelDescription", "Comment" }
+           { "LabelDetail", "Comment" }
+           { "LabelMatch", "PmenuMatch" }
+           { "Menu", "Pmenu" }
+           { "MenuBorder", "PmenuBorder" }
+           { "MenuSelection", "pmenuSel" }
+           { "Doc", "PmenuDoc" }
+           { "DocBorder", "BlinkCmpDoc" }
+           { "DocSeparator", "BlinkCmpDoc" }
+           { "SignatureHelp", "BlinkCmpDoc" }
+           { "SignatureHelpBorder", "BlinkCmpDoc" }
+           { "Source", "Comment" }
+           { "ScrollBarThumb", "PmenuThumb" }
+           { "ScrollBarGutter", "PmenuSbar" }
+
 return {
         "saghen/blink.cmp",
-        enabled      = true,
         version      = "*",
         event        = { "InsertEnter", "CmdLineEnter" },
         dependencies = { "saghen/blink.lib", "cushycush/quickshell-completions.nvim", "niuiic/blink-cmp-rg.nvim" },
@@ -222,51 +264,4 @@ return {
                 signature  = signature,
         },
         opts_extend  = { "sources.default", "sources.completion.enabled_provider" },
-        config       = function(_, opts)
-                require("blink-cmp").setup(opts)
-
-                _G.hlLink({
-                                  { "KindClass",           "@class" },
-                                  { "KindColor",           "DevIconDss" },
-                                  { "KindConstant",        "@constant" },
-                                  { "KindConstructor",     "@constructor" },
-                                  { "KindEnum",            "@enum" },
-                                  { "KindEnumMember",      "@enumMember" },
-                                  { "KindEvent",           "@event" },
-                                  { "KindField",           "@field" },
-                                  { "KindFile",            "Structure" },
-                                  { "KindFolder",          "Directory" },
-                                  { "KindFunction",        "@function" },
-                                  { "KindInterface",       "@interface" },
-                                  { "KindKeyword",         "aboba" },
-                                  { "KindMethod",          "@method" },
-                                  { "KindModule",          "@module" },
-                                  { "KindOperator",        "@operator" },
-                                  { "KindProperty",        "@property" },
-                                  { "KindReference",       "@function.call" },
-                                  { "KindSnippet",         "Keyword" },
-                                  { "KindStruct",          "@struct" },
-                                  { "KindText",            "@markup" },
-                                  { "KindTypeParameter",   "@variable.parameter" },
-                                  { "KindUnit",            "@number" },
-                                  { "KindValue",           "@number" },
-                                  { "KindVariable",        "@variable" },
-                                  { "AbbrDeprecated",      "DiagnosticDeprecated" },
-
-                                  { "LabelDescription",    "Comment" },
-                                  { "LabelDetail",         "Comment" },
-                                  { "LabelMatch",          "Visual" },
-                                  { "Menu",                "Pmenu" },
-                                  { "MenuBorder",          "PmenuBorder" },
-                                  { "MenuSelection",       "pmenuSel" },
-                                  { "Doc",                 "WildMenu" },
-                                  { "DocBorder",           "BlinkCmpDoc" },
-                                  { "DocSeparator",        "BlinkCmpDoc" },
-                                  { "SignatureHelp",       "BlinkCmpDoc" },
-                                  { "SignatureHelpBorder", "BlinkCmpDoc" },
-                                  { "Source",              "Comment" },
-                                  { "ScrollBarThumb",      "PmenuThumb" },
-                                  { "ScrollBarGutter",     "PmenuSbar" },
-                          }, "BlinkCmp")
-        end,
 }

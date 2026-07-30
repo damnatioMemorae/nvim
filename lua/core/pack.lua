@@ -1,191 +1,162 @@
-local usercmd = vim.api.nvim_create_user_command
-local autocmd = vim.api.nvim_create_autocmd
+-- DOCS
+-- https://neovim.io/doc/user/pack/#pack
+-- https://echasnovski.com/blog/2026-03-13-a-guide-to-vim-pack
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-local plugins = {}
+local g     = vim.g
+local bo    = vim.bo
+local fn    = vim.fn
+local fs    = vim.fs
+local ui    = vim.ui
+local uv    = vim.uv
+local api   = vim.api
+local cmd   = vim.cmd
+local log   = vim.log
+local opt   = vim.opt
+local opt_l = vim.opt_local
+local pack  = vim.pack
 
-_G.Pack = {}
+local autocmd = api.nvim_create_autocmd
+local levels = log.levels
 
-function Pack.loadPlugins(name)
-        local P = plugins[name]
+local map = _G.smartMap
 
-        if not P then
-                vim.notify("Plugin " .. name .. " does not exist", vim.log.levels.ERROR)
-        end
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        if P.is_loaded then
-                return
-        end
+g.lualineAdd      = function() end ---@diagnostic disable-line: duplicate-set-field
+g.whichkeyAddSpec = function() end ---@diagnostic disable-line: duplicate-set-field
 
-        if P.is_loading then
-                vim.notify("Circular deps in " .. name, vim.log.levels.ERROR)
-                return
-        end
+---- HANDLE LOCAL PLUGINS ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        P.is_loading = true
+local dummy = fn.stdpath("data") .. "/symlink-to-local-plugins/"
+opt.packpath:prepend(dummy)
+fn.mkdir(dummy .. "/pack/core/", "p")
+uv.fs_symlink(g.localRepos, dummy .. "/pack/core/opt", { dir = true })
 
-        if P.deps then
-                for _, plugin in ipairs(P.deps) do
-                        Pack.loadPlugins(plugin)
-                end
-        end
-
-        if not P.is_local then
-                vim.pack.add({ { src = "https://github.com/" .. P.src, version = P.version } })
-        end
-
-        if not P.skip_require then
-                P.package = require(name)
-        end
-
-        if P.user_load then
-                P.user_load(P.package)
-        else
-                P.package.setup(P.user_opts)
-        end
-
-        P.is_loaded = true
-end
-
----@param opts {
----     [1]: string,
----     enabled?:      boolean,
----     dir?:          string,
----     name?:         string,
----     opts?:         {},
----     deps?:         string[],
----     load?:         fun(plugin: {}),
----     is_theme?:     boolean,
----     skip_require?: boolean,
----     cmds?:         string[],
----     keys?:         {}[],
----     ft?:           string[],
----     event?:        string,
----}
-function Pack.add(opts)
-        if opts.enabled == false then
-                return
-        end
-
-        local src  = opts[1]
-        local name = opts.dir or opts.name or src:match("/([%w_.-]+)$"):gsub(".nvim$", ""):gsub("^nvim%-", "")
-
-        if plugins[name] then
-                vim.notify("Plugin duplicated " .. name, vim.log.levels.ERROR)
-        end
-
-        local plugin = {
-                is_instant   = true,
-                deps         = opts.deps,
-                user_opts    = opts.deps,
-                src          = src,
-                is_local     = opts.deps,
-                user_load    = opts.deps,
-                skip_require = opts.deps,
-        }
-
-        plugins[name] = plugin
-
-        if opts.cmds then
-                plugin.is_instant = false
-
-                for _, cmd in ipairs(opts.cmds) do
-                        vim.api.nvim_create_user_command(
-                                cmd,
-                                function(event)
-                                        local command = {
-                                                cmd   = cmd,
-                                                bang  = event.bang or nil,
-                                                mode  = event.smods,
-                                                args  = event.fargs,
-                                                count = event.count >= 0 and event.range == 0 and
-                                                           event.count or nil,
-                                        }
-
-                                        if event.range == 1 then
-                                                command.range = { event.line1 }
-                                        elseif event.range == 2 then
-                                                command.range = { event.line1, event.line2 }
-                                        end
-
-                                        Pack.loadPlugins(name)
-
-                                        local info = vim.api.nvim_get_commands({})[cmd] or
-                                                   vim.api.nvim_buf_get_commands(0, {})[cmd]
-                                        if not info then
-                                                vim.schedule(function()
-                                                        vim.print("Command " ..
-                                                                cmd ..
-                                                                " not found after loading " ..
-                                                                name)
-                                                end)
-
-                                                return
-                                        end
-
-                                        command.nargs = info.nargs
-
-                                        if event.args and event.args ~= "" and info.nargs and info.nargs:find("[1?]") then
-                                                command.args = { event.args }
-                                        end
-
-                                        vim.cmd(command)
-                                end,
-                                {
-                                        bang     = true,
-                                        range    = true,
-                                        nargs    = "*",
-                                        complete = function(_, line)
-                                                vim.api.nvim_del_user_command(cmd)
-                                                return vim.fn.getcompletion(line, "cmdline")
-                                        end,
-                                })
-                end
-        end
-
-        if opts.event then
-                autocmd(opts.event, {
-                        once     = true,
-                        callback = function()
-                                Pack.loadPlugins(name)
-                        end,
-                })
-        end
-
-        if opts.ft then
-                autocmd("FileType", {
-                        pattern  = opts.ft,
-                        once     = true,
-                        callback = function()
-                                Pack.loadPlugins(name)
-                        end,
-                })
-        end
-
-        if opts.keys then
-                for _, map in ipairs(opts.keys) do
-                        vim.keymap.set(
-                                map.mode or "n", map[1],
-                                function()
-                                        vim.print(name)
-                                        Pack.loadPlugins(name)
-                                        map[2](plugins[name].package)
-                                end,
-                                { desc = map.desc })
-                end
+local local_plugins = {}
+for name, type in fs.dir(g.localRepos) do
+        if type == "directory" then
+                local plugin_name          = name:gsub("%.nvim$", ""):gsub("nvim%-", "")
+                local_plugins[plugin_name] = name
         end
 end
 
-autocmd("VimEnter", {
+---- AUTO-INSTALL AND LOAD -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+local spec_dir  = "plugin-specs"
+local spec_path = fn.stdpath("config") .. "/lua/" .. spec_dir
+
+vim
+           .iter(fs.dir(spec_path))
+           :each(function(fileName, type)
+                   assert(not fileName:find("%..*%.lua"), "Filename must not contain dots due `require`: " .. fileName)
+                   if type ~= "file" or not vim.endswith(fileName, ".lua") then return end
+                   local plugin_name = fileName:gsub("%.lua$", "")
+                   local local_name  = local_plugins[plugin_name]
+
+                   if local_name then
+                           local orig, noop = pack.add, function() end
+                           pack.add         = noop
+
+                           cmd.packadd(local_name)
+                           _G.safeRequireLazy(spec_dir .. "." .. plugin_name)
+
+                           pack.add = orig
+                           vim.schedule(function()
+                                   local msg = ("[%s] loaded from local repo."):format(local_name)
+                                   vim.notify(msg, nil, { title = "nvim-pack", icon = "󰐱" })
+                           end)
+                   else
+                           _G.safeRequireLazy(spec_dir .. "." .. plugin_name)
+                   end
+           end)
+
+---- AUTO CLEANUP --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+autocmd("FocusLost", {
+        desc     = "User: auto-cleanup unused plugins",
         once     = true,
         callback = function()
-                for plugin, opts in pairs(plugins) do
-                        if opts.is_instant then
-                                Pack.loadPlugins(plugin)
-                        end
-                end
+                local outdated_plugins = vim
+                           .iter(pack.get())
+                           :filter(function(p) return not p.active end)
+                           :map(function(p) return p.spec.name end)
+                           :totable()
+
+                if #outdated_plugins == 0 then return end
+                assert(#outdated_plugins <= 10, "Not uninstalling more than 10 plugins at once.")
+                pack.del(outdated_plugins)
         end,
 })
 
-usercmd("Update", function()
-                vim.pack.update(nil, {})
-        end, {})
+---- GLOBAL KEYMAPS ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+map {
+        "<leader>pl",
+        function()
+                cmd.edit(fn.stdpath("log") .. "/nvim-pack.log")
+                vim.schedule(function()
+                        bo.filetype = "nvim-pack"
+                        fn.search("========== Update", "b")
+                end)
+        end,
+        desc = "󰐱 Log of updates",
+}
+
+map {
+        "<leader>pr",
+        function() pack.update(nil, { offline = true, target = "lockfile" }) end,
+        desc = "󰐱 Restore from lockfile",
+}
+
+map { "<leader>pp", function() pack.update() end, desc = "󰐱 Update plugins" }
+
+---- PACK WINDOW KEYMAPS -------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+local function openCommitOrIssue()
+        local cur_line = api.nvim_get_current_line()
+        local issue    = cur_line:match("#(%d+)")
+        local commit   = cur_line:match("^> (%x+) ")
+        if not issue and not commit then
+                vim.notify("No commit or issue on current line.", levels.WARN)
+                return
+        end
+
+        local row = api.nvim_win_get_cursor(0)[1]
+        local repo_line
+        while row > 1 do
+                repo_line = api.nvim_buf_get_lines(0, row - 2, row - 1, false)[1]
+                if vim.startswith(repo_line, "Source: ") then break end
+                row = row - 1
+        end
+        assert(repo_line, "No source line found.")
+        local repo = repo_line:match("Source: *(%S+)")
+        local url  = repo .. (issue and "/issues/" .. issue or "/commit/" .. commit)
+        ui.open(url)
+end
+
+map { "q", cmd.bdelete, ft = "nvim-pack", nowait = true, desc = "󰐱 Quit" }
+map { "<CR>", cmd.write, ft = "nvim-pack", desc = "󰐱 Confirm update" }
+map { "<C-j>", "]]", remap = true, ft = "nvim-pack", desc = "󰐱 Next plugin" }
+map { "<C-k>", "[[", remap = true, ft = "nvim-pack", desc = "󰐱 Previous plugin" }
+map { "gi", openCommitOrIssue, ft = "nvim-pack", desc = "󰐱 Open commit or issue" }
+
+---- CONCEAL NOISE IN PACK WINDOW ----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+autocmd("FileType", {
+        desc     = "User: Conceal noise in nvim-pack window",
+        pattern  = "nvim-pack",
+        callback = function(ctx)
+                opt_l.wrap = true
+
+                opt_l.foldmethod = "manual"
+                local lines      = api.nvim_buf_get_lines(ctx.buf, 0, -1, false)
+                local foldlength = 6
+                for lnum = 1, #lines do
+                        if vim.startswith(lines[lnum], "## ") then
+                                cmd.fold { range = { lnum, lnum + foldlength } }
+                        end
+                        if vim.startswith(lines[lnum], "# Same") then foldlength = 3 end
+                end
+        end,
+})

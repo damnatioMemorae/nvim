@@ -1,0 +1,14 @@
+hi def link @keyword.conditional.bash @operator
+hi def link @keyword.repeat.bash      @operator
+hi def link @variable.parameter.bash  @variable.parameter
+hi def link @function.builtin.bash    @function
+hi def link @function.call.bash       @function
+hi def link @function.bash            @function
+hi def link @variable.bash            @variable
+hi def link @punctuation.special.bash Delimiter
+hi def link zshConditional            Conditional
+hi def link zshCommands               Statement
+hi def link zshFunction               Function
+hi def link zshVariableDef            Keyword
+hi def link zshBrackets               Delimiter
+hi def link zshParentheses            Delimiter

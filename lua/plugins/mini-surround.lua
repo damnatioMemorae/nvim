@@ -1,7 +1,11 @@
+local prefix = "s"
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 return {
         "echasnovski/mini.surround",
         version = false,
-        event   = "BufReadPre",
+        event   = "BufReadPost",
         opts    = {
                 custom_surroundings    = nil,
                 highlight_duration     = 1000,
@@ -10,13 +14,13 @@ return {
                 search_method          = "next",
                 respect_selection_type = true,
                 mappings               = {
-                        add            = "ss",
-                        delete         = "sd",
-                        find           = "sf",
-                        find_left      = "sF",
-                        highlight      = "sh",
-                        replace        = "sr",
-                        update_n_lines = "sn",
+                        add            = prefix .. "s",
+                        delete         = prefix .. "d",
+                        find           = prefix .. "f",
+                        find_left      = prefix .. "F",
+                        highlight      = prefix .. "h",
+                        replace        = prefix .. "r",
+                        update_n_lines = prefix .. "n",
 
                         suffix_last = "h",
                         suffix_next = "l",

@@ -1,26 +1,15 @@
+local o    = vim.o
+local bo   = vim.bo
 local fn   = vim.fn
 local api  = vim.api
 local diag = vim.diagnostic
+local loop = vim.loop
 
 local function getIcon(category, type)
-        return require("core.utils.icons").makeIcon("real-icons", category, type)
+        return require("core.utils.icons").makeIcon("real-icons", type, category)
 end
 
-local function diff(props)
-        local signs = vim.b[props.buf].minidiff_summary
-
-        if not signs then
-                return {}
-        end
-
-        return vim
-                   .iter({ { "add", "+" }, { "change", "~" }, { "delete", "-" } })
-                   :map(function(i)
-                           local n = signs[i[1]]
-                           return (n and n > 0) and { i[2] .. n .. " ", group = "Diff" .. i[1] }
-                   end)
-                   :totable()
-end
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local function path(props)
         local relhead = fn.fnamemodify(api.nvim_buf_get_name(props.buf), ":~:.:h")
@@ -51,7 +40,7 @@ local function ftName(props)
 
         return vim.list_extend(
                 { { filename, group = "Comment" } },
-                vim.bo[props.buf].modified and { { "*", group = "Special" } } or {})
+                bo[props.buf].modified and { { "*", group = "Special" } } or {})
 end
 
 local function ftType(props)
@@ -67,7 +56,7 @@ local function diagnostics(props)
                            local count = #diag.get(props.buf, { severity = diag.severity[string.upper(severity)] })
 
                            if count == 0 then
-                                   return { "-" .. " ", group = "DiagnosticSign" .. severity }
+                                   return { "0" .. " ", group = "DiagnosticSign" .. severity }
                            end
 
                            return { count .. " ", group = "DiagnosticSign" .. severity }
@@ -77,7 +66,7 @@ end
 
 local function macro()
         local rec  = fn.reg_recording()
-        local icon = getIcon("extension", "mcfunction")
+        local icon = getIcon("extension", "bin")
 
         return { rec ~= "" and (icon[1] .. " ") or "", group = icon[2] }
 end
@@ -87,7 +76,6 @@ local function render(props)
                 { " " },
                 { macro() },
                 { path(props) },
-                -- { diff(props) },
                 { diagnostics(props) },
                 { ftType(props) },
                 { ftName(props) },
@@ -97,8 +85,12 @@ end
 
 return {
         "b0o/incline.nvim",
-        event        = "BufReadPre",
+        event        = "BufReadPost",
         dependencies = { "nvim-tree/nvim-web-devicons" },
+        init         = function()
+                o.laststatus = 0
+                o.statusline = ""
+        end,
         opts         = {
                 debounce_threshold = 0,
                 hide               = { only_win = false },
@@ -119,7 +111,7 @@ return {
         config       = function(_, opts)
                 require("incline").setup(opts)
 
-                local timer = vim.loop.new_timer()
+                local timer = loop.new_timer()
                 timer:start(0, 50, vim.schedule_wrap(function()
                         require("incline.manager").update({ refresh = true })
                 end))

@@ -1,7 +1,7 @@
 local mod_cache = nil
 local std_lib   = nil
 
----@param customArgs go_dir_custom_args
+---@param customArgs string
 ---@param onComplete fun(dir: string | nil)
 local function identifyGoDir(customArgs, onComplete)
         local cmd = { "go", "env", customArgs.envvar_id }

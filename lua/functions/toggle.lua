@@ -2,6 +2,9 @@ _G.Toggle = {}
 
 local g   = vim.g
 local lsp = vim.lsp
+local log = vim.log
+
+local levels = log.levels
 
 local misc  = Icon.Misc
 local diag  = Icon.Diagnostics
@@ -11,9 +14,9 @@ local kinds = Icon.Kinds
 
 local function notify(msg, state)
         if state == "Enabled" then
-                vim.notify(msg .. "Enabled", vim.log.levels.WARN)
+                vim.notify(msg .. "Enabled", levels.WARN)
         elseif state == "Disabled" then
-                vim.notify(msg .. "Disabled", vim.log.levels.ERROR)
+                vim.notify(msg .. "Disabled", levels.ERROR)
         end
 end
 
@@ -95,7 +98,7 @@ local function toggleConcealLvl()
         local msg = diag.ERROR .. " " .. "Conceal Level - "
 
         vim.wo.conceallevel = vim.wo.conceallevel == 0 and 2 or 0
-        vim.notify(msg .. vim.wo.conceallevel, vim.log.levels.WARN)
+        vim.notify(msg .. vim.wo.conceallevel, levels.WARN)
 end
 
 local function toggleAll()

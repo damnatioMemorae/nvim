@@ -1,18 +1,21 @@
 local M = {}
 
-local lsp = vim.lsp
-local cmd = vim.cmd
-local api = vim.api
-local fn  = vim.fn
 local bo  = vim.bo
+local fn  = vim.fn
 local wo  = vim.wo
+local api = vim.api
+local cmd = vim.cmd
+local log = vim.log
+local lsp = vim.lsp
+
+local levels = log.levels
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 function M.bufferInfo()
         local pseudo_tilde = "∼"
 
-        local clients      = lsp.get_clients{ bufnr = 0 }
+        local clients      = lsp.get_clients { bufnr = 0 }
         local longest_name = vim.iter(clients)
                    :fold(0, function(acc, client) return math.max(acc, #client.name) end)
         local lsps         = vim.tbl_map(function(client)
@@ -42,7 +45,7 @@ function M.bufferInfo()
                 vim.list_extend(out, { "No LSPs attached." })
         end
         local opts = { title = "Inspect buffer", icon = "󰽙", timeout = 10000 }
-        vim.notify(table.concat(out, "\n"), vim.log.levels.DEBUG, opts)
+        vim.notify(table.concat(out, "\n"), levels.DEBUG, opts)
 end
 
 function M.nodeAtCursor()
@@ -50,7 +53,7 @@ function M.nodeAtCursor()
 
         local ok, node = pcall(vim.treesitter.get_node)
         if not (ok and node) then
-                vim.notify("No node under cursor", vim.log.levels.DEBUG, { icon = "" })
+                vim.notify("No node under cursor", levels.DEBUG, { icon = "" })
                 return
         end
 
@@ -63,7 +66,7 @@ function M.nodeAtCursor()
         end
         tree[#tree] = tree[#tree]:gsub("├", "└")
         local msg   = table.concat(tree, "\n")
-        vim.notify(msg, vim.log.levels.DEBUG, { icon = "", title = "Node at cursor" })
+        vim.notify(msg, levels.DEBUG, { icon = "", title = "Node at cursor" })
 
         local start_row, start_col = node:start()
         local end_row, end_col     = node:end_()
@@ -88,9 +91,9 @@ function M.nodeAtCursor()
 end
 
 function M.lspCapabilities()
-        local clients = lsp.get_clients{ bufnr = 0 }
+        local clients = lsp.get_clients { bufnr = 0 }
         if #clients == 0 then
-                vim.notify("No LSPs attached.", vim.log.levels.WARN, { icon = "󱈄" })
+                vim.notify("No LSPs attached.", levels.WARN, { icon = "󱈄" })
                 return
         end
         vim.ui.select(clients, {
@@ -107,7 +110,7 @@ function M.lspCapabilities()
                               local opts   = { icon = "󱈄", title = client.name .. " capabilities", ft = "lua" }
                               local header = "-- for a full view, open in notification history\n"
                               local text   = header .. vim.inspect(info)
-                              vim.notify(text, vim.log.levels.DEBUG, opts)
+                              vim.notify(text, levels.DEBUG, opts)
                       end)
 end
 
@@ -122,7 +125,7 @@ function M.evalNvimLua()
                 local out  = fn.luaeval(input)
                 local opts = { title = "Eval", icon = ft_icon, ft = "lua" }
 
-                vim.notify(vim.inspect(out), vim.log.levels.DEBUG, opts)
+                vim.notify(vim.inspect(out), levels.DEBUG, opts)
         end
 
         if fn.mode() == "n" then
@@ -146,7 +149,7 @@ function M.runFile()
                 cmd("! chmod +x %")
                 cmd("! %")
         else
-                vim.notify("File has no shebang.", vim.log.levels.WARN, { title = "Run", icon = "󰜎" })
+                vim.notify("File has no shebang.", levels.WARN, { title = "Run", icon = "󰜎" })
         end
 
         if bo.filetype == "sh" and filepath:find("nvim") then
@@ -155,13 +158,13 @@ function M.runFile()
                 cmd("! chmod +x %")
                 cmd("! ./%")
         else
-                vim.notify("File has no shebang.", vim.log.levels.WARN, { title = "Run", icon = "󰜎" })
+                vim.notify("File has no shebang.", levels.WARN, { title = "Run", icon = "󰜎" })
         end
 end
 
 function M.inspectNodeAncestors()
         local node = vim.treesitter.get_node()
-        if not node then return vim.notify("No node under cursor.", vim.log.levels.WARN) end
+        if not node then return vim.notify("No node under cursor.", levels.WARN) end
         local ancestors = {}
         while node do
                 table.insert(ancestors, 1, node:type())

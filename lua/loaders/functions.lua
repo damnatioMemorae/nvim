@@ -1,5 +1,11 @@
-_G.lazySafeRequire("functions.statusline")
-_G.lazySafeRequire("functions.statuscol", "BufReadPost")
-_G.lazySafeRequire("functions.folding", "BufReadPost")
-_G.lazySafeRequire("functions.toggle")
-_G.lazySafeRequire("functions.ui2", "BufReadPost")
+_G.req
+"functions"
+           "toggle"
+           { "statusline", "BufReadPost" }
+           { "statuscol", "BufReadPost" }
+           { "folding", "BufReadPost" }
+           { "backdrop-underline-fix", "BufReadPost" }
+           { "ui2", "UiEnter" }
+
+require("functions.quickfix").setup()
+-- require("functions.quickfix2")

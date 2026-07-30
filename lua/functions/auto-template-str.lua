@@ -1,9 +1,19 @@
+local bo  = vim.bo
+local fn  = vim.fn
+local ts  = vim.treesitter
+local api = vim.api
+local log = vim.log
+
+local ft      = bo.ft
+local levels = log.levels
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 local M = {}
---------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ---@param msg string
 local function warn(msg)
-        vim.notify(msg, vim.log.levels.WARN, { title = "Auto-template-string", icon = "󰅳" })
+        vim.notify(msg, levels.WARN, { title = "Auto-template-string", icon = "󰅳" })
 end
 
 ---@param strNode? TSNode
@@ -13,13 +23,13 @@ end
 ---@param cursorOffset number number of columns to move to the right
 local function updateNode(strNode, insertAtCursor, textTransformer, cursorMove, cursorOffset)
         if not strNode then return end
-        local node_text = vim.treesitter.get_node_text(strNode, 0)
+        local node_text = ts.get_node_text(strNode, 0)
         if node_text:find("[\n\r]") then
                 warn("Multiline strings not supported yet.")
                 return
         end
         local node_row, node_start_col, _, node_end_col = strNode:range()
-        local cursor_col                                = vim.api.nvim_win_get_cursor(0)[2]
+        local cursor_col                                = api.nvim_win_get_cursor(0)[2]
 
         -- 1. `insertAtCursor`
         local pos_in_node = cursor_col - node_start_col
@@ -27,19 +37,19 @@ local function updateNode(strNode, insertAtCursor, textTransformer, cursorMove, 
 
         -- 2. `textTransformer`
         node_text = textTransformer(node_text)
-        vim.api.nvim_buf_set_text(0, node_row, node_start_col, node_row, node_end_col, { node_text })
+        api.nvim_buf_set_text(0, node_row, node_start_col, node_row, node_end_col, { node_text })
 
         -- 3. `cursorMove` & `cursorOffset`
         if cursorMove == "nodeEnd" then cursor_col = node_end_col end
-        vim.api.nvim_win_set_cursor(0, { node_row + 1, cursor_col + cursorOffset })
+        api.nvim_win_set_cursor(0, { node_row + 1, cursor_col + cursorOffset })
 end
 
---------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-local filetypeFuncs = {}
+local FiletypeFuncs = {}
 
 ---@param node TSNode
-function filetypeFuncs.lua(node)
+function FiletypeFuncs.lua(node)
         local str_node
         if node:type() == "string" then
                 str_node = node
@@ -53,7 +63,7 @@ function filetypeFuncs.lua(node)
 end
 
 ---@param node TSNode
-function filetypeFuncs.python(node)
+function FiletypeFuncs.python(node)
         local str_node
         if node:type() == "string" then
                 str_node = node
@@ -67,7 +77,7 @@ function filetypeFuncs.python(node)
 end
 
 ---@param node TSNode
-function filetypeFuncs.javascript(node)
+function FiletypeFuncs.javascript(node)
         local str_node
         if node:type() == "string" or node:type() == "template_string" then
                 str_node = node
@@ -78,10 +88,10 @@ function filetypeFuncs.javascript(node)
         updateNode(str_node, "${}", transformer, nil, 2)
 end
 
-filetypeFuncs.typescript = filetypeFuncs.javascript
+FiletypeFuncs.typescript = FiletypeFuncs.javascript
 
 ---@param node TSNode
-function filetypeFuncs.swift(node)
+function FiletypeFuncs.swift(node)
         local str_node
         if node:type() == "line_str_text" then
                 str_node = node
@@ -92,18 +102,18 @@ function filetypeFuncs.swift(node)
         updateNode(str_node, "\\()", transformer, nil, 2)
 end
 
---------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 function M.insertTemplateStr()
-        if vim.fn.mode() ~= "i" then return warn("Only works in insert mode.") end
+        if fn.mode() ~= "i" then return warn("Only works in insert mode.") end
 
-        local update_func = filetypeFuncs[vim.bo.ft]
-        if not update_func then return warn("Not configured for " .. vim.bo.ft) end
-        local node_at_cursor = vim.treesitter.get_node()
+        local update_func = FiletypeFuncs[ft]
+        if not update_func then return warn("Not configured for " .. ft) end
+        local node_at_cursor = ts.get_node()
         if not node_at_cursor then return warn("No node at cursor") end
 
         update_func(node_at_cursor)
 end
 
---------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 return M

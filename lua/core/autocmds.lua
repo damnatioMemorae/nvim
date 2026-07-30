@@ -1,13 +1,15 @@
 local map = _G.smartMap
 
-local g         = vim.g
-local o         = vim.o
-local bo        = vim.bo
-local opt       = vim.opt
-local opt_local = vim.opt_local
+local g     = vim.g
+local o     = vim.o
+local bo    = vim.bo
+local cmd   = vim.cmd
+local opt   = vim.opt
+local opt_l = vim.opt_local
 
 local fn      = vim.fn
 local uv      = vim.uv
+local wo      = vim.wo
 local api     = vim.api
 local augroup = vim.api.nvim_create_augroup
 local autocmd = vim.api.nvim_create_autocmd
@@ -17,7 +19,7 @@ local general = augroup("General Autocmds", { clear = true })
 ---- GENERAL -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 opt.wildmode = "noselect"
-autocmd("CmdlineChanged", {
+autocmd("CmdlineChanged", { -- FUZZY SEARCH
         desc     = "User: Add fuzzy completion for command line",
         group    = general,
         pattern  = { ":", "/", "!", "?" },
@@ -26,10 +28,24 @@ autocmd("CmdlineChanged", {
         end,
 })
 
+autocmd("CmdlineChanged", { -- QUICKFIX LIVE GREP
+        callback = function()
+                local cmdline = fn.getcmdline()
+                local words   = vim.split(cmdline, " ", { trimempty = true })
+
+                if words[1] == "livegrep" and #words > 1 then
+                        cmd("silent grep! " .. fn.escape(words[2], " "))
+                        cmd("cwindow")
+                end
+        end,
+        pattern  = ":",
+})
+
 autocmd("TextYankPost", {
         desc     = "User: Highlighted Yank",
         group    = general,
-        callback = function() vim.hl.hl_op() end,
+        -- callback = function() vim.hl.hl_op() end,
+        callback = function() vim.hl.on_yank({ higroup = "Visual", on_macro = true }) end,
 })
 
 autocmd("VimResized", { -- RESIZE SPLITS
@@ -100,19 +116,19 @@ autocmd("FileType", { -- NOFILE
         group    = general,
         callback = function(args)
                 if bo[args.buf].buftype == "nofile" then
-                        _G.bufMap({ "<Esc>", "<cmd>q<CR>", silent = true })
-                        opt_local.number         = false
-                        opt_local.relativenumber = false
-                        opt_local.statuscolumn   = ""
-                        opt_local.signcolumn     = "no"
+                        opt_l.number         = false
+                        opt_l.relativenumber = false
+                        opt_l.statuscolumn   = ""
+                        opt_l.signcolumn     = "no"
                 end
         end,
 })
 
+local types = { "dropbar_menu", "Glance", "rip-substitute", "terminal", "NeogitStatus" }
 autocmd({ "FocusGained", "BufWinEnter", "FileType" }, { -- BACKDROP
         desc     = "User: Add backdrop to floating windows",
         group    = general,
-        pattern  = { "dropbar_menu", "Glance", "rip-substitute", "terminal" },
+        pattern  = types,
         callback = function() require("core.utils.misc").addBackdrop() end,
 })
 
@@ -169,7 +185,7 @@ autocmd("FileType", {
 autocmd("FocusGained", {
         desc     = "User: Close all non-existing buffers on `FocusGained`.",
         callback = function()
-                local all_bufs       = fn.getbufinfo{ buflisted = 1 }
+                local all_bufs       = fn.getbufinfo { buflisted = 1 }
                 local closed_buffers = vim
                            .iter(all_bufs)
                            :fold({}, function(acc, buf)
@@ -226,14 +242,21 @@ do
         local function searchCountIndicator(mode)
                 local count_ns = api.nvim_create_namespace("searchCounter")
                 api.nvim_buf_clear_namespace(0, count_ns, 0, -1)
-                if mode == "clear" then return end
+
+                if mode == "clear" then
+                        return
+                end
 
                 local row   = api.nvim_win_get_cursor(0)[1]
                 local count = fn.searchcount()
-                if vim.tbl_isempty(count) or count.total == 0 then return end
+
+                if vim.tbl_isempty(count) or count.total == 0 then
+                        return
+                end
+
                 local text           = (" %d/%d "):format(count.current, count.total)
-                local line           = api.ng.t_current_line():gsub("\t", (" "):rep(bo.shiftwidth))
-                local signcolumn     = tonumber(vim.wo.signcolumn:match("%d+") or "0") * 2
+                local line           = api.nvim_get_current_line():gsub("\t", (" "):rep(bo.shiftwidth))
+                local signcolumn     = tonumber(wo.signcolumn:match("%d+") or "0") * 2
                 local viewport_width = api.nvim_win_get_width(0) - signcolumn - config.scrollbarWidth
                 local line_full      = #line + #text > viewport_width
                 local margin         = { line_full and (" "):rep(config.scrollbarWidth) or "" }
@@ -252,7 +275,7 @@ do
 
                            key                     = fn.keytrans(key)
                            local is_cmdline_search = fn.getcmdtype():find("[/?]") ~= nil
-                           local line              = api.nvim_get_current_line():gsub("\t", (" "):rep(bo.shiftwidth))
+                           local is_normal_mode    = api.nvim_get_mode().mode == "n"
                            local search_started    = (key == "/" or key == "?") and is_normal_mode
                            local search_confirmed  = (key == "<CR>" and is_cmdline_search)
                            local search_cancelled  = (key == "<Esc>" and is_cmdline_search)

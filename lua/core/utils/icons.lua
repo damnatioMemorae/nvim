@@ -4,13 +4,19 @@ local function isLoaded(iconProvider)
         return loaded
 end
 
-local function makeIcon(provider, category, type)
+local function makeIcon(provider, type, category)
         local _, module = pcall(require, provider)
 
-        if isLoaded(provider) then
+        if isLoaded(provider) and provider == "real-icons" then
                 local segment = module.segment(category, type)
                 local text    = segment.text
                 local hl      = segment.hl
+
+                return { text, hl }
+        elseif isLoaded(provider) and provider == "nvim-web-devicons" then
+                local segment = require"nvim-web-devicons".get_icon_color("*." .. type, type)
+                local text    = segment.icon
+                local hl      = segment.color
 
                 return { text, hl }
         end
@@ -29,11 +35,11 @@ local M = {}
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ---@param provider string
----@param category string
 ---@param type string
+---@param category? string
 ---@return table<string, string>
-function M.makeIcon(provider, category, type)
-        return makeIcon(provider, category, type)
+function M.makeIcon(provider, type, category)
+        return makeIcon(provider, type, category)
 end
 
 function M.renderIcon(bufnr, row, col, icon)

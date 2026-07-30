@@ -1,29 +1,41 @@
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not vim.uv.fs_stat(lazypath) then
-        local repo = "https://github.com/folke/lazy.nvim.git"
+local g   = vim.g
+local fn  = vim.fn
+local ui  = vim.ui
+local uv  = vim.uv
+local api = vim.api
+local log = vim.log
+local opt = vim.opt
+
+local levels = log.levels
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+local lazypath = fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not uv.fs_stat(lazypath) then
+        local repo = "https://github.com/folke/lazy.ngit"
         local args = { "git", "clone", "--filter=blob:none", "--branch=stable", repo, lazypath }
         local out  = vim.system(args):wait()
         if out.code ~= 0 then
-                vim.api.nvim_echo({ { "Failed to clone lazy.nvim:\n" .. out.stderr, "ErrorMsg" } }, true, {})
-                vim.fn.getchar()
+                api.nvim_echo({ { "Failed to clone lazy.nvim:\n" .. out.stderr, "ErrorMsg" } }, true, {})
+                fn.getchar()
                 os.exit(1)
         end
 end
 
-vim.opt.runtimepath:prepend(lazypath)
+opt.runtimepath:prepend(lazypath)
 
-------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 require("lazy").setup({
         spec             = { import = "plugins" },
         defaults         = { lazy = true },
-        dev              = { patterns = { "nvim" }, path = vim.g.localRepos, fallback = true },
+        dev              = { patterns = { "nvim" }, path = g.localRepos, fallback = true },
         install          = { colorscheme = { "catppuccin-mocha" } },
         git              = { log = { "--since=4 days ago" } },
         ui               = {
                 title       = " lazy.nvim ",
                 wrap        = true,
-                backdrop    = vim.g.backdrop,
+                backdrop    = g.backdrop,
                 border      = Border.Default.None,
                 pills       = false,
                 size        = { width = 0.80, height = 0.9 },
@@ -34,13 +46,13 @@ require("lazy").setup({
                         ["gi"]             = {
                                 function(plug)
                                         local url    = plug.url:gsub("%.git$", "")
-                                        local line   = vim.api.nvim_get_current_line()
+                                        local line   = api.nvim_get_current_line()
                                         local issue  = line:match("#(%d+)")
                                         local commit = line:match(("%x"):rep(6) .. "+")
                                         if issue then
-                                                vim.ui.open(url .. "/issues/" .. issue)
+                                                ui.open(url .. "/issues/" .. issue)
                                         elseif commit then
-                                                vim.ui.open(url .. "/commit/" .. commit)
+                                                ui.open(url .. "/commit/" .. commit)
                                         end
                                 end,
                                 desc = " Open issue/commit",
@@ -49,99 +61,41 @@ require("lazy").setup({
         },
         checker          = { enabled = true, frequency = 60 * 60 * 24 * 7 },
         diff             = { cmd = "browser" },
-        change_detection = { notify = false },
+        change_detection = { enabled = true, notify = false },
         readme           = { enabled = true, skip_if_doc_exists = false },
         performance      = {
                 rtp = {
                         disabled_plugins = {
-                                "rplugin",
-                                "netrwPlugin",
-                                "man",
-                                "tutor",
-                                "health",
-                                "tohtml",
+                                "cfilter",
+                                "difftool",
+                                "editorconfig",
+                                "ft-shada",
                                 "gzip",
-                                "zipPlugin",
-                                "tarPlugin",
+                                "health",
+                                "justify",
+                                "man.lua",
+                                "msgpack",
+                                "netrwPlugin",
+                                "nohlsearch",
                                 "osc52",
+                                "rplugin",
+                                "spec",
+                                "spellfile",
+                                "swapmouse",
+                                "tar",
+                                "tarPlugin",
+                                "termdebug",
+                                "tohtml",
+                                "tutor",
+                                "undotree",
+                                "zip",
+                                "zipPlugin",
                         },
                 },
         },
 })
 
--- KEYMAPS FOR LAZY UI
-
-require("lazy.view.config").keys.hover   = "o"
-require("lazy.view.config").keys.details = "<Tab>"
-
----- KEYMAPS FOR NVIM TRIGGERING LAZY ----------------------------------------------------------------------------------
-
-local map = _G.smartMap
-
-map({ "<leader>pp", require("lazy").sync, mode = "n", desc = "󰒲 Lazy Sync" })
-map({ "<leader>pl", require("lazy").home, mode = "n", desc = "󰒲 Lazy Home" })
-map({ "<leader>pi", require("lazy").install, mode = "n", desc = "󰒲 Lazy Install" })
-
----- GOTO PLUGIN SPEC --------------------------------------------------------------------------------------------------
-
-map({
-        "<leader><leader>,",
-        function()
-                vim.api.nvim_create_autocmd("FileType", {
-                        desc     = "User (once): Colorize icons in `TelescopeResults`",
-                        once     = true,
-                        pattern  = "TelescopeResults",
-                        callback = function() vim.fn.matchadd("Title", [[^..\zs.]]) end,
-                })
-                local spec_root  = require("lazy.core.config").options.spec.import
-                local spec_path  = vim.fn.stdpath("config") .. "/lua/" .. spec_root
-                local spec_files = vim.fs.dir(spec_path)
-
-                local all_plugins = vim
-                           .iter(spec_files)
-                           :fold({}, function(acc, name, _)
-                                   if not vim.endswith(name, ".lua") then
-                                           return acc
-                                   end
-
-                                   local module_name = name:gsub("%.lua$", "")
-                                   local module      = require(spec_root .. "." .. module_name)
-
-                                   if type(module[1]) ~= "table" then
-                                           module = { module }
-                                   end
-
-                                   local plugins = vim
-                                              .iter(module)
-                                              :map(function(plugin)
-                                                      return { repo = plugin[1], module = module_name }
-                                              end)
-                                              :totable()
-                                   return vim.list_extend(acc, plugins)
-                           end)
-
-                vim.ui.select(all_plugins, {
-                                      prompt      = "Goto Config",
-                                      format_item = function(plugin)
-                                              return vim.fs.basename(plugin.repo)
-                                      end,
-                              },
-                              function(plugin)
-                                      if not plugin then
-                                              return
-                                      end
-
-                                      local filepath = spec_path .. "/" .. plugin.module .. ".lua"
-                                      local repo     = plugin.repo:gsub("/", "\\/")
-
-                                      vim.cmd(("edit +/%q %s"):format(repo, filepath))
-                              end)
-        end,
-        mode = "n",
-        desc = "󰒲 Goto Plugin Config",
-})
-
----- TEST FOR DUPLICATE KEYS -------------------------------------------------------------------------------------------
+---- TEST FOR DUPLICATE KEYS -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local function checkForDuplicateKeys()
         local already_mapped = {}
@@ -177,7 +131,7 @@ local function checkForDuplicateKeys()
                                                                  if already_mapped[mode][lhs] then
                                                                          local msg = ("Duplicate keymap: %s (%s)")
                                                                                     :format(lhs, mode)
-                                                                         vim.notify(msg, vim.log.levels.WARN,
+                                                                         vim.notify(msg, levels.WARN,
                                                                                     { title = "lazy.nvim", timeout = 4000 })
                                                                  else
                                                                          already_mapped[mode][lhs] = true
@@ -188,4 +142,4 @@ local function checkForDuplicateKeys()
 end
 
 vim.defer_fn(checkForDuplicateKeys, 5000)
-vim.api.nvim_set_hl(0, "LazyNormal", { link = "Normal" })
+api.nvim_set_hl(0, "LazyNormal", { link = "Normal" })

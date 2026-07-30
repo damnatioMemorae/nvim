@@ -1,6 +1,6 @@
 return {
         "Mirsmog/real-icons.nvim",
-        event = "BufReadPre",
+        event = "BufReadPost",
         build = ":RealIconsInstallPack material",
         opts  = {
                 pack         = "datapack",

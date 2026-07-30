@@ -1,6 +1,6 @@
 return {
         "SunnyTamang/select-undo.nvim",
-        event = "BufReadPre",
+        event = "BufReadPost",
         opts  = {
                 persistent_undo = true,
                 mapping         = true,

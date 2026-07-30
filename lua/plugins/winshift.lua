@@ -3,7 +3,7 @@ return {
         keys   = { { "<leader>w", "<cmd>WinShift<CR>" } },
         opts   = {
                 highlight_moving_win = true,
-                focused_hl_group     = "Visual",
+                focused_hl_group     = "NormalFloat",
                 moving_win_options   = { wrap = false, cursorline = false, cursorcolumn = false, colorcolumn = "" },
                 keymaps              = {
                         disable_defaults = false,
@@ -30,14 +30,14 @@ return {
         config = function(_, opts)
                 require("winshift").setup(opts)
 
-                _G.hlLink({
-                                  { "Normal",       "NormalFloat" },
-                                  { "FoldColumn",   "NormalFloat" },
-                                  { "SignColumn",   "NormalFloat" },
-                                  { "LineNr",       "LineNr" },
-                                  { "LineNrAbove",  "LineNr" },
-                                  { "LineNrBelow",  "LineNr" },
-                                  { "CursorLineNr", "CursorLineNr" },
-                          }, "Winshift")
+                _G.linq
+                "Winshift"
+                           { "Normal", "NormalFloat" }
+                           { "FoldColumn", "NormalFloat" }
+                           { "SignColumn", "NormalFloat" }
+                           { "LineNr", "LineNr" }
+                           { "LineNrAbove", "LineNr" }
+                           { "LineNrBelow", "LineNr" }
+                           { "CursorLneNr", "CursorLineNr" }
         end,
 }
