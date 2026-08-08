@@ -4,13 +4,13 @@ local log = vim.log
 local lsp = vim.lsp
 
 local levels = log.levels
-local util    = lsp.util
+local util   = lsp.util
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local function switchSourceHeader(bufnr)
         local method_name = "textDocument/switchSourceHeader"
-        local client      = lsp.get_clients({ bufnr = bufnr, name = "clangd" })[1]
+        local client      = lsp.get_clients { bufnr = bufnr, name = "clangd" }[1]
         if not client then
                 return vim.notify(("method %s is not supported by any servers active on the current buffer"):format(
                         method_name))
@@ -23,7 +23,7 @@ local function switchSourceHeader(bufnr)
                                        error(tostring(err))
                                end
                                if not result then
-                                       vim.notify("corresponding file cannot be determined")
+                                       vim.notify "corresponding file cannot be determined"
                                        return
                                end
                                cmd.edit(vim.uri_to_fname(result))
@@ -32,7 +32,7 @@ end
 
 local function symbolInfo()
         local bufnr         = api.nvim_get_current_buf()
-        local clangd_client = lsp.get_clients({ bufnr = bufnr, name = "clangd" })[1]
+        local clangd_client = lsp.get_clients { bufnr = bufnr, name = "clangd" }[1]
         ---@diagnostic disable-next-line: unknown-diag-code
         ---@diagnostic disable-next-line: param-type-not-match, missing-parameter, param-type-mismatch
         if not clangd_client or not clangd_client.supports_method "textDocument/symbolInfo" then

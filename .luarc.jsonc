@@ -376,7 +376,4 @@
 		"nohlsearch",
 		"autojump"
 	],
-    "diagnostics.globals": [
-        "Snacks"
-    ]
 }

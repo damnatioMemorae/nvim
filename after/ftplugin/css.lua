@@ -1,24 +1,18 @@
 local bo = vim.bo
 
-local map = _G.bufMap
-
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 bo.commentstring = "/* %s */"
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-map({
-        "!",
-        function()
-                local line = vim.api.nvim_get_current_line()
-                if line:find("!important") then
+bufq { "!", function()
+        local line = vim.api.nvim_get_current_line()
+        cond(
+                line:find "!important", function()
                         line = line:gsub(" ?!important", "")
-                else
-                        line = line:gsub(";?$", " !important;", 1)
-                end
-                vim.api.nvim_set_current_line(line)
-        end,
-        mode = "n",
-        desc = " Toggle !important",
-})
+                end)(function()
+                           line = line:gsub(";?$", " !important;", 1)
+                   end)
+        vim.api.nvim_set_current_line(line)
+end, mode = "n", desc = "Toggle !important" }

@@ -3,16 +3,15 @@ return {
         version = false,
         event   = "BufReadPre",
         opts    = {
+                -- a
                 mappings = {
-
-                        left  = "<S-Tab>",
-                        down  = "<M-j>",
-                        up    = "<M-k>",
-                        right = "<Tab>",
-
-                        line_left  = "<S-Tab>",
-                        line_down  = "<M-j>",
-                        line_up    = "<M-k>",
+                        left      = "<left>",
+                        down      = "<down>",
+                        up        = "<up>",
+                        right     = "<right>",
+                        line_left = "<S-Tab>",
+                        line_down = "<M-j>",
+                        line_up   = "<M-k>",
                         -- line_right = "<Tab>",
                 },
                 options  = { reindent_linewise = true },

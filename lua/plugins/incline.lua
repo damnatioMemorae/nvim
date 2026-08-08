@@ -6,7 +6,7 @@ local diag = vim.diagnostic
 local loop = vim.loop
 
 local function getIcon(category, type)
-        return require("core.utils.icons").makeIcon("real-icons", type, category)
+        return require "utils.icons".makeIcon("real-icons", type, category)
 end
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -51,7 +51,7 @@ end
 
 local function diagnostics(props)
         return vim
-                   .iter({ "error", "warn", "hint" })
+                   .iter { "error", "warn", "hint" }
                    :map(function(severity)
                            local count = #diag.get(props.buf, { severity = diag.severity[string.upper(severity)] })
 
@@ -85,13 +85,12 @@ end
 
 return {
         "b0o/incline.nvim",
-        event        = "BufReadPost",
-        dependencies = { "nvim-tree/nvim-web-devicons" },
-        init         = function()
+        event  = "BufReadPost",
+        init   = function()
                 o.laststatus = 0
                 o.statusline = ""
         end,
-        opts         = {
+        opts   = {
                 debounce_threshold = 0,
                 hide               = { only_win = false },
                 window             = {
@@ -108,12 +107,12 @@ return {
                 },
                 render             = render,
         },
-        config       = function(_, opts)
-                require("incline").setup(opts)
+        config = function(_, opts)
+                require "incline".setup(opts)
 
                 local timer = loop.new_timer()
-                timer:start(0, 50, vim.schedule_wrap(function()
-                        require("incline.manager").update({ refresh = true })
+                timer:start(0, 50, vim.schedule_wrap(function() ---@diagnostic disable-line: need-check-nil
+                        require "incline.manager".update { refresh = true }
                 end))
         end,
 }

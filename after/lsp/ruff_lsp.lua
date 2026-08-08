@@ -12,17 +12,17 @@
 ---
 --- ```lua
 --- vim.lsp.config('ruff_lsp', {
----   init_options = {
----     settings = {
+---   init_options  = {
+---     settings  = {
 ---       -- Any extra CLI arguments for `ruff` go here.
----       args = {},
+---       args  = {},
 ---     }
 ---   }
 --- })
 --- ```
 return {
-  cmd = { 'ruff-lsp' },
-  filetypes = { 'python' },
-  root_markers = { 'pyproject.toml', 'ruff.toml', '.git' },
-  settings = {},
+        cmd          = { "ruff-lsp" },
+        filetypes    = { "python" },
+        root_markers = { "pyproject.toml", "ruff.toml", ".git" },
+        settings     = {},
 }

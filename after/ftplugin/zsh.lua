@@ -1,24 +1,16 @@
 local cmd = vim.cmd
 local lsp = vim.lsp
 
-local map  = _G.bufMap
-local abbr = _G.bufAbbr
-
 ---- ABBREVIATIONS -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-abbr("//",    "#")
-abbr("delay", "sleep")
-abbr("const", "local")
-abbr("~=",    "=~")
+abbr "//" "#"
+abbr "delay" "sleep"
+abbr "const" "local"
+abbr "~=" "=~"
 
 ---- KEYMAPS -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-map({
-        "<M-s>",
-        function()
-                cmd([[% substitute_/Users/\w\+/_$HOME/_e]])
-                lsp.buf.format()
-        end,
-        mode = "n",
-        desc = " Format",
-})
+bufq { "<M-s>", function()
+        cmd [[% substitute_/Users/\w\+/_$HOME/_e]]
+        lsp.buf.format()
+end, mode = "n", desc = " Format" }

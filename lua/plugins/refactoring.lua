@@ -26,20 +26,19 @@ return {
                 show_success_message    = true,
         },
         config       = function()
-                local map = _G.smartMap
-                local d   = require("refactoring.debug")
-                local r   = require("refactoring")
+                local d = require "refactoring.debug"
+                local r = require "refactoring"
 
-                map({ "<leader>fi", function() return r.inline_var() end, expr = true })
-                map({ "<leader>fe", function() return r.extract_var() end, expr = true })
-                map({ "<leader>fu", function() return r.extract_func() .. "_" end, expr = true })
-                map({ "<leader>fU", function() return r.extract_func_to_file() end, expr = true })
+                keyq { "<leader>fi", function() return r.inline_var() end, expr = true }
+                keyq { "<leader>fe", function() return r.extract_var() end, expr = true }
+                keyq { "<leader>fu", function() return r.extract_func() .. "_" end, expr = true }
+                keyq { "<leader>fU", function() return r.extract_func_to_file() end, expr = true }
 
-                map({ "<leader>pv", function() return d.print_var({ output_location = "below", expr = true }) end })
-                map({ "<leader>pV", function() return d.print_var({ output_location = "above", expr = true }) end })
+                keyq { "<leader>pv", function() return d.print_var { output_location = "below" } end, expr = true }
+                keyq { "<leader>pV", function() return d.print_var { output_location = "above" } end, expr = true }
                 -- k({ "n" }, "<leader>rp", function() return d.printf({ below = false }) end)
-                map({ "<leader>pc", function() return d.cleanup({ restore_view = true }) end })
+                keyq { "<leader>pc", function() return d.cleanup { restore_view = true } end }
 
-                map({ "<LocalLeader>z", function() return r.select_refactor() end })
+                keyq { "<LocalLeader>z", function() return r.select_refactor() end }
         end,
 }

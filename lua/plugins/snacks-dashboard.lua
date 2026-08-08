@@ -74,7 +74,7 @@ return {
                                                 { "f",                   hl = label },
                                                 { "]",                   hl = button },
                                         },
-                                        action  = function() picker("files") end,
+                                        action  = function() picker "files" end,
                                         key     = "f",
                                         padding = 1,
                                         align   = "center",
@@ -87,7 +87,7 @@ return {
                                                 { "w",                   hl = label },
                                                 { "]",                   hl = button },
                                         },
-                                        action  = function() picker("grep") end,
+                                        action  = function() picker "grep" end,
                                         key     = "w",
                                         padding = 1,
                                         align   = "center",
@@ -100,7 +100,7 @@ return {
                                                 { "e",                  hl = label },
                                                 { "]",                  hl = button },
                                         },
-                                        action  = function() require("mini.files").open() end,
+                                        action  = function() require "mini.files".open() end,
                                         key     = "e",
                                         padding = 1,
                                         align   = "center",
@@ -141,7 +141,7 @@ return {
                                         },
                                         key     = "m",
                                         action  = function()
-                                                require("mason"); vim.cmd("Mason")
+                                                require "mason"; vim.cmd "Mason"
                                         end,
                                         padding = 1,
                                         align   = "center",

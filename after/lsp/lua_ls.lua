@@ -1,4 +1,11 @@
-local style   = {
+local fn  = vim.fn
+local uv  = vim.uv
+local env = vim.env
+
+local modules = { "utils.functional", "utils.meta" }
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+local style         = {
         function_param_name_style    = {
                 "camel_case",
                 { type = "pattern", param = "_(\\w+)", ["$1"] = "camel_case" },
@@ -21,8 +28,12 @@ local style   = {
                 { type = "pattern", param = "_" },
                 { type = "pattern", param = "__" },
         },
+        local_function_name_style    = {
+                "camel_case",
+                { type = "pattern", param = "_(\\w+)", ["$1"] = "camel_case" },
+                { type = "pattern", param = "_(\\w+)", ["$1"] = "snake_case" },
+        },
         local_name_style             = { "snake_case", { type = "pattern", param = "_(\\w+)", ["$1"] = "snake_case" } },
-        local_function_name_style    = { "camel_case", { type = "pattern", param = "_(\\w+)", ["$1"] = "camel_case" } },
         table_field_name_style       = { "snake_case", "camel_case", "pascal_case", { type = "pattern", param = "_(\\w+)" } },
         function_name_style          = { "camel_case" },
         module_name_style            = { "upper_snake_case", "pascal_case" },
@@ -30,7 +41,7 @@ local style   = {
         class_name_style             = { "upper_snake_case" },
         constant_variable_name_style = { "camel_case", "pascal_case" },
 }
-local format  = {
+local format        = {
         indent_style = "space",
         indent_size  = "8",
         tab_width    = "4",
@@ -52,7 +63,7 @@ local format  = {
         space_around_assign_operator                 = "true",
         space_around_concat_operator                 = "true",
         space_around_logical_operator                = "true",
-        space_around_math_operator                   = "true",
+        space_around_math_operator                   = "false",
         space_around_table_append_operator           = "false",
         space_around_table_field_list                = "true",
         space_before_attribute                       = "true",
@@ -100,7 +111,7 @@ local format  = {
         remove_call_expression_list_finish_comma = "false",
         end_statement_with_semicolon             = "keep",
 }
-local builtin = {
+local builtin       = {
         ["basic"]       = "enable",
         ["bit"]         = "enable",
         ["bit32"]       = "enable",
@@ -119,7 +130,6 @@ local builtin = {
         ["table.new"]   = "enable",
         ["utf8"]        = "enable",
 }
-
 local root_markers1 = {
         ".emmyrc.json",
         ".luarc.json",
@@ -132,20 +142,31 @@ local root_markers2 = {
         "selene.toml",
         "selene.yml",
 }
-
-local lazy      = vim.fn.stdpath("data") .. "/lazy"
-local nvim_libs = {
-        vim.env.VIMRUNTIME,
+local nvim_libs     = {
+        env.VIMRUNTIME,
         "${3rd}/luv/library",
         "${3rd}/busted/library",
 }
-local on_init   = function(client)
-        local path = vim.uv.cwd()
 
-        if path == vim.fn.stdpath("config") then
+local function makeGlob(libs)
+        return function(prepend)
+                local globs = vim.deepcopy(prepend or {})
+                for _, mod in ipairs(libs) do
+                        for _, group in pairs(require(mod)) do
+                                vim.list_extend(globs, vim.tbl_keys(group))
+                        end
+                end
+                return globs
+        end
+end
+
+local function onInit(client)
+        local path = uv.cwd()
+
+        if path == fn.stdpath "config" then
                 client.config.settings.Lua = vim.tbl_deep_extend("force", client.config.settings.Lua, {
                         workspace       = { library = nvim_libs, ignoreDir = "templates" },
-                        diagnostics     = { globals = "Snacks" },
+                        diagnostics     = { globals = makeGlob(modules) { "Snacks" } },
                         groupFileStatus = { luadoc = "Any", conventions = "Any" },
                 })
         end
@@ -155,7 +176,7 @@ end
 return {
         cmd          = { "lua-language-server" },
         filetypes    = { "lua" },
-        root_markers = vim.fn.has("nvim-0.11.3") == 1 and { root_markers1, root_markers2, { ".git" } }
+        root_markers = fn.has "nvim-0.11.3" == 1 and { root_markers1, root_markers2, { ".git" } }
                    or vim.list_extend(vim.list_extend(root_markers1, root_markers2), { ".git" }),
         settings     = {
                 Lua = {
@@ -192,10 +213,10 @@ return {
                         telemetry     = { enable = false },
                         format        = { enable = true, defaultConfig = format },
                         language      = { fixIndent = true, completeAnnotation = true },
-                        type          = { castNumberToInteger = false, checkTableShape = true, inferParamType = true },
+                        type          = { castNumberToInteger = true, checkTableShape = true, inferParamType = true },
                         typeFormat    = { config = { auto_complete_end = "true", auto_complete_table_sep = "true", format_line = "true" } },
-                        workspace     = { preloadFileSize = 10000, useGitignore = false },
+                        workspace     = { preloadFileSize = 20000, useGitignore = false },
                 },
         },
-        on_init      = on_init,
+        on_init      = onInit,
 }

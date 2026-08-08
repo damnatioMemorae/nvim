@@ -4,6 +4,8 @@ local fn  = vim.fn
 local cmd = vim.cmd
 local api = vim.api
 
+local _linq = _linq
+
 local function h(name)
         return function(opts)
                 api.nvim_set_hl(0, name, opts)
@@ -14,10 +16,10 @@ end
 local M = {}
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-cmd("highlight clear")
+cmd "highlight clear"
 
-if fn.exists("syntax_on") then
-        cmd("syntax reset")
+if fn.exists "syntax_on" then
+        cmd "syntax reset"
 end
 
 o.termguicolors = true
@@ -98,7 +100,7 @@ h "@comment.note" { fg = colors.crust0, bg = colors.blue, italic = true, bold = 
 h "@comment.hint" { fg = colors.crust0, bg = colors.sky, italic = true, bold = true }       -- HINT: WIP:
 h "@comment.warning" { fg = colors.crust0, bg = colors.yellow, italic = true, bold = true } -- WARNING:
 h "@comment.error" { fg = colors.crust0, bg = colors.red, italic = true, bold = true }      -- FIXME:
-h "@comment.code" { fg = colors.teal, bg = colors.base, italic = false, bold = false }       -- `code`
+h "@comment.code" { fg = colors.teal, bg = colors.base, italic = false, bold = false }      -- `code`
 h "@comment.url" { link = "@markup.link.url" }                                              -- https://google.com
 h "@comment.bold" { fg = colors.surface2, bold = true }                                     -- BOLD
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -130,7 +132,7 @@ h "DiagnosticUnnecessary" { link = "Comment" }
 h "DiagnosticDeprecated" { strikethrough = true }
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-_G.hi
+_linq
 "DiagnosticError"
            "DiagnosticVirtualLinesError"
            "DiagnosticFloatingError"
@@ -139,7 +141,7 @@ _G.hi
            "DiffRemoved"
            "SpellBad"
 
-_G.hi
+_linq
 "DiagnosticWarn"
            "DiagnosticVirtualLinesWarn"
            "DiagnosticFloatingWarn"
@@ -149,21 +151,21 @@ _G.hi
            "SpellCap"
            "WarningMsg"
 
-_G.hi
+_linq
 "DiagnosticInfo"
            "DiagnosticVirtualLinesInfo"
            "DiagnosticFloatingInfo"
            "DiagnosticSignInfo"
            "SpellRare"
 
-_G.hi
+_linq
 "DiagnosticHint"
            "DiagnosticVirtualLinesHint"
            "DiagnosticFloatingHint"
            "DiagnosticSignHint"
            "DiffText"
 
-_G.hi
+_linq
 "DiagnosticOk"
            "DiagnosticVirtualLinesOk"
            "DiagnosticFloatingOk"
@@ -174,7 +176,7 @@ _G.hi
            "ModeMsg"
            "SpellLocal"
 
-_G.hi
+_linq
 "DiagnosticDeprecated"
            "LspAbbrDeprecated"
 
@@ -183,7 +185,7 @@ h "Search" { bg = colors.yellow_transparent }
 h "CurSearch" { fg = colors.yellow, reverse = true }
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-_G.hi --> colors.yellow,
+_linq --> colors.yellow,
 "CurSearch"
            "IncSearch"
            "Substitute"
@@ -202,34 +204,36 @@ h "CursorLineNr" { fg = colors.ivory }
 h "Border" { fg = colors.crust0, bg = colors.crust0 }
 -- h "FloatBorder" { fg = colors.crust1, bg = colors.crust1 }
 h "Backdrop" { bg = "#000000" }
+h "FoldTextInner" { fg = colors.surface2 }
+h "StatusLine" { bg = colors.mantle0 }
+h "QfText" { fg = colors.subtext0 }
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-_G.hi --> Special
+_linq --> Special
 "Title"
            "FloatTitle"
            "FloatFooter"
 
-_G.hi --> Special
+_linq --> Special
 "NormalFloat"
            "FloatBorder"
 
-_G.hi --> NONE
+_linq --> NONE
 "CursorLine"
            "Folded"
 
-_G.hi --> colors.surface2 colors.mantle0
+_linq --> colors.surface2 colors.mantle0
 "LspCodeLens"
            "FoldText"
 
-_G.hi --> colors.crust0
+_linq --> colors.crust0
 "Normal"
            "NormalNC"
            "Ignore"
            "StdoutMsg"
            "WinBar"
-           "StatusLine"
 
-_G.hi --> colors.surface1
+_linq --> colors.surface1
 "NonText"
            "LineNr"
            "SignColumn"
@@ -238,7 +242,7 @@ _G.hi --> colors.surface1
            "WinSeparator"
            "EndOfBuffer"
 
-_G.hi --> colors.surface0
+_linq --> colors.surface0
 "Visual"
            "ColorColumn"
            "CursorColumn"
@@ -251,26 +255,26 @@ _G.hi --> colors.surface0
            "PmenuThumb"
            "MatchParen"
 
-_G.hi --> Normal
+_linq --> Normal
 "StatusLine"
            "StatusLineTerm"
            "MsgSeparator"
            "StatusLineNC"
 
-_G.hi --> StatusLine
+_linq --> StatusLine
 "WinSeparator"
            "VertSplit"
 
-_G.hi --> StatusLine
+_linq --> StatusLine
 "StatusLineNC"
            "TabLine"
            "StatusLineTermNC"
 
-_G.hi --> Normal
+_linq --> Normal
 "WinBar"
            "WinBarNC"
 
-_G.hi --> NonText
+_linq --> NonText
 "SignColumn"
            "CursorLineSign"
 
@@ -278,11 +282,11 @@ _G.hi --> NonText
 h "LspCodeLens" { fg = colors.surface2, bg = colors.base }
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-_G.hi --> colors.surface2 colors.mantle0
+_linq --> colors.surface2 colors.mantle0
 "LspCodeLens"
            "LspInlayHint"
 
-_G.hi --> Visual
+_linq --> Visual
 "LspReferenceText"
            "LspReferenceRead"
            "LspReferenceTarget"
@@ -297,31 +301,31 @@ h "FloatShadow" { bg = colors.surface1, blend = 80 }
 h "FloatShadowThrough" { bg = colors.surface1, blend = 100 }
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-_G.hi --> colors.crust1
+_linq --> colors.crust1
 "Pmenu"
            "PmenuBorder"
            "PmenuExtra"
            "PmenuKind"
            "PmenuSbar"
 
-_G.hi --> Visual
+_linq --> Visual
 "PmenuSel"
            "PmenuKindSel"
            "PmenuExtraSel"
 
-_G.hi --> bold
+_linq --> bold
 "PmenuMatch"
            "PmenuMatchSel"
 
-_G.hi --> Pmenu
+_linq --> Pmenu
 "PmenuSbar"
            "PmenuThumb"
 
-_G.hi --> Pmenu
+_linq --> Pmenu
 "FloatShadow"
            "PmenuShadow"
 
-_G.hi --> Pmenu
+_linq --> Pmenu
 "FloatShadowThrough"
            "PmenuShadowThrough"
 
@@ -344,19 +348,19 @@ h "Error" { fg = colors.red }
 h "Label" { fg = colors.red }
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-_G.hi --> colors.sapphire
+_linq --> colors.sapphire
 "Conditional"
            "Repeat"
            "@conditional"
            "@keyword.conditional"
            "@keyword.repeat"
 
-_G.hi --> colors.lavender
+_linq --> colors.lavender
 "Identifier"
            "NvimIdentifier"
            "@property"
 
-_G.hi --> colors.sapphire
+_linq --> colors.sapphire
 "Operator"
            "NvimAssignment"
            "NvimOperator"
@@ -364,27 +368,26 @@ _G.hi --> colors.sapphire
            "@keyword.operator"
            "@lsp.type.operator"
 
-_G.hi --> colors.surface2
+_linq --> colors.surface2
 "Delimiter"
            "NvimParenthesis"
            "NvimColon"
            "NvimComma"
            "NvimArrow"
-           "@constructor"
            "@punctuation"
 
-_G.hi --> colors.surface2
+_linq --> colors.surface2
 "Comment"
            "MoreMsg"
            "@comment"
            "@lsp.type.comment"
 
-_G.hi --> colors.yellow
+_linq --> colors.yellow
 "Keyword"
            "@keyword"
            "@lsp.type.keyword"
 
-_G.hi --> colors.mauve
+_linq --> colors.mauve
 "Type"
            "Typedef"
            "Structure"
@@ -393,7 +396,7 @@ _G.hi --> colors.mauve
            "NvimOptionSigil"
            "@type"
 
-_G.hi --> colors.ivory
+_linq --> colors.ivory
 "Function"
            "@function"
            "@keyword.function"
@@ -401,7 +404,7 @@ _G.hi --> colors.ivory
            "@namespace"
            "@lsp.type.namespace"
 
-_G.hi --> colors.peach
+_linq --> colors.peach
 "Constant"
            "Number"
            "Boolean"
@@ -409,12 +412,12 @@ _G.hi --> colors.peach
            "@boolean"
            "@number"
 
-_G.hi --> colors.green
+_linq --> colors.green
 "String"
            "NvimString"
            "@string"
 
-_G.hi --> colors.pink
+_linq --> colors.pink
 "Special"
            "Title"
            "Character"
@@ -425,11 +428,12 @@ _G.hi --> colors.pink
            "Debug"
            "@tag"
            "@attribute"
+           "@constructor"
            "@punctuation.special"
            "@variable.builtin"
            "@module.builtin"
 
-_G.hi --> colors.pink
+_linq --> colors.pink
 "PreProc"
            "Include"
            "Define"
@@ -438,14 +442,14 @@ _G.hi --> colors.pink
            "@keyword.include"
            "@lsp.type.macro"
 
-_G.hi --> colors.red
+_linq --> colors.red
 "Error"
            "NvimInvalid"
            "NvimInternalError"
            "ErrorMsg"
            "@error"
 
-_G.hi --> colors.red
+_linq --> colors.red
 "Label"
            "@variable"
            "@variable.parameter"
@@ -453,20 +457,20 @@ _G.hi --> colors.red
            "@lsp.type.variable"
            "@lsp.type.parameter"
 
-_G.hi --> colors.red
+_linq --> colors.red
 "Statement"
            "Exception"
            "@keyword.return"
            "@keyword.exception"
 
-_G.hi --> Type
+_linq --> Type
 "Structure"
            "@struct"
            "@structure"
            "@module"
            "@lsp.type.struct"
 
-_G.hi --> Special
+_linq --> Special
 "SpecialChar"
            "NvimRegister"
            "NvimRegister"
@@ -475,7 +479,7 @@ _G.hi --> Special
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-_G.hi --> Conceal
+_linq --> Conceal
 "@conceal"
            "@conceal.heading.1"
            "@conceal.heading.2"
@@ -487,7 +491,7 @@ _G.hi --> Conceal
            "@conceal.checked"
            "@conceal.list"
 
-_G.hi --> Constant
+_linq --> Constant
 "@constant"
            "@function.builtin"
            "@constant.builtin"
@@ -497,26 +501,26 @@ _G.hi --> Constant
            "@lsp.type.enum"
            "@lsp.type.enumMember"
 
-_G.hi --> Type
+_linq --> Type
 "@tag"
            "@tag.builtin"
            "@tag.delimiter"
            "@tag.attribute"
            "@attribute.builtin"
 
-_G.hi --> Number
+_linq --> Number
 "@number"
            "@number.float"
            "@lsp.type.number"
 
-_G.hi --> Type
+_linq --> Type
 "@type"
            "@type.builtin"
            "@type.qualifier"
            "@type.builtin.luadoc"
            "@lsp.type.type"
 
-_G.hi --> Function
+_linq --> Function
 "@function"
            "@method"
            "@function.macro"
@@ -525,20 +529,20 @@ _G.hi --> Function
            "@lsp.type.function"
            "@lsp.type.method"
 
-_G.hi --> Special
+_linq --> Special
 "@attribute"
            "@attribute.builtin"
 
-_G.hi --> Character
+_linq --> Character
 "@character"
            "@character.special"
 
-_G.hi --> Identifier
+_linq --> Identifier
 "@property"
            "@field"
            "@lsp.type.property"
 
-_G.hi --> SpecialChar
+_linq --> SpecialChar
 "@string.special"
            "@string.regex"
            "@string.escape"
@@ -551,16 +555,16 @@ h "Changed" { fg = colors.yellow }
 h "Removed" { fg = colors.red }
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-_G.hi --> colors.green
+_linq --> colors.green
 "Added"
            "@diff.plus"
            "PreInsert"
 
-_G.hi --> colors.yellow
+_linq --> colors.yellow
 "Changed"
            "@diff.minus"
 
-_G.hi --> colors.red
+_linq --> colors.red
 "Removed"
            "@diff.delta"
 

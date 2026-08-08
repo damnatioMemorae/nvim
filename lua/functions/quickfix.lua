@@ -5,7 +5,6 @@ local wo  = vim.wo
 local ts  = vim.ts
 local api = vim.api
 
-local autocmd  = api.nvim_create_autocmd
 local filetype = vim.filetype
 
 local M = {};
@@ -67,7 +66,7 @@ end
 M.list = nil;
 
 ---@type integer
-M.ns = api.nvim_create_namespace("quickfix");
+M.ns = api.nvim_create_namespace "quickfix";
 
 ---@type integer
 M.buffer = nil;
@@ -117,7 +116,7 @@ function M.locText(data) ---@diagnostic disable-line
 
                         if string.match(M.last_command or "", "grep") then
                                 -- Only add filetype for searches.
-                                ft = filetype.match({ filename = name });
+                                ft = filetype.match { filename = name };
                         end
 
                         table.insert(infos, {
@@ -157,7 +156,7 @@ end
 ---@param data any
 ---@return string[]
 function M.qfText(data)
-        local items = fn.getqflist({ id = data.id, items = 0 }).items;
+        local items = fn.getqflist { id = data.id, items = 0 }.items;
         local infos = {};
 
         local p_width, s_width = 0, 0;
@@ -192,7 +191,7 @@ function M.qfText(data)
 
                         if string.match(M.last_command or "", "grep") then
                                 -- Only add filetype for searches.
-                                ft = filetype.match({ filename = name });
+                                ft = filetype.match { filename = name };
                         end
 
                         table.insert(infos, {
@@ -392,7 +391,7 @@ M.setup = function()
         -- Custom quickfix text function.
         o.quickfixtextfunc = "{ item -> v:lua.require('functions.quickfix').text(item) }";
 
-        autocmd("FileType", {
+        auq "FileType" {
                 pattern  = "qf",
                 callback = function(event)
                         M.buffer = event.buf;
@@ -423,26 +422,23 @@ M.setup = function()
                                 wo[win].foldcolumn = "0";
                         end
                 end,
-        });
+        };
 
-        autocmd("QuickFixCmdPre", {
+        auq "QuickFixCmdPre" {
                 callback = function(event)
                         M.last_command = event.match;
                 end,
-        });
+        };
 
-        autocmd({
-                        "CursorMoved",
-                        "ModeChanged",
-                }, {
-                        callback = function()
-                                local buf = api.nvim_get_current_buf();
+        auq { "CursorMoved", "ModeChanged" } {
+                callback = function()
+                        local buf = api.nvim_get_current_buf();
 
-                                if buf ~= M.buffer then
-                                        return;
-                                end
-                        end,
-                });
+                        if buf ~= M.buffer then
+                                return;
+                        end
+                end,
+        };
 
         api.nvim_create_user_command("QfToggleDecors", function()
                                              M.should_decorate = not M.should_decorate;

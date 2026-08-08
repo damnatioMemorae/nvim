@@ -1,6 +1,6 @@
 return {
         "saghen/blink.pairs",
-        build        = function() require("blink.pairs").build():pwait(60000) end,
+        build        = function() require "blink.pairs".build():pwait(60000) end,
         event        = "BufReadPost",
         dependencies = { "saghen/blink.lib" },
         keys         = {
@@ -19,8 +19,8 @@ return {
                                                 ">",
                                                 languages = { "lua" },
                                                 when      = function(ctx)
-                                                        return ctx.ts:matches_capture("string")
-                                                                   or ctx.ts:matches_capture("string_content")
+                                                        return ctx.ts:matches_capture "string"
+                                                                   or ctx.ts:matches_capture "string_content"
                                                 end,
                                         },
                                 },
@@ -29,7 +29,7 @@ return {
                 highlights = {
                         enabled         = true,
                         cmdline         = true,
-                        groups          ={},
+                        groups          = {},
                         unmatched_group = "MatchParen",
                         matchparen      = {
                                 enabled             = true,

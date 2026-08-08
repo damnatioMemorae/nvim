@@ -7,12 +7,12 @@ return {
                 "igorlfs/nvim-dap-view",
         },
         config       = function()
-                local dap          = require("dap")
-                local ui           = require("dapui")
-                local widgets      = require("dap.ui.widgets")
-                local virtual_text = require("nvim-dap-virtual-text")
+                local dap          = require "dap"
+                local ui           = require "dapui"
+                local widgets      = require "dap.ui.widgets"
+                local virtual_text = require "nvim-dap-virtual-text"
                 local map          = function(lhs, rhs, desc)
-                        vim.keymap.set("n", lhs, rhs, { desc = desc })
+                        keyq { "n", lhs, rhs, desc = desc }
                 end
 
                 dap.listeners.before.attach.dapui_config           = function() ui.open() end
@@ -20,8 +20,8 @@ return {
                 dap.listeners.before.event_exited.dapui_config     = function() ui.close() end
                 dap.listeners.before.event_terminated.dapui_config = function() ui.close() end
 
-                virtual_text.setup({ all_references = true })
-                ui.setup({
+                virtual_text.setup { all_references = true }
+                ui.setup {
                         expand_lines = true,
                         -- controls       = { enabled   = false },
                         floating     = { border = Border.Default.Normal },
@@ -62,7 +62,7 @@ return {
                                         position = "right",
                                 },
                         },
-                })
+                }
 
                 vim.fn.sign_define("DapBreakpoint", {
                         text   = "󰧞",
@@ -121,7 +121,7 @@ return {
 
                 ---- BASH ----------------------------------------------------------------------------------------------
 
-                local bashdb          = vim.fn.stdpath("data") .. "/mason/packages/bash-debug-adapter"
+                local bashdb          = vim.fn.stdpath "data" .. "/mason/packages/bash-debug-adapter"
                 dap.adapters.bashdb   = {
                         type    = "executable",
                         command = bashdb .. "/bash-debug-adapter",
@@ -156,20 +156,20 @@ return {
                         if config.request == "attach" then
                                 local port = (config.connect or config).port
                                 local host = (config.connect or config).host or "127.0.0.1"
-                                cb({
+                                cb {
                                         type    = "server",
                                         port    = assert(port,
                                                          "`connect.port` is required for a python `attach` configuration"),
                                         host    = host,
                                         options = { source_filetype = "python" },
-                                })
+                                }
                         else
-                                cb({
+                                cb {
                                         type    = "executable",
                                         command = "path/to/virtualenvs/debugpy/bin/python",
                                         args    = { "-m", "debugpy.adapter" },
                                         options = { source_filetype = "python" },
-                                })
+                                }
                         end
                 end
                 dap.configurations.python = {
@@ -193,7 +193,7 @@ return {
 
                 ---- LUA -----------------------------------------------------------------------------------------------
 
-                local luadb               = vim.fn.stdpath("data") .. "/mason/packages/local-lua_debugger-vscode"
+                local luadb               = vim.fn.stdpath "data" .. "/mason/packages/local-lua_debugger-vscode"
                 dap.adapters["local-lua"] = {
                         type    = "executable",
                         command = "node",

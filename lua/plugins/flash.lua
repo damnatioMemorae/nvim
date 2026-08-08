@@ -1,26 +1,24 @@
-local v       = vim.v
-local fn      = vim.fn
-local api     = vim.api
-local autocmd = api.nvim_create_autocmd
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-local function jump() require("flash").jump() end
-local function remote() require("flash").remote() end
-local function ts() require("flash").treesitter_search() end
+local v   = vim.v
+local fn  = vim.fn
+local api = vim.api
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-autocmd("CmdlineLeave", {
+local function jump() require "flash".jump() end
+local function remote() require "flash".remote() end
+local function ts() require "flash".treesitter_search() end
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+auq "CmdlineLeave" {
+        group    = api.nvim_create_augroup("falsh search", { clear = true }),
         callback = function()
                 local ev = v.event
-                if
-                           (ev.cmdtype == "/") or (ev.cmdtype == "?") and (not ev.abort)
-                           and (fn.searchcount().total > 1)
-                then
+                if (ev.cmdtype == "?") and (not ev.abort) and (fn.searchcount().total > 1) then
                         vim.schedule(function() jump() end)
                 end
         end,
-})
+}
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -53,17 +51,7 @@ return {
                         enabled = false,
                         exclude = {
                                 "flash_prompt",
-                                "qf",
-                                "notify",
                                 "cmp_menu",
-                                "noice",
-                                "flash_prompt",
-                                function(win)
-                                        if vim.api.nvim_buf_get_name(vim.api.nvim_win_get_buf(win)):match "BqfPreview" then
-                                                return true
-                                        end
-                                        return not vim.api.nvim_win_get_config(win).focusable
-                                end,
                         },
                 },
                 remote_op = { restore = true },

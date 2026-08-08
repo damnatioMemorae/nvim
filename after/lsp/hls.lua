@@ -3,7 +3,7 @@ return {
         filetypes = { "haskell", "lhaskell" },
         settings  = {
                 haskell = {
-                        formattingProvider      = "ormolu",
+                        formattingProvider      = "fourmolu",
                         cabalFormattingProvider = "cabalfmt",
                 },
         },

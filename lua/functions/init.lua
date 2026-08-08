@@ -1,11 +1,9 @@
-_G.req
+req
 "functions"
            "toggle"
            { "statusline", "BufReadPost" }
            { "statuscol", "BufReadPost" }
            { "folding", "BufReadPost" }
+           { "quickfix2", "BufReadPost" }
            { "backdrop-underline-fix", "BufReadPost" }
            { "ui2", "UiEnter" }
-
-require("functions.quickfix").setup()
--- require("functions.quickfix2")

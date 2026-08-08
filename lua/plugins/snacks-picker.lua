@@ -1,3 +1,18 @@
+linq
+"Snacks"
+           { "Picker", "Normal" }
+           { "PickerBorder", "Border" }
+           { "PickerBoxBorder", "Border" }
+           { "PickerListBorder", "Border" }
+           { "PickerInputBorder", "Border" }
+           { "PickerPreviewBorder", "Border" }
+           { "PickerCursorLine", "PmenuSel" }
+           { "PickerListCursorLine", "PmenuSel" }
+           { "SnacksPickerPathIgnored", "Comment" }
+           { "SnacksPickerPathHidden", "Comment" }
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 local o   = vim.o
 local v   = vim.v
 local bo  = vim.bo
@@ -17,19 +32,6 @@ local kinds = Icon.Kinds
 local leader = "<leader><leader>"
 
 local none = Border.Default.None
-
-_G.linq
-"Snacks"
-           { "Picker", "Normal" }
-           { "PickerBorder", "Border" }
-           { "PickerBoxBorder", "Border" }
-           { "PickerListBorder", "Border" }
-           { "PickerInputBorder", "Border" }
-           { "PickerPreviewBorder", "Border" }
-           { "PickerCursorLine", "PmenuSel" }
-           { "PickerListCursorLine", "PmenuSel" }
-           { "SnacksPickerPathIgnored", "Comment" }
-           { "SnacksPickerPathHidden", "Comment" }
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -103,7 +105,7 @@ local picker = {
                                 end
 
                                 local binary_ext = { "pdf", "png", "webp", "docx" }
-                                local ext        = abs_path:match(".+%.([^.]+)$") or ""
+                                local ext        = abs_path:match ".+%.([^.]+)$" or ""
 
                                 if vim.tbl_contains(binary_ext, ext) then
                                         ui.open(abs_path)
@@ -117,7 +119,7 @@ local picker = {
                                         local query = api.nvim_get_current_line()
                                         local file  = picker:current().file
 
-                                        if not file or query:find(":") then
+                                        if not file or query:find ":" then
                                                 fn.feedkeys(":", "n")
                                                 return
                                         end
@@ -134,7 +136,7 @@ local picker = {
                 },
                 help       = {
                         confirm = function(picker)
-                                picker:action("help")
+                                picker:action "help"
                                 cmd.only()
                         end,
                 },
@@ -237,11 +239,11 @@ local picker = {
                         local query = api.nvim_get_current_line()
                         local title = picker.title .. (query and ": " .. query or "")
 
-                        picker:action("qflist")
+                        picker:action "qflist"
                         fn.setqflist({}, "a", { title = title })
 
                         cmd.cclose()
-                        cmd("silent cfirst")
+                        cmd "silent cfirst"
                         cmd.normal { "zv", bang = true }
 
                         api.nvim_exec_autocmds("QuickFixCmdPost", {})
@@ -329,13 +331,13 @@ local picker = {
 
 return {
         "folke/snacks.nvim",
-        keys   = {
+        keys = {
                 { leader .. "<leader>", function() Snacks.picker() end,                           desc = "Main Picker",             mode = { "n" } },
                 { leader .. "f",        function() Snacks.picker.files() end,                     desc = "File Picker",             mode = { "n" } },
                 { leader .. "b",        function() Snacks.picker.buffers() end,                   desc = "Buffer Picker",           mode = { "n" } },
                 { leader .. "w",        function() Snacks.picker.grep() end,                      desc = "Grep Picker",             mode = { "n" } },
                 { leader .. "W",        function() Snacks.picker.grep_word() end,                 desc = "Grep Word",               mode = { "n", "x" } },
-                { leader .. "k",        function() Snacks.picker.keymaps({ global = false }) end, desc = "Keymap (buffer)",         mode = { "n" } },
+                { leader .. "k",        function() Snacks.picker.keymaps { global = false } end,  desc = "Keymap (buffer)",         mode = { "n" } },
                 { leader .. "K",        function() Snacks.picker.keymaps() end,                   desc = "Keymap (global)",         mode = { "n" } },
                 { leader .. "h",        function() Snacks.picker.highlights() end,                desc = "Highlight Picker",        mode = { "n" } },
                 { leader .. "H",        function() Snacks.picker.help() end,                      desc = "Help Picker",             mode = { "n" } },
@@ -344,18 +346,18 @@ return {
                 {
                         leader .. "p",
                         function()
-                                Snacks.picker.files({
+                                Snacks.picker.files {
                                         title      = "󰈮 Local plugins",
-                                        cwd        = fn.stdpath("data") .. "/lazy",
+                                        cwd        = fn.stdpath "data" .. "/lazy",
                                         exclude    = { "*/tests/*", "*.toml", "*.tmux", "*.txt" },
                                         matcher    = { filename_bonus = false },
                                         formatters = { file = { filename_first = false } },
-                                })
+                                }
                         end,
                         desc = "Import Lua Module",
                         mode = { "n" },
                         ft   = "lua",
                 },
         },
-        opts   = { picker = picker },
+        opts = { picker = picker },
 }

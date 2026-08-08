@@ -1,19 +1,30 @@
-local o       = vim.o
-local v       = vim.v
-local fn      = vim.fn
-local fs      = vim.fs
-local ui      = vim.ui
-local api     = vim.api
-local cmd     = vim.cmd
-local autocmd = api.nvim_create_autocmd
-
-local map = _G.smartMap
-
-local kinds = Icon.Kinds
+linq
+"MiniFiles"
+           { "TitleFocused", "Border" }
+           { "Title", "Border" }
+           { "Normal", "Normal" }
+           { "Border", "Normal" }
+           { "BorderModified", "Normal" }
+           { "CursorLine", "PmenuSel" }
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-local border_width = 1
+local o   = vim.o
+local v   = vim.v
+local fn  = vim.fn
+local fs  = vim.fs
+local ui  = vim.ui
+local api = vim.api
+local cmd = vim.cmd
+
+local kinds = Icon.Kinds
+
+local send = require "functions.nano-plugins".teleSend "file"
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+local border_width  = 1
+local show_dotfiles = true
 
 local function filterShow(_fsEntry)
         return true
@@ -23,42 +34,42 @@ local function filterHide(fsEntry)
         return not vim.startswith(fsEntry.name, ".")
 end
 
-local show_dotfiles = true
 local function toggleDotfiles()
         show_dotfiles    = not show_dotfiles
         local new_filter = show_dotfiles and filterShow or filterHide
-        require("mini.files").refresh({ content = { filter = new_filter } })
+        require "mini.files".refresh { content = { filter = new_filter } }
 end
 
 local function mapSplit(buf, lhs, direction)
         local rhs = function()
-                local cur_target = require("mini.files").get_explorer_state().target_window
+                local cur_target = require "mini.files".get_explorer_state().target_window
                 local new_target = api.nvim_win_call(cur_target, function()
                         cmd(direction .. " split")
                         return api.nvim_get_current_win()
                 end)
 
-                require("mini.files").set_target_window(new_target)
+                require "mini.files".set_target_window(new_target)
         end
 
         local desc = "Split " .. direction
-        map({ lhs, rhs, buf = buf, desc = desc })
+        keyq { lhs, rhs, buf = buf, desc = desc }
 end
 
 local function setCwd()
-        local path = (require("mini.files").get_fs_entry() or {}).path
-        if path == nil then return vim.notify("Cursor is not on valid entry") end
+        local path = (require "mini.files".get_fs_entry() or {}).path
+        if path == nil then return vim.notify "Cursor is not on valid entry" end
         fn.chdir(fs.dirname(path))
 end
 
 local function yankPath()
-        local path = (require("mini.files").get_fs_entry() or {}).path
-        if path == nil then return vim.notify("Cursor is not on valid entry") end
+        local path = (require "mini.files".get_fs_entry() or {}).path
+        if path == nil then return vim.notify "Cursor is not on valid entry" end
+        vim.notify("Yanked: " .. path)
         fn.setreg(v.register, path)
 end
 
 local function uiOpen()
-        ui.open(require("mini.files").get_fs_entry().path)
+        ui.open(require "mini.files".get_fs_entry().path)
 end
 
 local function prefix(fsEntry)
@@ -66,15 +77,15 @@ local function prefix(fsEntry)
         if fsEntry.fs_type == "directory" then
                 return icon_dir, "MiniFilesDirectory"
         end
-        return require("mini.files").default_prefix(fsEntry)
+        return require "mini.files".default_prefix(fsEntry)
 end
 
 local function setMark(id, path, desc)
-        require("mini.files").set_bookmark(id, path, { desc = desc })
+        require "mini.files".set_bookmark(id, path, { desc = desc })
 end
 
 local function layout(args, width, height)
-        local state   = require("mini.files").get_explorer_state() or {}
+        local state   = require "mini.files".get_explorer_state() or {}
         local win_ids = vim.tbl_map(function(t) return t.win_id end, state.windows or {})
 
         local function idx(winId)
@@ -114,25 +125,80 @@ local function layout(args, width, height)
         end
 end
 
+local function open()
+        if not require "mini.files".close() then
+                require "mini.files".open()
+        end
+end
+
+local function current()
+        local mf = require "mini.files"
+        local _  = mf.close() or mf.open(api.nvim_buf_get_name(0), false)
+        vim.defer_fn(function() mf.reveal_cwd() end, 30)
+end
+
+auq "User" { -- MARKS
+        pattern  = "MiniFilesExplorerOpen",
+        callback = function()
+                require "utils.misc".addBackdrop("User", "MiniFilesExplorerClose")
+                -- fn.confirm = function() return 1 end ---@diagnostic disable-line: duplicate-set-field
+                setMark("n", fn.stdpath "config",                      "Config")
+                setMark("w", fn.getcwd,                                "Working directory")
+                setMark("l", fn.stdpath "data" .. "/lazy",             "Lazy directory")
+                setMark("t", fn.stdpath "data" .. "/mini.files/trash", "Lazy directory")
+                setMark("h", fn.expand "~/.config/hypr",               "Hypr directory")
+                setMark("~", "~",                                      "Home directory")
+        end,
+}
+
+auq "User" { -- SPLITS AND MAPS
+        pattern  = "MiniFilesBufferCreate",
+        callback = function(args)
+                local buf = args.data.buf_id
+                local lhs = "<leader>"
+                mapSplit(buf, "<C-s>", "belowright horizontal")
+                mapSplit(buf, "<C-v>", "belowright vertical")
+                mapSplit(buf, "<C-t>", "tab")
+                keyq { lhs .. "~", setCwd, buf = buf, desc = "Set cwd" }
+                keyq { lhs .. "x", uiOpen, buf = buf, desc = "OS open" }
+                keyq { lhs .. "y", yankPath, buf = buf, desc = "Yank path" }
+                keyq { ".", toggleDotfiles, buf = buf, noremap = true }
+                keyq { "S", function()
+                        send((require "mini.files".get_fs_entry() or {}).path)
+                end, mode = { "n", "x" }, buf = buf, desc = "Telegram send" }
+        end,
+}
+
+auq "User" { -- BORDER
+        pattern  = "MiniFilesWindowOpen",
+        callback = function(args)
+                if border_width == 1 then
+                        border_width  = 1
+                        local win_id  = args.data.win_id
+                        local config  = api.nvim_win_get_config(win_id)
+                        config.border = Border.Default.Normal
+                        api.nvim_win_set_config(win_id, config)
+                end
+        end,
+}
+
+auq "User" { -- LAYOUT
+        pattern  = "MiniFilesWindowUpdate",
+        callback = function(args) layout(args, 60, 30) end,
+}
+
+auq "User" { -- CONFIRM
+        pattern  = "MiniFilesExplorerClose",
+        callback = function() fn.confirm = fn.confirm end,
+}
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 return {
         "nvim-mini/mini.files",
         keys   = {
-                { -- OPEN
-                        "<leader>e",
-                        function(...)
-                                if not require("mini.files").close() then
-                                        require("mini.files").open(...)
-                                end
-                        end,
-                },
-                { -- OPEN ON FOCUSED BUFFER
-                        "<leader>E",
-                        function()
-                                local mf = require("mini.files")
-                                local _  = mf.close() or mf.open(api.nvim_buf_get_name(0), false)
-                                vim.defer_fn(function() mf.reveal_cwd() end, 30)
-                        end,
-                },
+                { "<leader>e", open },
+                { "<leader>E", current },
         },
         opts   = {
                 content  = {
@@ -159,7 +225,7 @@ return {
                 options  = {
                         permanent_delete        = false,
                         use_as_default_explorer = true,
-                        lsp_timeout             = 1000,
+                        lsp_timeout             = 2000,
                 },
                 windows  = {
                         max_number    = 2,
@@ -169,64 +235,7 @@ return {
                 },
         },
         config = function(_, opts)
-                require("mini.files").setup(opts)
-                require("real-icons.integrations.mini_files").opts()
-
-                autocmd("User", { -- SPLITS
-                        pattern  = "MiniFilesBufferCreate",
-                        callback = function(args)
-                                local buf = args.data.buf_id
-                                local lhs = "<leader>"
-                                map({ ".", toggleDotfiles, buf = buf, noremap = true })
-                                map({ lhs .. "~", setCwd, buf = buf, desc = "Set cwd" })
-                                map({ lhs .. "x", uiOpen, buf = buf, desc = "OS open" })
-                                map({ lhs .. "y", yankPath, buf = buf, desc = "Yank path" })
-                                mapSplit(buf, "<C-s>", "belowright horizontal")
-                                mapSplit(buf, "<C-v>", "belowright vertical")
-                                mapSplit(buf, "<C-t>", "tab")
-                        end,
-                })
-                autocmd("User", { -- MARKS
-                        pattern  = "MiniFilesExplorerOpen",
-                        callback = function()
-                                require("core.utils.misc").addBackdrop("User", "MiniFilesExplorerClose")
-                                -- fn.confirm = function() return 1 end ---@diagnostic disable-line: duplicate-set-field
-                                setMark("n", fn.stdpath("config"),                      "Config")
-                                setMark("w", fn.getcwd,                                 "Working directory")
-                                setMark("l", fn.stdpath("data") .. "/lazy",             "Lazy directory")
-                                setMark("t", fn.stdpath("data") .. "/mini.files/trash", "Lazy directory")
-                                setMark("h", fn.expand("~/.config/hypr"),               "Hypr directory")
-                                setMark("~", "~",                                       "Home directory")
-                        end,
-                })
-                autocmd("User", { -- CONFIRM
-                        pattern  = "MiniFilesExplorerClose",
-                        callback = function() fn.confirm = fn.confirm end,
-                })
-                autocmd("User", { -- LAZYOUT
-                        pattern  = "MiniFilesWindowUpdate",
-                        callback = function(args) layout(args, 60, 30) end,
-                })
-                autocmd("User", { -- BORDER
-                        pattern  = "MiniFilesWindowOpen",
-                        callback = function(args)
-                                if border_width == 1 then
-                                        border_width  = 1
-                                        local win_id  = args.data.win_id
-                                        local config  = api.nvim_win_get_config(win_id)
-                                        config.border = Border.Default.Normal
-                                        api.nvim_win_set_config(win_id, config)
-                                end
-                        end,
-                })
-
-                _G.linq
-                "MiniFiles"
-                           { "TitleFocused", "Border" }
-                           { "Title", "Border" }
-                           { "Normal", "Normal" }
-                           { "Border", "Normal" }
-                           { "BorderModified", "Normal" }
-                           { "CursorLine", "PmenuSel" }
+                require "mini.files".setup(opts)
+                require "real-icons.integrations.mini_files".opts()
         end,
 }

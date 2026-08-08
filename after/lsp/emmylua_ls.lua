@@ -25,8 +25,8 @@ local root_markers2 = {
         "selene.yml",
 }
 
-local mason = vim.fn.stdpath("data") .. "/mason/bin"
-local _lazy = vim.fn.stdpath("data") .. "/lazy"
+local mason = vim.fn.stdpath "data" .. "/mason/bin"
+local _lazy = vim.fn.stdpath "data" .. "/lazy"
 local _libs = {
         vim.env.VIMRUNTIME,
         "${3rd}/luv/library",
@@ -37,7 +37,7 @@ local _libs = {
 return {
         cmd          = { "emmylua_ls" },
         filetypes    = { "lua" },
-        root_markers = vim.fn.has("nvim-0.11.3") == 1 and { root_markers1, root_markers2, { ".git" } }
+        root_markers = vim.fn.has "nvim-0.11.3" == 1 and { root_markers1, root_markers2, { ".git" } }
                    or vim.list_extend(vim.list_extend(root_markers1, root_markers2), { ".git" }),
         settings     = {
                 emmylua = {
@@ -53,7 +53,7 @@ return {
                         },
                         runtime        = {
                                 version = "LuaJIT",
-                                requireLikeFunctions = { "safeRequire", "_G.safeRequire" },
+                                requireLikeFunctions = { "safeRequire", " safeRequire" },
                         },
                         workspace      = {
                                 -- library = vim.api.nvim_get_runtime_file("", true),

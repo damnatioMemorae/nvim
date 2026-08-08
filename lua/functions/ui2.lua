@@ -1,8 +1,8 @@
 local o   = vim.o
 local api = vim.api
 
-local ui2        = require("vim._core.ui2")
-local messages   = require("vim._core.ui2.messages")
+local ui2        = require "vim._core.ui2"
+local messages   = require "vim._core.ui2.messages"
 local o_msg_show = messages.msg_show
 
 local last_title = nil
@@ -15,44 +15,46 @@ local orig_set_pos = messages.set_pos
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-require("vim._core.ui2").enable({
+local targets = {
+        [""]         = "msg",
+        empty        = "msg",
+        bufwrite     = "msg",
+        echo         = "msg",
+        echomsg      = "msg",
+        shell_ret    = "msg",
+        undo         = "msg",
+        wmsg         = "msg",
+        completion   = "msg",
+        confirm      = "msg",
+        confirm_sub  = "msg",
+        echoerr      = "msg",
+        emsg         = "msg",
+        list_cmd     = "msg",
+        lua_error    = "msg",
+        lua_print    = "msg",
+        progress     = "msg",
+        quickfix     = "msg",
+        rpc_error    = "msg",
+        search_cmd   = "msg",
+        search_count = "msg",
+        shell_cmd    = "msg",
+        shell_err    = "msg",
+        shell_out    = "msg",
+        typed_cmd    = "msg",
+        verbose      = "msg",
+        wildlist     = "msg",
+}
+
+require "vim._core.ui2".enable {
         enable = true,
         msg    = {
-                targets = {
-                        [""]         = "msg",
-                        empty        = "msg",
-                        bufwrite     = "msg",
-                        echo         = "msg",
-                        echomsg      = "msg",
-                        shell_ret    = "msg",
-                        undo         = "msg",
-                        wmsg         = "msg",
-                        completion   = "msg",
-                        confirm      = "msg",
-                        confirm_sub  = "msg",
-                        echoerr      = "msg",
-                        emsg         = "msg",
-                        list_cmd     = "msg",
-                        lua_error    = "msg",
-                        lua_print    = "msg",
-                        progress     = "msg",
-                        quickfix     = "msg",
-                        rpc_error    = "msg",
-                        search_cmd   = "msg",
-                        search_count = "msg",
-                        shell_cmd    = "msg",
-                        shell_err    = "msg",
-                        shell_out    = "msg",
-                        typed_cmd    = "pager",
-                        verbose      = "msg",
-                        wildlist     = "msg",
-                },
+                targets = "msg",
                 cmd     = { height = 0.5 },
                 dialog  = { height = 0.5 },
                 pager   = { height = 0.5 },
                 msg     = { height = 0.3, timeout = 1500 },
         },
-})
+}
 
 local skip_messages = {
         -- WRITE
@@ -97,11 +99,10 @@ local skip_messages = {
         " lines indented",
 }
 
-local normalized_content = function(src)
+local function normalizedContent(src)
         if type(src) ~= "table" then
                 return tostring(src or "")
         end
-
         return table.concat(vim
                 .iter(src)
                 :map(function(chunk)
@@ -171,16 +172,16 @@ end
 
 messages.set_pos = function(tgt)
         orig_set_pos(tgt)
-        if tgt == "msg" or tgt == nil then
-                overrideMsgWin()
-                return
-        end
         if tgt == "pager" then
                 overridePagerWin()
                 return
         end
         if tgt == "dialog" then
                 overrideDialogWin()
+        end
+        if tgt == "msg" or tgt == nil then
+                overrideMsgWin()
+                return
         end
 end
 
@@ -189,7 +190,7 @@ messages.msg_show = function(kind, content, replaceLast, history, append, id, tr
                 return
         end
 
-        local msg = normalized_content(content)
+        local msg = normalizedContent(content)
 
         if vim
                    .iter(skip_messages)

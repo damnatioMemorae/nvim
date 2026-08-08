@@ -1,4 +1,4 @@
-local log     = vim.log
+local log    = vim.log
 local levels = log.levels
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -6,7 +6,7 @@ local levels = log.levels
 return {
         "stevearc/conform.nvim",
         cmd  = "ConnformInfo",
-        keys = { { "<leader>f", function() require("conform").format({ async = true, timeout_ms = 2000 }) end, mode = { "n", "x" }, desc = "󱉯 Format buffer" } },
+        keys = { { "<leader>f", function() require "conform".format { async = true, timeout_ms = 2000 } end, mode = { "n", "x" }, desc = "󱉯 Format buffer" } },
         opts = {
                 log_level           = levels.INFO,
                 default_format_opts = { lsp_format = "last" },

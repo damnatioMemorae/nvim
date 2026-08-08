@@ -67,10 +67,10 @@ local function toggleIndentLines()
         if not loaded then
                 return
         elseif g.indentLines then
-                ibl.update({ enabled = g.indentLines })
+                ibl.update { enabled = g.indentLines }
                 notify(msg, "Enabled")
         else
-                ibl.update({ enabled = g.indentLines })
+                ibl.update { enabled = g.indentLines }
                 notify(msg, "Disabled")
         end
 end

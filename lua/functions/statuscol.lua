@@ -1,31 +1,36 @@
 local o  = vim.o
 local v  = vim.v
 local fn = vim.fn
-local wo = vim.wo
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+local function cnt()
+        return fn.foldclosedend(v.lnum) - v.lnum + 1
+end
+
+local function num()
+        return v.relnum > 0 and v.relnum or v.lnum
+end
+
+local function line()
+        return fn.getline(v.lnum)
+end
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local function numberLine()
-        if v.virtnum ~= 0 then
-                return "%="
-        end
+        if v.virtnum ~= 0 then return "%=" end
 
         if fn.foldclosed(v.lnum) == v.lnum then
-                local line = fn.getline(v.lnum)
-
-                if line:match("^%S") then
-                        local count = fn.foldclosedend(v.lnum) - v.lnum + 1
-                        local text  = tostring(count)
-                        local pad   = (""):rep(math.max(0, wo.numberwidth - #text))
-                        return "%#FoldText#%=" .. pad .. text .. "%#FoldText# "
+                if line():match "^%S" then
+                        local text = tostring(cnt())
+                        return "%#FoldText#%=" .. text .. "%#FoldText# "
                 end
         end
 
-        local num  = v.relnum > 0 and v.relnum or v.lnum
-        local text = tostring(num)
-        local pad  = (""):rep(math.max(0, wo.numberwidth - #text))
+        local text = tostring(num())
 
-        return "%=" .. pad .. text .. " "
+        return "%=" .. text .. " "
 end
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

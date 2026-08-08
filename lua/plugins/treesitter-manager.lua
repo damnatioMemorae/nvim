@@ -1,5 +1,5 @@
-local o   = vim.o
-local fn  = vim.fn
+local o  = vim.o
+local fn = vim.fn
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -36,8 +36,8 @@ return {
         },
         opts   = {
 
-                parser_dir       = fn.stdpath("data") .. "/site/parser",
-                query_dir        = fn.stdpath("data") .. "/site/queries",
+                parser_dir       = fn.stdpath "data" .. "/site/parser",
+                query_dir        = fn.stdpath "data" .. "/site/queries",
                 assume_installed = {},
                 ensure_installed = {},
                 auto_install     = true,
@@ -51,6 +51,6 @@ return {
                 min_height       = 40,
         },
         config = function(_, opts)
-                require("tree-sitter-manager").setup(opts)
+                require "tree-sitter-manager".setup(opts)
         end,
 }

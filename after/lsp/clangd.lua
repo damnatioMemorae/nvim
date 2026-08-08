@@ -1,16 +1,11 @@
+local fn     = vim.fn
 local api    = vim.api
 local cmd    = vim.cmd
-local log    = vim.log
 local lsp    = vim.lsp
-local keymap = vim.keymap
+local log    = vim.log
+local levels = log.levels
 
-local autocmd   = api.nvim_create_autocmd
-local command   = api.nvim_buf_create_user_command
-local levels   = log.levels
-local tokens    = lsp.semantic_tokens
-local modifiers = tokens.modifiers
-
-------------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local function switchSourceHeader(bufnr, client)
         local method_name = "textDocument/switchSourceHeader"
@@ -26,7 +21,7 @@ local function switchSourceHeader(bufnr, client)
                                        error(tostring(err))
                                end
                                if not result then
-                                       vim.notify("corresponding file cannot be determined")
+                                       vim.notify "corresponding file cannot be determined"
                                        return
                                end
                                cmd.edit(vim.uri_to_fname(result))
@@ -62,106 +57,104 @@ end
 
 local function semanticTokens()
         ---[[ GLOBAL SCOPE
-        autocmd("LspTokenUpdate", {
+        auq "LspTokenUpdate" {
                 callback = function(args)
                         local token = args.data.token
                         if
                                    token.type == "variable"
-                                   and modifiers.globalScope
-                                   and not modifiers.readonly
-                                   and not modifiers.defaultLibrary
+                                   and token.modifiers.globalScope
+                                   and not token.modifiers.readonly
+                                   and not token.modifiers.defaultLibrary
                         then
-                                tokens.highlight_token(
+                                lsp.semantic_tokens.highlight_token(
                                         token, args.buf, args.data.client_id, "varGlobScope")
                         end
                 end,
-        })
+        }
         --]]
 
         ---[[ FUNCTION SCOPE
-        autocmd("LspTokenUpdate", {
+        auq "LspTokenUpdate" {
                 callback = function(args)
                         local token = args.data.token
                         if
                                    token.type == "variable"
-                                   and modifiers.functionScope
-                                   and not modifiers.readonly
+                                   and token.modifiers.functionScope
+                                   and not token.modifiers.readonly
                         then
-                                tokens.highlight_token(
+                                lsp.semantic_tokens.highlight_token(
                                         token, args.buf, args.data.client_id, "varFuncScope")
                         end
                 end,
-        })
+        }
         --]]
 
         ---[[ CLASS SCOPE
-        autocmd("LspTokenUpdate", {
+        auq "LspTokenUpdate" {
                 callback = function(args)
                         local token = args.data.token
                         if
                                    token.type == "constructor"
-                                   and modifiers.identifier
-                                   and not modifiers.readonly
+                                   and token.modifiers.identifier
+                                   and not token.modifiers.readonly
                         then
-                                tokens.highlight_token(
+                                lsp.semantic_tokens.highlight_token(
                                         token, args.buf, args.data.client_id, "varClassScope")
                         end
                 end,
-        })
+        }
         --]]
 
         ---[[
-        autocmd("LspTokenUpdate", {
+        auq "LspTokenUpdate" {
                 callback = function(args)
                         local token = args.data.token
                         if
                                    token.type == "cppType"
-                                   and modifiers.identifier
-                                   and not modifiers.readonly
+                                   and token.modifiers.identifier
+                                   and not token.modifiers.readonly
                         then
-                                tokens.highlight_token(
+                                lsp.semantic_tokens.highlight_token(
                                         token, args.buf, args.data.client_id, "LspInlayHint")
                         end
                 end,
-        })
+        }
         --]]
 end
 
-local cmds = {
-        "clangd",
+local nproc  = tonumber(fn.system { "nproc" })
+local jnproc = ""
 
+if nproc ~= 0 then
+        jnproc = "--j=" .. (nproc - 1)
+end
+
+local command = {
+        "clangd",
+        jnproc,
         "--all-scopes-completion=true",
         "--background-index",
         "--background-index-priority=background",
-        -- "--check",
         "--clang-tidy",
         "--completion-parse=always",
-        -- "--completion-parse=never",
-        -- "--completion-style=bundled",
         "--completion-style=detailed",
-        -- "--debug-origin",
-        -- "--experimental-modules-support",
         "--fallback-style=llvm",
         "--function-arg-placeholders=0",
         "--header-insertion-decorators",
-        -- "--header-insertion=iwyu",
+        "--header-insertion=iwyu",
         "--import-insertions",
-        "-j=8",
         "--limit-references=0",
-        -- "--limit-results=0",
         "--log=verbose",
         "--malloc-trim",
         "--parse-forwarding-functions",
         "--pch-storage=memory",
-        -- "--ranking-model=decision_forest",
         "--ranking-model=heuristics",
         "--rename-file-limit=0",
-        -- "--use-dirty-headers",
 }
 
 ---@type vim.lsp.Config
 return {
-        cmd             = cmds,
+        cmd             = command,
         filetypes       = { "c", "cpp" },
         root_markers    = {
                 "build.ninja",
@@ -213,12 +206,16 @@ return {
                 end
         end,
         on_attach       = function(client, bufnr)
-                command(bufnr, "ClangdSwitchSourceHeader", function() switchSourceHeader(bufnr, client) end,
-                        { desc = "Switch between source/header" })
-                command(bufnr, "ClangdSymbolInfo", function() symbolInfo(bufnr, client) end, {
-                        desc = "Show symbol info" })
+                local comm = api.nvim_buf_create_user_command
 
-                keymap.set("n", "&", "<cmd>ClangdSwitchSourceHeader<CR>")
+                comm(bufnr, "ClangdSwitchSourceHeader", function()
+                             switchSourceHeader(bufnr, client)
+                     end, { desc = "Switch between source/header" })
+                comm(bufnr, "ClangdSymbolInfo", function()
+                             symbolInfo(bufnr, client)
+                     end, { desc = "Show symbol info" })
+
+                keyq { "&", "<cmd>ClangdSwitchSourceHeader<CR>" }
 
                 semanticTokens()
         end,

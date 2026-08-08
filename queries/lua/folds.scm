@@ -21,4 +21,6 @@
                                 name: (dot_index_expression
                                         table: (identifier) @start
                                                 (#eq? @start "vim")))))
+        (function_call
+                arguments: (arguments ))
  ] @fold

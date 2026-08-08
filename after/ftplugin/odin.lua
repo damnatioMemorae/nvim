@@ -12,10 +12,10 @@ local levels = log.levels
 o.comments      = "://,f:/*,e:*/"
 o.commentstring = "// %s"
 o.suffixesadd   = ".odin"
-cmd("compiler odin")
+cmd "compiler odin"
 
 local function getOdinroot()
-        if fn.executable("odin") == 0 then
+        if fn.executable "odin" == 0 then
                 vim.notify("Couldn't find odin executable in PATH", levels.ERROR)
                 return nil
         end

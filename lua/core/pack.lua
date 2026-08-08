@@ -16,10 +16,7 @@ local opt   = vim.opt
 local opt_l = vim.opt_local
 local pack  = vim.pack
 
-local autocmd = api.nvim_create_autocmd
 local levels = log.levels
-
-local map = _G.smartMap
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -28,7 +25,7 @@ g.whichkeyAddSpec = function() end ---@diagnostic disable-line: duplicate-set-fi
 
 ---- HANDLE LOCAL PLUGINS ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-local dummy = fn.stdpath("data") .. "/symlink-to-local-plugins/"
+local dummy = fn.stdpath "data" .. "/symlink-to-local-plugins/"
 opt.packpath:prepend(dummy)
 fn.mkdir(dummy .. "/pack/core/", "p")
 uv.fs_symlink(g.localRepos, dummy .. "/pack/core/opt", { dir = true })
@@ -44,12 +41,12 @@ end
 ---- AUTO-INSTALL AND LOAD -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local spec_dir  = "plugin-specs"
-local spec_path = fn.stdpath("config") .. "/lua/" .. spec_dir
+local spec_path = fn.stdpath "config" .. "/lua/" .. spec_dir
 
 vim
            .iter(fs.dir(spec_path))
            :each(function(fileName, type)
-                   assert(not fileName:find("%..*%.lua"), "Filename must not contain dots due `require`: " .. fileName)
+                   assert(not fileName:find "%..*%.lua", "Filename must not contain dots due `require`: " .. fileName)
                    if type ~= "file" or not vim.endswith(fileName, ".lua") then return end
                    local plugin_name = fileName:gsub("%.lua$", "")
                    local local_name  = local_plugins[plugin_name]
@@ -59,7 +56,8 @@ vim
                            pack.add         = noop
 
                            cmd.packadd(local_name)
-                           _G.safeRequireLazy(spec_dir .. "." .. plugin_name)
+                           -- safeRequireLazy(spec_dir .. "." .. plugin_name)
+                           req(spec_dir)(plugin_name)
 
                            pack.add = orig
                            vim.schedule(function()
@@ -67,13 +65,13 @@ vim
                                    vim.notify(msg, nil, { title = "nvim-pack", icon = "󰐱" })
                            end)
                    else
-                           _G.safeRequireLazy(spec_dir .. "." .. plugin_name)
+                           req(spec_dir)(plugin_name)
                    end
            end)
 
 ---- AUTO CLEANUP --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-autocmd("FocusLost", {
+auq "FocusLost" {
         desc     = "User: auto-cleanup unused plugins",
         once     = true,
         callback = function()
@@ -87,36 +85,30 @@ autocmd("FocusLost", {
                 assert(#outdated_plugins <= 10, "Not uninstalling more than 10 plugins at once.")
                 pack.del(outdated_plugins)
         end,
-})
+}
 
 ---- GLOBAL KEYMAPS ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-map {
-        "<leader>pl",
-        function()
-                cmd.edit(fn.stdpath("log") .. "/nvim-pack.log")
-                vim.schedule(function()
-                        bo.filetype = "nvim-pack"
-                        fn.search("========== Update", "b")
-                end)
-        end,
-        desc = "󰐱 Log of updates",
-}
+keyq { "<leader>pl", function()
+        cmd.edit(fn.stdpath "log" .. "/nvim-pack.log")
+        vim.schedule(function()
+                bo.filetype = "nvim-pack"
+                fn.search("========== Update", "b")
+        end)
+end, desc = "Log of updates" }
 
-map {
-        "<leader>pr",
-        function() pack.update(nil, { offline = true, target = "lockfile" }) end,
-        desc = "󰐱 Restore from lockfile",
-}
+keyq { "<leader>pr", function()
+        pack.update(nil, { offline = true, target = "lockfile" })
+end, desc = "Restore from lockfile" }
 
-map { "<leader>pp", function() pack.update() end, desc = "󰐱 Update plugins" }
+keyq { "<leader>pp", function() pack.update() end, desc = "Update plugins" }
 
 ---- PACK WINDOW KEYMAPS -------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local function openCommitOrIssue()
         local cur_line = api.nvim_get_current_line()
-        local issue    = cur_line:match("#(%d+)")
-        local commit   = cur_line:match("^> (%x+) ")
+        local issue    = cur_line:match "#(%d+)"
+        local commit   = cur_line:match "^> (%x+) "
         if not issue and not commit then
                 vim.notify("No commit or issue on current line.", levels.WARN)
                 return
@@ -130,20 +122,20 @@ local function openCommitOrIssue()
                 row = row - 1
         end
         assert(repo_line, "No source line found.")
-        local repo = repo_line:match("Source: *(%S+)")
+        local repo = repo_line:match "Source: *(%S+)"
         local url  = repo .. (issue and "/issues/" .. issue or "/commit/" .. commit)
         ui.open(url)
 end
 
-map { "q", cmd.bdelete, ft = "nvim-pack", nowait = true, desc = "󰐱 Quit" }
-map { "<CR>", cmd.write, ft = "nvim-pack", desc = "󰐱 Confirm update" }
-map { "<C-j>", "]]", remap = true, ft = "nvim-pack", desc = "󰐱 Next plugin" }
-map { "<C-k>", "[[", remap = true, ft = "nvim-pack", desc = "󰐱 Previous plugin" }
-map { "gi", openCommitOrIssue, ft = "nvim-pack", desc = "󰐱 Open commit or issue" }
+keyq { "q", cmd.bdelete, ft = "nvim-pack", nowait = true, desc = "Quit" }
+keyq { "<CR>", cmd.write, ft = "nvim-pack", desc = "Confirm update" }
+keyq { "<C-j>", "]]", remap = true, ft = "nvim-pack", desc = "Next plugin" }
+keyq { "<C-k>", "[[", remap = true, ft = "nvim-pack", desc = "Previous plugin" }
+keyq { "gi", openCommitOrIssue, ft = "nvim-pack", desc = "Open commit or issue" }
 
 ---- CONCEAL NOISE IN PACK WINDOW ----------------------------------------------------------------------------------------------------------------------------------------------------------
 
-autocmd("FileType", {
+auq "FileType" {
         desc     = "User: Conceal noise in nvim-pack window",
         pattern  = "nvim-pack",
         callback = function(ctx)
@@ -159,4 +151,4 @@ autocmd("FileType", {
                         if vim.startswith(lines[lnum], "# Same") then foldlength = 3 end
                 end
         end,
-})
+}

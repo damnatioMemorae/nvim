@@ -1,17 +1,17 @@
-local o       = vim.o
-local bo      = vim.bo
-local wo      = vim.wo
-local fn      = vim.fn
-local api     = vim.api
-local autocmd = api.nvim_create_autocmd
+local o   = vim.o
+local g   = vim.g
+local bo  = vim.bo
+local wo  = vim.wo
+local fn  = vim.fn
+local api = vim.api
 
 ---- TEXTOBJ -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local extra_textobj_maps = {
-        func      = "f",
-        call      = "l",
-        condition = "o",
-        wikilink  = "R",
+        func     = "f",
+        call     = "l",
+        cond     = "o",
+        wiki = "R",
 }
 
 ---- BACKDROP ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -24,7 +24,7 @@ end
 local function addBackdrop(delEvents, delPattern, backdropLevel)
         delEvents     = delEvents or "WinClosed"
         delPattern    = delPattern or nil
-        backdropLevel = backdropLevel or vim.g.backdrop
+        backdropLevel = backdropLevel or g.backdrop
 
         local backdrop_name  = "Backdrop"
         local zindex         = api.nvim_win_get_config(api.nvim_get_current_win()).zindex
@@ -47,7 +47,7 @@ local function addBackdrop(delEvents, delPattern, backdropLevel)
         bo[backdrop_bufnr].buftype  = "nofile"
         bo[backdrop_bufnr].filetype = "backdrop"
 
-        autocmd(delEvents, {
+        auq(delEvents) {
                 pattern  = delPattern,
                 callback = function()
                         if isFloatingWin() then
@@ -60,7 +60,7 @@ local function addBackdrop(delEvents, delPattern, backdropLevel)
                                 end
                         end
                 end,
-        })
+        }
 end
 
 ---- HIGHLIGHTING --------------------------------------------------------------------------------------------------------------------------------------------------------------------------

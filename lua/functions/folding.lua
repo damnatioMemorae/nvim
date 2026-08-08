@@ -5,8 +5,6 @@ local wo  = vim.wo
 local api = vim.api
 local cmd = vim.cmd
 
-local map = _G.smartMap
-
 local _levels = {}
 
 -- vim.api.nvim_create_autocmd("BufLeave", {
@@ -25,7 +23,7 @@ local _levels = {}
 
 function _G.foldText()
         local start  = fn.getline(v.foldstart)
-        local indent = start:match("^%s*") or ""
+        local indent = start:match "^%s*" or ""
         local _icon  = Icon.Misc.folded
 
         local first = start
@@ -40,9 +38,12 @@ function _G.foldText()
 
         if indent ~= "" then
                 chunks = { { indent }, content }
+                -- chunks = { { indent }, { "[...]", "FoldTextInner" } }
         end
 
         return chunks
+        -- return "[...]"
+        -- return { { indent }, { "[...]", "FoldTextInner" } }
 end
 
 o.foldtext = "v:lua.foldText()"
@@ -54,42 +55,35 @@ local range = { 0, 9 }
 local function getMaxFoldLvl()
         return vim
                    .iter(ipairs(fn.range(1, api.nvim_buf_line_count(0))))
-                   :map(function(lnum)
-                           return fn.foldlevel(lnum)
-                   end)
+                   :map(function(lnum) return fn.foldlevel(lnum) end)
                    :fold(0, math.max)
 end
 
 local function setFoldLvl(lvl)
-        if lvl >= range[1] and lvl <= range[2] then
-                wo.foldlevel = lvl
-        end
+        cond(
+                lvl >= range[1], function() wo.foldlevel = lvl end,
+                lvl <= range[1], function() wo.foldlevel = lvl end
+        )
 end
 
 local function reduceFoldLvl()
         local lvl = tonumber(wo.foldlevel) or 0
-
-        if lvl > 0 then
-                wo.foldlevel = lvl - 1
-        end
+        cond(lvl > 0, function() wo.foldlevel = lvl - 1 end)
 end
 
 local function increaseFoldLvl()
         local lvl = tonumber(wo.foldlevel) or 0
-
-        if lvl < getMaxFoldLvl() then
-                wo.foldlevel = lvl + 1
-        end
+        cond(lvl < getMaxFoldLvl(), function() wo.foldlevel = lvl + 1 end)
 end
 
 local function closeTopLvl()
-        cmd.normal({ "zR", bang = true })
-        cmd("%foldclose")
+        cmd.normal { "zR", bang = true }
+        cmd "%foldclose"
 end
 
 local function openTopLvl()
-        cmd.normal({ "zM", bang = true })
-        cmd("%foldopen")
+        cmd.normal { "zM", bang = true }
+        cmd "%foldopen"
 end
 
 ---- MOVEMENT ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -98,11 +92,11 @@ end
 ---@param f fun(): any
 ---@return any
 local function winCall(winid, f)
-        if winid == 0 or winid == api.nvim_get_current_win() then
-                return f()
-        else
-                return api.nvim_win_call(winid, f)
-        end
+        return match(winid) {
+                [api.nvim_get_current_win()] = function() return f() end,
+                [0]                          = function() return f() end,
+                _                            = function() return api.nvim_win_call(winid, f) end,
+        }
 end
 
 ---@param winid number
@@ -137,14 +131,14 @@ local function gotoPrevFold()
         local cnt      = v.count1
         local view     = saveView(0)
         local cur_lnum = getCurLnum()
-        cmd("norm! m`")
+        cmd "norm! m`"
         local prev_lnum
         local prev_lnum_list = {}
 
         while cnt > 0 do
-                cmd([[keepj norm! zk]])
+                cmd [[keepj norm! zk]]
                 local t_lnum = getCurLnum()
-                cmd([[keepj norm! [z]])
+                cmd [[keepj norm! [z]]
                 if t_lnum == getCurLnum() then
                         local fold_start_lnum = foldClosed(0, t_lnum)
                         if fold_start_lnum > 0 then
@@ -155,7 +149,7 @@ local function gotoPrevFold()
                 while cur_lnum > next_lnum do
                         t_lnum = next_lnum
                         table.insert(prev_lnum_list, next_lnum)
-                        cmd([[keepj norm! zj]])
+                        cmd [[keepj norm! zj]]
                         next_lnum = getCurLnum()
                         if next_lnum == t_lnum then
                                 break
@@ -189,21 +183,21 @@ end
 
 ---- KEYMAP --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-map({ "<M-C-Left>", "zM", desc = "Folds close all" })
-map({ "<M-C-Right>", "zR", desc = "Folds open all" })
-map({ "<M-Left>", "zc^", desc = "Fold close" })
-map({ "<M-Right>", "zo^", desc = "Fold open" })
-map({ "<M-Down>", "zj^", desc = "Fold next" })
-map({ "<M-Up>", gotoPrevFold, desc = "Fold prev" })
-map({ "<M-z>", closeTopLvl, desc = "Close toplevel folds" })
-map({ "<M-Z>", openTopLvl, desc = "Open toplevel folds" })
-map({ "zv", "zv", desc = "Open tocursor" })
+keyq { "<M-C-Left>", "zM", desc = "Folds close all" }
+keyq { "<M-C-Right>", "zR", desc = "Folds open all" }
+keyq { "<M-Left>", "zc^", desc = "Fold close" }
+keyq { "<M-Right>", "zo^", desc = "Fold open" }
+keyq { "<M-Down>", "zj^", desc = "Fold next" }
+keyq { "<M-Up>", gotoPrevFold, desc = "Fold prev" }
+keyq { "<M-z>", closeTopLvl, desc = "Close toplevel folds" }
+keyq { "<M-Z>", openTopLvl, desc = "Open toplevel folds" }
+keyq { "zv", "zv", desc = "Open tocursor" }
 
-map({ "<M-,>", reduceFoldLvl, desc = "Reduce Fold" })
-map({ "<M-.>", increaseFoldLvl, desc = "Increase Fold" })
+keyq { "<M-,>", reduceFoldLvl, desc = "Reduce Fold" }
+keyq { "<M-.>", increaseFoldLvl, desc = "Increase Fold" }
 
 vim
-           .iter({ "1", "2", "3", "4", "5", "6", "7", "8", "9" })
+           .iter { "1", "2", "3", "4", "5", "6", "7", "8", "9" }
            :each(function(key)
-                   map({ "<M-" .. key .. ">", function() setFoldLvl(tonumber(key) - 1) end })
+                   keyq { "<M-" .. key .. ">", function() setFoldLvl(tonumber(key) - 1) end }
            end)

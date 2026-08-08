@@ -1,6 +1,19 @@
-local ns = vim.api.nvim_create_namespace("qflist")
+local o   = vim.o
+local fn  = vim.fn
+local api = vim.api
+local cmd = vim.cmd
 
-vim.api.nvim_set_hl(0, "qfMatch", { link = "Removed", default = true })
+linq
+"Qf"
+           { "LineNr", "Special" }
+           { "Match", "IncSearch" }
+           { "Filename", "Directory" }
+
+---- TEXT ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+local ns = api.nvim_create_namespace "qflist"
+
+api.nvim_set_hl(0, "QfMatch", { link = "Removed", default = true })
 
 local function getLines(ttt)
         local lines = {}
@@ -15,7 +28,7 @@ local function getLines(ttt)
 end
 
 local function applyHighlights(bufnr, ttt)
-        vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
+        api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
         for i, tt in ipairs(ttt) do
                 local col = 0
                 for _, t in ipairs(tt) do
@@ -34,12 +47,12 @@ local type_hilights = {
 }
 
 local function fileshorten(fname)
-        if vim.fn.isabsolutepath(fname) == 0 then
+        if fn.isabsolutepath(fname) == 0 then
                 return fname
         end
-        local name = vim.fn.fnamemodify(fname, ":.")
+        local name = fn.fnamemodify(fname, ":.")
         if name == fname then
-                name = vim.fn.fnamemodify(name, ":~")
+                name = fn.fnamemodify(name, ":~")
         end
         return name
 end
@@ -48,22 +61,22 @@ function _G.qfText(info)
         local list
         local what = { id = info.id, items = 1, qfbufnr = 1 }
         if info.quickfix == 1 then
-                list = vim.fn.getqflist(what)
+                list = fn.getqflist(what)
         else
-                list = vim.fn.getloclist(info.winid, what)
+                list = fn.getloclist(info.winid, what)
         end
 
         local ttt = {}
         for _, item in ipairs(list.items) do
                 local tt = {}
                 if item.bufnr == 0 then
-                        table.insert(tt, { item.text, "qfText" })
+                        table.insert(tt, { item.text, "QfText" })
                 else
-                        local fname = vim.fn.bufname(item.bufnr)
+                        local fname = fn.bufname(item.bufnr)
                         fname = fileshorten(fname)
-                        table.insert(tt, { fname, "qfFilename" })
+                        table.insert(tt, { fname, "QfFilename" })
                         if item.lnum > 0 then
-                                table.insert(tt, { ":" .. item.lnum, "qfLineNr" })
+                                table.insert(tt, { ":" .. item.lnum, "QfLineNr" })
                                 table.insert(tt, { " ", "Default" })
                                 local hl = type_hilights[item.type]
                                 if hl then
@@ -82,15 +95,15 @@ function _G.qfText(info)
                                         end
                                         local from = 1
                                         for _, m in ipairs(matches or {}) do
-                                                table.insert(tt, { item.text:sub(from, m[1] - 1), "qfText" })
-                                                table.insert(tt, { item.text:sub(m[1], m[2]), "qfMatch" })
+                                                table.insert(tt, { item.text:sub(from, m[1] - 1), "QfText" })
+                                                table.insert(tt, { item.text:sub(m[1], m[2]), "QfMatch" })
                                                 from = m[2] + 1
                                         end
                                         if from <= #item.text then
-                                                table.insert(tt, { item.text:sub(from), "qfText" })
+                                                table.insert(tt, { item.text:sub(from), "QfText" })
                                         end
                                 else
-                                        table.insert(tt, { item.text, type_hilights[item.type] or "qfText" })
+                                        table.insert(tt, { item.text, type_hilights[item.type] or "QfText" })
                                 end
                         end
                 end
@@ -102,4 +115,65 @@ function _G.qfText(info)
         return getLines(ttt)
 end
 
-vim.o.quickfixtextfunc = "v:lua.qfText"
+o.quickfixtextfunc = "v:lua.qfText"
+
+---- KEYMAPS -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+local function pFile(kind)
+        return pcmd(kind .. "Nfile")(kind .. "last")
+end
+
+local function nFile(kind)
+        return pcmd(kind .. "nfile")(kind .. "first")
+end
+
+local function lprev(kind)
+        return pcmd(kind .. "prev")(kind .. "last")
+end
+
+local function lnext(kind)
+        return pcmd(kind .. "next")(kind .. "first")
+end
+
+local function filePrev() pcmd(pFile "l")(pFile "c") end
+local function fileNext() pcmd(nFile "l")(nFile "c") end
+local function itemPrev() pcmd(lprev "l")(lprev "c") end
+local function itemNext() pcmd(lnext "l")(lnext "c") end
+local function itemRm() pcmd(cmd.lexpr "[]")(cmd.cexpr "[]") end
+
+local toggle = (function()
+        local last = "qf"
+        auq "CmdlineLeave" {
+                callback = function()
+                        match(fn.getreg ":") {
+                                copen = function() last = "qf" end,
+                                lopen = function() last = "ll" end,
+                        }
+                end,
+        }
+        return function()
+                if fn.getqflist { winid = 1 }.winid ~= 0 then
+                        return cmd.cclose()
+                end
+                if fn.getloclist(0, { winid = 1 }).winid ~= 0 then
+                        return cmd.lclose()
+                end
+
+                if last == "ll" and #fn.getloclist(0) > 0 then
+                        cmd.lopen()
+                elseif #fn.getqflist() > 0 then
+                        cmd.copen()
+                elseif #fn.getloclist(0) > 0 then
+                        cmd.lopen()
+                end
+        end
+end)()
+
+keyq { "[", filePrev, desc = "List file prev", unique = false }
+keyq { "]", fileNext, desc = "List file next", unique = false }
+keyq { "(", itemPrev, desc = "List item prev", unique = false }
+keyq { ")", itemNext, desc = "List item next", unique = false }
+keyq { "qr", itemRm, desc = "List remove", unique = true }
+keyq { "qq", "<cmd>silent cfirst<CR>zv<cmd>wincmd p<CR>", desc = "List 1st", ft = "qf" }
+keyq { "Q", "<cmd>silent clast<CR>zv<cmd>wincmd p<CR>", desc = "List last", ft = "qf" }
+keyq { "<leader>q", toggle, desc = "List toggle" }

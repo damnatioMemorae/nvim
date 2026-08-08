@@ -1,3 +1,11 @@
+linq 
+"Outline"
+           { "Current", "Visual" }
+           { "Details", "Comment" }
+           { "FoldMarker", "Comment" }
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 local icons = {
         Array         = { icon = "󰅪", hl = "DropBarIconKindArray" },
         Boolean       = { icon = "", hl = "@lsp.type.boolean" },
@@ -34,6 +42,8 @@ local icons = {
 }
 
 local arrows = Icon.Arrows
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 return {
         "hedyhli/outline.nvim",
@@ -87,13 +97,4 @@ return {
                         up_and_jump      = "K",
                 },
         },
-        config = function(_, opts)
-                require("outline").setup(opts)
-
-                _G.linq
-                "Outline"
-                           { "Current", "Visual" }
-                           { "Details", "Comment" }
-                           { "FoldMarker", "Comment" }
-        end,
 }

@@ -1,8 +1,8 @@
-local o       = vim.o
-local fn      = vim.fn
-local api     = vim.api
-local cmd     = vim.cmd
-local log     = vim.log
+local o   = vim.o
+local fn  = vim.fn
+local api = vim.api
+local cmd = vim.cmd
+local log = vim.log
 
 local levels = log.levels
 
@@ -10,7 +10,7 @@ local levels = log.levels
 
 local enabled = false
 
-local h = require("core.utils.misc").getHl
+local h = require "utils.misc".getHl
 
 -- api.nvim_set_hl(0, "SnacksNotifierBorderInfo",  { fg = h("DiagnosticInfo").fg, bg = h("NormalFloat").bg })
 -- api.nvim_set_hl(0, "SnacksNotifierBorderWarn",  { fg = h("DiagnosticWarn").fg, bg = h("NormalFloat").bg })

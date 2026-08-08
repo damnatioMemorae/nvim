@@ -2,10 +2,10 @@ local icons = Icon.Misc
 
 return {
         "lukas-reineke/indent-blankline.nvim",
-        main  = "ibl",
-        event = "BufReadPost",
-        keys  = { { "<leader>oi", Toggle.indentLines, desc = "Indent Lines - Toggle" } },
-        opts  = {
+        main   = "ibl",
+        event  = "BufReadPost",
+        keys   = { { "<leader>oi", Toggle.indentLines, desc = "Indent Lines - Toggle" } },
+        opts   = {
                 whitespace = { remove_blankline_trail = true },
                 indent     = {
                         char      = " ",

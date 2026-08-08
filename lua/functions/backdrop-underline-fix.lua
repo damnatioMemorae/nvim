@@ -11,7 +11,7 @@ local function toggleUnderlines()
         -- vim.api.nvim_set_hl(0, "LspReferenceRead", { underdotted = vim.bo.buftype == "" })
 end
 
-vim.api.nvim_create_autocmd({ "WinEnter", "FileType" }, {
+auq { "WinEnter", "FileType" } {
         desc = "User: FIX underlines for backdrop",
         callback = function(ctx)
                 local ft = ctx.match
@@ -19,4 +19,4 @@ vim.api.nvim_create_autocmd({ "WinEnter", "FileType" }, {
                         vim.defer_fn(toggleUnderlines, 1)
                 end
         end,
-})
+}

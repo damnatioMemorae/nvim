@@ -1,3 +1,48 @@
+linq
+"BlinkCmp"
+           { "KindClass", "@lsp.type.class" }
+           { "KindColor", "DevIconDss" }
+           { "KindConstant", "@constant" }
+           { "KindConstructor", "@constructor" }
+           { "KindEnum", "@lsp.type.enum" }
+           { "KindEnumMember", "@lsp.type.enumMember" }
+           { "KindEvent", "@lsp.type.event" }
+           { "KindField", "@lsp.type.property" }
+           { "KindFile", "@lsp.type.struct" }
+           { "KindFolder", "Directory" }
+           { "KindFunction", "@lsp.type.function" }
+           { "KindInterface", "@lsp.type.interface" }
+           { "KindKeyword", "@lsp.type.keyword" }
+           { "KindMethod", "@lsp.type.method" }
+           { "KindModule", "@module" }
+           { "KindOperator", "@lsp.type.operator" }
+           { "KindProperty", "@lsp.type.property" }
+           { "KindReference", "@lsp.type.function" }
+           { "KindSnippet", "@lsp.type.keyword" }
+           { "KindStruct", "@lsp.type.struct" }
+           { "KindText", "@lsp.type.string" }
+           { "KindTypeParameter", "@lsp.type.typeParameter" }
+           { "KindUnit", "@lsp.type.number" }
+           { "KindValue", "@lsp.type.number" }
+           { "KindVariable", "@lsp.type.variable" }
+           { "AbbrDeprecated", "DiagnosticDeprecated" }
+           { "LabelDescription", "Comment" }
+           { "LabelDetail", "Comment" }
+           { "LabelMatch", "PmenuMatch" }
+           { "Menu", "Pmenu" }
+           { "MenuBorder", "PmenuBorder" }
+           { "MenuSelection", "pmenuSel" }
+           { "Doc", "PmenuDoc" }
+           { "DocBorder", "BlinkCmpDoc" }
+           { "DocSeparator", "BlinkCmpDoc" }
+           { "SignatureHelp", "BlinkCmpDoc" }
+           { "SignatureHelpBorder", "BlinkCmpDoc" }
+           { "Source", "Comment" }
+           { "ScrollBarThumb", "PmenuThumb" }
+           { "ScrollBarGutter", "PmenuSbar" }
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 local snippets   = { preset = "luasnip" }
 local cmdline    = {
         enabled    = false,
@@ -59,7 +104,7 @@ local completion = {
 local fuzzy      = {
         implementation = "prefer_rust_with_warning",
         max_typos      = 3,
-        frecency       = { enabled = true, path = vim.fn.stdpath("state") .. "/blink/cmp/frecency.dat" },
+        frecency       = { enabled = true, path = vim.fn.stdpath "state" .. "/blink/cmp/frecency.dat" },
         use_proximity  = true,
         sorts          = { "exact", "score", "sort_text" },
 }
@@ -90,8 +135,8 @@ local sources    = {
                                 local col          = vim.api.nvim_win_get_cursor(0)[2]
                                 local chars_before = vim.api.nvim_get_current_line():sub(col - 2, col)
 
-                                local luadoc_but_not_comment = not chars_before:find("^%-%-?$")
-                                           and not chars_before:find("%s%-%-?")
+                                local luadoc_but_not_comment = not chars_before:find "^%-%-?$"
+                                           and not chars_before:find "%s%-%-?"
                                 return luadoc_but_not_comment
                         end,
                         override     = {
@@ -155,7 +200,7 @@ local sources    = {
                                         }
                                 end,
                                 get_prefix     = function(_context)
-                                        return _context.line:sub(1, _context.cursor[2]):match("[%w_-]+$") or
+                                        return _context.line:sub(1, _context.cursor[2]):match "[%w_-]+$" or
                                                    ""
                                 end,
                         },
@@ -204,55 +249,12 @@ local signature  = {
         window  = { direction_priority = { "n", "s" }, scrollbar = false, show_documentation = false },
 }
 
-_G.linq
-"BlinkCmp"
-           { "KindClass", "@lsp.type.class" }
-           { "KindColor", "DevIconDss" }
-           { "KindConstant", "@constant" }
-           { "KindConstructor", "@constructor" }
-           { "KindEnum", "@lsp.type.enum" }
-           { "KindEnumMember", "@lsp.type.enumMember" }
-           { "KindEvent", "@lsp.type.event" }
-           { "KindField", "@lsp.type.property" }
-           { "KindFile", "@lsp.type.struct" }
-           { "KindFolder", "Directory" }
-           { "KindFunction", "@lsp.type.function" }
-           { "KindInterface", "@lsp.type.interface" }
-           { "KindKeyword", "@lsp.type.keyword" }
-           { "KindMethod", "@lsp.type.method" }
-           { "KindModule", "@module" }
-           { "KindOperator", "@lsp.type.operator" }
-           { "KindProperty", "@lsp.type.property" }
-           { "KindReference", "@lsp.type.function" }
-           { "KindSnippet", "@lsp.type.keyword" }
-           { "KindStruct", "@lsp.type.struct" }
-           { "KindText", "@lsp.type.string" }
-           { "KindTypeParameter", "@lsp.type.typeParameter" }
-           { "KindUnit", "@lsp.type.number" }
-           { "KindValue", "@lsp.type.number" }
-           { "KindVariable", "@lsp.type.variable" }
-           { "AbbrDeprecated", "DiagnosticDeprecated" }
-           { "LabelDescription", "Comment" }
-           { "LabelDetail", "Comment" }
-           { "LabelMatch", "PmenuMatch" }
-           { "Menu", "Pmenu" }
-           { "MenuBorder", "PmenuBorder" }
-           { "MenuSelection", "pmenuSel" }
-           { "Doc", "PmenuDoc" }
-           { "DocBorder", "BlinkCmpDoc" }
-           { "DocSeparator", "BlinkCmpDoc" }
-           { "SignatureHelp", "BlinkCmpDoc" }
-           { "SignatureHelpBorder", "BlinkCmpDoc" }
-           { "Source", "Comment" }
-           { "ScrollBarThumb", "PmenuThumb" }
-           { "ScrollBarGutter", "PmenuSbar" }
-
 return {
         "saghen/blink.cmp",
         version      = "*",
         event        = { "InsertEnter", "CmdLineEnter" },
         dependencies = { "saghen/blink.lib", "cushycush/quickshell-completions.nvim", "niuiic/blink-cmp-rg.nvim" },
-        build        = function() require("blink.cmp").download():wait(60000) end,
+        build        = function() require "blink.cmp".download():wait(60000) end,
         opts         = {
                 -- snippets   = snippets,
                 cmdline    = cmdline,

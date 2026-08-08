@@ -1,7 +1,7 @@
 local cmd = vim.cmd
 local function toggle()
-        require("treesj").toggle()
-        cmd.normal("^")
+        require "treesj".toggle()
+        cmd.normal "^"
 end
 
 return {

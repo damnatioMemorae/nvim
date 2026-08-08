@@ -14,7 +14,7 @@ local function makeIcon(provider, type, category)
 
                 return { text, hl }
         elseif isLoaded(provider) and provider == "nvim-web-devicons" then
-                local segment = require"nvim-web-devicons".get_icon_color("*." .. type, type)
+                local segment = require "nvim-web-devicons".get_icon_color("*." .. type, type)
                 local text    = segment.icon
                 local hl      = segment.color
 
@@ -25,7 +25,7 @@ end
 local function renderIcon(bufnr, row, col, icon)
         local _, module = pcall(require, "real-icons")
 
-        if isLoaded("real-icons") then
+        if isLoaded "real-icons" then
                 module.render(bufnr, row, col, icon)
         end
 end

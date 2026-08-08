@@ -1,10 +1,14 @@
+local g  = vim.g
 local v  = vim.v
 local o  = vim.o
-local fn = vim.fn
-local wo = vim.wo
 local bo = vim.bo
+local fn = vim.fn
+local fs = vim.fs
+local uv = vim.uv
+local wo = vim.wo
 
 local api  = vim.api
+local cmd  = vim.cmd
 local lsp  = vim.lsp
 local log  = vim.log
 local opt  = vim.opt
@@ -12,11 +16,9 @@ local diag = vim.diagnostic
 local ts   = vim.treesitter
 
 local augroup = api.nvim_create_augroup
-local autocmd = api.nvim_create_autocmd
-local l_buf   = lsp.buf
-local levels = log.levels
+local levels  = log.levels
 
-local nano = require("functions.nano-plugins")
+local nano = require "functions.nano-plugins"
 
 ---- DIAGNOSTICS ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -37,12 +39,12 @@ local signs    = {
         },
 }
 
-diag.config({
+diag.config {
         signs            = signs,
         virtual_text     = { source = false, current_line = nil },
         update_in_insert = false,
         severity_sort    = true,
-})
+}
 
 ---- HANDLERS ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -58,7 +60,7 @@ lsp.handlers["textDocument/rename"] = function(err, result, ctx, config)
                 changed_files = vim
                            .iter(vim.tbl_keys(result.changes))
                            :map(function(uri)
-                                   return "- " .. vim.fs.basename(vim.uri_to_fname(uri))
+                                   return "- " .. fs.basename(vim.uri_to_fname(uri))
                            end)
                            :totable()
                 change_count  = vim
@@ -72,7 +74,7 @@ lsp.handlers["textDocument/rename"] = function(err, result, ctx, config)
                            :map(function(file)
                                    local uri   = file.textDocument and file.textDocument.uri or file.newUri
                                    local extra = file.kind == "rename" and " (renamed)" or ""
-                                   return "* " .. vim.fs.basename(vim.uri_to_fname(uri)) .. extra
+                                   return "* " .. fs.basename(vim.uri_to_fname(uri)) .. extra
                            end)
                            :totable()
                 change_count  = vim
@@ -92,65 +94,45 @@ lsp.handlers["textDocument/rename"] = function(err, result, ctx, config)
         vim.notify(msg, levels.WARN, { title = "Renamed with LSP", icon = "󰑕" })
 
         if #changed_files > 1 then
-                vim.cmd("silent! wall")
+                cmd "silent! wall"
         end
 end
 
 ---- POPUP ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-local border      = Border.Default.Normal
-local title       = ""
-local title_pos   = "left"
-local anchor_bias = "above"
-local relative    = "cursor"
-local wrap        = false
-local max_height  = math.floor(o.lines * 0.7)
-local max_width   = math.floor(o.columns * 0.6)
-
-local hover   = lsp.buf.hover
-lsp.buf.hover = function() ---@diagnostic disable-line: duplicate-set-field
-        return hover {
-                border      = border,
-                title       = title,
-                title_pos   = title_pos,
-                anchor_bias = anchor_bias,
-                relative    = relative,
-                wrap        = wrap,
-                max_height  = max_height,
-                max_width   = max_width,
-        }
-end
-
-local signature_help   = lsp.buf.signature_help
-lsp.buf.signature_help = function() ---@diagnostic disable-line: duplicate-set-field
-        return signature_help {
-                border      = border,
-                title       = title,
-                title_pos   = title_pos,
-                anchor_bias = anchor_bias,
-                relative    = relative,
-                wrap        = wrap,
-                max_height  = max_height,
-                max_width   = max_width,
-        }
-end
-
-local open_float = diag.open_float
-diag.open_float  = function() ---@diagnostic disable-line: duplicate-set-field
-        return open_float {
-                title_pos     = "left",
-                title         = "",
-                border        = Border.Default.Normal,
-                scope         = "cursor",
-                severity_sort = true,
-                source        = true,
-        }
-end
+local hover          = lsp.buf.hover
+local signature_help = lsp.buf.signature_help
+local open_float     = diag.open_float
+where(function(_)
+        lsp.buf.hover          = function() return hover(_.hover) end ---@diagnostic disable-line: duplicate-set-field
+        lsp.buf.signature_help = function() return signature_help(_.hover) end ---@diagnostic disable-line: duplicate-set-field
+        diag.open_float        = function() return open_float(_.float) end ---@diagnostic disable-line: duplicate-set-field
+end) {
+                   hover = {
+                           anchor_bias = "above",
+                           border      = Border.Default.Normal,
+                           title       = "",
+                           title_pos   = "left",
+                           relative    = "cursor",
+                           wrap        = true,
+                           max_height  = math.floor(o.lines * 0.7),
+                           max_width   = math.floor(o.columns * 0.6),
+                   },
+                   float = {
+                           anchor_bias   = "below",
+                           border        = Border.Default.Normal,
+                           title         = "",
+                           title_pos     = "left",
+                           scope         = "cursor",
+                           severity_sort = true,
+                           source        = true,
+                   },
+           }
 
 ---- AUTOCMDS ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local debounce = 100
-local timer    = vim.uv.new_timer()
+local timer    = uv.new_timer()
 
 local _lsp_augroup            = augroup("LSP", { clear = true })
 local _hint_augroup           = augroup("lsp-inlay-hint", { clear = false })
@@ -165,7 +147,7 @@ local _on_type_format_augroup = augroup("LSP detatch", { clear = true })
 
 local function compDoc(client, _group, bufnr)
         if not timer then vim.notify("Cannot create timer", levels.ERROR) end
-        autocmd("CompleteChanged", {
+        auq "CompleteChanged" {
                 desc     = "LSP completion documentation",
                 buffer   = bufnr,
                 group    = _comp_augroup,
@@ -183,7 +165,7 @@ local function compDoc(client, _group, bufnr)
                                 return
                         end
 
-                        local complete_info = fn.complete_info({ "selected" })
+                        local complete_info = fn.complete_info { "selected" }
                         if vim.tbl_isempty(complete_info) then
                                 return
                         end
@@ -206,6 +188,7 @@ local function compDoc(client, _group, bufnr)
 
                                                 local wininfo = api.nvim__complete_set(complete_info.selected,
                                                                                        { info = docs })
+
                                                 if vim.tbl_isempty(wininfo) or not api.nvim_win_is_valid(wininfo.winid) then
                                                         return
                                                 end
@@ -226,11 +209,11 @@ local function compDoc(client, _group, bufnr)
                                 )
                         end))
                 end,
-        })
+        }
 end
 
 local function completion(client, buf)
-        if client:supports_method("textDocument/completion") and not pcall(require, "blink.cmp") then
+        if client:supports_method "textDocument/completion" and not pcall(require, "blink.cmp") then
                 lsp.completion.enable(true, client.id, buf, {
                         autotrigger = false,
                         convert     = function(item)
@@ -248,7 +231,7 @@ local function completion(client, buf)
 
                 compDoc(client, _compdoc_augroup, buf)
 
-                opt.complete:append("o")
+                opt.complete:append "o"
                 o.autocomplete  = true
                 o.completeopt   = "fuzzy,menuone,noinsert,noselect,popup"
                 o.pummaxwidth   = 80
@@ -258,31 +241,31 @@ local function completion(client, buf)
 end
 
 local function inlayHints(client, buf)
-        if fn.has("nvim-0.10") == 1 and vim.g.inlayHints and client:supports_method("textDocument/inlayHint") then
-                autocmd({ "CursorHold", "CursorMoved" }, {
+        if fn.has "nvim-0.10" == 1 and g.inlayHints and client:supports_method "textDocument/inlayHint" then
+                auq { "CursorHold", "CursorMoved" } {
                         desc     = "LSP inlay hints",
                         group    = _hint_augroup,
                         buffer   = buf,
                         callback = function() lsp.inlay_hint.enable(false) end,
-                })
+                }
         end
 end
 
 local function documentColor(client, buf)
-        if fn.has("nvim-0.12") == 1 and client:supports_method("textDocument/documentColor") then
-                autocmd({ "CursorHold", "CursorMoved" }, {
+        if fn.has "nvim-0.12" == 1 and client:supports_method "textDocument/documentColor" then
+                auq { "CursorHold", "CursorMoved" } {
                         desc     = "LSP document color",
                         group    = _col_augroup,
                         buffer   = buf,
                         -- callback = function() lsp.document_color.enable(true, nil, { style = "background" }) end,
                         callback = function() lsp.document_color.enable(false) end,
-                })
+                }
         end
 end
 
 local function documentHighlight(client, buf)
-        if fn.mode() ~= "i" and fn.has("nvim-0.11") == 1 and client:supports_method("textDocument/documentHighlight", 0) then
-                autocmd("CursorMoved", {
+        if fn.mode() ~= "i" and fn.has "nvim-0.11" == 1 and client:supports_method("textDocument/documentHighlight", 0) then
+                auq "CursorMoved" {
                         desc     = "LSP Highlight symbol under cursor",
                         group    = _doc_augroup,
                         buffer   = buf,
@@ -290,7 +273,7 @@ local function documentHighlight(client, buf)
                                 ---@cast timer uv.uv_timer_t
                                 timer:start(400, 0, vim.schedule_wrap(function()
                                         local pos  = api.nvim_win_get_cursor(0)
-                                        local node = ts.get_node({ pos = { pos[1] - 1, pos[2] } })
+                                        local node = ts.get_node { pos = { pos[1] - 1, pos[2] } }
 
                                         local in_string = false
                                         while node do
@@ -303,26 +286,25 @@ local function documentHighlight(client, buf)
 
                                         lsp.buf.clear_references()
 
-                                        ---@cast node TSNode
                                         if not in_string then
                                                 lsp.buf.document_highlight()
                                         end
                                 end))
                         end,
-                })
+                }
         end
 end
 
 local function onTypeFormat(client, buf)
-        if fn.has("nvim-0.11") == 1 and client:supports_method("textDocument/documentHighlight", 0) then
-                autocmd("CursorMoved", {
+        if fn.has "nvim-0.11" == 1 and client:supports_method("textDocument/documentHighlight", 0) then
+                auq "CursorMoved" {
                         desc     = "LSP format while typing",
                         group    = _on_type_format_augroup,
                         buffer   = buf,
                         callback = function()
-                                lsp.on_type_formatting.enable(true, { client_id = client })
+                                lsp.on_type_formatting.enable(true, { lient_id = client })
                         end,
-                })
+                }
         end
 end
 
@@ -367,23 +349,24 @@ local opts = {
         documentHighlight = true,
 }
 
-autocmd("LspAttach", {
+auq "LspAttach" {
         desc     = "LSP stuff",
         group    = _lsp_augroup,
         callback = function(args)
                 local buf    = args.buf
                 local client = assert(lsp.get_client_by_id(args.data.client_id))
 
-                vim.iter(opts)
+                vim
+                           .iter(opts)
                            :each(function(func, enabled)
                                    if enabled then
                                            M[func](client, buf)
                                    end
                            end)
         end,
-})
+}
 
-autocmd("LspDetach", {
+auq "LspDetach" {
         desc     = "Stop LSP when no buffer",
         group    = _detatch_augroup,
         callback = function(args)
@@ -400,46 +383,41 @@ autocmd("LspDetach", {
                 end
                 client:stop()
         end,
-})
+}
 
 ---- KEYMAPS -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local function jump(count)
-        diag.jump({ count = count, float = false })
+        diag.jump { count = count, float = false }
 end
 
 local function lines()
-        diag.config({ virtual_lines = { current_line = true }, virtual_text = false })
-
-        autocmd("CursorMoved", {
+        diag.config { virtual_lines = { current_line = true }, virtual_text = false }
+        auq "CursorMoved" {
                 group    = augroup("line-diagnostics", { clear = true }),
                 callback = function()
-                        diag.config({ virtual_lines = false, virtual_text = false })
+                        diag.config { virtual_lines = false, virtual_text = false }
                         return true
                 end,
-        })
+        }
 end
 
-local maps = {
-        { "<LocalLeader>f", "gF",                                        desc = "LSP Goto File" },
+keyq { "<leader>k", lines, desc = "Diagnostic Lines" }
+keyq { "J", lsp.buf.signature_help, desc = "Signature Help" }
+keyq { "K", lsp.buf.hover, desc = "Hover Documentation", unique = false }
+keyq { "<M-D>", function() jump(-1) end, desc = "Diagnostic Prev", mode = { "n", "x" } }
+keyq { "<M-d>", function() jump(1) end, desc = "Diagnostic Next", mode = { "n", "x" } }
 
-        { "<leader>k",      lines,                                       desc = "Diagnostic Lines" },
-        { "<M-D>",          function() jump(-1) end,                     desc = "Diagnostic Prev",         mode = { "n", "x" } },
-        { "<M-d>",          function() jump(1) end,                      desc = "Diagnostic Next",         mode = { "n", "x" } },
+keyq { "<M-j>", function() nano.scrollLspOrOtherWin(5) end, desc = "Scroll other win" }
+keyq { "<M-K>", function() nano.scrollLspOrOtherWin(-5) end, desc = "Scroll other win" }
 
-        { "<M-j>",          function() nano.scrollLspOrOtherWin(5) end,  desc = "Scroll other win" },
-        { "<M-K>",          function() nano.scrollLspOrOtherWin(-5) end, desc = "Scroll other win" },
+keyq { "<leader>d", diag.setloclist, desc = "Diagnostic loclist" }
+keyq { "<leader>D", diag.setqflist, desc = "Diagnostic quickfix" }
 
-        { "J",              l_buf.signature_help,                        desc = "Signature Help" },
-        { "K",              l_buf.hover,                                 desc = "Hover Documentation",     unique = false },
-        { "<LocalLeader>D", l_buf.declaration,                           desc = "LSP Goto Declaration",    unique = false },
-        { "<LocalLeader>d", l_buf.definition,                            desc = "LSP Goto Definition",     unique = false },
-        { "<LocalLeader>r", l_buf.references,                            desc = "LSP Goto Reference",      unique = false },
-        { "<LocalLeader>i", l_buf.implementation,                        desc = "LSP Goto Implementation", unique = false },
-        { "<LocalLeader>t", l_buf.type_definition,                       desc = "LSP Type Definition",     unique = false },
-        { "<LocalLeader>q", l_buf.code_action,                           desc = "LSP Code Action",         mode = { "n", "x" } },
-}
-
-vim
-           .iter(maps)
-           :each(function(map) _G.smartMap(map) end)
+keyq { "<LocalLeader>f", "gF", desc = ("LSP Goto ") .. "File" }
+keyq { "<LocalLeader>D", lsp.buf.declaration, desc = "LSP Goto Declaration", unique = false }
+keyq { "<LocalLeader>d", lsp.buf.definition, desc = "LSP Goto Definition", unique = false }
+keyq { "<LocalLeader>r", lsp.buf.references, desc = "LSP Goto Reference", unique = false }
+keyq { "<LocalLeader>i", lsp.buf.implementation, desc = "LSP Goto Implementation", unique = false }
+keyq { "<LocalLeader>t", lsp.buf.type_definition, desc = "LSP Goto TypeDefinition", unique = false }
+keyq { "<LocalLeader>q", lsp.buf.code_action, desc = "LSP Code Action", mode = { "n", "x" } }

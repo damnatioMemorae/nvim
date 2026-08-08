@@ -5,7 +5,7 @@ local function dial(increment, g)
         local is_visual = mode == "v" or mode == "V" or mode == "\22"
         local func      = (increment and "inc" or "dec") .. (g and "_g" or "_") .. (is_visual and "visual" or "normal")
         local group     = vim.g.dials_by_ft[vim.bo.filetype] or "default"
-        return require("dial.map")[func](group)
+        return require "dial.map"[func](group)
 end
 
 return {
@@ -21,30 +21,30 @@ return {
                 -- { "g-",     function() return dial(false, true) end, expr = true, desc = "Decrement", mode = { "n", "v" } },
         },
         opts   = function()
-                local augend = require("dial.augend")
+                local augend = require "dial.augend"
 
-                local ordinal_numbers            = augend.constant.new({
+                local ordinal_numbers            = augend.constant.new {
                         elements = { "first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth" },
                         word     = false,
                         cyclic   = true,
-                })
-                local weekdays                   = augend.constant.new({
+                }
+                local weekdays                   = augend.constant.new {
                         elements = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" },
                         word     = true,
                         cyclic   = true,
-                })
-                local months                     = augend.constant.new({
+                }
+                local months                     = augend.constant.new {
                         elements = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" },
                         word     = true,
                         cyclic   = true,
-                })
-                local logical_alias              = augend.constant.new({ elements = { "&&", "||" }, word = false, cyclic = true })
-                local yes_no                     = augend.constant.new({ elements = { "yes", "no" }, word = true, cyclic = true })
-                local yes_no_capitalized         = augend.constant.new({ elements = { "Yes", "No" }, word = true, cyclic = true })
-                local on_off                     = augend.constant.new({ elements = { "on", "off" }, word = true, cyclic = true })
-                local on_off_capitalized         = augend.constant.new({ elements = { "On", "Off" }, word = true, cyclic = true })
-                local enable_disable             = augend.constant.new({ elements = { "enable", "disable" }, word = true, cyclic = true })
-                local enable_disable_capitalized = augend.constant.new({ elements = { "Enable", "Disable" }, word = true, cyclic = true })
+                }
+                local logical_alias              = augend.constant.new { elements = { "&&", "||" }, word = false, cyclic = true }
+                local yes_no                     = augend.constant.new { elements = { "yes", "no" }, word = true, cyclic = true }
+                local yes_no_capitalized         = augend.constant.new { elements = { "Yes", "No" }, word = true, cyclic = true }
+                local on_off                     = augend.constant.new { elements = { "on", "off" }, word = true, cyclic = true }
+                local on_off_capitalized         = augend.constant.new { elements = { "On", "Off" }, word = true, cyclic = true }
+                local enable_disable             = augend.constant.new { elements = { "enable", "disable" }, word = true, cyclic = true }
+                local enable_disable_capitalized = augend.constant.new { elements = { "Enable", "Disable" }, word = true, cyclic = true }
                 -- local case                         = augend.case.new({ types = { "camelCase", "PascalCase", "kebab-case", "snake_case", "SCREAMING_SNAKE_CASE" }, cyclic = true })
 
                 return {
@@ -90,15 +90,15 @@ return {
                                         augend.constant.alias.Alpha,
                                 },
                                 css            = {
-                                        augend.hexcolor.new({ case = "lower" }),
-                                        augend.hexcolor.new({ case = "upper" }),
+                                        augend.hexcolor.new { case = "lower" },
+                                        augend.hexcolor.new { case = "upper" },
                                 },
                                 json           = { augend.semver.alias.semver },
                                 lua            = {
-                                        augend.constant.new({ elements = { "and", "or" }, word = true, cyclic = true }),
-                                        augend.constant.new({ elements = { "==", "~=" }, word = false, cyclic = true }),
+                                        augend.constant.new { elements = { "and", "or" }, word = true, cyclic = true },
+                                        augend.constant.new { elements = { "==", "~=" }, word = false, cyclic = true },
                                 },
-                                python         = { augend.constant.new({ elements = { "and", "or" } }) },
+                                python         = { augend.constant.new { elements = { "and", "or" } } },
                         },
                 }
         end,
@@ -108,7 +108,7 @@ return {
                                 vim.list_extend(group, opts.groups.default)
                         end
                 end
-                require("dial.config").augends:register_group(opts.groups)
+                require "dial.config".augends:register_group(opts.groups)
                 vim.g.dials_by_ft = opts.dials_by_ft
         end,
 }

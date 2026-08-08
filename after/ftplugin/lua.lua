@@ -4,22 +4,19 @@ local api        = vim.api
 local treesitter = vim.treesitter
 
 local augroup = api.nvim_create_augroup
-local autocmd = api.nvim_create_autocmd
-
-local map  = _G.bufMap
-local abbr = _G.bufAbbr
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-abbr("//",    "--")
-abbr("const", "local")
-abbr("let",   "local")
-abbr("===",   "==")
-abbr("!=",    "~=")
-abbr("!==",   "~=")
-abbr("=~",    "~=")
-abbr("fi",    "end")
-abbr("fu",    "function")
+abbr "//" "--"
+abbr "const" "local"
+abbr "let" "local"
+abbr "===" "=="
+abbr "!=" "~="
+abbr "!==" "~="
+abbr "=~" "~="
+abbr "fi" "end"
+abbr "ret" "return"
+abbr "fu" "function"
 
 ---@param sign "+"|"-"
 local function plusPlusMinusMinus(sign)
@@ -36,12 +33,12 @@ local function plusPlusMinusMinus(sign)
         end
 end
 
-map({ "+", function() plusPlusMinusMinus("+") end, mode = "i", desc = "i++  i = i + 1" })
-map({ "-", function() plusPlusMinusMinus("-") end, mode = "i", desc = "i--  i = i - 1" })
+bufq { "+", function() plusPlusMinusMinus "+" end, mode = "i", desc = "i++  i = i + 1" }
+bufq { "-", function() plusPlusMinusMinus "-" end, mode = "i", desc = "i--  i = i - 1" }
 
 ---- AUTO-COMMA FOR TABLES -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-autocmd("TextChangedI", {
+auq "TextChangedI" {
         desc     = "User (buffer-specific): auto-comma for tables",
         buffer   = 0,
         group    = augroup("lua-autocomma", { clear = true }),
@@ -49,23 +46,18 @@ autocmd("TextChangedI", {
                 local node = treesitter.get_node()
                 if node and node:type() == "table_constructor" then
                         local line = api.nvim_get_current_line()
-                        if line:find("^%s*[^,%s%-]$") then api.nvim_set_current_line(line .. ",") end
+                        if line:find "^%s*[^,%s%-]$" then api.nvim_set_current_line(line .. ",") end
                 end
         end,
-})
+}
 
 ---- YANK MODULE NAME ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-map({
-        "<leader>ym",
-        function()
-                local abs_path = api.nvim_buf_get_name(0)
-                local rel_path = abs_path:sub(#(uv.cwd()) + 2)
-                local module   = rel_path:gsub("%.lua$", ""):gsub("^lua/", ""):gsub("/", "."):gsub("%.init$", "")
-                local req      = ("require(%q)"):format(module)
-                fn.setreg("+", req)
-                vim.notify(req, nil, { icon = "󰅍", title = "Copied", ft = "lua" })
-        end,
-        mode = "n",
-        desc = "󰢱 Module (require)",
-})
+bufq { "<leader>ym", function()
+        local abs_path = api.nvim_buf_get_name(0)
+        local rel_path = abs_path:sub(#(uv.cwd()) + 2)
+        local module   = rel_path:gsub("%.lua$", ""):gsub("^lua/", ""):gsub("/", "."):gsub("%.init$", "")
+        local req      = ("require(%q)"):format(module)
+        fn.setreg("+", req)
+        vim.notify(req, nil, { icon = "󰅍", title = "Copied", ft = "lua" })
+end, mode = "n", desc = "󰢱 Module (require)" }

@@ -12,6 +12,5 @@ local function width(percentage)
         return o.columns * (percentage * 0.01)
 end
 
-
-cmd("wincmd L")
-cmd("vertical resize " .. width(20))
+cmd "wincmd L"
+cmd("vertical resize " .. width(25))

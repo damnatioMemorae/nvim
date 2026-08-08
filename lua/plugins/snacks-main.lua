@@ -12,10 +12,10 @@ local loaded, _ = pcall(require, "snacks")
 local toggle    = Snacks.toggle
 
 if loaded then
-        toggle.option("relativenumber", { name = " Relative Line Number", global = true }):map("<leader>or")
-        toggle.option("number", { name = " Line Number", global = true }):map("<leader>on")
-        toggle.option("wrap", { name = "󰖶 Wrap", global = true }):map("<leader>ow")
-        toggle.treesitter({ name = " Treesitter Highlight" }):map("<leader>ot")
+        toggle.option("relativenumber", { name = " Relative Line Number", global = true }):map "<leader>or"
+        toggle.option("number", { name = " Line Number", global = true }):map "<leader>on"
+        toggle.option("wrap", { name = "󰖶 Wrap", global = true }):map "<leader>ow"
+        toggle.treesitter { name = " Treesitter Highlight" }:map "<leader>ot"
 end
 
 return {
@@ -281,7 +281,7 @@ return {
                                 spell          = false,
                                 statuscolumn   = "",
                         },
-                        cache    = vim.fn.stdpath("cache") .. "/Snacks.image",
+                        cache    = vim.fn.stdpath "cache" .. "/Snacks.image",
                         debug    = { request = false, convert = false, placement = false },
                         icons    = { math = "󰪚 ", chart = "󰄧 ", image = " " },
                         env      = {},

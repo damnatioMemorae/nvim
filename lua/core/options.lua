@@ -2,6 +2,12 @@ local misc   = Icon.Misc
 local arrows = Icon.Arrows
 
 local ui       = {
+        g   = {
+                backdrop = 60,
+                blend    = 0,
+                winblend = 0,
+                conceal  = true,
+        },
         o   = {
                 laststatus    = 3,
                 statusline    = "%v:lua.statusline()",
@@ -30,12 +36,7 @@ local ui       = {
                 foldmarker    = "[[[,]]]",
         },
         opt = {
-                guicursor = {
-                        "n-v-c-sm:block-Cursor",
-                        "i-ci-ve:ver25-Cursor",
-                        "r-cr-o:hor20-Cursor",
-                        "a:blinkwait500-blinkoff500-blinkon500",
-                },
+                guicursor = { "n-v-c-sm:block-Cursor", "i-ci-ve:ver25-Cursor", "r-cr-o:hor20-Cursor", "a:blinkwait500-blinkoff500-blinkon500" },
                 fillchars = {
                         fold      = " ",
                         vert      = "│",
@@ -59,14 +60,14 @@ local ui       = {
                 },
         },
 }
-local spell    = {
-        opt = {
-                spell        = false,
-                spelllang    = "en_us",
-                spelloptions = "noplainbuffer",
-        },
-}
 local editor   = {
+        g   = {
+                projectsDir = vim.env.HOME .. "/deeznuts/",
+                localRepos  = vim.fs.normalize "$HOME/deeznuts/",
+                codeLens    = true,
+                inlayHints  = true,
+                indentLines = true,
+        },
         o   = {
                 backup         = false,
                 swapfile       = false,
@@ -103,8 +104,15 @@ local editor   = {
         },
         opt = {
                 formatoptions  = "",
-                iskeyword      = vim.opt.iskeyword:append("@,48-57,_,-,192-255"),
+                iskeyword      = vim.opt.iskeyword:append "@,48-57,_,-,192-255",
                 sessionoptions = { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp", "folds" },
+        },
+}
+local spell    = {
+        opt = {
+                spell        = false,
+                spelllang    = "en_us",
+                spelloptions = "noplainbuffer",
         },
 }
 local tabspace = {
@@ -121,7 +129,6 @@ local tabspace = {
         },
 }
 
----@type table<string, vim.Option>
 return {
         ui       = ui,
         spell    = spell,

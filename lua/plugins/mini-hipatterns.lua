@@ -1,3 +1,15 @@
+linq
+"MiniHipatterns"
+           { "Fixme", "@comment.error" }
+           { "Hack", "@comment.warning" }
+           { "Todo", "@comment.todo" }
+           { "Hint", "@comment.hint" }
+           { "Note", "@comment.note" }
+           { "Code", "@comment.code" }
+           { "Url", "@comment.url" }
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 local words = {
         ["colors.ivory"]     = "#dce0e8",
         ["colors.spark"]     = "#add8e6",
@@ -37,12 +49,14 @@ local words = {
         ["colors.red_transparent"]    = "#3c2733",
 }
 
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 return {
         "nvim-mini/mini.hipatterns",
         version = false,
         event   = "BufReadPost",
         opts    = function(_, opts)
-                local hi = require("mini.hipatterns")
+                local hi = require "mini.hipatterns"
 
                 opts.highlighters = opts.highlighters or {}
 
@@ -82,7 +96,7 @@ return {
                         end
 
                         for _, cap in ipairs(captures or {}) do
-                                if cap.capture:match("comment") then
+                                if cap.capture:match "comment" then
                                         return true
                                 end
                         end
@@ -132,15 +146,5 @@ return {
                 }
 
                 opts.highlighters = vim.tbl_extend("keep", opts.highlighters or {}, highlighters)
-
-                _G.linq
-                "MiniHipatterns"
-                           { "Fixme", "@comment.error" }
-                           { "Hack", "@comment.warning" }
-                           { "Todo", "@comment.todo" }
-                           { "Hint", "@comment.hint" }
-                           { "Note", "@comment.note" }
-                           { "Code", "@comment.code" }
-                           { "Url", "@comment.url" }
         end,
 }

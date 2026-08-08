@@ -10,7 +10,7 @@ local levels = log.levels
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-local lazypath = fn.stdpath("data") .. "/lazy/lazy.nvim"
+local lazypath = fn.stdpath "data" .. "/lazy/lazy.nvim"
 if not uv.fs_stat(lazypath) then
         local repo = "https://github.com/folke/lazy.ngit"
         local args = { "git", "clone", "--filter=blob:none", "--branch=stable", repo, lazypath }
@@ -26,7 +26,7 @@ opt.runtimepath:prepend(lazypath)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-require("lazy").setup({
+require "lazy".setup {
         spec             = { import = "plugins" },
         defaults         = { lazy = true },
         dev              = { patterns = { "nvim" }, path = g.localRepos, fallback = true },
@@ -47,7 +47,7 @@ require("lazy").setup({
                                 function(plug)
                                         local url    = plug.url:gsub("%.git$", "")
                                         local line   = api.nvim_get_current_line()
-                                        local issue  = line:match("#(%d+)")
+                                        local issue  = line:match "#(%d+)"
                                         local commit = line:match(("%x"):rep(6) .. "+")
                                         if issue then
                                                 ui.open(url .. "/issues/" .. issue)
@@ -93,13 +93,13 @@ require("lazy").setup({
                         },
                 },
         },
-})
+}
 
 ---- TEST FOR DUPLICATE KEYS -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local function checkForDuplicateKeys()
         local already_mapped = {}
-        local plugins        = require("lazy").plugins()
+        local plugins        = require "lazy".plugins()
 
         vim
                    .iter(plugins)

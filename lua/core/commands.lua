@@ -1,14 +1,13 @@
-local o      = vim.o
-local bo     = vim.bo
-local fn     = vim.fn
-local fs     = vim.fs
-local ts     = vim.treesitter
-local wo     = vim.wo
-local api    = vim.api
-local cmd    = vim.cmd
-local log    = vim.log
-local lsp    = vim.lsp
-local keymap = vim.keymap
+local o   = vim.o
+local bo  = vim.bo
+local fn  = vim.fn
+local fs  = vim.fs
+local ts  = vim.treesitter
+local wo  = vim.wo
+local api = vim.api
+local cmd = vim.cmd
+local log = vim.log
+local lsp = vim.lsp
 
 local levels = log.levels
 
@@ -68,7 +67,7 @@ command("DeleteComments", function()
 ---- LSP CAPABILITIES ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 command("LspCapabilities", function(ctx)
-                local client  = lsp.get_clients({ name = ctx.args })[1]
+                local client  = lsp.get_clients { name = ctx.args }[1]
                 local new_buf = api.nvim_create_buf(true, true)
                 local info    = {
                         capabilities        = client.capabilities,
@@ -81,7 +80,7 @@ command("LspCapabilities", function(ctx)
                 api.nvim_buf_set_name(new_buf, client.name .. " capabilities")
                 bo[new_buf].filetype = "lua"
                 cmd.buffer(new_buf)
-                keymap.set("n",     "q", cmd.bdelete, { buffer = new_buf })
+                keyq { "n", "q", cmd.bdelete, buffer = new_buf }
         end, {
                 nargs    = 1,
                 complete = function()
@@ -116,7 +115,7 @@ local function attachToBuf(pattern, task)
         local width = 30
         local buf   = api.nvim_create_buf(false, true)
 
-        cmd("vsplit")
+        cmd "vsplit"
 
         local win = api.nvim_get_current_win()
 
@@ -125,11 +124,11 @@ local function attachToBuf(pattern, task)
         wo[win].number         = false
         wo[win].relativenumber = false
         wo[win].statuscolumn   = " "
-        api.nvim_create_autocmd("BufWritePost", {
+        auq "BufWritePost" {
                 group    = api.nvim_create_augroup("RunOnSave", { clear = true }),
                 pattern  = pattern,
                 callback = function()
-                        local ns         = api.nvim_create_namespace("AutoRunner")
+                        local ns         = api.nvim_create_namespace "AutoRunner"
                         local file       = api.nvim_buf_get_name(0)
                         local root       = fs.root(0, { ".git" }) or ""
                         local file_path  = fs.relpath(root, file)
@@ -144,12 +143,12 @@ local function attachToBuf(pattern, task)
                         end
                         startTask(task, append_data)
                 end,
-        })
+        }
 end
 
 command("AutoRun", function()
-                local pattern = fn.input("Pattern: ")
-                local task    = vim.split(fn.input("Command: "), " ")
+                local pattern = fn.input "Pattern: "
+                local task    = vim.split(fn.input "Command: ", " ")
                 attachToBuf(pattern, task)
         end, {})
 

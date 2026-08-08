@@ -7,18 +7,13 @@ local cmd = vim.cmd
 local restart_session_file = "/tmp/restart.vim"
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-smartMap({
-        "<leader>r",
-        function()
-                cmd("silent! update")
-                cmd.mksession { restart_session_file, bang = true }
-                cmd.restart()
-        end,
-        desc = "Save & restart",
-        mode = { "n", "x", "i" },
-})
+keyq { "<leader>r", function()
+        cmd "silent! update"
+        cmd.mksession { restart_session_file, bang = true }
+        cmd.restart()
+end, desc = "Save & restart", mode = { "n", "x", "i" } }
 
-vim.api.nvim_create_autocmd("VimEnter", {
+auq "VimEnter" {
         callback = vim.schedule_wrap(function()
                 local is_restarting        = uv.fs_stat(restart_session_file) ~= nil
                 local not_opened_with_args = fn.argc(-1) == 0
@@ -37,4 +32,4 @@ vim.api.nvim_create_autocmd("VimEnter", {
                         if last_file then cmd.edit(last_file) end
                 end
         end),
-})
+}

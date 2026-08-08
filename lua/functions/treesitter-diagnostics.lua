@@ -1,9 +1,9 @@
 local error_query = vim.treesitter.query.parse("query", "[(ERROR)(MISSING)] @a")
-local namespace   = vim.api.nvim_create_namespace("treesitter.diagnostics")
+local namespace   = vim.api.nvim_create_namespace "treesitter.diagnostics"
 
 --- @param args vim.api.keyset.create_autocmd.callback_args
 local function diagnose(args)
-        if not vim.diagnostic.is_enabled({ bufnr = args.buf }) then
+        if not vim.diagnostic.is_enabled { bufnr = args.buf } then
                 return
         end
         if vim.bo[args.buf].buftype ~= "" then
@@ -76,8 +76,8 @@ end
 
 local autocmd_group = vim.api.nvim_create_augroup("editor.treesitter", { clear = true })
 
-vim.api.nvim_create_autocmd({ "FileType", "TextChanged", "InsertLeave" }, {
+auq { "FileType", "TextChanged", "InsertLeave" } {
         desc     = "treesitter diagnostics",
         group    = autocmd_group,
         callback = vim.schedule_wrap(diagnose),
-})
+}

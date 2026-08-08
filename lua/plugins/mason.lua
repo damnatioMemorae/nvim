@@ -1,4 +1,4 @@
-_G.linq
+linq
 "Mason"
            { "Error", "DiagnosticError" }
            { "Muted", "Comment" }
@@ -23,15 +23,13 @@ _G.linq
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local g   = vim.g
-local api = vim.api
 local env = vim.env
 local cmd = vim.cmd
 local log = vim.log
 local lsp = vim.lsp
 
-local autocmd = api.nvim_create_autocmd
-local icons   = Icon.Misc
-local levels  = log.levels
+local icons  = Icon.Misc
+local levels = log.levels
 
 local ensure_installed = {
         ---- ASM ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -75,12 +73,12 @@ local ensure_installed = {
         "lua-language-server",
         "local-lua-debugger-vscode",
         "vim-language-server",
-        "vimt",
 
         ---- HASKELL -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
         "haskell-language-server",
         "fourmolu",
+        "ormolu",
         "hlint",
 
         ---- OTHER -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -96,11 +94,13 @@ local function notify(msg, level, opts)
         if not opts then opts = {} end
         opts.title = "Mason"
         opts.icon  = ""
-        vim.notify(msg, levels[level:upper()], opts)
+        vim.schedule(function()
+                vim.notify(msg, levels[level:upper()], opts)
+        end)
 end
 
 local function enableLsps()
-        local installed_packs  = require("mason-registry").get_installed_packages()
+        local installed_packs  = require "mason-registry".get_installed_packages()
         local lsp_config_names = vim
                    .iter(installed_packs)
                    :fold({}, function(acc, pack)
@@ -131,7 +131,7 @@ local function installOrUpdate(pack, version)
 end
 
 local function syncPackages()
-        local mason_reg = require("mason-registry")
+        local mason_reg = require "mason-registry"
 
         mason_reg.refresh(function(ok, _)
                 assert(ok, "Could not refresh mason registry.")
@@ -141,7 +141,7 @@ local function syncPackages()
                            :each(function(packName)
                                    if not mason_reg.has_package(packName) then
                                            local msg = ("No package [%s] available."):format(packName)
-                                           vim.notify(msg, levels.WARN, { title = "mason" })
+                                           vim.notify(msg, vim.log.levels.WARN, { title = "mason" })
                                            return
                                    end
                                    local pack = mason_reg.get_package(packName)
@@ -156,6 +156,7 @@ local function syncPackages()
 
                 assert(#ensure_installed > 10, "< 10 mason packages, aborting uninstalls.")
                 local installed_packages = mason_reg.get_installed_package_names()
+
                 vim
                            .iter(installed_packages)
                            :each(function(packName)
@@ -170,10 +171,12 @@ local function syncPackages()
         end)
 end
 
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 return {
         "mason-org/mason.nvim",
         event  = "BufReadPre",
-        keys   = { { "<leader>m", cmd.Mason, desc = " Mason Home" } },
+        keys   = { { "<leader>m", cmd.Mason, desc = "Mason Home" } },
         opts   = {
                 registries = { "github:mason-org/mason-registry" },
                 ui         = {
@@ -196,11 +199,8 @@ return {
         },
         config = function(_, opts)
                 env.npm_config_cache = env.HOME .. "/.cache/npm"
-                require("mason").setup(opts)
+                require "mason".setup(opts)
                 enableLsps()
-                autocmd("UIEnter", {
-                        desc     = "User: Sync mason packages",
-                        callback = function(_ctx) vim.defer_fn(syncPackages, 1000) end,
-                })
+                vim.defer_fn(syncPackages, 1000)
         end,
 }

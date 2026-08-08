@@ -4,7 +4,7 @@ local ts  = vim.treesitter
 local api = vim.api
 local log = vim.log
 
-local ft      = bo.ft
+local ft     = bo.ft
 local levels = log.levels
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -24,8 +24,8 @@ end
 local function updateNode(strNode, insertAtCursor, textTransformer, cursorMove, cursorOffset)
         if not strNode then return end
         local node_text = ts.get_node_text(strNode, 0)
-        if node_text:find("[\n\r]") then
-                warn("Multiline strings not supported yet.")
+        if node_text:find "[\n\r]" then
+                warn "Multiline strings not supported yet."
                 return
         end
         local node_row, node_start_col, _, node_end_col = strNode:range()
@@ -53,7 +53,7 @@ function FiletypeFuncs.lua(node)
         local str_node
         if node:type() == "string" then
                 str_node = node
-        elseif node:type():find("string_content") then
+        elseif node:type():find "string_content" then
                 str_node = node:parent()
         elseif node:type() == "escape_sequence" then
                 str_node = node:parent():parent()
@@ -67,7 +67,7 @@ function FiletypeFuncs.python(node)
         local str_node
         if node:type() == "string" then
                 str_node = node
-        elseif node:type():find("^string_") then
+        elseif node:type():find "^string_" then
                 str_node = node:parent()
         elseif node:type() == "escape_sequence" then
                 str_node = node:parent():parent()
@@ -105,12 +105,12 @@ end
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 function M.insertTemplateStr()
-        if fn.mode() ~= "i" then return warn("Only works in insert mode.") end
+        if fn.mode() ~= "i" then return warn "Only works in insert mode." end
 
         local update_func = FiletypeFuncs[ft]
         if not update_func then return warn("Not configured for " .. ft) end
         local node_at_cursor = ts.get_node()
-        if not node_at_cursor then return warn("No node at cursor") end
+        if not node_at_cursor then return warn "No node at cursor" end
 
         update_func(node_at_cursor)
 end

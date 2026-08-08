@@ -1,7 +1,8 @@
-local M = {}
-
 local bo  = vim.bo
 local fn  = vim.fn
+local ts  = vim.ts
+local uv  = vim.uv
+local ui  = vim.ui
 local wo  = vim.wo
 local api = vim.api
 local cmd = vim.cmd
@@ -10,16 +11,22 @@ local lsp = vim.lsp
 
 local levels = log.levels
 
+require "utils.functional" ()
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+local M = {}
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 function M.bufferInfo()
         local pseudo_tilde = "∼"
 
         local clients      = lsp.get_clients { bufnr = 0 }
-        local longest_name = vim.iter(clients)
-                   :fold(0, function(acc, client) return math.max(acc, #client.name) end)
+        local longest_name = vim
+                   .iter(clients)
+                   :fold(0, function(acc, client)
+                           return math.max(acc, #client.name)
+                   end)
         local lsps         = vim.tbl_map(function(client)
-                                                 local pad = (" "):rep(math.min(longest_name - #client.name)) .. " "
+                                                 local pad  = (" "):rep(math.min(longest_name - #client.name)) .. " "
                                                  local root = client.root_dir and
                                                             client.root_dir:gsub("/Users/%w+", pseudo_tilde)
                                                             or "*Single file mode*"
@@ -36,7 +43,7 @@ function M.bufferInfo()
                 "[buftype]   " .. (bo.buftype == "" and '""' or bo.buftype),
                 "[foldlevel] " .. (wo.foldlevel == "" and '""' or wo.foldlevel),
                 ("[indent]    %s (%s)"):format(indent_type, indent_amount),
-                "[cwd]       " .. (vim.uv.cwd() or "nil"):gsub("/Users/%w+", pseudo_tilde),
+                "[cwd]       " .. (uv.cwd() or "nil"):gsub("/Users/%w+", pseudo_tilde),
                 "",
         }
         if #lsps > 0 then
@@ -51,7 +58,7 @@ end
 function M.nodeAtCursor()
         local config = { hlDuration = 1500, hlGroup = "Search", maxChildren = 4 }
 
-        local ok, node = pcall(vim.treesitter.get_node)
+        local ok, node = pcall(ts.get_node)
         if not (ok and node) then
                 vim.notify("No node under cursor", levels.DEBUG, { icon = "" })
                 return
@@ -70,7 +77,7 @@ function M.nodeAtCursor()
 
         local start_row, start_col = node:start()
         local end_row, end_col     = node:end_()
-        local ns                   = api.nvim_create_namespace("node-highlight")
+        local ns                   = api.nvim_create_namespace "node-highlight"
         if start_row == end_row then
                 api.nvim_buf_add_highlight(0, ns, config.hlGroup, start_row, start_col, end_col)
         else
@@ -85,7 +92,7 @@ function M.nodeAtCursor()
         vim.defer_fn(function() api.nvim_buf_clear_namespace(0, ns, 0, -1) end, config.hlDuration)
 
         vim.defer_fn(function()
-                             local count_ns = api.nvim_create_namespace("searchCounter")
+                             local count_ns = api.nvim_create_namespace "searchCounter"
                              api.nvim_buf_clear_namespace(0, count_ns, 0, -1)
                      end, 1)
 end
@@ -96,75 +103,70 @@ function M.lspCapabilities()
                 vim.notify("No LSPs attached.", levels.WARN, { icon = "󱈄" })
                 return
         end
-        vim.ui.select(clients, {
-                              prompt      = "󱈄 Select LSP:",
-                              kind        = "plain",
-                              format_item = function(client) return client.name end,
-                      }, function(client)
-                              if not client then return end
-                              local info   = {
-                                      capabilities        = client.capabilities,
-                                      server_capabilities = client.server_capabilities,
-                                      config              = client.config,
-                              }
-                              local opts   = { icon = "󱈄", title = client.name .. " capabilities", ft = "lua" }
-                              local header = "-- for a full view, open in notification history\n"
-                              local text   = header .. vim.inspect(info)
-                              vim.notify(text, levels.DEBUG, opts)
-                      end)
+        ui.select(clients, {
+                          prompt      = "Select LSP:",
+                          kind        = "plain",
+                          format_item = function(client) return client.name end,
+                  }, function(client)
+                          if not client then return end
+                          where(function(_) vim.notify(_.text, _.level, _.opts) end) {
+                                  level = levels.DEBUG,
+                                  opts  = { icon = "󱈄", title = client.name .. " capabilities", ft = "lua" },
+                                  text  = "-- for a full view, open in notification history\n" .. vim.inspect {
+                                          capabilities        = client.capabilities,
+                                          server_capabilities = client.server_capabilities,
+                                          config              = client.config,
+                                  },
+                          }
+                  end)
 end
 
 function M.evalNvimLua()
-        local devicons = require("nvim-web-devicons")
-        local ft_icon  = devicons.get_icon_color("lua")
         local function eval(input)
-                if not input or input == "" then
-                        return
-                end
-
+                if not input or input == "" then return end
                 local out  = fn.luaeval(input)
-                local opts = { title = "Eval", icon = ft_icon, ft = "lua" }
-
+                local opts = { title = "Eval", icon = "", ft = "lua" }
                 vim.notify(vim.inspect(out), levels.DEBUG, opts)
         end
 
         if fn.mode() == "n" then
-                -- vim.ui.input({ prompt = " Eval: ", win = { ft = "lua" } }, eval)
-                vim.ui.input({ icon = ft_icon, prompt = "", win = { ft = "lua" } }, eval)
+                ui.input({ icon = "", prompt = "", win = { ft = "lua" } }, eval)
         else
-                cmd.normal({ '"zy', bang = true })
-                eval(fn.getreg("z"))
+                cmd.normal { '"zy', bang = true }
+                eval(fn.getreg "z")
         end
 end
 
 function M.runFile()
-        cmd("silent update")
-        local has_shebang = api.nvim_buf_get_lines(0, 0, 1, false)[1]:find("^#!")
+        cmd "silent update"
+        local has_shebang = api.nvim_buf_get_lines(0, 0, 1, false)[1]:find "^#!"
         local filepath    = api.nvim_buf_get_name(0)
-        if bo.filetype == "lua" and filepath:find("nvim") then
+        if bo.filetype == "lua" and filepath:find "nvim" then
                 cmd.source()
                 -- elseif bo.filetype == "lua" and fn.finddir("love2d", nil, nil) then
                 --         cmd("! love Game")
         elseif has_shebang then
-                cmd("! chmod +x %")
-                cmd("! %")
+                cmd "! chmod +x %"
+                cmd "! %"
         else
                 vim.notify("File has no shebang.", levels.WARN, { title = "Run", icon = "󰜎" })
         end
 
-        if bo.filetype == "sh" and filepath:find("nvim") then
+        if bo.filetype == "sh" and filepath:find "nvim" then
                 cmd.source()
         elseif has_shebang then
-                cmd("! chmod +x %")
-                cmd("! ./%")
+                cmd "! chmod +x %"
+                cmd "! ./%"
         else
                 vim.notify("File has no shebang.", levels.WARN, { title = "Run", icon = "󰜎" })
         end
 end
 
 function M.inspectNodeAncestors()
-        local node = vim.treesitter.get_node()
-        if not node then return vim.notify("No node under cursor.", levels.WARN) end
+        local node = ts.get_node()
+        if not node then
+                return vim.notify("No node under cursor.", levels.WARN)
+        end
         local ancestors = {}
         while node do
                 table.insert(ancestors, 1, node:type())
