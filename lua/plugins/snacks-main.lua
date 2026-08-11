@@ -26,7 +26,6 @@ return {
                 -- { "<M-b>",      function() Snacks.bufdelete() end,          desc = "Delete Buffer" },
                 { "<M-b>",      "<cmd>b #<CR>",                             desc = "Swap buffer" },
                 { "<leader>fr", function() Snacks.rename.rename_file() end, desc = "Rename File" },
-                { "<leader>lg", function() Snacks.lazygit() end,            desc = "Lazygit" },
         },
         opts     = {
                 quickfile = { enabled = true },

@@ -19,14 +19,12 @@ return {
         opts    = {
                 evaluate = { prefix = ",e" },
                 replace  = { prefix = "", reindent_linewise = true },
-                exchange = { prefix = "se", reindent_linewise = true },
+                exchange = { prefix = "sx", reindent_linewise = true },
                 sort     = { prefix = "<LocalLeader>y" },
                 -- multiply = { prefix = "w" },
         },
         config  = function(_, opts)
-                local op = require "mini.operators"
-                op.setup(opts)
-
+                require "mini.operators".setup(opts)
                 customMap "sort" "<LocalLeader>y" "<LocalLeader>yy" "<LocalLeader>y"
         end,
 }

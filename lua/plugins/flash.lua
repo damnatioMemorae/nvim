@@ -1,6 +1,5 @@
-local v   = vim.v
-local fn  = vim.fn
-local api = vim.api
+local v  = vim.v
+local fn = vim.fn
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -11,7 +10,6 @@ local function ts() require "flash".treesitter_search() end
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 auq "CmdlineLeave" {
-        group    = api.nvim_create_augroup("falsh search", { clear = true }),
         callback = function()
                 local ev = v.event
                 if (ev.cmdtype == "?") and (not ev.abort) and (fn.searchcount().total > 1) then
@@ -44,15 +42,12 @@ return {
                         },
                 },
                 prompt    = {
-                        prefix     = { { Icon.Arrows.rightBig, "FlashPromptIcon" } },
-                        win_config = { border = Border.Default.None, row = -1 },
+                        prefix     = { { Icon.Arrows.rightBig, "Special" } },
+                        win_config = { border = Border.Default.None, row = 0 },
                 },
                 search    = {
                         enabled = false,
-                        exclude = {
-                                "flash_prompt",
-                                "cmp_menu",
-                        },
+                        exclude = { "flash_prompt", "cmp_menu" },
                 },
                 remote_op = { restore = true },
                 modes     = { char = { enabled = false }, search = { enabled = false } },

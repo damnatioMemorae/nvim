@@ -11,6 +11,15 @@ local autocmd = api.nvim_create_autocmd
 
 require "utils.functional" ()
 
+---- AUTOCMD -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+---@type fun(event: vim.api.keyset.events): fun(opts: vim.api.keyset.create_autocmd)
+local function auq(event)
+        return function(opts)
+                return autocmd(event, opts)
+        end
+end
+
 ---- HIGHLIGHT -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local function hlLink(name, link)
@@ -60,14 +69,6 @@ local function hl(a)
         end
 end
 
----- AUTOCMD -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-local function auq(event)
-        return function(opts)
-                return autocmd(event, opts)
-        end
-end
-
 ---- KEYMAP --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local _repeat = { lhs = nil, buf = nil }
@@ -86,7 +87,6 @@ set("n", ".", function()
 ---@field ft? string | string[]
 
 ---@param keymap MyConfig.Keymap
--- local function smartMap(keymap)
 local function keyq(keymap)
         local mode = keymap.mode or "n"
         local lhs  = keymap[1]
@@ -132,18 +132,10 @@ local function keyq(keymap)
         end
 end
 
--- local function keyq(keymap)
---         return smartMap(keymap)
--- end
-
 local function bufq(keymap)
         keymap.buf = 0
         keyq(keymap)
 end
-
--- local function bufq(keymap)
---         return bufMap(keymap)
--- end
 
 local function bufAbbr(text)
         return function(replace)
@@ -158,17 +150,6 @@ local function pcmd(command)
                         pcall(vim.cmd, fallback) ---@diagnostic disable-line: param-type-mismatch
                 end
         end
-end
-
-local function try(command)
-        local function step(acc)
-                return function(fallback)
-                        unless(nilq(fallback))(acc)
-                        pcmd(command)(fallback)
-                        return step(fold(acc))
-                end
-        end
-        return step {}
 end
 
 ---- MODULES -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -203,7 +184,6 @@ end
 local function safeRequire(modname)
         local success, errmsg = pcall(require, modname)
         if success then return end
-
         local msg = ("Error loading `%s`: %s"):format(modname, errmsg)
         vim.defer_fn(function()
                              vim.notify(msg, levels.ERROR, { title = "User config", timeout = false })
@@ -215,13 +195,16 @@ end
 local function lazyReq(modname)
         return function(event)
                 return function(pattern)
-                        when(nilq(event))(function() safeRequire(modname) end)(function()
-                                auq(event) {
-                                        pattern  = pattern,
-                                        once     = true,
-                                        callback = function() safeRequire(modname) end,
-                                }
-                        end)
+                        guard {
+                                event == nil, function() safeRequire(modname) end,
+                                function()
+                                        auq(event) {
+                                                pattern  = pattern,
+                                                once     = true,
+                                                callback = function() safeRequire(modname) end,
+                                        }
+                                end,
+                        }
                 end
         end
 end
@@ -263,13 +246,10 @@ M.highlights = {
         _linq = _linq,
 }
 M.keymaps    = {
-        smartMap = smartMap,
-        bufMap   = bufMap,
-        abbr     = bufAbbr,
-        bufq     = bufq,
-        keyq     = keyq,
-        pcmd     = pcmd,
-        try      = try,
+        abbr = bufAbbr,
+        bufq = bufq,
+        keyq = keyq,
+        pcmd = pcmd,
 }
 M.modules    = {
         req         = req,

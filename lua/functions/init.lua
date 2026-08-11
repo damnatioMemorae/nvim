@@ -4,6 +4,6 @@ req
            { "statusline", "BufReadPost" }
            { "statuscol", "BufReadPost" }
            { "folding", "BufReadPost" }
+           { "lightbulb", "LspAttach" }
            { "quickfix2", "BufReadPost" }
-           { "backdrop-underline-fix", "BufReadPost" }
            { "ui2", "UiEnter" }

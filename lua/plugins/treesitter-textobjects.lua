@@ -8,12 +8,7 @@ local levels = log.levels
 local mode = { "n", "v", "x", "o" }
 local to   = require "utils.misc".extraTextobjMaps
 
-local function selectNode(obj, pos)
-        local textobject = "@" .. obj .. "." .. pos
-        return function()
-                require "nvim-treesitter-textobjects.select".select_textobject(textobject, "textobjects")
-        end
-end
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local function addDocstring()
         require "nvim-treesitter-textobjects.move".goto_previous_start("@function.outer", "textobjects")
@@ -22,9 +17,7 @@ local function addDocstring()
                         local line       = api.nvim_win_get_cursor(0)[1]
                         local indent     = api.nvim_get_current_line():match "^%s*"
                         local param_line = api.nvim_get_current_line():match "function.*%((.*)%)$"
-                        if nilq(param_line) then
-                                return
-                        end
+                        if nilq(param_line) then return end
                         local params       = vim.split(param_line, ", ?")
                         local luadoc_lines = vim
                                    .iter(params)
@@ -43,12 +36,16 @@ local function addDocstring()
         }
 end
 
+local function selectNode(obj, pos)
+        require "nvim-treesitter-textobjects.select".select_textobject("@" .. obj .. "." .. pos, "textobjects")
+end
+
 local function gotoNode(obj, pos, dir)
         require "nvim-treesitter-textobjects.move"["goto_" .. dir .. "_start"]("@" .. obj .. "." .. pos, "textobjects")
 end
 
 local function swapNode(obj, pos, dir)
-        require "nvim-treesitter-textobjects.swap"["swap_" .. dir](("@" .. obj .. "." .. pos))
+        require "nvim-treesitter-textobjects.swap"["swap_" .. dir]("@" .. obj .. "." .. pos)
 end
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -58,14 +55,10 @@ return {
         branch = "main",
         event  = "BufReadPost",
         keys   = {
-                ---- SWAP ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
                 { "<M-{>",        function() swapNode("parameter", "inner", "previous") end,   desc = "Swap arg" },
                 { "<M-}>",        function() swapNode("parameter", "inner", "next") end,       desc = "Swap arg" },
                 { "<M-{>",        function() swapNode("md_section", "inner", "previous") end,  desc = "Swap arg",     ft = "markdown" },
                 { "<M-}>",        function() swapNode("md_section", "inner", "next") end,      desc = "Swap arg",     ft = "markdown" },
-
-                ---- MOVE ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
                 { "<M-q>",        function() gotoNode("comment", "outer", "next") end,         mode = mode,           desc = "Goto next comment" },
                 { "<M-Q>",        function() gotoNode("comment", "outer", "previous") end,     mode = mode,           desc = "Goto previous comment" },
@@ -86,26 +79,22 @@ return {
                 { "<M-t>",        function() gotoNode("assignment", "outer", "next") end,      mode = mode,           desc = "Goto next type" },
                 { "<M-T>",        function() gotoNode("assignment", "outer", "previous") end,  mode = mode,           desc = "Goto previous type" },
 
-                ---- TEXT OBJECTS ----------------------------------------------------------------------------------------------------------------------------------------------------------
+                { "aa",           function() selectNode("parameter", "outer") end,             mode = { "x", "o" },   desc = "outer arg" },
+                { "ia",           function() selectNode("parameter", "inner") end,             mode = { "x", "o" },   desc = "inner arg" },
+                { "a/",           function() selectNode("regex", "outer") end,                 mode = { "x", "o" },   desc = "outer regex" },
+                { "i/",           function() selectNode("regex", "inner") end,                 mode = { "x", "o" },   desc = "inner regex" },
+                { "au",           function() selectNode("loop", "outer") end,                  mode = { "x", "o" },   desc = "outer loop" },
+                { "iu",           function() selectNode("loop", "inner") end,                  mode = { "x", "o" },   desc = "inner loop" },
+                { "aE",           function() selectNode("codeblock", "outer") end,             mode = { "x", "o" },   desc = "outer codeblock" },
+                { "iE",           function() selectNode("codeblock", "inner") end,             mode = { "x", "o" },   desc = "inner codeblock" },
+                { "a" .. to.call, function() selectNode("call", "outer") end,                  mode = { "x", "o" },   desc = "outer call" },
+                { "i" .. to.call, function() selectNode("call", "inner") end,                  mode = { "x", "o" },   desc = "inner call" },
+                { "a" .. to.func, function() selectNode("function", "outer") end,              mode = { "x", "o" },   desc = "outer function" },
+                { "i" .. to.func, function() selectNode("function", "inner") end,              mode = { "x", "o" },   desc = "inner function" },
+                { "a" .. to.cond, function() selectNode("conditional", "outer") end,           mode = { "x", "o" },   desc = "outer condition" },
+                { "i" .. to.cond, function() selectNode("conditional", "inner") end,           mode = { "x", "o" },   desc = "inner condition" },
 
-                { "aa",           selectNode("parameter", "outer"),                            mode = { "x", "o" },   desc = "outer arg" },
-                { "ia",           selectNode("parameter", "inner"),                            mode = { "x", "o" },   desc = "inner arg" },
-                { "a/",           selectNode("regex", "outer"),                                mode = { "x", "o" },   desc = "outer regex" },
-                { "i/",           selectNode("regex", "inner"),                                mode = { "x", "o" },   desc = "inner regex" },
-                { "au",           selectNode("loop", "outer"),                                 mode = { "x", "o" },   desc = "outer loop" },
-                { "iu",           selectNode("loop", "inner"),                                 mode = { "x", "o" },   desc = "inner loop" },
-                { "aE",           selectNode("codeblock", "outer"),                            mode = { "x", "o" },   desc = "outer codeblock" },
-                { "iE",           selectNode("codeblock", "inner"),                            mode = { "x", "o" },   desc = "inner codeblock" },
-                { "a" .. to.call, selectNode("call", "outer"),                                 mode = { "x", "o" },   desc = "outer call" },
-                { "i" .. to.call, selectNode("call", "inner"),                                 mode = { "x", "o" },   desc = "inner call" },
-                { "a" .. to.func, selectNode("function", "outer"),                             mode = { "x", "o" },   desc = "outer function" },
-                { "i" .. to.func, selectNode("function", "inner"),                             mode = { "x", "o" },   desc = "inner function" },
-                { "a" .. to.cond, selectNode("conditional", "outer"),                          mode = { "x", "o" },   desc = "outer condition" },
-                { "i" .. to.cond, selectNode("conditional", "inner"),                          mode = { "x", "o" },   desc = "inner condition" },
-
-                ---- COMMENTS --------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-                { "q",            selectNode("comment", "outer"),                              mode = "o",            desc = "single comment" },
+                { "q",            function() selectNode("comment", "outer") end,               mode = "o",            desc = "single comment" },
                 { "qf",           addDocstring,                                                desc = "add docstring" },
                 { -- CHANGE SINGLE COMMENT
                         "cq",

@@ -1,8 +1,8 @@
-_G.Toggle = {}
-
-local g   = vim.g
-local lsp = vim.lsp
-local log = vim.log
+local g          = vim.g
+local wo         = vim.wo
+local lsp        = vim.lsp
+local log        = vim.log
+local diagnostic = vim.diagnostic
 
 local levels = log.levels
 
@@ -10,6 +10,8 @@ local misc  = Icon.Misc
 local diag  = Icon.Diagnostics
 local kinds = Icon.Kinds
 
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+_G.Toggle = {}
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local function notify(msg, state)
@@ -25,7 +27,6 @@ local function toggleCodeLens()
 
         g.codeLens = not g.codeLens
         local msg  = misc.reference .. " " .. "CodeLens - "
-
         if not loaded then
                 return
         elseif g.codeLens then
@@ -44,7 +45,6 @@ local function toggleInlayHints()
 
         g.inlayHints = not g.inlayHints
         local msg    = kinds.Parameter .. " " .. "Inlay Hints - "
-
         if not loaded then
                 return
         elseif g.inlayHints then
@@ -63,7 +63,6 @@ local function toggleIndentLines()
 
         g.indentLines = not g.indentLines
         local msg     = misc.verticalBar .. " " .. "Indent Lines - "
-
         if not loaded then
                 return
         elseif g.indentLines then
@@ -80,16 +79,15 @@ local function toggleDiagnostics()
 
         g.conceal = not g.conceal
         local msg = diag.ERROR .. " " .. "Diagnostics - "
-
         if not loaded then
                 return
         elseif g.conceal then
                 diagnostics.enable()
-                vim.diagnostic.enable(g.conceal)
+                diagnostic.enable(g.conceal)
                 notify(msg, "Enabled")
         else
                 diagnostics.disable()
-                vim.diagnostic.enable(g.conceal)
+                diagnostic.enable(g.conceal)
                 notify(msg, "Disabled")
         end
 end
@@ -97,8 +95,21 @@ end
 local function toggleConcealLvl()
         local msg = diag.ERROR .. " " .. "Conceal Level - "
 
-        vim.wo.conceallevel = vim.wo.conceallevel == 0 and 2 or 0
-        vim.notify(msg .. vim.wo.conceallevel, levels.WARN)
+        wo.conceallevel = wo.conceallevel == 0 and 2 or 0
+        vim.notify(msg .. wo.conceallevel, levels.WARN)
+end
+
+local function toggleListMode()
+        match(g.qf_mode) {
+                l = function()
+                        g.qf_mode = "c"
+                        vim.notify("list: quickfix", levels.WARN)
+                end,
+                c = function()
+                        g.qf_mode = "l"
+                        vim.notify("list: location", levels.WARN)
+                end,
+        }
 end
 
 local function toggleAll()
@@ -112,26 +123,12 @@ end
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-function Toggle.codeLens()
-        toggleCodeLens()
-end
-
-function Toggle.inlayHints()
-        toggleInlayHints()
-end
-
-function Toggle.indentLines()
-        toggleIndentLines()
-end
-
-function Toggle.diagnostics()
-        toggleDiagnostics()
-end
-
-function Toggle.concealLvl()
-        toggleConcealLvl()
-end
-
-function Toggle.all()
-        toggleAll()
-end
+Toggle = {
+        codeLens    = toggleCodeLens,
+        inlayHints  = toggleInlayHints,
+        indentLines = toggleIndentLines,
+        diagnostics = toggleDiagnostics,
+        concealLvl  = toggleConcealLvl,
+        qfMode      = toggleListMode,
+        all         = toggleAll,
+}

@@ -90,10 +90,10 @@ keyq { "X", function() -- `X` DELETE AT EOL
 end, desc = "Delete char at EoL" }
 
 vim -- Append to EoL
-           .iter { ",", ")", ";", ".", '"', "'", " \\", " {", "?", "_" }
+           .iter { "(", ")", "[", "]", "{", "}", '"', "'", ",", ".", ";", ":", "\\", "?", "_" }
            :each(function(char)
                    keyq { "<leader>" .. vim.trim(char), function()
-                           local updated_line = api.nvim_get_current_line() .. char
+                           local updated_line = api.nvim_get_current_line() .. " " .. char
                            api.nvim_set_current_line(updated_line)
                    end }
            end)
@@ -116,6 +116,8 @@ keyq { "<M-`>", "``<Left>", desc = "Inline Code", mode = i }
 
 keyq { "-", "[<Space>", desc = "blank above", remap = true }
 keyq { "=", "]<Space>", desc = "blank below", remap = true }
+
+---- YANK & PASTE --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 keyq { "<C-y>", ":%y<CR>", desc = "Yank all", silent = true }
 keyq { "y", function() -- STICKY
@@ -170,7 +172,7 @@ end
 ---- TEXTOBJECTS ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local textobj_remaps = {
-        { "c", "}", "curly" },
+        { "c", "{", "curly" },
         { "r", "]", "rectangular" },
         { "m", "W", "WORD" },
         { "q", '"', "double" },
@@ -181,9 +183,14 @@ local textobj_remaps = {
 vim
            .iter(textobj_remaps)
            :each(function(value)
-                   local remap, original, label = unpack(value)
-                   keyq { "i" .. remap, "i" .. original, desc = "inner " .. label, mode = { o, x } }
-                   keyq { "a" .. remap, "a" .. original, desc = "outer " .. label, mode = { o, x } }
+                   where(function(_)
+                           keyq { "i" .. _.remap, "i" .. _.orig, desc = "inner " .. _.label, mode = { o, x } }
+                           keyq { "a" .. _.remap, "a" .. _.orig, desc = "outer " .. _.label, mode = { o, x } }
+                   end) {
+                                      remap = value[1],
+                                      orig  = value[2],
+                                      label = value[3],
+                              }
            end)
 
 keyq { "J", "2j", mode = o }
@@ -195,13 +202,12 @@ do -- COMMENT
         keyq { "u", "gc", desc = "Multiline comment", mode = o, remap = true }
         keyq { "guu", "guu" }
 
-        keyq { "qw", function() com.commentHr "replaceMode" end, desc = "Horizontal Divider + Label" }
-        keyq { "qe", function() com.commentHr() end, desc = "Horizontal Divider" }
-        keyq { "qy", function() com.duplicateLineAsComment() end, desc = "Duplicate Line as Comment" }
         keyq { "Q", function() com.addComment "eol" end, desc = "Append Comment" }
         keyq { "qo", function() com.addComment "below" end, desc = "Comment Below" }
         keyq { "qO", function() com.addComment "above" end, desc = "Comment Above" }
-        keyq { "dQ", "<cmd>DeleteComments<CR>", { desc = "Delete All Comments" } }
+        keyq { "qe", function() com.commentHr() end, desc = "Horizontal Divider" }
+        keyq { "qw", function() com.commentHr "replaceMode" end, desc = "Horizontal Divider + Label" }
+        keyq { "qy", function() com.duplicateLineAsComment() end, desc = "Duplicate Line as Comment" }
         com.setupReplaceModeHelpersForComments()
 end
 
@@ -214,15 +220,18 @@ keyq { "<C-v>", "ggVG", desc = "select all" }
 keyq { "V", "j", desc = "repeated `V` selects more lines", mode = x }
 keyq { "v", "<C-v>", desc = "`vv` starts visual block", mode = x }
 
-keyq { "<C-a>", "<C-b>", desc = "Goto start of cmdline", mode = c }
-keyq { "<M-Left>", "<C-b>", desc = "Goto start of cmdline", mode = c }
-keyq { "<M-Right>", "<C-e>", desc = "Goto end of cmdline", mode = c }
+---- CMDLINE -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+keyq { "<M-left>", "<C-b>", desc = "Goto start of cmdline", mode = c }
+keyq { "<M-right>", "<C-e>", desc = "Goto end of cmdline", mode = c }
+keyq { "<up>", "<C-p>", desc = "Cmdline completion scroll up", mode = c }
+keyq { "<down>", "<C-n>", desc = "Cmdline completion scroll down", mode = c }
 
 keyq { "<C-v>", function() -- `C-v` PASTE CMDLINE
         fn.setreg("+", vim.trim(fn.getreg "+"))
         return "<C-r>+"
 end, desc = "Cmdline Paste", mode = c, expr = true }
-keyq { "<M-c>", function() -- `C-v` PASTE CMDLINE
+keyq { "<M-c>", function() -- `C-v` YANK CMDLINE
         local cmdline = fn.getcmdline()
         if cmdline == "" then return vim.notify("Nothing to copy.", levels.WARN) end
         fn.setreg("+", cmdline)
@@ -235,6 +244,8 @@ end, desc = "disable <BS> when cmdline is empty", mode = c, expr = true, unique 
 keyq { "<c-l>", function() return spltis "vertical" end, mode = c, expr = true }
 keyq { "<c-j>", function() return spltis "horizontal" end, mode = c, expr = true }
 keyq { "<c-CR>", function() return spltis "tab" end, mode = c, expr = true }
+
+---- INSPECT & EVAL ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 keyq { "<leader>ii", cmd.Inspect, desc = "Inspect at cursor" }
 keyq { "<leader>it", ts.inspect_tree, desc = "TS tree" }
@@ -264,11 +275,15 @@ keyq { "<leader>iE", function() -- `spc-E` EVLA LUA EXPRESSION
         return ":lua  = " .. selection
 end, desc = "Eval lua expr", mode = { n, x }, expr = true }
 
+---- SPLITS --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 keyq { "<M-Space>", "<C-w>w", desc = "Cycle windows", mode = { n, v, i } }
 keyq { "<M-m>", "<cmd>vsplit<CR>", desc = "Split altfile", mode = { n, x, i } }
 keyq { "<M-n>", "<cmd>vertical split #<CR>", desc = "Split altfile", mode = { n, x, i } }
 keyq { "<C-n>", "<cmd>messages<CR>", desc = "Notification History" }
 keyq { "<M-W>", "<cmd>only<CR>", desc = "Close other windows", mode = { n, x, i } }
+
+---- BUFFERS -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 keyq { "<M-r>", cmd.edit, desc = "Reload buffer" }
 
@@ -293,19 +308,21 @@ keyq { "L", function() -- `L` NEXT BUFFER
         cmd.bnext()
 end, desc = "Next Buffer" }
 
-do -- MACRO
-        local reg        = "r"
-        local toggle_key = "0"
+where(function(_) -- MACROS
+        fn.setreg(_.reg, "")
+        keyq { _.toggle_key, function() nano.startOrStopRecording(_.toggle_key, _.reg) end, desc = "Start/stop recording" }
+        keyq { "9", function() nano.playRecording(_.reg) end, desc = "Play recording" }
+end) {
+                   reg        = "r",
+                   toggle_key = "0",
+           }
 
-        fn.setreg(reg, "")
-
-        keyq { toggle_key, function() nano.startOrStopRecording(toggle_key, reg) end, desc = "Start/stop recording" }
-        keyq { "9", function() nano.playRecording(reg) end, desc = "Play recording" }
-end
+---- REFACTORING ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 keyq { "<leader>fd", ":global //d<Left><Left>", desc = "delete matching lines" }
 keyq { "<LocalLeader>n", lsp.buf.rename, desc = "LSP rename" }
 keyq { "<LocalLeader>m", nano.camelSnakeLspRename, desc = "LSP rename: camel/snake" }
 
+---- TOGGLES -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 keyq { "<leader>oc", Toggle.concealLvl, desc = "Toggle Conceal" }
 keyq { "<leader>o<leader>", Toggle.all, desc = "Toggle UI" }

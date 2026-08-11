@@ -9,13 +9,15 @@ linq
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-local o   = vim.o
-local v   = vim.v
-local fn  = vim.fn
-local fs  = vim.fs
-local ui  = vim.ui
-local api = vim.api
-local cmd = vim.cmd
+local o      = vim.o
+local v      = vim.v
+local fn     = vim.fn
+local fs     = vim.fs
+local ui     = vim.ui
+local api    = vim.api
+local cmd    = vim.cmd
+local log    = vim.log
+local levels = log.levels
 
 local kinds = Icon.Kinds
 
@@ -25,6 +27,18 @@ local send = require "functions.nano-plugins".teleSend "file"
 
 local border_width  = 1
 local show_dotfiles = true
+
+local function open()
+        if not require "mini.files".close() then
+                require "mini.files".open()
+        end
+end
+
+local function current()
+        local mf = require "mini.files"
+        local _  = mf.close() or mf.open(api.nvim_buf_get_name(0), false)
+        vim.defer_fn(function() mf.reveal_cwd() end, 30)
+end
 
 local function filterShow(_fsEntry)
         return true
@@ -125,27 +139,18 @@ local function layout(args, width, height)
         end
 end
 
-local function open()
-        if not require "mini.files".close() then
-                require "mini.files".open()
-        end
-end
-
-local function current()
-        local mf = require "mini.files"
-        local _  = mf.close() or mf.open(api.nvim_buf_get_name(0), false)
-        vim.defer_fn(function() mf.reveal_cwd() end, 30)
-end
-
 auq "User" { -- MARKS
         pattern  = "MiniFilesExplorerOpen",
         callback = function()
                 require "utils.misc".addBackdrop("User", "MiniFilesExplorerClose")
-                -- fn.confirm = function() return 1 end ---@diagnostic disable-line: duplicate-set-field
+                fn.confirm = function() ---@diagnostic disable-line: duplicate-set-field
+                        vim.notify("confirmed", levels.WARN)
+                        return 1
+                end
                 setMark("n", fn.stdpath "config",                      "Config")
                 setMark("w", fn.getcwd,                                "Working directory")
+                setMark("t", fn.stdpath "data" .. "/mini.files/trash", "Trash directory")
                 setMark("l", fn.stdpath "data" .. "/lazy",             "Lazy directory")
-                setMark("t", fn.stdpath "data" .. "/mini.files/trash", "Lazy directory")
                 setMark("h", fn.expand "~/.config/hypr",               "Hypr directory")
                 setMark("~", "~",                                      "Home directory")
         end,
@@ -162,7 +167,7 @@ auq "User" { -- SPLITS AND MAPS
                 keyq { lhs .. "~", setCwd, buf = buf, desc = "Set cwd" }
                 keyq { lhs .. "x", uiOpen, buf = buf, desc = "OS open" }
                 keyq { lhs .. "y", yankPath, buf = buf, desc = "Yank path" }
-                keyq { ".", toggleDotfiles, buf = buf, noremap = true }
+                keyq { "@", yankPath, buf = buf, desc = "Yank path" }
                 keyq { "S", function()
                         send((require "mini.files".get_fs_entry() or {}).path)
                 end, mode = { "n", "x" }, buf = buf, desc = "Telegram send" }

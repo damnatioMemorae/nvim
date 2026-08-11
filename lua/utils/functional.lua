@@ -1,24 +1,29 @@
 ---- PREDICATES ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
----@type fun(a: any): fun(b: any): boolean
-local function eq(a) return function(b) return a == b end end
----@type fun(a: any): fun(b: any): boolean
-local function typq(a) return function(t) return type(a) == t end end
+local eq = function(a) return function(b) return a == b end end
+local typq = function(a) return function(t) return type(a) == t end end
 
----@type fun(a: any): boolean
-local function nilq(a) return a == nil end
----@type fun(a: any): boolean
-local function tblq(a) return type(a) == "table" end
----@type fun(a: any): boolean
-local function strq(a) return type(a) == "string" end
----@type fun(a: any): boolean
-local function numq(a) return type(a) == "number" end
----@type fun(a: any): boolean
-local function booq(a) return type(a) == "boolean" end
----@type fun(a: any): boolean
-local function funq(a) return type(a) == "function" end
+local nilq = function(a) return a == nil end
+local tblq = function(a) return type(a) == "table" end
+local strq = function(a) return type(a) == "string" end
+local numq = function(a) return type(a) == "number" end
+local booq = function(a) return type(a) == "boolean" end
+local funq = function(a) return type(a) == "function" end
 
 ---- CONDITIONALS --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+local function guard(args)
+        local n = #args
+        assert(n > 0, "cond requires at least one argument")
+        for i = 1, n - (n % 2), 2 do
+                assert(type(args[i + 1]) == "function", "cond action must be a function")
+                if args[i] then return args[i + 1]() end
+        end
+        if n % 2 == 1 then
+                assert(type(args[n]) == "function", "cond otherwise must be a function")
+                return args[n]()
+        end
+end
 
 ---@type fun(value: any): fun(cases: table): function
 local function match(value)
@@ -28,30 +33,13 @@ local function match(value)
         end
 end
 
----@type fun(...: any): fun(default: function): function
-local function cond(...)
-        local cases = { ... }
-        return function(default)
-                for _, case in ipairs(cases) do
-                        if case[1] then return case[2]() end
-                end
-                return default()
-        end
-end
-
 ---@type fun(condition: any): fun(_then: function|any): fun(otherwise: function|any): function|any
 local function when(condition)
         return function(_then)
-                return function(_otherwise)
-                        if condition then
-                                return funq(_then)
-                                           and _then()
-                                           or _then
-                        else
-                                return funq(_otherwise)
-                                           and _otherwise()
-                                           or _otherwise
-                        end
+                if condition then
+                        return funq(_then)
+                                   and _then()
+                                   or _then
                 end
         end
 end
@@ -117,46 +105,24 @@ end
 
 ---@type fun(f: function): fun(tbl: table): table
 local function map(f)
-        return function(tbl)
-                return vim
-                           .iter(tbl)
-                           :fold({}, function(acc, k, v)
-                                   return vim.tbl_extend("force", acc, { [k] = f(k)(v) })
-                           end)
+        local res = {}
+        return function(t)
+                for k, v in pairs(t) do
+                        res[k] = f(v)
+                end
+                return res
         end
 end
 
 ---@type fun(f: function): fun(tbl: table): table
 local function mapl(f)
-        return function(list)
-                return vim
-                           .iter(list)
-                           :fold({}, function(acc, v)
-                                   return vim.tbl_extend("force", acc, { f(v) })
-                           end)
+        local res = {}
+        return function(t)
+                for i = 1, #t do
+                        res[i] = f(t[i])
+                end
+                return res
         end
-end
-
----@type fun(tbl: table): table
-local function flat(tbl)
-        return vim
-                   .iter(tbl)
-                   :fold({}, function(acc, k, v)
-                           return type(v) == "table"
-                                      and vim.tbl_extend("force", acc, flat(v))
-                                      or vim.tbl_extend("force", acc, { [k] = v })
-                   end)
-end
-
----@type fun(tbl: table): table
-local function flatl(tbl)
-        return vim
-                   .iter(tbl)
-                   :fold({}, function(acc, v)
-                           return type(v) == "table"
-                                      and vim.tbl_extend("force", acc, flat(v))
-                                      or vim.tbl_extend("force", acc, { v })
-                   end)
 end
 
 ---@type fun(tbl: table, pred: function): fun(acc: table): fun(x: any): table
@@ -240,9 +206,9 @@ M.predicates   = {
         _funq = not funq,
 }
 M.conditionals = {
-        cond   = cond,
-        match  = match,
         when   = when,
+        guard  = guard,
+        match  = match,
         where  = where,
         unless = unless,
 }
@@ -251,8 +217,6 @@ M.lists        = {
         mapl   = mapl,
         each   = each,
         extl   = extl,
-        flat   = flat,
-        flatl  = flatl,
         fold   = fold,
         foldl  = foldl,
         filter = filter,

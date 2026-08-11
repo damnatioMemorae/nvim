@@ -1,6 +1,6 @@
 local bo  = vim.bo
 local fn  = vim.fn
-local ts  = vim.ts
+local ts  = vim.treesitter
 local uv  = vim.uv
 local ui  = vim.ui
 local wo  = vim.wo
@@ -12,6 +12,7 @@ local lsp = vim.lsp
 local levels = log.levels
 
 require "utils.functional" ()
+
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 local M = {}
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -27,8 +28,8 @@ function M.bufferInfo()
                    end)
         local lsps         = vim.tbl_map(function(client)
                                                  local pad  = (" "):rep(math.min(longest_name - #client.name)) .. " "
-                                                 local root = client.root_dir and
-                                                            client.root_dir:gsub("/Users/%w+", pseudo_tilde)
+                                                 local root = client.root_dir
+                                                            and client.root_dir:gsub("/Users/%w+", pseudo_tilde)
                                                             or "*Single file mode*"
                                                  return ("[%s]%s%s"):format(client.name, pad, root)
                                          end, clients)
@@ -36,23 +37,23 @@ function M.bufferInfo()
         local indent_type   = bo.expandtab and "spaces" or "tabs"
         local indent_amount = bo.expandtab and bo.tabstop or bo.shiftwidth
 
-        local out = {
-                "[bufnr]     " .. api.nvim_get_current_buf(),
-                "[winid]     " .. api.nvim_get_current_win(),
-                "[filetype]  " .. (bo.filetype == "" and '""' or bo.filetype),
-                "[buftype]   " .. (bo.buftype == "" and '""' or bo.buftype),
-                "[foldlevel] " .. (wo.foldlevel == "" and '""' or wo.foldlevel),
-                ("[indent]    %s (%s)"):format(indent_type, indent_amount),
-                "[cwd]       " .. (uv.cwd() or "nil"):gsub("/Users/%w+", pseudo_tilde),
-                "",
-        }
-        if #lsps > 0 then
-                vim.list_extend(out, { "Attached LSPs with root", unpack(lsps) })
-        else
-                vim.list_extend(out, { "No LSPs attached." })
-        end
-        local opts = { title = "Inspect buffer", icon = "󰽙", timeout = 10000 }
-        vim.notify(table.concat(out, "\n"), levels.DEBUG, opts)
+        where(function(_)
+                vim.notify(table.concat(_.out, "\n"), levels.DEBUG, _.opts)
+        end) {
+                           opts = { title = "Inspect buffer", icon = "󰽙", timeout = 10000 },
+                           out  = extl {
+                                   "[bufnr]     " .. api.nvim_get_current_buf(),
+                                   "[winid]     " .. api.nvim_get_current_win(),
+                                   "[filetype]  " .. (bo.filetype == "" and '""' or bo.filetype),
+                                   "[buftype]   " .. (bo.buftype == "" and '""' or bo.buftype),
+                                   "[foldlevel] " .. (wo.foldlevel == "" and '""' or wo.foldlevel),
+                                   ("[indent]    %s (%s)"):format(indent_type, indent_amount),
+                                   "[cwd]       " .. (uv.cwd() or "nil"):gsub("/Users/%w+", pseudo_tilde),
+                                   "",
+                           } (guard { #lsps > 0, function() return { "Attached LSPs with root", unpack(lsps) } end,
+                                   function() return { "No LSPs attached." } end,
+                           }),
+                   }
 end
 
 function M.nodeAtCursor()
@@ -78,19 +79,23 @@ function M.nodeAtCursor()
         local start_row, start_col = node:start()
         local end_row, end_col     = node:end_()
         local ns                   = api.nvim_create_namespace "node-highlight"
-        if start_row == end_row then
-                api.nvim_buf_add_highlight(0, ns, config.hlGroup, start_row, start_col, end_col)
-        else
-                api.nvim_buf_add_highlight(0, ns, config.hlGroup, start_row, start_col, -1)
-                local lnum = start_row + 1
-                while lnum < end_row do
-                        api.nvim_buf_add_highlight(0, ns, config.hlGroup, lnum, 0, -1)
-                        lnum = lnum + 1
-                end
-                api.nvim_buf_add_highlight(0, ns, config.hlGroup, end_row, 0, end_col)
-        end
-        vim.defer_fn(function() api.nvim_buf_clear_namespace(0, ns, 0, -1) end, config.hlDuration)
 
+        match(start_row) {
+                end_row = function()
+                        api.nvim_buf_add_highlight(0, ns, config.hlGroup, start_row, start_col, end_col)
+                end,
+                _       = function()
+                        api.nvim_buf_add_highlight(0, ns, config.hlGroup, start_row, start_col, -1)
+                        local lnum = start_row + 1
+                        while lnum < end_row do
+                                api.nvim_buf_add_highlight(0, ns, config.hlGroup, lnum, 0, -1)
+                                lnum = lnum + 1
+                        end
+                        api.nvim_buf_add_highlight(0, ns, config.hlGroup, end_row, 0, end_col)
+                end,
+        }
+
+        vim.defer_fn(function() api.nvim_buf_clear_namespace(0, ns, 0, -1) end, config.hlDuration)
         vim.defer_fn(function()
                              local count_ns = api.nvim_create_namespace "searchCounter"
                              api.nvim_buf_clear_namespace(0, count_ns, 0, -1)
@@ -104,18 +109,18 @@ function M.lspCapabilities()
                 return
         end
         ui.select(clients, {
-                          prompt      = "Select LSP:",
-                          kind        = "plain",
+                          prompt = "Select LSP:",
+                          kind = "plain",
                           format_item = function(client) return client.name end,
                   }, function(client)
                           if not client then return end
                           where(function(_) vim.notify(_.text, _.level, _.opts) end) {
                                   level = levels.DEBUG,
-                                  opts  = { icon = "󱈄", title = client.name .. " capabilities", ft = "lua" },
-                                  text  = "-- for a full view, open in notification history\n" .. vim.inspect {
-                                          capabilities        = client.capabilities,
+                                  opts = { icon = "󱈄", title = client.name .. " capabilities", ft = "lua" },
+                                  text = "-- for a full view, open in notification history\n" .. vim.inspect {
+                                          capabilities = client.capabilities,
                                           server_capabilities = client.server_capabilities,
-                                          config              = client.config,
+                                          config = client.config,
                                   },
                           }
                   end)

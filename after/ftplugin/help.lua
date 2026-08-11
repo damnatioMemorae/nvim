@@ -1,5 +1,5 @@
+local fn    = vim.fn
 local cmd   = vim.cmd
-local api   = vim.api
 local diag  = vim.diagnostic
 local opt_l = vim.opt_local
 
@@ -14,9 +14,6 @@ opt_l.concealcursor = "n"
 bufq { "q", cmd.bwipeout, desc = "Quit" }
 bufq { "<M-w>", cmd.bwipeout, desc = "Quit" }
 
-local ext = api.nvim_buf_get_name(0):match "%.(%w+)$"
-cond(ext == "txt", function()
-        bufq { "<LocalLeader>s", "gO", mode = "n", remap = true }
-end)
+guard { fn.expand "%:e", function() bufq { "<LocalLeader>s", "gO", mode = "n", remap = true } end }
 
 cmd "wincmd L"

@@ -60,20 +60,19 @@ local function getMaxFoldLvl()
 end
 
 local function setFoldLvl(lvl)
-        cond(
-                lvl >= range[1], function() wo.foldlevel = lvl end,
-                lvl <= range[1], function() wo.foldlevel = lvl end
-        )
+        guard { lvl >= range[1], function() wo.foldlevel = lvl end,
+                lvl <= range[1], function() wo.foldlevel = lvl end,
+        }
 end
 
 local function reduceFoldLvl()
         local lvl = tonumber(wo.foldlevel) or 0
-        cond(lvl > 0, function() wo.foldlevel = lvl - 1 end)
+        guard { lvl > 0, function() wo.foldlevel = lvl - 1 end }
 end
 
 local function increaseFoldLvl()
         local lvl = tonumber(wo.foldlevel) or 0
-        cond(lvl < getMaxFoldLvl(), function() wo.foldlevel = lvl + 1 end)
+        guard { lvl < getMaxFoldLvl(), function() wo.foldlevel = lvl + 1 end }
 end
 
 local function closeTopLvl()

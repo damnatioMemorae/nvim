@@ -11,6 +11,8 @@ end
 
 g.mapleader              = " "
 g.maplocalleader         = ","
+g.qf_mode                = "l"
+g.backdrop_wins          = { "dropbar_menu", "Glance", "rip-substitute", "terminal" }
 g.loaded_nvim_dir_plugin = 1
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

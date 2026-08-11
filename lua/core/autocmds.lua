@@ -15,14 +15,9 @@ local general = augroup("General Autocmds", { clear = true })
 
 ---- GENERAL -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-opt.wildmode = "noselect"
-auq "CmdlineChanged" { -- FUZZY SEARCH
-        desc     = "User: Add fuzzy completion for command line",
-        group    = general,
-        pattern  = { ":", "/", "!", "?" },
-        callback = function()
-                fn.wildtrigger()
-        end,
+auq "CmdlineChanged" { -- CMDLINE FUZZY COMPLETION
+        pattern = { ":", "/", "?" },
+        callback = function() fn.wildtrigger() end,
 }
 
 auq "CmdlineChanged" { -- QUICKFIX LIVE GREP
@@ -121,11 +116,10 @@ auq "FileType" { -- NOFILE
         end,
 }
 
-local types = { "dropbar_menu", "Glance", "rip-substitute", "terminal", "NeogitStatus" }
 auq { "FocusGained", "BufWinEnter", "FileType" } { -- BACKDROP
         desc     = "User: Add backdrop to floating windows",
         group    = general,
-        pattern  = types,
+        pattern  = g.backdrop_wins,
         callback = function() require "utils.misc".addBackdrop() end,
 }
 

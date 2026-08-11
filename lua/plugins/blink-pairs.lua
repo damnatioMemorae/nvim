@@ -4,14 +4,14 @@ return {
         event        = "BufReadPost",
         dependencies = { "saghen/blink.lib" },
         keys         = {
-                { "<M-i>", "a{<CR><down>,<up><esc>i", mode = "n", desc = " Open new scope", remap = true },
-                { "<M-i>", "{<CR>", mode = "i", desc = " Open new scope", remap = true },
+                { "<M-i>", "a{<CR><down>,<up><esc>i", mode = "n", desc = "Open new scope", remap = true },
+                { "<M-i>", "{<CR>", mode = "i", desc = "open new scope", remap = true },
         },
         opts         = {
                 mappings = {
                         enabled            = true,
-                        cmdline            = true,
-                        disabled_filetypes = {},
+                        cmdline            = false,
+                        disabled_filetypes = { "rip-substitute" },
                         wrap               = { ["<C-b>"] = "motion", ["<C-S-b>"] = "motion_reverse" },
                         pairs              = {
                                 ["<"] = {
@@ -28,7 +28,7 @@ return {
                 },
                 highlights = {
                         enabled         = true,
-                        cmdline         = true,
+                        cmdline         = false,
                         groups          = {},
                         unmatched_group = "MatchParen",
                         matchparen      = {

@@ -7,9 +7,8 @@ local api = vim.api
 local log = vim.log
 local lsp = vim.lsp
 
-local b_ft     = bo.ft
-local filetype = bo.filetype
-local levels   = log.levels
+local b_ft   = bo.ft
+local levels = log.levels
 
 require "utils.functional" ()
 
@@ -143,40 +142,42 @@ end
 function M.smartDuplicate()
         local row, col = unpack(api.nvim_win_get_cursor(0))
         local line     = api.nvim_get_current_line()
-        local ft       = filetype
 
-        if ft == "css" then
-                line = line:gsub("(%a+):", {
-                        top    = "bottom:",
-                        bottom = "top:",
-                        right  = "left:",
-                        left   = "right:",
-                        light  = "dark:",
-                        dark   = "light:",
-                        width  = "height:",
-                        height = "width:",
-                })
-        elseif ft == "javascript" or ft == "typescript" or ft == "swift" then
-                line = line:gsub("^(%s*)if(.+{)$", "%1} else if%2")
-        elseif ft == "lua" then
-                line = line:gsub("^(%s*)if( .* then)$", "%1elseif%2")
-        elseif ft == "zsh" or ft == "bash" then
-                line = line:gsub("^(%s*)if( .* then)$", "%1elif%2")
-        elseif ft == "python" then
-                line = line:gsub("^(%s*)if( .*:)$", "%1elif%2")
-        elseif ft == "markdown" then
-                line = line:gsub("^(%s*)(%d+)%. ", function(indent, num)
-                        local increment = tonumber(num) + 1
-                        return indent .. increment .. ". "
-                end)
-        end
+        match(bo.filetype) {
+                css      = function()
+                        line = line:gsub("(%a+):", {
+                                top    = "bottom:",
+                                bottom = "top:",
+                                right  = "left:",
+                                left   = "right:",
+                                light  = "dark:",
+                                dark   = "light:",
+                                width  = "height:",
+                                height = "width:",
+                        })
+                end,
+                lua      = function()
+                        line = line:gsub("^(%s*)if( .* then)$", "%1elseif%2")
+                end,
+                zsh      = function()
+                        line = line:gsub("^(%s*)if( .* then)$", "%1elif%2")
+                end,
+                markdown = function()
+                        line = line:gsub("^(%s*)(%d+)%. ", function(indent, num)
+                                local increment = tonumber(num) + 1
+                                return indent .. increment .. ". "
+                        end)
+                end,
+        }
 
         api.nvim_buf_set_lines(0, row, row, false, { line })
 
-        local _, luadoc_field_pos = line:find "%-%-%-@%w+ "
+        local _, luadoc_field_pos = ("---@param"):find "%-%-%-@%w+ "
         local _, value_pos        = line:find "[:=] "
-        local target_col          = luadoc_field_pos or value_pos or col
-        api.nvim_win_set_cursor(0, { row + 1, target_col })
+        where(function(__) api.nvim_win_set_cursor(0, { __.row + 1, __.target_col }) end) {
+                row        = row,
+                target_col = luadoc_field_pos or value_pos or col,
+        }
 end
 
 ---- f & F ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
