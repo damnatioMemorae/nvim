@@ -112,11 +112,11 @@ h "DiagnosticInfo" { fg = colors.sky }
 h "DiagnosticHint" { fg = colors.teal }
 h "DiagnosticOk" { fg = colors.green }
 
-h "DiagnosticUnderlineError" { bg = colors.base }
-h "DiagnosticUnderlineWarn" { bg = colors.base }
-h "DiagnosticUnderlineInfo" { bg = colors.base }
-h "DiagnosticUnderlineHint" { bg = colors.base }
-h "DiagnosticUnderlineOk" { bg = colors.base }
+h "DiagnosticUnderlineError" { bg = colors.mantle0 }
+h "DiagnosticUnderlineWarn" { bg = colors.mantle0 }
+h "DiagnosticUnderlineInfo" { bg = colors.mantle0 }
+h "DiagnosticUnderlineHint" { bg = colors.mantle0 }
+h "DiagnosticUnderlineOk" { bg = colors.mantle0 }
 
 h "DiagnosticVirtualTextError" { fg = colors.red, bg = colors.red_transparent }
 h "DiagnosticVirtualTextWarn" { fg = colors.yellow, bg = colors.yellow_transparent }
@@ -134,51 +134,51 @@ h "DiagnosticDeprecated" { strikethrough = true }
 
 _linq
 "DiagnosticError"
-           "DiagnosticVirtualLinesError"
-           "DiagnosticFloatingError"
-           "DiagnosticSignError"
-           "DiffDelete"
-           "DiffRemoved"
-           "SpellBad"
+  "DiagnosticVirtualLinesError"
+  "DiagnosticFloatingError"
+  "DiagnosticSignError"
+  "DiffDelete"
+  "DiffRemoved"
+  "SpellBad"
 
 _linq
 "DiagnosticWarn"
-           "DiagnosticVirtualLinesWarn"
-           "DiagnosticFloatingWarn"
-           "DiagnosticSignWarn"
-           "DiffChange"
-           "DiffChanged"
-           "SpellCap"
-           "WarningMsg"
+  "DiagnosticVirtualLinesWarn"
+  "DiagnosticFloatingWarn"
+  "DiagnosticSignWarn"
+  "DiffChange"
+  "DiffChanged"
+  "SpellCap"
+  "WarningMsg"
 
 _linq
 "DiagnosticInfo"
-           "DiagnosticVirtualLinesInfo"
-           "DiagnosticFloatingInfo"
-           "DiagnosticSignInfo"
-           "SpellRare"
+  "DiagnosticVirtualLinesInfo"
+  "DiagnosticFloatingInfo"
+  "DiagnosticSignInfo"
+  "SpellRare"
 
 _linq
 "DiagnosticHint"
-           "DiagnosticVirtualLinesHint"
-           "DiagnosticFloatingHint"
-           "DiagnosticSignHint"
-           "DiffText"
+  "DiagnosticVirtualLinesHint"
+  "DiagnosticFloatingHint"
+  "DiagnosticSignHint"
+  "DiffText"
 
 _linq
 "DiagnosticOk"
-           "DiagnosticVirtualLinesOk"
-           "DiagnosticFloatingOk"
-           "DiagnosticSignOk"
-           "DiffAdd"
-           "DiffAdded"
-           "OkMsg"
-           "ModeMsg"
-           "SpellLocal"
+  "DiagnosticVirtualLinesOk"
+  "DiagnosticFloatingOk"
+  "DiagnosticSignOk"
+  "DiffAdd"
+  "DiffAdded"
+  "OkMsg"
+  "ModeMsg"
+  "SpellLocal"
 
 _linq
 "DiagnosticDeprecated"
-           "LspAbbrDeprecated"
+  "LspAbbrDeprecated"
 
 ---- SEARCH --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 h "Search" { bg = colors.yellow_transparent }
@@ -187,8 +187,8 @@ h "CurSearch" { fg = colors.yellow, reverse = true }
 
 _linq --> colors.yellow,
 "CurSearch"
-           "IncSearch"
-           "Substitute"
+  "IncSearch"
+  "Substitute"
 
 ---- GENERAL -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 h "Normal" { bg = colors.crust0 }
@@ -196,7 +196,7 @@ h "NormalFloat" { bg = colors.mantle1 }
 h "NonText" { fg = colors.surface0 }
 h "Underlined" { underline = true }
 h "Dimmed" { dim = true }
-h "Todo" { bg = colors.rosewater, bold = true }
+h "Todo" { fg = colors.rosewater }
 h "Directory" { fg = colors.ivory }
 h "Visual" { bg = colors.surface0 }
 h "CursorLine" { fg = "NONE", bg = "NONE" }
@@ -211,87 +211,83 @@ h "QfText" { fg = colors.subtext0 }
 
 _linq --> Special
 "Title"
-           "FloatTitle"
-           "FloatFooter"
+  "FloatTitle"
+  "FloatFooter"
 
 _linq --> Special
 "NormalFloat"
-           "FloatBorder"
+  "FloatBorder"
 
 _linq --> NONE
 "CursorLine"
-           "Folded"
-
-_linq --> colors.surface2 colors.mantle0
-"LspCodeLens"
-           "FoldText"
+  "Folded"
 
 _linq --> colors.crust0
 "Normal"
-           "NormalNC"
-           "Ignore"
-           "StdoutMsg"
-           "WinBar"
+  "NormalNC"
+  "Ignore"
+  "StdoutMsg"
+  "WinBar"
 
 _linq --> colors.surface1
 "NonText"
-           "LineNr"
-           "SignColumn"
-           "ComplHint"
-           "Whitespace"
-           "WinSeparator"
-           "EndOfBuffer"
+  "LineNr"
+  "SignColumn"
+  "ComplHint"
+  "Whitespace"
+  "WinSeparator"
+  "EndOfBuffer"
 
 _linq --> colors.surface0
 "Visual"
-           "ColorColumn"
-           "CursorColumn"
-           "LspReferenceText"
-           "QuickFixLine"
-           "SnippetTabstop"
-           "SnippetTabstopActive"
-           "VisualNOS"
-           "PmenuSel"
-           "PmenuThumb"
-           "MatchParen"
+  "ColorColumn"
+  "CursorColumn"
+  "LspReferenceText"
+  "QuickFixLine"
+  "SnippetTabstop"
+  "SnippetTabstopActive"
+  "VisualNOS"
+  "PmenuSel"
+  "PmenuThumb"
+  "MatchParen"
 
 _linq --> Normal
 "StatusLine"
-           "StatusLineTerm"
-           "MsgSeparator"
-           "StatusLineNC"
+  "StatusLineTerm"
+  "MsgSeparator"
+  "StatusLineNC"
 
 _linq --> StatusLine
 "WinSeparator"
-           "VertSplit"
+  "VertSplit"
 
 _linq --> StatusLine
 "StatusLineNC"
-           "TabLine"
-           "StatusLineTermNC"
+  "TabLine"
+  "StatusLineTermNC"
 
 _linq --> Normal
 "WinBar"
-           "WinBarNC"
+  "WinBarNC"
 
 _linq --> NonText
 "SignColumn"
-           "CursorLineSign"
+  "CursorLineSign"
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-h "LspCodeLens" { fg = colors.surface2, bg = colors.base }
+h "LspInlayHint" { fg = colors.surface2, bg = colors.base }
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 _linq --> colors.surface2 colors.mantle0
-"LspCodeLens"
-           "LspInlayHint"
+"LspInlayHint"
+  "FoldText"
 
 _linq --> Visual
 "LspReferenceText"
-           "LspReferenceRead"
-           "LspReferenceTarget"
-           "LspReferenceWrite"
-           "LspSignatureActiveParameter"
+  "LspReferenceRead"
+  "LspReferenceTarget"
+  "LspReferenceWrite"
+  "LspSignatureActiveParameter"
 
 ---- PMENU ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 h "Pmenu" { bg = colors.mantle1 }
@@ -303,31 +299,31 @@ h "FloatShadowThrough" { bg = colors.surface1, blend = 100 }
 
 _linq --> colors.crust1
 "Pmenu"
-           "PmenuBorder"
-           "PmenuExtra"
-           "PmenuKind"
-           "PmenuSbar"
+  "PmenuBorder"
+  "PmenuExtra"
+  "PmenuKind"
+  "PmenuSbar"
 
 _linq --> Visual
 "PmenuSel"
-           "PmenuKindSel"
-           "PmenuExtraSel"
+  "PmenuKindSel"
+  "PmenuExtraSel"
 
 _linq --> bold
 "PmenuMatch"
-           "PmenuMatchSel"
+  "PmenuMatchSel"
 
 _linq --> Pmenu
 "PmenuSbar"
-           "PmenuThumb"
+  "PmenuThumb"
 
 _linq --> Pmenu
 "FloatShadow"
-           "PmenuShadow"
+  "PmenuShadow"
 
 _linq --> Pmenu
 "FloatShadowThrough"
-           "PmenuShadowThrough"
+  "PmenuShadowThrough"
 
 ---- SYNTAX --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 h "Conditional" { fg = colors.sapphire, italic = true }
@@ -350,205 +346,206 @@ h "Label" { fg = colors.red }
 
 _linq --> colors.sapphire
 "Conditional"
-           "Repeat"
-           "@conditional"
-           "@keyword.conditional"
-           "@keyword.repeat"
+  "Repeat"
+  "@conditional"
+  "@keyword.conditional"
+  "@keyword.repeat"
 
 _linq --> colors.lavender
 "Identifier"
-           "NvimIdentifier"
-           "@property"
+  "NvimIdentifier"
+  "@property"
 
 _linq --> colors.sapphire
 "Operator"
-           "NvimAssignment"
-           "NvimOperator"
-           "@operator"
-           "@keyword.operator"
-           "@lsp.type.operator"
+  "NvimAssignment"
+  "NvimOperator"
+  "@operator"
+  "@keyword.operator"
+  "@lsp.type.operator"
 
 _linq --> colors.surface2
 "Delimiter"
-           "NvimParenthesis"
-           "NvimColon"
-           "NvimComma"
-           "NvimArrow"
-           "@punctuation"
+  "NvimParenthesis"
+  "NvimColon"
+  "NvimComma"
+  "NvimArrow"
+  "@punctuation"
 
 _linq --> colors.surface2
 "Comment"
-           "MoreMsg"
-           "@comment"
-           "@lsp.type.comment"
+  "LspCodeLens"
+  "MoreMsg"
+  "@comment"
+  "@lsp.type.comment"
 
 _linq --> colors.yellow
 "Keyword"
-           "@keyword"
-           "@lsp.type.keyword"
+  "@keyword"
+  "@lsp.type.keyword"
 
 _linq --> colors.mauve
 "Type"
-           "Typedef"
-           "Structure"
-           "StorageClass"
-           "NvimNumberPrefix"
-           "NvimOptionSigil"
-           "@type"
+  "Typedef"
+  "Structure"
+  "StorageClass"
+  "NvimNumberPrefix"
+  "NvimOptionSigil"
+  "@type"
 
 _linq --> colors.ivory
 "Function"
-           "@function"
-           "@keyword.function"
-           "@variable.member"
-           "@namespace"
-           "@lsp.type.namespace"
+  "@function"
+  "@keyword.function"
+  "@variable.member"
+  "@namespace"
+  "@lsp.type.namespace"
 
 _linq --> colors.peach
 "Constant"
-           "Number"
-           "Boolean"
-           "@constant"
-           "@boolean"
-           "@number"
+  "Number"
+  "Boolean"
+  "@constant"
+  "@boolean"
+  "@number"
 
 _linq --> colors.green
 "String"
-           "NvimString"
-           "@string"
+  "NvimString"
+  "@string"
 
 _linq --> colors.pink
 "Special"
-           "Title"
-           "Character"
-           "SpecialKey"
-           "Tag"
-           "SpecialComment"
-           "SpecialChar"
-           "Debug"
-           "@tag"
-           "@attribute"
-           "@constructor"
-           "@punctuation.special"
-           "@variable.builtin"
-           "@module.builtin"
+  "Title"
+  "Character"
+  "SpecialKey"
+  "Tag"
+  "SpecialComment"
+  "SpecialChar"
+  "Debug"
+  "@tag"
+  "@attribute"
+  "@constructor"
+  "@punctuation.special"
+  "@variable.builtin"
+  "@module.builtin"
 
 _linq --> colors.pink
 "PreProc"
-           "Include"
-           "Define"
-           "Macro"
-           "PreCondit"
-           "@keyword.include"
-           "@lsp.type.macro"
+  "Include"
+  "Define"
+  "Macro"
+  "PreCondit"
+  "@keyword.include"
+  "@lsp.type.macro"
 
 _linq --> colors.red
 "Error"
-           "NvimInvalid"
-           "NvimInternalError"
-           "ErrorMsg"
-           "@error"
+  "NvimInvalid"
+  "NvimInternalError"
+  "ErrorMsg"
+  "@error"
 
 _linq --> colors.red
 "Label"
-           "@variable"
-           "@variable.parameter"
-           "@variable.parameter.builtin"
-           "@lsp.type.variable"
-           "@lsp.type.parameter"
+  "@variable"
+  "@variable.parameter"
+  "@variable.parameter.builtin"
+  "@lsp.type.variable"
+  "@lsp.type.parameter"
 
 _linq --> colors.red
 "Statement"
-           "Exception"
-           "@keyword.return"
-           "@keyword.exception"
+  "Exception"
+  "@keyword.return"
+  "@keyword.exception"
 
 _linq --> Type
 "Structure"
-           "@struct"
-           "@structure"
-           "@module"
-           "@lsp.type.struct"
+  "@struct"
+  "@structure"
+  "@module"
+  "@lsp.type.struct"
 
 _linq --> Special
 "SpecialChar"
-           "NvimRegister"
-           "NvimRegister"
-           "luaSpecial"
-           "QfLineNr"
-           "@string.special"
+  "NvimRegister"
+  "NvimRegister"
+  "luaSpecial"
+  "QfLineNr"
+  "@string.special"
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 _linq --> Conceal
 "@conceal"
-           "@conceal.heading.1"
-           "@conceal.heading.2"
-           "@conceal.heading.3"
-           "@conceal.heading.4"
-           "@conceal.heading.5"
-           "@conceal.heading.6"
-           "@conceal.unchecked"
-           "@conceal.checked"
-           "@conceal.list"
+  "@conceal.heading.1"
+  "@conceal.heading.2"
+  "@conceal.heading.3"
+  "@conceal.heading.4"
+  "@conceal.heading.5"
+  "@conceal.heading.6"
+  "@conceal.unchecked"
+  "@conceal.checked"
+  "@conceal.list"
 
 _linq --> Constant
 "@constant"
-           "@function.builtin"
-           "@constant.builtin"
-           "@constant.macro"
-           "@enum"
-           "@enumMember"
-           "@lsp.type.enum"
-           "@lsp.type.enumMember"
+  "@function.builtin"
+  "@constant.builtin"
+  "@constant.macro"
+  "@enum"
+  "@enumMember"
+  "@lsp.type.enum"
+  "@lsp.type.enumMember"
 
 _linq --> Type
 "@tag"
-           "@tag.builtin"
-           "@tag.delimiter"
-           "@tag.attribute"
-           "@attribute.builtin"
+  "@tag.builtin"
+  "@tag.delimiter"
+  "@tag.attribute"
+  "@attribute.builtin"
 
 _linq --> Number
 "@number"
-           "@number.float"
-           "@lsp.type.number"
+  "@number.float"
+  "@lsp.type.number"
 
 _linq --> Type
 "@type"
-           "@type.builtin"
-           "@type.qualifier"
-           "@type.builtin.luadoc"
-           "@lsp.type.type"
+  "@type.builtin"
+  "@type.qualifier"
+  "@type.builtin.luadoc"
+  "@lsp.type.type"
 
 _linq --> Function
 "@function"
-           "@method"
-           "@function.macro"
-           "@function.method"
-           "@function.method.call"
-           "@lsp.type.function"
-           "@lsp.type.method"
+  "@method"
+  "@function.macro"
+  "@function.method"
+  "@function.method.call"
+  "@lsp.type.function"
+  "@lsp.type.method"
 
 _linq --> Special
 "@attribute"
-           "@attribute.builtin"
+  "@attribute.builtin"
 
 _linq --> Character
 "@character"
-           "@character.special"
+  "@character.special"
 
 _linq --> Identifier
 "@property"
-           "@field"
-           "@lsp.type.property"
+  "@field"
+  "@lsp.type.property"
 
 _linq --> SpecialChar
 "@string.special"
-           "@string.regex"
-           "@string.escape"
-           "@string.special.url"
-           "@lsp.type.string"
+  "@string.regex"
+  "@string.escape"
+  "@string.special.url"
+  "@lsp.type.string"
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 h "Added" { fg = colors.green }
@@ -558,16 +555,16 @@ h "Removed" { fg = colors.red }
 
 _linq --> colors.green
 "Added"
-           "@diff.plus"
-           "PreInsert"
+  "@diff.plus"
+  "PreInsert"
 
 _linq --> colors.yellow
 "Changed"
-           "@diff.minus"
+  "@diff.minus"
 
 _linq --> colors.red
 "Removed"
-           "@diff.delta"
+  "@diff.delta"
 
 -- "@markup"
 -- "@markup.heading"                    = { link      = "Title"          },

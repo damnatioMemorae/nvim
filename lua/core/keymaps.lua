@@ -90,13 +90,13 @@ keyq { "X", function() -- `X` DELETE AT EOL
 end, desc = "Delete char at EoL" }
 
 vim -- Append to EoL
-           .iter { "(", ")", "[", "]", "{", "}", '"', "'", ",", ".", ";", ":", "\\", "?", "_" }
-           :each(function(char)
-                   keyq { "<leader>" .. vim.trim(char), function()
-                           local updated_line = api.nvim_get_current_line() .. " " .. char
-                           api.nvim_set_current_line(updated_line)
-                   end }
-           end)
+  .iter { "(", ")", "[", "]", "{", "}", '"', "'", ",", ".", ";", ":", "\\", "?", "_" }
+  :each(function(char)
+          keyq { "<leader>" .. vim.trim(char), function()
+                  local updated_line = api.nvim_get_current_line() .. char
+                  api.nvim_set_current_line(updated_line)
+          end }
+  end)
 
 keyq { "<M-t>", function() -- `M-t` TEMPLATE STRING
         require "functions.auto-template-str".insertTemplateStr()
@@ -181,17 +181,17 @@ local textobj_remaps = {
 }
 
 vim
-           .iter(textobj_remaps)
-           :each(function(value)
-                   where(function(_)
-                           keyq { "i" .. _.remap, "i" .. _.orig, desc = "inner " .. _.label, mode = { o, x } }
-                           keyq { "a" .. _.remap, "a" .. _.orig, desc = "outer " .. _.label, mode = { o, x } }
-                   end) {
-                                      remap = value[1],
-                                      orig  = value[2],
-                                      label = value[3],
-                              }
-           end)
+  .iter(textobj_remaps)
+  :each(function(value)
+          where(function(_)
+                  keyq { "i" .. _.remap, "i" .. _.orig, desc = "inner " .. _.label, mode = { o, x } }
+                  keyq { "a" .. _.remap, "a" .. _.orig, desc = "outer " .. _.label, mode = { o, x } }
+          end) {
+                    remap = value[1],
+                    orig  = value[2],
+                    label = value[3],
+            }
+  end)
 
 keyq { "J", "2j", mode = o }
 keyq { "d<Space>", '"_daw', desc = "delete word", mode = n }
@@ -216,6 +216,11 @@ keyq { "i", function()
         return line_empty and '"_cc' or "i"
 end, desc = "indented i on empty line", expr = true }
 
+---- VISUAL --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- keyq { "v", "m'v" }
+-- keyq { "V", "m'V" }
+-- keyq { "<Esc>", "<Esc>''", mode = x }
 keyq { "<C-v>", "ggVG", desc = "select all" }
 keyq { "V", "j", desc = "repeated `V` selects more lines", mode = x }
 keyq { "v", "<C-v>", desc = "`vv` starts visual block", mode = x }
@@ -244,6 +249,10 @@ end, desc = "disable <BS> when cmdline is empty", mode = c, expr = true, unique 
 keyq { "<c-l>", function() return spltis "vertical" end, mode = c, expr = true }
 keyq { "<c-j>", function() return spltis "horizontal" end, mode = c, expr = true }
 keyq { "<c-CR>", function() return spltis "tab" end, mode = c, expr = true }
+
+---- TERMINAL ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+keyq { "<Esc>", "<C-\\><C-n>", mode = "t" }
 
 ---- INSPECT & EVAL ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -290,9 +299,8 @@ keyq { "<M-r>", cmd.edit, desc = "Reload buffer" }
 keyq { "<M-w>", function() -- `M-w` DELETE WINDOW/BUFFER
         cmd "silent! update"
         local win_closed = pcall(cmd.close)
-        if win_closed then
-                return
-        end
+        if win_closed then return end
+
         local buf_count = #fn.getbufinfo { buflisted = 1 }
         if buf_count == 1 then
                 return vim.notify("Only one buffer open.", levels.TRACE)
@@ -313,9 +321,9 @@ where(function(_) -- MACROS
         keyq { _.toggle_key, function() nano.startOrStopRecording(_.toggle_key, _.reg) end, desc = "Start/stop recording" }
         keyq { "9", function() nano.playRecording(_.reg) end, desc = "Play recording" }
 end) {
-                   reg        = "r",
-                   toggle_key = "0",
-           }
+          reg        = "r",
+          toggle_key = "0",
+  }
 
 ---- REFACTORING ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

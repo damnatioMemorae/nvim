@@ -1,15 +1,15 @@
 linq
 "Snacks"
-           { "Picker", "Normal" }
-           { "PickerBorder", "Border" }
-           { "PickerBoxBorder", "Border" }
-           { "PickerListBorder", "Border" }
-           { "PickerInputBorder", "Border" }
-           { "PickerPreviewBorder", "Border" }
-           { "PickerCursorLine", "PmenuSel" }
-           { "PickerListCursorLine", "PmenuSel" }
-           { "SnacksPickerPathIgnored", "Comment" }
-           { "SnacksPickerPathHidden", "Comment" }
+  { "Picker", "Normal" }
+  { "PickerBorder", "Border" }
+  { "PickerBoxBorder", "Border" }
+  { "PickerListBorder", "Border" }
+  { "PickerInputBorder", "Border" }
+  { "PickerPreviewBorder", "Border" }
+  { "PickerCursorLine", "PmenuSel" }
+  { "PickerListCursorLine", "PmenuSel" }
+  { "PickerPathIgnored", "Directory" }
+  { "PickerPathHidden", "Directory" }
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -30,46 +30,9 @@ local diag  = Icon.Diagnostics
 local kinds = Icon.Kinds
 
 local leader = "<leader><leader>"
-
-local none = Border.Default.None
+local none   = Border.Default.None
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-local function importLuaModule()
-        Snacks.picker.grep {
-                title  = "Import module",
-                cmd    = "rg",
-                args   = { "--only-matching", "--no-config" },
-                live   = false,
-                regex  = true,
-                search = [[local (\w+) ?= ?require\(["'](.*?)["']\)(\.[\w.]*)?]],
-                ft     = "lua",
-
-                layout    = { preset = "select", layout = { width = 0.75 } },
-                transform = function(item, ctx) -- ensure items are unique
-                        ctx.meta.done = ctx.meta.done or {}
-
-                        local import = item.text:gsub(".-:", "") -- different occurrences of same import
-                        if ctx.meta.done[import] then
-                                return false
-                        end
-
-                        ctx.meta.done[import] = true
-                end,
-                format    = function(item, _picker) -- only display the grepped line
-                        local out  = {}
-                        local line = item.line:gsub("^local ", "")
-                        Snacks.picker.highlight.format(item, line, out)
-                        return out
-                end,
-                confirm   = function(picker, item) -- insert the line below the current one
-                        picker:close()
-                        cmd.normal { "o", bang = true }
-                        api.nvim_set_current_line(item.line)
-                        cmd.normal { "==l", bang = true }
-                end,
-        }
-end
 
 local picker = {
         prompt     = " > ",
@@ -177,6 +140,8 @@ local picker = {
                 list    = { ["<C-p>"] = { "toggle_preview", mode = { "i", "n" } } },
                 input   = {
                         keys = {
+                                ["<a-s>"] = { "flash", mode = { "n", "i" } },
+                                ["s"]     = { "flash" },
                                 ["<Esc>"] = { "close", mode = { "i", "n" } },
                                 ["h"]     = { "toggle_hidden", mode = { "n" } },
                                 ["l"]     = { "confirm", mode = { "n" } },
@@ -191,21 +156,9 @@ local picker = {
         icons      = {
                 Diagnostics = diag,
                 kinds       = kinds,
-                tree        = {
-                        vertical = " ",
-                        middle   = " ",
-                        last     = " ",
-                },
-                files       = {
-                        enabled  = true,
-                        dir      = kinds.Folder,
-                        dir_open = misc.folderOpen,
-                        file     = kinds.File,
-                },
-                ui          = {
-                        selected   = diag.HINT .. " ",
-                        unselected = "",
-                },
+                tree        = { vertical = " ", middle = " ", last = " " },
+                files       = { enabled = true, dir = kinds.Folder, dir_open = misc.folderOpen, file = kinds.File },
+                ui          = { selected = diag.HINT .. " ", unselected = "" },
                 git         = {
                         added     = git.Added,
                         deleted   = git.Deleted,
@@ -220,6 +173,27 @@ local picker = {
                 },
         },
         actions    = {
+                flash         = function(picker)
+                        local ok = pcall(require, "flash")
+                        if not ok then return end
+                        require "flash".jump {
+                                pattern = "^",
+                                label   = { after = { 0, 0 } },
+                                search  = {
+                                        mode    = "search",
+                                        exclude = {
+                                                function(win)
+                                                        return bo[vim.api.nvim_win_get_buf(win)].filetype ~=
+                                                          "snacks_picker_list"
+                                                end,
+                                        },
+                                },
+                                action  = function(match)
+                                        local idx = picker.list:row2idx(match.pos[1])
+                                        picker.list:_move(idx, true, true)
+                                end,
+                        }
+                end,
                 yank          = function(picker, item, action)
                         if not item then
                                 return
@@ -295,9 +269,7 @@ local picker = {
                 },
                 big_preview       = {
                         preset = "wide_with_preview",
-                        layout = {
-                                height = 0.8,
-                                [2]    = { width = 0.6 }, -- second win is the preview
+                        layout = { height = 0.8, [2] = { width = 0.6 }, -- second win is the preview
                         },
                 },
                 sidebar           = {
@@ -332,17 +304,17 @@ local picker = {
 return {
         "folke/snacks.nvim",
         keys = {
-                { leader .. "<leader>", function() Snacks.picker() end,                           desc = "Main Picker",             mode = { "n" } },
-                { leader .. "f",        function() Snacks.picker.files() end,                     desc = "File Picker",             mode = { "n" } },
-                { leader .. "b",        function() Snacks.picker.buffers() end,                   desc = "Buffer Picker",           mode = { "n" } },
-                { leader .. "w",        function() Snacks.picker.grep() end,                      desc = "Grep Picker",             mode = { "n" } },
-                { leader .. "W",        function() Snacks.picker.grep_word() end,                 desc = "Grep Word",               mode = { "n", "x" } },
-                { leader .. "k",        function() Snacks.picker.keymaps { global = false } end,  desc = "Keymap (buffer)",         mode = { "n" } },
-                { leader .. "K",        function() Snacks.picker.keymaps() end,                   desc = "Keymap (global)",         mode = { "n" } },
-                { leader .. "h",        function() Snacks.picker.highlights() end,                desc = "Highlight Picker",        mode = { "n" } },
-                { leader .. "H",        function() Snacks.picker.help() end,                      desc = "Help Picker",             mode = { "n" } },
-                { leader .. "d",        function() Snacks.picker.diagnostics_buffer() end,        desc = "Show Buffer Diagnostics", mode = { "n" } },
-                { leader .. "D",        function() Snacks.picker.diagnostics() end,               desc = "Show Workspace Symbols",  mode = { "n" } },
+                { leader .. "<leader>", function() Snacks.picker() end,                          desc = "Main Picker",             mode = { "n" } },
+                { leader .. "f",        function() Snacks.picker.files() end,                    desc = "File Picker",             mode = { "n" } },
+                { leader .. "b",        function() Snacks.picker.buffers() end,                  desc = "Buffer Picker",           mode = { "n" } },
+                { leader .. "w",        function() Snacks.picker.grep() end,                     desc = "Grep Picker",             mode = { "n" } },
+                { leader .. "W",        function() Snacks.picker.grep_word() end,                desc = "Grep Word",               mode = { "n", "x" } },
+                { leader .. "k",        function() Snacks.picker.keymaps { global = false } end, desc = "Keymap (buffer)",         mode = { "n" } },
+                { leader .. "K",        function() Snacks.picker.keymaps() end,                  desc = "Keymap (global)",         mode = { "n" } },
+                { leader .. "h",        function() Snacks.picker.highlights() end,               desc = "Highlight Picker",        mode = { "n" } },
+                { leader .. "H",        function() Snacks.picker.help() end,                     desc = "Help Picker",             mode = { "n" } },
+                { leader .. "d",        function() Snacks.picker.diagnostics_buffer() end,       desc = "Show Buffer Diagnostics", mode = { "n" } },
+                { leader .. "D",        function() Snacks.picker.diagnostics() end,              desc = "Show Workspace Symbols",  mode = { "n" } },
                 {
                         leader .. "p",
                         function()

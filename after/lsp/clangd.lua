@@ -60,11 +60,10 @@ local function semanticTokens()
         auq "LspTokenUpdate" {
                 callback = function(args)
                         local token = args.data.token
-                        if
-                                   token.type == "variable"
-                                   and token.modifiers.globalScope
-                                   and not token.modifiers.readonly
-                                   and not token.modifiers.defaultLibrary
+                        if  token.type == "variable"
+                        and token.modifiers.globalScope
+                        and not token.modifiers.readonly
+                        and not token.modifiers.defaultLibrary
                         then
                                 lsp.semantic_tokens.highlight_token(
                                         token, args.buf, args.data.client_id, "varGlobScope")
@@ -77,10 +76,9 @@ local function semanticTokens()
         auq "LspTokenUpdate" {
                 callback = function(args)
                         local token = args.data.token
-                        if
-                                   token.type == "variable"
-                                   and token.modifiers.functionScope
-                                   and not token.modifiers.readonly
+                        if  token.type == "variable"
+                        and token.modifiers.functionScope
+                        and not token.modifiers.readonly
                         then
                                 lsp.semantic_tokens.highlight_token(
                                         token, args.buf, args.data.client_id, "varFuncScope")
@@ -93,10 +91,9 @@ local function semanticTokens()
         auq "LspTokenUpdate" {
                 callback = function(args)
                         local token = args.data.token
-                        if
-                                   token.type == "constructor"
-                                   and token.modifiers.identifier
-                                   and not token.modifiers.readonly
+                        if  token.type == "constructor"
+                        and token.modifiers.identifier
+                        and not token.modifiers.readonly
                         then
                                 lsp.semantic_tokens.highlight_token(
                                         token, args.buf, args.data.client_id, "varClassScope")
@@ -109,10 +106,9 @@ local function semanticTokens()
         auq "LspTokenUpdate" {
                 callback = function(args)
                         local token = args.data.token
-                        if
-                                   token.type == "cppType"
-                                   and token.modifiers.identifier
-                                   and not token.modifiers.readonly
+                        if  token.type == "cppType"
+                        and token.modifiers.identifier
+                        and not token.modifiers.readonly
                         then
                                 lsp.semantic_tokens.highlight_token(
                                         token, args.buf, args.data.client_id, "LspInlayHint")
@@ -192,11 +188,7 @@ return {
                 },
         },
         capabilities    = {
-                textDocument = {
-                        completion = {
-                                editsNearCursor = true,
-                        },
-                },
+                textDocument = { completion = { editsNearCursor = true } },
                 offsetEncoding = { "utf-8", "utf-16" },
                 semanticTokens = { multilineTokenSupport = true },
         },

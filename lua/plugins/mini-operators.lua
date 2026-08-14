@@ -17,7 +17,7 @@ return {
         version = false,
         event   = "BufReadPost",
         opts    = {
-                evaluate = { prefix = ",e" },
+                evaluate = { prefix = "<LocalLeader>e" },
                 replace  = { prefix = "", reindent_linewise = true },
                 exchange = { prefix = "sx", reindent_linewise = true },
                 sort     = { prefix = "<LocalLeader>y" },

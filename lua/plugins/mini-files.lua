@@ -1,11 +1,11 @@
 linq
 "MiniFiles"
-           { "TitleFocused", "Border" }
-           { "Title", "Border" }
-           { "Normal", "Normal" }
-           { "Border", "Normal" }
-           { "BorderModified", "Normal" }
-           { "CursorLine", "PmenuSel" }
+  { "TitleFocused", "Border" }
+  { "Title", "Border" }
+  { "Normal", "Normal" }
+  { "Border", "Normal" }
+  { "BorderModified", "Normal" }
+  { "CursorLine", "PmenuSel" }
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -20,13 +20,14 @@ local log    = vim.log
 local levels = log.levels
 
 local kinds = Icon.Kinds
-
-local send = require "functions.nano-plugins".teleSend "file"
+local send  = require "functions.nano-plugins".teleSend "file"
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-local border_width  = 1
+local border_width  = 0
 local show_dotfiles = true
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local function open()
         if not require "mini.files".close() then
@@ -55,18 +56,19 @@ local function toggleDotfiles()
 end
 
 local function mapSplit(buf, lhs, direction)
-        local rhs = function()
-                local cur_target = require "mini.files".get_explorer_state().target_window
-                local new_target = api.nvim_win_call(cur_target, function()
-                        cmd(direction .. " split")
-                        return api.nvim_get_current_win()
-                end)
-
-                require "mini.files".set_target_window(new_target)
-        end
-
-        local desc = "Split " .. direction
-        keyq { lhs, rhs, buf = buf, desc = desc }
+        where(function(_) keyq { _.lhs, _.rhs, buf = _.buf, desc = _.desc } end) {
+                lhs  = lhs,
+                rhs  = function()
+                        local cur_target = require "mini.files".get_explorer_state().target_window
+                        local new_target = api.nvim_win_call(cur_target, function()
+                                cmd(direction .. " split")
+                                return api.nvim_get_current_win()
+                        end)
+                        require "mini.files".set_target_window(new_target)
+                end,
+                buf  = buf,
+                desc = "Split " .. direction,
+        }
 end
 
 local function setCwd()
@@ -177,13 +179,13 @@ auq "User" { -- SPLITS AND MAPS
 auq "User" { -- BORDER
         pattern  = "MiniFilesWindowOpen",
         callback = function(args)
-                if border_width == 1 then
-                        border_width  = 1
-                        local win_id  = args.data.win_id
-                        local config  = api.nvim_win_get_config(win_id)
-                        config.border = Border.Default.Normal
-                        api.nvim_win_set_config(win_id, config)
-                end
+                match(border_width) {
+                        [1] = function()
+                                local win_id  = args.data.win_id
+                                local config  = api.nvim_win_get_config(win_id)
+                                config.border = Border.Default.Normal
+                                api.nvim_win_set_config(win_id, config)
+                        end }
         end,
 }
 
@@ -201,17 +203,9 @@ auq "User" { -- CONFIRM
 
 return {
         "nvim-mini/mini.files",
-        keys   = {
-                { "<leader>e", open },
-                { "<leader>E", current },
-        },
+        keys   = { { "<leader>e", open }, { "<leader>E", current } },
         opts   = {
-                content  = {
-                        filter    = nil,
-                        highlight = nil,
-                        prefix    = prefix,
-                        sort      = nil,
-                },
+                content  = { filter = nil, highlight = nil, prefix = prefix, sort = nil },
                 mappings = {
                         close       = "<Esc>",
                         go_in       = "l",
@@ -232,12 +226,7 @@ return {
                         use_as_default_explorer = true,
                         lsp_timeout             = 2000,
                 },
-                windows  = {
-                        max_number    = 2,
-                        preview       = true,
-                        width_focus   = 60,
-                        width_preview = 60,
-                },
+                windows  = { max_number = 2, preview = true, width_focus = 60, width_preview = 60 },
         },
         config = function(_, opts)
                 require "mini.files".setup(opts)

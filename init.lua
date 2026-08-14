@@ -2,7 +2,7 @@ require "utils.meta" ()
 
 req
 ""
-           "globals"
-           "loaders"
-           "functions"
-           "core"
+  "globals"
+  "loaders"
+  "functions"
+  "core"

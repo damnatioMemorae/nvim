@@ -128,7 +128,7 @@ auq { "FocusGained", "TermClose", "TermLeave" } { -- RELOAD ON CHANGE
         group    = general,
         callback = function()
                 if o.buftype ~= "nofile" then
-                        vim.cmd.checktime()
+                        cmd.checktime()
                 end
         end,
 }
@@ -178,24 +178,24 @@ auq "FocusGained" {
         callback = function()
                 local all_bufs       = fn.getbufinfo { buflisted = 1 }
                 local closed_buffers = vim
-                           .iter(all_bufs)
-                           :fold({}, function(acc, buf)
-                                   if not api.nvim_buf_is_valid(buf.bufnr) then
-                                           return acc
-                                   end
+                  .iter(all_bufs)
+                  :fold({}, function(acc, buf)
+                          if not api.nvim_buf_is_valid(buf.bufnr) then
+                                  return acc
+                          end
 
-                                   local still_exists   = uv.fs_stat(buf.name) ~= nil
-                                   local special_buffer = bo[buf.bufnr].buftype ~= ""
-                                   local new_buffer     = buf.name == ""
+                          local still_exists   = uv.fs_stat(buf.name) ~= nil
+                          local special_buffer = bo[buf.bufnr].buftype ~= ""
+                          local new_buffer     = buf.name == ""
 
-                                   if still_exists or special_buffer or new_buffer then
-                                           return acc
-                                   end
+                          if still_exists or special_buffer or new_buffer then
+                                  return acc
+                          end
 
-                                   table.insert(acc, vim.fs.basename(buf.name))
-                                   api.nvim_buf_delete(buf.bufnr, { force = false })
-                                   return acc
-                           end)
+                          table.insert(acc, vim.fs.basename(buf.name))
+                          api.nvim_buf_delete(buf.bufnr, { force = false })
+                          return acc
+                  end)
 
                 if #closed_buffers == 0 then
                         return
@@ -224,10 +224,7 @@ auq "FocusGained" {
 
 do
         local prev_key
-        local config = {
-                scrollbarWidth            = 3,
-                ignoredPrevNormalModeKeys = { "g", g.mapleader },
-        }
+        local config = { scrollbarWidth = 3, ignoredPrevNormalModeKeys = { "g", g.mapleader } }
 
         ---@param mode? "clear"
         local function searchCountIndicator(mode)
@@ -255,7 +252,7 @@ do
                 api.nvim_buf_set_extmark(0, count_ns, row - 1, 0, {
                         virt_text     = { { text, "IncSearch" }, margin },
                         virt_text_pos = line_full and "right_align" or "eol",
-                        priority      = 49,
+                        priority      = 4000,
                 })
         end
 

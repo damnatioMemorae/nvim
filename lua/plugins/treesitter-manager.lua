@@ -1,5 +1,25 @@
-local o  = vim.o
-local fn = vim.fn
+local o   = vim.o
+local v   = vim.v
+local fn  = vim.fn
+local ts  = vim.treesitter
+local lsp = vim.lsp
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+local function prevNode()
+        if ts.get_parser(nil, nil, { error = false }) then
+                require "vim.treesitter._select".select_parent(v.count1)
+        else
+                lsp.buf.selection_range(v.count1)
+        end
+end
+local function nextNode()
+        if ts.get_parser(nil, nil, { error = false }) then
+                require "vim.treesitter._select".select_child(v.count1)
+        else
+                lsp.buf.selection_range(-v.count1)
+        end
+end
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -8,32 +28,9 @@ return {
         event  = "BufReadPost",
         init   = function()
                 o.foldmethod = "expr"
-                o.foldexpr   = "v:lua.vim.treesitter.foldexpr()"
+                o.foldexpr   = "v:lua.ts.foldexpr()"
         end,
-        keys   = {
-                {
-                        "m",
-                        function()
-                                if vim.treesitter.get_parser(nil, nil, { error = false }) then
-                                        require "vim.treesitter._select".select_parent(vim.v.count1)
-                                else
-                                        vim.lsp.buf.selection_range(vim.v.count1)
-                                end
-                        end,
-                        mode = { "v", "x" },
-                },
-                {
-                        "M",
-                        function()
-                                if vim.treesitter.get_parser(nil, nil, { error = false }) then
-                                        require "vim.treesitter._select".select_child(vim.v.count1)
-                                else
-                                        vim.lsp.buf.selection_range(-vim.v.count1)
-                                end
-                        end,
-                        mode = { "v", "x" },
-                },
-        },
+        keys   = { { "m", prevNode, mode = { "v", "x" } }, { "M", nextNode, mode = { "v", "x" } } },
         opts   = {
 
                 parser_dir       = fn.stdpath "data" .. "/site/parser",

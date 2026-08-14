@@ -12,6 +12,7 @@ local ui       = {
                 laststatus    = 3,
                 statusline    = "%v:lua.statusline()",
                 cmdheight     = 0,
+                cmdwinheight  = 20,
                 showcmd       = false,
                 showcmdloc    = "last",
                 number        = true,

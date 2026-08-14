@@ -1,53 +1,51 @@
 linq
 "BlinkCmp"
-           { "KindClass", "@lsp.type.class" }
-           { "KindColor", "DevIconDss" }
-           { "KindConstant", "@constant" }
-           { "KindConstructor", "@constructor" }
-           { "KindEnum", "@lsp.type.enum" }
-           { "KindEnumMember", "@lsp.type.enumMember" }
-           { "KindEvent", "@lsp.type.event" }
-           { "KindField", "@lsp.type.property" }
-           { "KindFile", "@lsp.type.struct" }
-           { "KindFolder", "Directory" }
-           { "KindFunction", "@lsp.type.function" }
-           { "KindInterface", "@lsp.type.interface" }
-           { "KindKeyword", "@lsp.type.keyword" }
-           { "KindMethod", "@lsp.type.method" }
-           { "KindModule", "@module" }
-           { "KindOperator", "@lsp.type.operator" }
-           { "KindProperty", "@lsp.type.property" }
-           { "KindReference", "@lsp.type.function" }
-           { "KindSnippet", "@lsp.type.keyword" }
-           { "KindStruct", "@lsp.type.struct" }
-           { "KindText", "@lsp.type.string" }
-           { "KindTypeParameter", "@lsp.type.typeParameter" }
-           { "KindUnit", "@lsp.type.number" }
-           { "KindValue", "@lsp.type.number" }
-           { "KindVariable", "@lsp.type.variable" }
-           { "AbbrDeprecated", "DiagnosticDeprecated" }
-           { "LabelDescription", "Comment" }
-           { "LabelDetail", "Comment" }
-           { "LabelMatch", "PmenuMatch" }
-           { "Menu", "Pmenu" }
-           { "MenuBorder", "PmenuBorder" }
-           { "MenuSelection", "pmenuSel" }
-           { "Doc", "PmenuDoc" }
-           { "DocBorder", "BlinkCmpDoc" }
-           { "DocSeparator", "BlinkCmpDoc" }
-           { "SignatureHelp", "BlinkCmpDoc" }
-           { "SignatureHelpBorder", "BlinkCmpDoc" }
-           { "Source", "Comment" }
-           { "ScrollBarThumb", "PmenuThumb" }
-           { "ScrollBarGutter", "PmenuSbar" }
+  { "KindClass", "@lsp.type.class" }
+  { "KindColor", "DevIconDss" }
+  { "KindConstant", "@constant" }
+  { "KindConstructor", "@constructor" }
+  { "KindEnum", "@lsp.type.enum" }
+  { "KindEnumMember", "@lsp.type.enumMember" }
+  { "KindEvent", "@lsp.type.event" }
+  { "KindField", "@lsp.type.property" }
+  { "KindFile", "Comment" }
+  { "KindFolder", "Directory" }
+  { "KindFunction", "@lsp.type.function" }
+  { "KindInterface", "@lsp.type.interface" }
+  { "KindKeyword", "Todo" }
+  { "KindMethod", "@lsp.type.method" }
+  { "KindModule", "@module" }
+  { "KindOperator", "@lsp.type.operator" }
+  { "KindProperty", "@lsp.type.property" }
+  { "KindReference", "@lsp.type.function" }
+  { "KindSnippet", "@lsp.type.keyword" }
+  { "KindStruct", "@lsp.type.struct" }
+  { "KindText", "@string" }
+  { "KindTypeParameter", "@lsp.type.typeParameter" }
+  { "KindUnit", "@lsp.type.number" }
+  { "KindValue", "@lsp.type.number" }
+  { "KindVariable", "@lsp.type.variable" }
+  { "AbbrDeprecated", "DiagnosticDeprecated" }
+  { "LabelDescription", "Comment" }
+  { "LabelDetail", "Comment" }
+  { "LabelMatch", "PmenuMatch" }
+  { "Menu", "Pmenu" }
+  { "MenuBorder", "PmenuBorder" }
+  { "MenuSelection", "pmenuSel" }
+  { "Doc", "PmenuDoc" }
+  { "DocBorder", "BlinkCmpDoc" }
+  { "DocSeparator", "BlinkCmpDoc" }
+  { "SignatureHelp", "BlinkCmpDoc" }
+  { "SignatureHelpBorder", "BlinkCmpDoc" }
+  { "Source", "Comment" }
+  { "ScrollBarThumb", "PmenuThumb" }
+  { "ScrollBarGutter", "PmenuSbar" }
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-local snippets   = { preset = "luasnip" }
-local cmdline    = {
-        enabled    = false,
-        completion = { menu = { auto_show = true } },
-}
+local snippets   = {}
+-- local snippets   = { preset = "luasnip" }
+local cmdline    = { enabled = false, completion = { menu = { auto_show = true } } }
 local completion = {
         keyword       = { range = "full" },
         accept        = { auto_brackets = { enabled = true } },
@@ -102,7 +100,8 @@ local completion = {
         },
 }
 local fuzzy      = {
-        implementation = "prefer_rust_with_warning",
+        -- implementation = "prefer_rust_with_warning",
+        implementation = "lua",
         max_typos      = 3,
         frecency       = { enabled = true, path = vim.fn.stdpath "state" .. "/blink/cmp/frecency.dat" },
         use_proximity  = true,
@@ -110,18 +109,10 @@ local fuzzy      = {
 }
 local sources    = {
         default            = { "lsp", "snippets", "path", "buffer" },
-        per_filetype       = {
-                ["rip-substitute"] = { "ripgrep", "buffer" },
-                qml                = { inherit_defaults = true, "quickshell" },
-        },
+        per_filetype       = { ["rip-substitute"] = { "ripgrep", "buffer" } },
         min_keyword_length = 0,
         providers          = {
-                quickshell = {
-                        name         = "quick",
-                        module       = "quickshell-completions.blink",
-                        score_offset = 100,
-                },
-                lsp        = {
+                lsp      = {
                         name         = "LSP",
                         module       = "blink.cmp.sources.lsp",
                         opts         = { tailwind_color_icon = "██" },
@@ -136,7 +127,7 @@ local sources    = {
                                 local chars_before = vim.api.nvim_get_current_line():sub(col - 2, col)
 
                                 local luadoc_but_not_comment = not chars_before:find "^%-%-?$"
-                                           and not chars_before:find "%s%-%-?"
+                                  and not chars_before:find "%s%-%-?"
                                 return luadoc_but_not_comment
                         end,
                         override     = {
@@ -147,7 +138,7 @@ local sources    = {
                                 end,
                         },
                 },
-                snippets   = {
+                snippets = {
                         name         = "snip",
                         score_offset = -1,
                         opts         = {
@@ -156,7 +147,7 @@ local sources    = {
                                 use_label_description = true,
                         },
                 },
-                path       = {
+                path     = {
                         name         = "path",
                         module       = "blink.cmp.sources.path",
                         score_offset = 260,
@@ -168,19 +159,19 @@ local sources    = {
                                 get_cwd                      = vim.uv.cwd,
                         },
                 },
-                buffer     = {
+                buffer   = {
                         name         = "buf",
                         score_offset = -7,
                         max_items    = 8,
                         opts         = { get_bufnrs = vim.api.nvim_list_bufs },
                 },
-                omni       = {
+                omni     = {
                         name         = "omni",
                         module       = "blink.cmp.sources.complete_func",
                         score_offset = 60,
                         opts         = { disable_omnifunc = { "v:lua.vim.lsp.omnifunc" } },
                 },
-                ripgrep    = {
+                ripgrep  = {
                         module       = "blink-cmp-rg",
                         name         = "rip",
                         score_offset = 10,
@@ -201,7 +192,7 @@ local sources    = {
                                 end,
                                 get_prefix     = function(_context)
                                         return _context.line:sub(1, _context.cursor[2]):match "[%w_-]+$" or
-                                                   ""
+                                          ""
                                 end,
                         },
                 },
@@ -239,31 +230,30 @@ local keymap     = {
                 end,
         },
 }
-local appearance = {
-        nerd_font_variant = "normal",
-        kind_icons        = Icon.Kinds,
-}
+local appearance = { nerd_font_variant = "normal", kind_icons = Icon.Kinds }
 local signature  = {
         enabled = true,
         trigger = { enabled = false, show_on_keyword = false, show_on_insert = false },
         window  = { direction_priority = { "n", "s" }, scrollbar = false, show_documentation = false },
 }
 
+local opts = {
+        snippets   = snippets,
+        cmdline    = cmdline,
+        completion = completion,
+        fuzzy      = fuzzy,
+        sources    = sources,
+        keymap     = keymap,
+        appearance = appearance,
+        signature  = signature,
+}
+
 return {
         "saghen/blink.cmp",
         version      = "*",
         event        = { "InsertEnter", "CmdLineEnter" },
-        dependencies = { "saghen/blink.lib", "cushycush/quickshell-completions.nvim", "niuiic/blink-cmp-rg.nvim" },
+        dependencies = { "saghen/blink.lib", "niuiic/blink-cmp-rg.nvim" },
         build        = function() require "blink.cmp".download():wait(60000) end,
-        opts         = {
-                -- snippets   = snippets,
-                cmdline    = cmdline,
-                completion = completion,
-                fuzzy      = fuzzy,
-                sources    = sources,
-                keymap     = keymap,
-                appearance = appearance,
-                signature  = signature,
-        },
+        opts         = opts,
         opts_extend  = { "sources.default", "sources.completion.enabled_provider" },
 }

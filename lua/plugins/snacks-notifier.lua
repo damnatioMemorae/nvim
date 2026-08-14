@@ -10,28 +10,6 @@ local levels = log.levels
 
 local enabled = false
 
-local h = require "utils.misc".getHl
-
--- api.nvim_set_hl(0, "SnacksNotifierBorderInfo",  { fg = h("DiagnosticInfo").fg, bg = h("NormalFloat").bg })
--- api.nvim_set_hl(0, "SnacksNotifierBorderWarn",  { fg = h("DiagnosticWarn").fg, bg = h("NormalFloat").bg })
--- api.nvim_set_hl(0, "SnacksNotifierBorderError", { fg = h("DiagnosticError").fg, bg = h("NormalFloat").bg })
--- api.nvim_set_hl(0, "SnacksNotifierBorderTrace", { link = "FloatBorder" })
--- api.nvim_set_hl(0, "SnacksNotifierBorderDebug", { link = "FloatBorder" })
-
--- api.nvim_set_hl(0, "SnacksNotifierFooterInfo",  { fg = h("DiagnosticInfo").fg, bg = h("NormalFloat").bg })
--- api.nvim_set_hl(0, "SnacksNotifierFooterWarn",  { fg = h("DiagnosticWarn").fg, bg = h("NormalFloat").bg })
--- api.nvim_set_hl(0, "SnacksNotifierFooterError", { fg = h("DiagnosticError").fg, bg = h("NormalFloat").bg })
--- api.nvim_set_hl(0, "SnacksNotifierFooterTrace", { link = "NormalFloat" })
--- api.nvim_set_hl(0, "SnacksNotifierFooterDebug", { link = "NormalFloat" })
-
--- api.nvim_set_hl(0, "SnacksNotifierTitleInfo",  { link = "DiagnosticInfo" })
--- api.nvim_set_hl(0, "SnacksNotifierTitleWarn",  { link = "DiagnosticWarn" })
--- api.nvim_set_hl(0, "SnacksNotifierTitleError", { link = "DiagnosticError" })
--- api.nvim_set_hl(0, "SnacksNotifierTitleDebug", { link = "NormalFloat" })
--- api.nvim_set_hl(0, "SnacksNotifierTitleTrace", { link = "NormalFloat" })
-
--- api.nvim_set_hl(0, "SnacksNotifierMinimal", { fg = h("DiagnosticInfo").fg, bg = h("NormalFloat").bg })
-
 ---@param idx number|"last"
 local function openNotif(idx)
         local max_width  = 0.85
@@ -57,11 +35,11 @@ local function openNotif(idx)
         local height       = math.min(#lines + 2, math.ceil(o.lines * max_height))
         height             = math.max(height, min_height)
         local longest_line = vim
-                   .iter(lines)
-                   :fold(0, function(acc, line)
-                           local len = #(line:gsub("\t", "    "))
-                           return math.max(acc, len)
-                   end)
+          .iter(lines)
+          :fold(0, function(acc, line)
+                  local len = #(line:gsub("\t", "    "))
+                  return math.max(acc, len)
+          end)
         longest_line       = math.max(longest_line, #title)
         local width        = math.min(longest_line + 3, math.ceil(o.columns * max_width))
 
@@ -130,12 +108,7 @@ return {
                                 },
                         },
                 },
-                notifier = {
-                        enabled = enabled,
-                        icons   = Icon.Notifier,
-                        sort    = { "added" },
-                        timeout = 2000,
-                },
+                notifier = { enabled = enabled, icons = Icon.Notifier, sort = { "added" }, timeout = 2000 },
                 styles   = {
                         notification_history = {
                                 border   = Border.Plain.Right,

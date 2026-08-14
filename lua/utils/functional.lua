@@ -10,6 +10,54 @@ local numq = function(a) return type(a) == "number" end
 local booq = function(a) return type(a) == "boolean" end
 local funq = function(a) return type(a) == "function" end
 
+---- PATTERN MATCHING ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+local function matches(value, pattern)
+        if type(pattern) == "function" then
+                return value == pattern(value)
+        end
+        if type(pattern) == "table" then
+                for _, candidate in ipairs(pattern) do
+                        if matches(value, candidate) then
+                                return true
+                        end
+                end
+                return false
+        end
+        return value == pattern
+end
+
+local function execute(action, value)
+        if type(action) == "function" then
+                return action(value)
+        end
+        return action
+end
+
+---@type fun(value: any): fun(cases: table): function
+function match(value)
+        return function(cases)
+                for pattern, action in pairs(cases) do
+                        if pattern ~= "_" and type(pattern) == "string" then
+                                if value == pattern then
+                                        return execute(action, value)
+                                end
+                        end
+                end
+                for i = 1, #cases, 2 do
+                        local pattern = cases[i]
+                        local action  = cases[i + 1]
+                        if matches(value, pattern) then
+                                return execute(action, value)
+                        end
+                end
+                if cases._ ~= nil then
+                        return execute(cases._, value)
+                end
+                return nil
+        end
+end
+
 ---- CONDITIONALS --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local function guard(args)
@@ -25,21 +73,13 @@ local function guard(args)
         end
 end
 
----@type fun(value: any): fun(cases: table): function
-local function match(value)
-        return function(cases)
-                local case = cases[value] or cases._
-                if case then return case() end
-        end
-end
-
 ---@type fun(condition: any): fun(_then: function|any): fun(otherwise: function|any): function|any
 local function when(condition)
         return function(_then)
                 if condition then
                         return funq(_then)
-                                   and _then()
-                                   or _then
+                          and _then()
+                          or _then
                 end
         end
 end
@@ -205,31 +245,10 @@ M.predicates   = {
         _booq = not booq,
         _funq = not funq,
 }
-M.conditionals = {
-        when   = when,
-        guard  = guard,
-        match  = match,
-        where  = where,
-        unless = unless,
-}
-M.lists        = {
-        map    = map,
-        mapl   = mapl,
-        each   = each,
-        extl   = extl,
-        fold   = fold,
-        foldl  = foldl,
-        filter = filter,
-}
-M.operators    = {
-        ext    = ext,
-        _ext   = _ext,
-        concat = concat,
-}
-M.pipelines    = {
-        q        = q,
-        pipeline = pipeline,
-}
+M.conditionals = { when = when, guard = guard, match = match, where = where, unless = unless, }
+M.lists        = { map = map, mapl = mapl, each = each, extl = extl, fold = fold, foldl = foldl, filter = filter, }
+M.operators    = { ext = ext, _ext = _ext, concat = concat, }
+M.pipelines    = { q = q, pipeline = pipeline, }
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

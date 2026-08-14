@@ -237,20 +237,9 @@ end
 local M = {}
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-M.autocmds   = {
-        auq = auq,
-}
-M.highlights = {
-        hl    = hl,
-        linq  = linq,
-        _linq = _linq,
-}
-M.keymaps    = {
-        abbr = bufAbbr,
-        bufq = bufq,
-        keyq = keyq,
-        pcmd = pcmd,
-}
+M.autocmds   = { auq = auq }
+M.highlights = { hl = hl, linq = linq, _linq = _linq }
+M.keymaps    = { abbr = bufAbbr, bufq = bufq, keyq = keyq, pcmd = pcmd }
 M.modules    = {
         req         = req,
         areq        = areq,

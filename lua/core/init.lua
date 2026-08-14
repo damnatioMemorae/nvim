@@ -19,8 +19,8 @@ g.loaded_nvim_dir_plugin = 1
 
 req
 "core"
-           "lazy"
-           { "commands", "CmdlineEnter" }
-           { "keymaps", "BufReadPre" }
-           { "lsp", "BufReadPost" }
-           "autocmds"
+  "lazy"
+  { "commands", "CmdlineEnter" }
+  { "keymaps", "BufReadPre" }
+  { "lsp", "BufReadPost" }
+  "autocmds"

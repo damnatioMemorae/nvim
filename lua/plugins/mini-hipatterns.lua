@@ -1,12 +1,12 @@
 linq
 "MiniHipatterns"
-           { "Fixme", "@comment.error" }
-           { "Hack", "@comment.warning" }
-           { "Todo", "@comment.todo" }
-           { "Hint", "@comment.hint" }
-           { "Note", "@comment.note" }
-           { "Code", "@comment.code" }
-           { "Url", "@comment.url" }
+  { "Fixme", "@comment.error" }
+  { "Hack", "@comment.warning" }
+  { "Todo", "@comment.todo" }
+  { "Hint", "@comment.hint" }
+  { "Note", "@comment.note" }
+  { "Code", "@comment.code" }
+  { "Url", "@comment.url" }
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -60,7 +60,7 @@ return {
 
                 opts.highlighters = opts.highlighters or {}
 
-                local function notInTsCapture(capture, groupFn)
+                local function _notInTsCapture(capture, groupFn)
                         return function(bufId, match, data)
                                 local caps = vim.treesitter.get_captures_at_pos(bufId, data.line - 1, data.from_col - 1)
                                 for _, c in ipairs(caps) do

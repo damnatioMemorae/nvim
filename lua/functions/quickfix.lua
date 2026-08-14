@@ -6,9 +6,9 @@ local api = vim.api
 
 linq
 "Qf"
-           { "LineNr", "Special" }
-           { "Match", "IncSearch" }
-           { "Filename", "Directory" }
+  { "LineNr", "Special" }
+  { "Match", "IncSearch" }
+  { "Filename", "Directory" }
 
 ---- TEXT ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

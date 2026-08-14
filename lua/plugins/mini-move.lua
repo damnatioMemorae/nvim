@@ -1,18 +1,17 @@
 return {
-        "echasnovski/mini.move",
+        "nvim-mini/mini.move",
         version = false,
         event   = "BufReadPre",
         opts    = {
-                -- a
                 mappings = {
-                        left       = "<left>",
-                        down       = "<down>",
-                        up         = "<up>",
-                        right      = "<right>",
-                        line_left  = "<left>",
-                        line_down  = "<down>",
-                        line_up    = "<up>",
-                        line_right = "<right>",
+                        left       = "<M-left>",
+                        down       = "<M-down>",
+                        up         = "<M-up>",
+                        right      = "<M-right>",
+                        line_left  = "<M-left>",
+                        line_down  = "<M-down>",
+                        line_up    = "<M-up>",
+                        line_right = "<M-right>",
                 },
                 options  = { reindent_linewise = true },
         },

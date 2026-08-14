@@ -8,22 +8,24 @@ local none   = Border.Default.NormalNone
 local top    = Border.Plain.Top
 local bot    = Border.Plain.Bottom
 
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 local loaded, _ = pcall(require, "snacks")
 local toggle    = Snacks.toggle
-
 if loaded then
-        toggle.option("relativenumber", { name = " Relative Line Number", global = true }):map "<leader>or"
-        toggle.option("number", { name = " Line Number", global = true }):map "<leader>on"
-        toggle.option("wrap", { name = "󰖶 Wrap", global = true }):map "<leader>ow"
-        toggle.treesitter { name = " Treesitter Highlight" }:map "<leader>ot"
+        toggle.option("relativenumber", { name = "Relative Line Number", global = true }):map "<leader>or"
+        toggle.option("number", { name = "Line Number", global = true }):map "<leader>on"
+        toggle.option("wrap", { name = "Wrap", global = true }):map "<leader>ow"
+        toggle.treesitter { name = "Treesitter Highlight" }:map "<leader>ot"
 end
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 return {
         "folke/snacks.nvim",
         lazy     = false,
         priority = 1000,
         keys     = {
-                -- { "<M-b>",      function() Snacks.bufdelete() end,          desc = "Delete Buffer" },
                 { "<M-b>",      "<cmd>b #<CR>",                             desc = "Swap buffer" },
                 { "<leader>fr", function() Snacks.rename.rename_file() end, desc = "Rename File" },
         },

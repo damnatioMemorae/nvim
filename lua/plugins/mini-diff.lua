@@ -1,14 +1,16 @@
 linq
 "MiniDiff"
-           { "SignAdd", "DiffChanged" }
-           { "SignChange", "DiffChanged" }
-           { "SignDelete", "DiffRemoved" }
-           { "OverAdd", "DiffAdd" }
-           { "OverChange", "DiffChange" }
-           { "OverDelete", "DiffDelete" }
-           { "OverContext", "DiffText" }
-           { "OverChangeBuf", "DiffText" }
-           { "OverContextBuf", "DiffText" }
+  { "SignAdd", "DiffChanged" }
+  { "SignChange", "DiffChanged" }
+  { "SignDelete", "DiffRemoved" }
+  { "OverAdd", "DiffAdd" }
+  { "OverChange", "DiffChange" }
+  { "OverDelete", "DiffDelete" }
+  { "OverContext", "DiffText" }
+  { "OverChangeBuf", "DiffText" }
+  { "OverContextBuf", "DiffText" }
+
+local o = vim.o
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -16,7 +18,7 @@ return {
         "nvim-mini/mini.diff",
         version = false,
         event   = "BufReadPost",
-        init    = function() vim.o.signcolumn = "yes:1" end,
+        init    = function() o.signcolumn = "yes:1" end,
         keys    = { { "<leader>g", function() require "mini.diff".toggle_overlay() end } },
         opts    = {
                 delay   = { text_change = 0 },

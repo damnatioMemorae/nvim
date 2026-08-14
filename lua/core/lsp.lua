@@ -11,7 +11,6 @@ local api  = vim.api
 local cmd  = vim.cmd
 local lsp  = vim.lsp
 local log  = vim.log
-local opt  = vim.opt
 local diag = vim.diagnostic
 local ts   = vim.treesitter
 
@@ -25,12 +24,7 @@ local nano = require "functions.nano-plugins"
 local hl       = "DiagnosticVirtualText"
 local severity = diag.severity
 local signs    = {
-        text  = {
-                [severity.ERROR] = "",
-                [severity.WARN]  = "",
-                [severity.INFO]  = "",
-                [severity.HINT]  = "",
-        },
+        text  = { [severity.ERROR] = "", [severity.WARN] = "", [severity.INFO] = "", [severity.HINT] = "" },
         numhl = {
                 [severity.ERROR] = hl .. "Error",
                 [severity.WARN]  = hl .. "Warn",
@@ -51,37 +45,35 @@ diag.config {
 local OriginalRenameHandler         = lsp.handlers["textDocument/rename"]
 lsp.handlers["textDocument/rename"] = function(err, result, ctx, config)
         OriginalRenameHandler(err, result, ctx, config)
-        if err or not result then
-                return
-        end
+        if err or not result then return end
 
         local changed_files, change_count = {}, 0
         if result.changes then
                 changed_files = vim
-                           .iter(vim.tbl_keys(result.changes))
-                           :map(function(uri)
-                                   return "- " .. fs.basename(vim.uri_to_fname(uri))
-                           end)
-                           :totable()
+                  .iter(vim.tbl_keys(result.changes))
+                  :map(function(uri)
+                          return "- " .. fs.basename(vim.uri_to_fname(uri))
+                  end)
+                  :totable()
                 change_count  = vim
-                           .iter(result.changes)
-                           :fold(0, function(sum, _, ch)
-                                   return sum + #(ch.edits or ch)
-                           end)
+                  .iter(result.changes)
+                  :fold(0, function(sum, _, ch)
+                          return sum + #(ch.edits or ch)
+                  end)
         elseif result.documentChanges then
                 changed_files = vim
-                           .iter(result.documentChanges)
-                           :map(function(file)
-                                   local uri   = file.textDocument and file.textDocument.uri or file.newUri
-                                   local extra = file.kind == "rename" and " (renamed)" or ""
-                                   return "* " .. fs.basename(vim.uri_to_fname(uri)) .. extra
-                           end)
-                           :totable()
+                  .iter(result.documentChanges)
+                  :map(function(file)
+                          local uri   = file.textDocument and file.textDocument.uri or file.newUri
+                          local extra = file.kind == "rename" and " (renamed)" or ""
+                          return "* " .. fs.basename(vim.uri_to_fname(uri)) .. extra
+                  end)
+                  :totable()
                 change_count  = vim
-                           .iter(result.documentChanges)
-                           :fold(0, function(sum, ch)
-                                   return sum + (ch.edits and #ch.edits or 1)
-                           end)
+                  .iter(result.documentChanges)
+                  :fold(0, function(sum, ch)
+                          return sum + (ch.edits and #ch.edits or 1)
+                  end)
         end
         assert(change_count > 0, "Unknown form of changes reported by LSP.")
 
@@ -108,31 +100,30 @@ where(function(_)
         lsp.buf.signature_help = function() return signature_help(_.hover) end ---@diagnostic disable-line: duplicate-set-field
         diag.open_float        = function() return open_float(_.float) end ---@diagnostic disable-line: duplicate-set-field
 end) {
-                   hover = {
-                           anchor_bias = "above",
-                           border      = Border.Default.Normal,
-                           title       = "",
-                           title_pos   = "left",
-                           relative    = "cursor",
-                           wrap        = true,
-                           max_height  = math.floor(o.lines * 0.7),
-                           max_width   = math.floor(o.columns * 0.6),
-                   },
-                   float = {
-                           anchor_bias   = "below",
-                           border        = Border.Default.Normal,
-                           title         = "",
-                           title_pos     = "left",
-                           scope         = "cursor",
-                           severity_sort = true,
-                           source        = true,
-                   },
-           }
+          hover = {
+                  anchor_bias = "above",
+                  border      = Border.Default.Normal,
+                  title       = "",
+                  title_pos   = "left",
+                  relative    = "cursor",
+                  wrap        = true,
+                  max_height  = math.floor(o.lines * 0.7),
+                  max_width   = math.floor(o.columns * 0.6),
+          },
+          float = {
+                  anchor_bias   = "below",
+                  border        = Border.Default.Normal,
+                  title         = "",
+                  title_pos     = "left",
+                  scope         = "cursor",
+                  severity_sort = true,
+                  source        = true,
+          },
+  }
 
 ---- AUTOCMDS ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-local debounce = 100
-local timer    = uv.new_timer()
+local timer = uv.new_timer()
 
 local _lsp_augroup            = augroup("LSP", { clear = true })
 local _hint_augroup           = augroup("lsp-inlay-hint", { clear = false })
@@ -143,9 +134,32 @@ local _compdoc_augroup        = augroup("LSP completion doc", { clear = true })
 local _detatch_augroup        = augroup("LSP detatch", { clear = true })
 local _on_type_format_augroup = augroup("LSP detatch", { clear = true })
 
+local lsp_abbr_hl = {
+        Enum       = "@enum",
+        EnumMember = "@enum",
+        Field      = "Identifier",
+        Function   = "Function",
+        Keyword    = "Keyword",
+        Property   = "Identifier",
+        Snippet    = "Keyword",
+        Text       = "String",
+        Variable   = "Label",
+}
+local lsp_kind_hl = {
+        Enum       = "@enum",
+        EnumMember = "String",
+        Field      = "Identifier",
+        Function   = "Function",
+        Keyword    = "QfText",
+        Property   = "Identifier",
+        Snippet    = "QfText",
+        Text       = "QfText",
+        Variable   = "Label",
+}
+
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-local function compDoc(client, _group, bufnr)
+local function compDoc(client, _group, bufnr, debounce)
         if not timer then vim.notify("Cannot create timer", levels.ERROR) end
         auq "CompleteChanged" {
                 desc     = "LSP completion documentation",
@@ -156,57 +170,43 @@ local function compDoc(client, _group, bufnr)
                         timer:stop()
 
                         local client_id = vim.tbl_get(v.completed_item, "user_data", "nvim", "lsp", "client_id")
-                        if client_id ~= client.id then
-                                return
-                        end
+                        if client_id ~= client.id then return end
 
                         local item = vim.tbl_get(v.completed_item, "user_data", "nvim", "lsp", "completion_item")
-                        if not item then
-                                return
-                        end
+                        if not item then return end
 
                         local complete_info = fn.complete_info { "selected" }
-                        if vim.tbl_isempty(complete_info) then
-                                return
-                        end
+                        if vim.tbl_isempty(complete_info) then return end
 
                         timer:start(debounce, 0, vim.schedule_wrap(function()
-                                client:request(
-                                        lsp.protocol.Methods.completionItem_resolve,
-                                        item,
-                                        function(err, result)
-                                                if err ~= nil then
-                                                        -- vim.notify("client" .. " " .. client.id .. vim.inspect(err),
-                                                        --            levels.ERROR)
-                                                        return
-                                                end
+                                client:request(lsp.protocol.Methods.completionItem_resolve, item, function(err, result)
+                                                       if err ~= nil then return end
 
-                                                local docs = vim.tbl_get(result, "documentation", "value")
-                                                if not docs then
-                                                        return
-                                                end
+                                                       local docs = vim.tbl_get(result, "documentation", "value")
+                                                       if not docs then return end
 
-                                                local wininfo = api.nvim__complete_set(complete_info.selected,
-                                                                                       { info = docs })
+                                                       local wininfo = api.nvim__complete_set(complete_info.selected,
+                                                                                              { info = docs })
 
-                                                if vim.tbl_isempty(wininfo) or not api.nvim_win_is_valid(wininfo.winid) then
-                                                        return
-                                                end
+                                                       if vim.tbl_isempty(wininfo) or not api.nvim_win_is_valid(wininfo.winid) then
+                                                               return
+                                                       end
 
-                                                api.nvim_win_set_config(wininfo.winid, { border = "single" })
-                                                wo[wininfo.winid].conceallevel  = 2
-                                                wo[wininfo.winid].concealcursor = "niv"
-                                                wo[wininfo.winid].winhighlight  = "PmenuDoc:Normal"
+                                                       local doc_win = wininfo.winid
+                                                       local doc_buf = wininfo.bufnr
 
-                                                if not api.nvim_buf_is_valid(wininfo.bufnr) then
-                                                        return
-                                                end
-
-                                                bo[wininfo.bufnr].syntax = "markdown"
-                                                ts.start(wininfo.bufnr, "markdown")
-                                        end,
-                                        bufnr
-                                )
+                                                       api.nvim_win_set_config(doc_win, {
+                                                               border = "single",
+                                                               height = 15,
+                                                               width  = 60,
+                                                       })
+                                                       wo[doc_win].wrap          = true
+                                                       wo[doc_win].conceallevel  = 2
+                                                       wo[doc_win].concealcursor = "niv"
+                                                       wo[doc_win].winhighlight  = "Normal:PmenuDoc"
+                                                       bo[doc_win].syntax        = "markdown"
+                                                       ts.start(doc_buf, "markdown")
+                                               end, bufnr)
                         end))
                 end,
         }
@@ -214,29 +214,25 @@ end
 
 local function completion(client, buf)
         if client:supports_method "textDocument/completion" and not pcall(require, "blink.cmp") then
+                o.autocomplete  = true
+                o.completeopt   = "fuzzy,menuone,noinsert,noselect,popup"
+                o.pummaxwidth   = 80
+                o.complete      = "o,.,w,b,u,f,t,i,d"
+                o.previewheight = 3
+
                 lsp.completion.enable(true, client.id, buf, {
                         autotrigger = false,
                         convert     = function(item)
                                 return {
-                                        abbr         = Icon.Kinds.Array .. " " .. item.label:gsub("%b()", ""),
-                                        abbr_hlgroup = "LspKind" ..
-                                                   (lsp.protocol.CompletionItemKind[item.kind] or ""),
-                                        -- kind         = "",
-                                        kind_hlgroup = "LspKind" ..
-                                                   (lsp.protocol.CompletionItemKind[item.kind] or ""),
+                                        abbr         = Icon.Kinds[lsp.protocol.CompletionItemKind[item.kind or "Text"]],
+                                        abbr_hlgroup = lsp_abbr_hl[lsp.protocol.CompletionItemKind[item.kind or "Text"]],
+                                        kind         = item.label:gsub("%b()", "") or "",
+                                        kind_hlgroup = lsp_kind_hl[lsp.protocol.CompletionItemKind[item.kind or "Text"]],
                                         menu         = "",
                                 }
                         end,
                 })
-
-                compDoc(client, _compdoc_augroup, buf)
-
-                opt.complete:append "o"
-                o.autocomplete  = true
-                o.completeopt   = "fuzzy,menuone,noinsert,noselect,popup"
-                o.pummaxwidth   = 80
-                o.complete      = "o,.,w,b,u"
-                o.previewheight = 3
+                compDoc(client, _compdoc_augroup, buf, 0)
         end
 end
 
@@ -342,12 +338,7 @@ function M.onTypeFormat(client, buf)
         onTypeFormat(client, buf)
 end
 
-local opts = {
-        completion        = false,
-        inlayHints        = false,
-        documentColor     = true,
-        documentHighlight = true,
-}
+local opts = { completion = true, inlayHints = false, documentColor = true, documentHighlight = true }
 
 auq "LspAttach" {
         desc     = "LSP stuff",
@@ -357,12 +348,8 @@ auq "LspAttach" {
                 local client = assert(lsp.get_client_by_id(args.data.client_id))
 
                 vim
-                           .iter(opts)
-                           :each(function(func, enabled)
-                                   if enabled then
-                                           M[func](client, buf)
-                                   end
-                           end)
+                  .iter(opts)
+                  :each(function(func, enabled) if enabled then M[func](client, buf) end end)
         end,
 }
 
@@ -409,7 +396,7 @@ keyq { "<M-D>", function() jump(-1) end, desc = "Diagnostic Prev", mode = { "n",
 keyq { "<M-d>", function() jump(1) end, desc = "Diagnostic Next", mode = { "n", "x" } }
 
 keyq { "<M-j>", function() nano.scrollLspOrOtherWin(5) end, desc = "Scroll other win" }
-keyq { "<M-K>", function() nano.scrollLspOrOtherWin(-5) end, desc = "Scroll other win" }
+keyq { "<M-k>", function() nano.scrollLspOrOtherWin(-5) end, desc = "Scroll other win" }
 
 keyq { "<leader>d", diag.setloclist, desc = "Diagnostic loclist" }
 keyq { "<leader>D", diag.setqflist, desc = "Diagnostic quickfix" }

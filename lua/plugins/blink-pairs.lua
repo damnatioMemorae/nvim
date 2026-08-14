@@ -5,7 +5,7 @@ return {
         dependencies = { "saghen/blink.lib" },
         keys         = {
                 { "<M-i>", "a{<CR><down>,<up><esc>i", mode = "n", desc = "Open new scope", remap = true },
-                { "<M-i>", "{<CR>", mode = "i", desc = "open new scope", remap = true },
+                { "<M-i>", "{<CR>",                   mode = "i", desc = "open new scope", remap = true },
         },
         opts         = {
                 mappings = {
@@ -20,7 +20,7 @@ return {
                                                 languages = { "lua" },
                                                 when      = function(ctx)
                                                         return ctx.ts:matches_capture "string"
-                                                                   or ctx.ts:matches_capture "string_content"
+                                                          or ctx.ts:matches_capture "string_content"
                                                 end,
                                         },
                                 },

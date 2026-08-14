@@ -1,9 +1,9 @@
 local o    = vim.o
 local bo   = vim.bo
 local fn   = vim.fn
+local uv   = vim.uv
 local api  = vim.api
 local diag = vim.diagnostic
-local loop = vim.loop
 
 local function getIcon(category, type)
         return require "utils.icons".makeIcon("real-icons", type, category)
@@ -17,22 +17,16 @@ local function path(props)
         local parts   = vim.split(relhead, "/")
 
         return vim
-                   .iter(parts)
-                   :enumerate()
-                   :map(function(i, item)
-                           return {
-                                   {
-                                           getIcon("directory", "general")[1],
-                                           group = getIcon("directory", "general")[2],
-                                   },
-                                   { " " .. item, group = "Comment" },
-                                   {
-                                           i < #parts and arrow or " ",
-                                           group = "Comment",
-                                   },
-                           }
-                   end)
-                   :totable()
+          .iter(parts)
+          :enumerate()
+          :map(function(i, item)
+                  return {
+                          { getIcon("directory", "general")[1], group = getIcon("directory", "general")[2] },
+                          { " " .. item,                        group = "Comment" },
+                          { i < #parts and arrow or " ",        group = "Comment" },
+                  }
+          end)
+          :totable()
 end
 
 local function ftName(props)
@@ -51,17 +45,17 @@ end
 
 local function diagnostics(props)
         return vim
-                   .iter { "error", "warn", "hint" }
-                   :map(function(severity)
-                           local count = #diag.get(props.buf, { severity = diag.severity[string.upper(severity)] })
+          .iter { "error", "warn", "hint" }
+          :map(function(severity)
+                  local count = #diag.get(props.buf, { severity = diag.severity[string.upper(severity)] })
 
-                           if count == 0 then
-                                   return { "0" .. " ", group = "DiagnosticSign" .. severity }
-                           end
+                  if count == 0 then
+                          return { "0" .. " ", group = "DiagnosticSign" .. severity }
+                  end
 
-                           return { count .. " ", group = "DiagnosticSign" .. severity }
-                   end)
-                   :totable()
+                  return { count .. " ", group = "DiagnosticSign" .. severity }
+          end)
+          :totable()
 end
 
 local function macro()
@@ -72,15 +66,7 @@ local function macro()
 end
 
 local function render(props)
-        return {
-                { " " },
-                { macro() },
-                { path(props) },
-                { diagnostics(props) },
-                { ftType(props) },
-                { ftName(props) },
-                { " " },
-        }
+        return { { " " }, { macro() }, { path(props) }, { diagnostics(props) }, { ftType(props) }, { ftName(props) }, { " " } }
 end
 
 return {
@@ -109,10 +95,14 @@ return {
         },
         config = function(_, opts)
                 require "incline".setup(opts)
-
-                local timer = loop.new_timer()
-                timer:start(0, 50, vim.schedule_wrap(function() ---@diagnostic disable-line: need-check-nil
-                        require "incline.manager".update { refresh = true }
-                end))
+                local function debounce()
+                        local timer = uv.new_timer()
+                        ---@cast timer uv.uv_timer_t
+                        timer:stop()
+                        timer:start(0, 50, vim.schedule_wrap(function() ---@diagnostic disable-line: need-check-nil
+                                require "incline.manager".update { refresh = true }
+                        end))
+                end
+                auq "CursorHold" { callback = function() debounce() end }
         end,
 }

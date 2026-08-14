@@ -20,7 +20,7 @@ local function height(percentage)
         return o.lines * (percentage * 0.01)
 end
 
-cmd("resize " .. height(20))
+cmd("resize " .. height(15))
 -- cmd "wincmd L"
 -- cmd("vertical resize " .. width(25))
 

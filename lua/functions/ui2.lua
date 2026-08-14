@@ -15,7 +15,7 @@ local orig_set_pos = messages.set_pos
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-local targets = {
+local _targets = {
         [""]         = "msg",
         empty        = "msg",
         bufwrite     = "msg",
@@ -172,17 +172,12 @@ end
 
 messages.set_pos = function(tgt)
         orig_set_pos(tgt)
-        if tgt == "pager" then
-                overridePagerWin()
-                return
-        end
-        if tgt == "dialog" then
-                overrideDialogWin()
-        end
-        if tgt == "msg" or tgt == nil then
-                overrideMsgWin()
-                return
-        end
+        match(tgt) {
+                pager  = function() overridePagerWin() end,
+                dialog = function() overrideDialogWin() end,
+                msg    = function() overrideMsgWin() end,
+                _      = function() overrideMsgWin() end,
+        }
 end
 
 messages.msg_show = function(kind, content, replaceLast, history, append, id, trigger)
@@ -193,10 +188,10 @@ messages.msg_show = function(kind, content, replaceLast, history, append, id, tr
         local msg = normalizedContent(content)
 
         if vim
-                   .iter(skip_messages)
-                   :any(function(pat)
-                           return msg:find(pat) ~= nil
-                   end) then
+        .iter(skip_messages)
+        :any(function(pat)
+                return msg:find(pat) ~= nil
+        end) then
                 return
         end
 

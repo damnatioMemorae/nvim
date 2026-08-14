@@ -22,38 +22,37 @@ function M.bufferInfo()
 
         local clients      = lsp.get_clients { bufnr = 0 }
         local longest_name = vim
-                   .iter(clients)
-                   :fold(0, function(acc, client)
-                           return math.max(acc, #client.name)
-                   end)
+          .iter(clients)
+          :fold(0, function(acc, client)
+                  return math.max(acc, #client.name)
+          end)
         local lsps         = vim.tbl_map(function(client)
                                                  local pad  = (" "):rep(math.min(longest_name - #client.name)) .. " "
                                                  local root = client.root_dir
-                                                            and client.root_dir:gsub("/Users/%w+", pseudo_tilde)
-                                                            or "*Single file mode*"
+                                                   and client.root_dir:gsub("/Users/%w+", pseudo_tilde)
+                                                   or "*Single file mode*"
                                                  return ("[%s]%s%s"):format(client.name, pad, root)
                                          end, clients)
 
         local indent_type   = bo.expandtab and "spaces" or "tabs"
         local indent_amount = bo.expandtab and bo.tabstop or bo.shiftwidth
 
-        where(function(_)
-                vim.notify(table.concat(_.out, "\n"), levels.DEBUG, _.opts)
-        end) {
-                           opts = { title = "Inspect buffer", icon = "󰽙", timeout = 10000 },
-                           out  = extl {
-                                   "[bufnr]     " .. api.nvim_get_current_buf(),
-                                   "[winid]     " .. api.nvim_get_current_win(),
-                                   "[filetype]  " .. (bo.filetype == "" and '""' or bo.filetype),
-                                   "[buftype]   " .. (bo.buftype == "" and '""' or bo.buftype),
-                                   "[foldlevel] " .. (wo.foldlevel == "" and '""' or wo.foldlevel),
-                                   ("[indent]    %s (%s)"):format(indent_type, indent_amount),
-                                   "[cwd]       " .. (uv.cwd() or "nil"):gsub("/Users/%w+", pseudo_tilde),
-                                   "",
-                           } (guard { #lsps > 0, function() return { "Attached LSPs with root", unpack(lsps) } end,
-                                   function() return { "No LSPs attached." } end,
-                           }),
-                   }
+        where(function(_) vim.notify(table.concat(_.out, "\n"), _.level, _.opts) end) {
+                level = levels.DEBUG,
+                opts  = { title = "Inspect buffer", icon = "󰽙", timeout = 10000 },
+                out   = extl {
+                        "[bufnr]     " .. api.nvim_get_current_buf(),
+                        "[winid]     " .. api.nvim_get_current_win(),
+                        "[filetype]  " .. (bo.filetype == "" and '""' or bo.filetype),
+                        "[buftype]   " .. (bo.buftype == "" and '""' or bo.buftype),
+                        "[foldlevel] " .. (wo.foldlevel == "" and '""' or wo.foldlevel),
+                        ("[indent]    %s (%s)"):format(indent_type, indent_amount),
+                        "[cwd]       " .. (uv.cwd() or "nil"):gsub("/Users/%w+", pseudo_tilde),
+                        "",
+                } (guard { #lsps > 0, function() return { "Attached LSPs with root", unpack(lsps) } end,
+                        function() return { "No LSPs attached." } end,
+                }),
+        }
 end
 
 function M.nodeAtCursor()
@@ -109,18 +108,18 @@ function M.lspCapabilities()
                 return
         end
         ui.select(clients, {
-                          prompt = "Select LSP:",
-                          kind = "plain",
+                          prompt      = "Select LSP:",
+                          kind        = "plain",
                           format_item = function(client) return client.name end,
                   }, function(client)
                           if not client then return end
                           where(function(_) vim.notify(_.text, _.level, _.opts) end) {
                                   level = levels.DEBUG,
-                                  opts = { icon = "󱈄", title = client.name .. " capabilities", ft = "lua" },
-                                  text = "-- for a full view, open in notification history\n" .. vim.inspect {
-                                          capabilities = client.capabilities,
+                                  opts  = { icon = "󱈄", title = client.name .. " capabilities", ft = "lua" },
+                                  text  = "-- for a full view, open in notification history\n" .. vim.inspect {
+                                          capabilities        = client.capabilities,
                                           server_capabilities = client.server_capabilities,
-                                          config = client.config,
+                                          config              = client.config,
                                   },
                           }
                   end)
@@ -129,17 +128,21 @@ end
 function M.evalNvimLua()
         local function eval(input)
                 if not input or input == "" then return end
-                local out  = fn.luaeval(input)
-                local opts = { title = "Eval", icon = "", ft = "lua" }
-                vim.notify(vim.inspect(out), levels.DEBUG, opts)
+                where(function(_) vim.notify(vim.inspect(_.out), _.level, _.opts) end) {
+                        level = levels.DEBUG,
+                        opts  = { title = "Eval", icon = "", ft = "lua" },
+                        out   = fn.luaeval(input),
+                }
         end
-
-        if fn.mode() == "n" then
-                ui.input({ icon = "", prompt = "", win = { ft = "lua" } }, eval)
-        else
-                cmd.normal { '"zy', bang = true }
-                eval(fn.getreg "z")
-        end
+        match(fn.mode()) {
+                n = function()
+                        ui.input({ icon = "", prompt = "", win = { ft = "lua" } }, eval)
+                end,
+                _ = function()
+                        cmd.normal { '"zy', bang = true }
+                        eval(fn.getreg "z")
+                end,
+        }
 end
 
 function M.runFile()

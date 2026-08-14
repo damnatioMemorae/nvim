@@ -2,12 +2,12 @@ local b   = vim.b
 local v   = vim.v
 local bo  = vim.bo
 local fn  = vim.fn
+local ui  = vim.ui
 local cmd = vim.cmd
 local api = vim.api
 local log = vim.log
 local lsp = vim.lsp
 
-local b_ft   = bo.ft
 local levels = log.levels
 
 require "utils.functional" ()
@@ -41,28 +41,25 @@ end
 
 ---@param reg string vim register (single letter)
 function M.playRecording(reg)
-        local has_recording = fn.getreg(reg) ~= ""
-        if has_recording then
-                cmd.normal { "@" .. reg, bang = true }
-        else
-                local msg = "There is no recording."
-                vim.notify(msg, levels.WARN, { title = "Recording", icon = "󰃾" })
-        end
+        match(fn.getreg(reg)) {
+                [""] = function() vim.notify("There is no recording.", levels.WARN, { title = "Recording" }) end,
+                _    = function() cmd.normal { "@" .. reg, bang = true } end,
+        }
 end
 
 function M.editMacro(reg)
-        local macro_content = fn.getreg(reg)
-        local title         = ("Edit macro [%s]"):format(reg)
-        local icon          = "󰃽"
-
-        vim.ui.input({ prompt = icon .. " " .. title, default = macro_content }, function(input)
-                if not input then return end
-                fn.setreg(reg, input)
-                vim.notify(input, nil, { title = title, icon = icon })
-        end)
+        where(function(_) ui.input({ prompt = _.title, default = _.macro_content }, _.fun) end) {
+                macro_content = fn.getreg(reg),
+                title         = ("macro [%s]"):format(reg),
+                fun           = function(input)
+                        if not input then return end
+                        fn.setreg(reg, input)
+                        vim.notify(input, nil)
+                end,
+        }
 end
 
----- CASE TOGGLE ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---- TOGGLE CASE ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 function M.camelSnakeToggle()
         local cword         = fn.expand "<cword>"
@@ -94,90 +91,86 @@ end
 
 -- UPPER -> lower -> Title -> UPPER -> …
 function M.toggleWordCasing()
-        local prev_cursor = api.nvim_win_get_cursor(0)
-        local cword       = fn.expand "<cword>"
-        local command
+        where(function(_)
+                cmd.normal { _.command, bang = true }
+                api.nvim_win_set_cursor(0, _.prev_cursor)
+        end) {
+                  prev_cursor = api.nvim_win_get_cursor(0),
+                  command     = match(fn.expand "<cword>") {
+                          function(_) return _:upper() end, "guiw",
+                          function(_) return _:lower() end, "guiwgUl",
+                          _ = "gUiw",
+                  },
 
-        if cword == cword:upper() then
-                command = "guiw"
-        elseif cword == cword:lower() then
-                command = "guiwgUl"
-        else
-                command = "gUiw"
-        end
-
-        cmd.normal { command, bang = true }
-        api.nvim_win_set_cursor(0, prev_cursor)
+          }
 end
 
 function M.toggleTitleCase()
-        local prev_cursor = api.nvim_win_get_cursor(0)
-        local cword       = fn.expand "<cword>"
-        local command     = cword == cword:lower() and "guiwgUl" or "guiw"
-        cmd.normal { command, bang = true }
-        api.nvim_win_set_cursor(0, prev_cursor)
+        where(function(_)
+                cmd.normal { _.cmd, bang = true }
+                api.nvim_win_set_cursor(0, _.cursor)
+        end) {
+                  cursor = api.nvim_win_get_cursor(0),
+                  cmd    = match(fn.expand "<cword>") {
+                          function(_) return _:lower() end, "guiwgUl",
+                          _ = "guiw",
+                  },
+          }
 end
 
 ---- LSP CASE RENAME -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 function M.camelSnakeLspRename()
-        local cword         = fn.expand "<cword>"
-        local snake_pattern = "_(%w)"
-        local camel_pattern = "([%l%d])(%u)"
-
-        if cword:find(snake_pattern) then
-                local camel_cased = cword:gsub(snake_pattern, function(c1) return c1:upper() end)
-                lsp.buf.rename(camel_cased)
-        elseif cword:find(camel_pattern) then
-                local snake_cased = cword:gsub(camel_pattern, "%1_%2"):lower()
-                lsp.buf.rename(snake_cased)
-        else
-                local msg = "Neither snake_case nor camelCase: " .. cword
-                vim.notify(msg, levels.WARN, { title = "LSP Rename" })
-        end
+        local cword = fn.expand "<cword>"
+        where(function(_)
+                guard {
+                        cword:find(_.snake_pattern), function() lsp.buf.rename(_.camel_cased) end,
+                        cword:find(_.camel_pattern), function() lsp.buf.rename(_.snake_cased) end,
+                        function() vim.notify(_.msg, _.level, { title = _.title }) end,
+                }
+        end) {
+                  snake_pattern = "_(%w)",
+                  camel_pattern = "([%l%d])(%u)",
+                  snake_cased   = cword:gsub("([%l%d])(%u)", "%1_%2"):lower(),
+                  camel_cased   = cword:gsub("_(%w)", function(c1) return c1:upper() end),
+                  level         = levels.WARN,
+                  msg           = "Neither snake_case nor camelCase: " .. cword,
+                  title         = "LSP Rename",
+          }
 end
 
 ---- SMART DUPLICATE -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 function M.smartDuplicate()
-        local row, col = unpack(api.nvim_win_get_cursor(0))
-        local line     = api.nvim_get_current_line()
-
-        match(bo.filetype) {
-                css      = function()
-                        line = line:gsub("(%a+):", {
-                                top    = "bottom:",
-                                bottom = "top:",
-                                right  = "left:",
-                                left   = "right:",
-                                light  = "dark:",
-                                dark   = "light:",
-                                width  = "height:",
-                                height = "width:",
-                        })
-                end,
-                lua      = function()
-                        line = line:gsub("^(%s*)if( .* then)$", "%1elseif%2")
-                end,
-                zsh      = function()
-                        line = line:gsub("^(%s*)if( .* then)$", "%1elif%2")
-                end,
-                markdown = function()
-                        line = line:gsub("^(%s*)(%d+)%. ", function(indent, num)
-                                local increment = tonumber(num) + 1
-                                return indent .. increment .. ". "
-                        end)
-                end,
-        }
-
-        api.nvim_buf_set_lines(0, row, row, false, { line })
-
-        local _, luadoc_field_pos = ("---@param"):find "%-%-%-@%w+ "
-        local _, value_pos        = line:find "[:=] "
-        where(function(__) api.nvim_win_set_cursor(0, { __.row + 1, __.target_col }) end) {
-                row        = row,
-                target_col = luadoc_field_pos or value_pos or col,
-        }
+        local cursor = api.nvim_win_get_cursor(0)
+        local line   = api.nvim_get_current_line()
+        where(function(_)
+                api.nvim_buf_set_lines(0, _.row, _.row, false, { _.line })
+                api.nvim_win_set_cursor(0, { _.row + 1, _.target_col })
+        end) {
+                  row        = cursor[1],
+                  target_col = ("---@param"):find "%-%-%-@%w+ " or line:find "[:=] " or cursor[2],
+                  line       = match(bo.filetype) {
+                          javascript = line:gsub("^(%s*)if(.+{)$", "%1} else if%2"),
+                          python     = line:gsub("^(%s*)if( .*:)$", "%1elif%2"),
+                          lua        = line:gsub("^(%s*)if( .* then)$", "%1elseif%2"),
+                          zsh        = line:gsub("^(%s*)if( .* then)$", "%1elif%2"),
+                          markdown   = line:gsub("^(%s*)(%d+)%. ", function(indent, num)
+                                  local increment = tonumber(num) + 1
+                                  return indent .. increment .. ". "
+                          end),
+                          css        = line:gsub("(%a+):", {
+                                  top    = "bottom:",
+                                  bottom = "top:",
+                                  right  = "left:",
+                                  left   = "right:",
+                                  light  = "dark:",
+                                  dark   = "light:",
+                                  width  = "height:",
+                                  height = "width:",
+                          }),
+                  },
+          }
 end
 
 ---- f & F ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -194,19 +187,20 @@ end
 ---- FORMATTING ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 function M.formatWithFallback()
-        local formatting_lsp = lsp.get_clients { method = "textDocument/formatting", bufnr = 0 }
-
-        if #formatting_lsp > 0 then
-                if b_ft == "markdown" then
-                        local vim_cmd = ("silent update! %q"):format(api.nvim_buf_get_name(0))
-                        cmd(vim_cmd)
-                end
-                lsp.buf.format()
-        else
-                cmd [[% substitute_\s\+$__e]]
-                cmd [[% substitute _\(\n\n\)\n\+_\1_e]]
-                cmd [[silent! /^\%(\n*.\)\@!/,$ delete]]
-        end
+        guard {
+                #lsp.get_clients { method = "textDocument/formatting", bufnr = 0 } > 0,
+                function()
+                        match(bo.ft) {
+                                markdown = function() cmd "silent update! %q":format(api.nvim_buf_get_name(0)) end,
+                        }
+                        lsp.buf.format()
+                end,
+                function()
+                        cmd [[% substitute_\s\+$__e]]
+                        cmd [[% substitute _\(\n\n\)\n\+_\1_e]]
+                        cmd [[silent! /^\%(\n*.\)\@!/,$ delete]]
+                end,
+        }
 end
 
 ---- ALIGNMENT -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -273,12 +267,12 @@ function M.scrollLspOrOtherWin(lines)
 
         if not winid then
                 local other_win = vim
-                           .iter(api.nvim_tabpage_list_wins(0))
-                           :find(function(win)
-                                   local not_floating = api.nvim_win_get_config(win).relative == ""
-                                   local not_this_win = api.nvim_get_current_win() ~= win
-                                   return not_floating and not_this_win
-                           end)
+                  .iter(api.nvim_tabpage_list_wins(0))
+                  :find(function(win)
+                          local not_floating = api.nvim_win_get_config(win).relative == ""
+                          local not_this_win = api.nvim_get_current_win() ~= win
+                          return not_floating and not_this_win
+                  end)
 
                 winid = other_win
         end
@@ -296,16 +290,13 @@ end
 ---- TELEGRAM SEND -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local function send(mode, content)
-        local args = { "telegram-send" }
-        local ex   = extl(args)
-
-        match(mode) {
-                file = function() ex { "--file" } end,
-                text = function() ex { "--format", "markdown" } end,
+        local args = match(mode) {
+                file = { "telegram-send", "--file" },
+                text = { "telegram-send", "--format", "markdown" },
         }
-        table.insert(args, content or "")
+        table.insert(args, content or "") ---@diagnostic disable-line: param-type-mismatch
 
-        vim.system(args, {}, function(out)
+        vim.system(args, {}, function(out) ---@diagnostic disable-line: param-type-mismatch
                 local ok = out.code == 0
                 vim.schedule(function()
                         vim.notify(
@@ -325,7 +316,7 @@ end
 ---@param mode "file"|"text"
 function M.teleSend(mode)
         local content = match(mode) {
-                text = makeText,
+                text = function() makeText() end,
                 file = function() return fn.expand "%:p" end,
         }
 

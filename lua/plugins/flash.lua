@@ -3,9 +3,10 @@ local fn = vim.fn
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-local function jump() require "flash".jump() end
-local function remote() require "flash".remote() end
-local function ts() require "flash".treesitter_search() end
+local remote = function() require "flash".remote() end
+local jump   = function() require "flash".jump() end
+local inc    = function() require "flash".treesitter { actions = { ["m"] = "next", ["M"] = "prev" } } end
+local first  = function() require "flash".jump { search = { mode = function(str) return "\\<" .. str end } } end
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -24,32 +25,35 @@ return {
         "folke/flash.nvim",
         keys = {
                 { "f", jump,   mode = { "n", "x", "o" }, desc = "Flash" },
+                { "F", first,   mode = { "n", "x", "o" }, desc = "Flash first" },
                 { "R", remote, mode = "o",               desc = "Remote Flash" },
-                { "r", ts,     mode = "o",               desc = "Treesitter Search" },
+                { "T", inc,    mode = "o",               desc = "Treesitter Search" },
         },
         opts = {
                 jump      = { nohlsearch = true, autojump = true },
-                label     = { uppercase = false },
+                label     = { uppercase = false, style = "overlay" },
                 highlight = {
                         backdrop = true,
                         matches  = true,
                         priority = 5000,
                         groups   = {
-                                match    = "Comment",
+                                match    = "LspInlayHint",
                                 current  = "NonText",
                                 backdrop = "NonText",
-                                label    = "Type",
+                                label    = "IncSearch",
                         },
                 },
                 prompt    = {
+                        enabled    = false,
                         prefix     = { { Icon.Arrows.rightBig, "Special" } },
                         win_config = { border = Border.Default.None, row = 0 },
                 },
-                search    = {
-                        enabled = false,
-                        exclude = { "flash_prompt", "cmp_menu" },
-                },
+                search    = { enabled = false, exclude = { "flash_prompt", "cmp_menu" } },
                 remote_op = { restore = true },
-                modes     = { char = { enabled = false }, search = { enabled = false } },
+                modes     = {
+                        search     = { enabled = false },
+                        char       = { enabled = false },
+                        treesitter = { enabled = false, search = { incremental = true }, label = { style = "overlay" } },
+                },
         },
 }

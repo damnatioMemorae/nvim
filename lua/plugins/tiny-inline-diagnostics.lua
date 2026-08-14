@@ -1,16 +1,16 @@
 linq
 "TinyInlineDiagnosticVirtualText"
-           { "Error", "DiagnosticVirtualTextError" }
-           { "Warn", "DiagnosticVirtualTextWarn" }
-           { "Info", "DiagnosticVirtualTextInfo" }
-           { "Hint", "DiagnosticVirtualTextHint" }
+  { "Error", "DiagnosticVirtualTextError" }
+  { "Warn", "DiagnosticVirtualTextWarn" }
+  { "Info", "DiagnosticVirtualTextInfo" }
+  { "Hint", "DiagnosticVirtualTextHint" }
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 return {
         "rachartier/tiny-inline-diagnostic.nvim",
         event    = "LspAttach",
-        priority = 8000,
+        priority = 5000,
         keys     = { { "<leader>od", Toggle.diagnostics, desc = "Toggle - LSP Diagnostics" } },
         opts     = {
                 signs   = {
@@ -38,7 +38,7 @@ return {
                         show_related                 = { enabled = true, max_count = 5 },
                         overflow                     = { mode = "wrap" },
                         break_line                   = { enabled = false, after = 25 },
-                        virt_texts                   = { priority = 10000 },
+                        virt_texts                   = { priority = 5000 },
                         experimental                 = { use_window_local_extmarks = false },
                         format                       = function(diag) return diag.message end,
                 },

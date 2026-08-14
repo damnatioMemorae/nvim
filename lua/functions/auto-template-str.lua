@@ -1,3 +1,5 @@
+---@diagnostic disable: missing-parameter
+
 local bo  = vim.bo
 local fn  = vim.fn
 local ts  = vim.treesitter
@@ -50,56 +52,50 @@ local FiletypeFuncs = {}
 
 ---@param node TSNode
 function FiletypeFuncs.lua(node)
-        local str_node
-        if node:type() == "string" then
-                str_node = node
-        elseif node:type():find "string_content" then
-                str_node = node:parent()
-        elseif node:type() == "escape_sequence" then
-                str_node = node:parent():parent()
-        end
-        local transformer = function(nodeText) return "(" .. nodeText .. "):format()" end
-        updateNode(str_node, "%s", transformer, "nodeEnd", 12)
+        where(function(_) updateNode(_.node, "%s", _.transformer, "nodeEnd", 12) end) {
+                transformer = function(nodeText) return "(" .. nodeText .. "):format()" end,
+                node        = match(node.type()) {
+                        string          = node,
+                        escape_sequence = node.parent():parent(),
+                        node.type():find "^string_content", node:parent(),
+                },
+        }
 end
 
 ---@param node TSNode
 function FiletypeFuncs.python(node)
-        local str_node
-        if node:type() == "string" then
-                str_node = node
-        elseif node:type():find "^string_" then
-                str_node = node:parent()
-        elseif node:type() == "escape_sequence" then
-                str_node = node:parent():parent()
-        end
-        local transformer = function(nodeText) return "f" .. nodeText end
-        updateNode(str_node, "{}", transformer, nil, 2)
+        where(function(_) updateNode(_.node, "{}", _.transformer, nil, 2) end) {
+                transformer = function(nodeText) return "f" .. nodeText end,
+                node        = match(node.type()) {
+                        string          = node,
+                        escape_sequence = node.parent():parent(),
+                        node.type():find "^string_", node:parent(),
+                },
+        }
 end
 
 ---@param node TSNode
 function FiletypeFuncs.javascript(node)
-        local str_node
-        if node:type() == "string" or node:type() == "template_string" then
-                str_node = node
-        elseif node:type() == "string_fragment" or node:type() == "escape_sequence" then
-                str_node = node:parent()
-        end
-        local transformer = function(nodeText) return "`" .. nodeText:sub(2, -2) .. "`" end
-        updateNode(str_node, "${}", transformer, nil, 2)
+        where(function(_) updateNode(_.node, "${}", _.transformer, nil, 2) end) {
+                transformer = function(nodeText) return "`" .. nodeText:sub(2, -2) .. "`" end,
+                node        = match(node.type()) {
+                        { "string",          "template_string" }, node,
+                        { "string_fragment", "escape_sequence" }, node:parent(),
+                },
+        }
 end
 
 FiletypeFuncs.typescript = FiletypeFuncs.javascript
 
 ---@param node TSNode
 function FiletypeFuncs.swift(node)
-        local str_node
-        if node:type() == "line_str_text" then
-                str_node = node
-        elseif node:type() == "line_string_literal" then
-                str_node = node:parent()
-        end
-        local transformer = function(nodeText) return nodeText end
-        updateNode(str_node, "\\()", transformer, nil, 2)
+        where(function(_) updateNode(_.node, "\\()", _.transformer, nil, 2) end) {
+                transformer = function(nodeText) return nodeText end,
+                node        = match(node.type()) {
+                        line_srt_text       = node,
+                        line_string_literal = node,
+                },
+        }
 end
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -85,11 +85,11 @@ command("LspCapabilities", function(ctx)
                 nargs    = 1,
                 complete = function()
                         return vim
-                                   .iter(lsp.get_clients { bufnr = 0 })
-                                   :map(function(client)
-                                           return client.name
-                                   end)
-                                   :totable()
+                          .iter(lsp.get_clients { bufnr = 0 })
+                          :map(function(client)
+                                  return client.name
+                          end)
+                          :totable()
                 end,
         })
 

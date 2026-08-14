@@ -6,7 +6,12 @@ local levels = log.levels
 return {
         "stevearc/conform.nvim",
         cmd  = "ConnformInfo",
-        keys = { { "<leader>f", function() require "conform".format { async = true, timeout_ms = 1000 } end, mode = { "n", "x" }, desc = "Format buffer" } },
+        keys = { {
+                "<leader>f",
+                function() require "conform".format { async = true, timeout_ms = 1000 } end,
+                mode = { "n", "x" },
+                desc = "Format buffer",
+        } },
         opts = {
                 log_level           = levels.INFO,
                 default_format_opts = { lsp_format = "last" },
@@ -36,12 +41,14 @@ return {
                         go         = { "gofmt", "goimports" },
                         haskell    = { "ormolu" },
                         html       = { "prettierd", "prettier" },
+                        java       = { "google-java-format" },
                         javascript = { "prettierd", "prettier" },
                         jsonc      = { "prettierd", "prettier" },
                         json       = { "prettierd", "prettier" },
                         yaml       = { "prettierd", "prettier" },
                         python     = { "ruff", "isort", "black" },
                         sh         = { "shfmt" },
+                        xml        = { "xmlformatter" },
                         zsh        = { "shfmt" },
                         odin       = { "odinfmt" },
                         lua        = { lsp_format = "prefer" },

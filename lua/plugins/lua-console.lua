@@ -1,10 +1,7 @@
 return {
         "yarospace/lua-console.nvim",
         ft   = { "lua" },
-        keys = {
-                { "`",         desc = "Lua Console - Toggle" },
-                { "<leader>`", desc = "Lua Console - Attach to buffer" },
-        },
+        keys = { { "`", desc = "Lua Console - Toggle" }, { "<leader>`", desc = "Lua Console - Attach to buffer" } },
         opts = {
                 buffer   = {
                         result_prefix    = "-->>> ",
@@ -18,9 +15,6 @@ return {
                         border = Border.Default.Normal,
                         height = 0.6,
                 },
-                mappings = {
-                        quit = "<Esc>",
-                        open = "<LocalLeader>f",
-                },
+                mappings = { quit = "<Esc>", open = "<LocalLeader>f" },
         },
 }

@@ -47,9 +47,9 @@ function M.wrap(startWrap, endWrap)
         local clipboard_url
         if startWrap == "mdlink" then
                 local clipb   = fn.getreg "+"
-                clipboard_url = clipb:match "^#[%w-]+$"                  -- heading-link
-                           or clipb:match [[^%l%l%l+://[^%s)%]}"'`>]+]]  -- url
-                           or ""
+                clipboard_url = clipb:match "^#[%w-]+$"          -- heading-link
+                  or clipb:match [[^%l%l%l+://[^%s)%]}"'`>]+]]   -- url
+                  or ""
                 insert        = ("[%s](%s)"):format(text, clipboard_url)
         end
 
@@ -60,7 +60,7 @@ function M.wrap(startWrap, endWrap)
                 opt.iskeyword:append { startWrap:sub(1, 1), endWrap:sub(1, 1) }
                 local cword = use_big_word and fn.expand "<cWORD>" or fn.expand "<cword>"
                 should_undo = (not use_big_word and cword == insert)
-                           or (use_big_word and vim.startswith(insert, startWrap:rep(2)))
+                  or (use_big_word and vim.startswith(insert, startWrap:rep(2)))
                 if should_undo then insert = use_big_word and text:sub(2, -2) or text end
         end
 
@@ -114,7 +114,7 @@ function M.autoBullet(key)
 
         local line       = api.nvim_get_current_line()
         local empty_list = ((continued ~= "") and vim.trim(indent .. continued) == vim.trim(line))
-                   or line:match "^%s*%d+%. $"
+          or line:match "^%s*%d+%. $"
         if key == "o" or key == "O" then
                 if key == "O" then row = row - 1 end
                 api.nvim_buf_set_lines(0, row, row, false, { continued })
@@ -148,11 +148,10 @@ function M.followMdlinkOrWikilink()
                 local _, mdlink_end = partial_line:find(mdlink_pattern)
                 local _, wiki_end   = partial_line:find(wikilink_pattern)
                 local _, url_end    = partial_line:find(url_pattern)
-                if
-                           mdlink_end
-                           and (col <= idx + mdlink_end)
-                           and (mdlink_end < (wiki_end or math.huge))
-                           and (mdlink_end < (url_end or math.huge))
+                if     mdlink_end
+                and    (col <= idx + mdlink_end)
+                and    (mdlink_end < (wiki_end or math.huge))
+                and    (mdlink_end < (url_end or math.huge))
                 then
                         mdlink = partial_line:match(mdlink_pattern)
                         break
@@ -182,7 +181,7 @@ function M.followMdlinkOrWikilink()
                 local wiki_start   = line:find(wikilink_pattern)
                 local url_start    = line:find(url_pattern)
                 local closest      =
-                           math.min(mdlink_start or math.huge, wiki_start or math.huge, url_start or math.huge)
+                  math.min(mdlink_start or math.huge, wiki_start or math.huge, url_start or math.huge)
                 if closest == mdlink_start then mdlink = line:match(mdlink_pattern) end
                 if closest == wiki_start then wikilink = line:match(wikilink_pattern) end
                 if closest == url_start then url = line:match(url_pattern) end
@@ -201,7 +200,7 @@ function M.followMdlinkOrWikilink()
                 local target_col = line:find(wikilink, nil, true)
                 api.nvim_win_set_cursor(0, { ln, target_col - 1 })
                 local has_definition_provider =
-                           lsp.get_clients { bufnr = 0, method = "textDocument/definition" }[1]
+                  lsp.get_clients { bufnr = 0, method = "textDocument/definition" }[1]
                 assert(has_definition_provider, "No LSP client supporting `textDocument/definition` found.")
                 lsp.buf.definition() -- requires marksman, zk, or markdown-oxide
         end
@@ -219,16 +218,16 @@ function M.cycle(type)
                 updated = cur_line:gsub("^(%s*)([%d.*+-]+ )", function(indent, list)
                         local is_task = cur_line:find "^%s*[*+-] %[[ x-]%] "
                         if is_task then return indent .. list end
-                        if list:find "[*+-] " then return indent .. "1. " end  -- bullet -> number
-                        if list:find "%d+%. " then return indent end           -- number -> none
+                        if list:find "[*+-] " then return indent .. "1. " end -- bullet -> number
+                        if list:find "%d+%. " then return indent end          -- number -> none
                         return indent ..
-                                   list -- edge cases caught by initial pattern, like `1-1` at start of line
+                          list   -- edge cases caught by initial pattern, like `1-1` at start of line
                 end)
                 if updated == cur_line then -- none/heading/task -> bullet
                         updated = cur_line
-                                   :gsub("^(%s*)[*+-] %[[ x-]%] ", "%1") -- remove task
-                                   :gsub("^#+ ", "")                     -- remove heading
-                                   :gsub("^(%s*)(.*)", "%1- %2")         -- add bullet
+                          :gsub("^(%s*)[*+-] %[[ x-]%] ", "%1")   -- remove task
+                          :gsub("^#+ ", "")                       -- remove heading
+                          :gsub("^(%s*)(.*)", "%1- %2")           -- add bullet
                 end
         elseif type == "task" then
                 updated = cur_line:gsub("^%s*[*+-] %[[ x-]%] ", function(task)
@@ -240,9 +239,9 @@ function M.cycle(type)
                 end)
                 if updated == cur_line then -- none/bullet/number -> task
                         updated = cur_line
-                                   :gsub("^(%s*)%d+%. ", "%1")       -- remove number
-                                   :gsub("^(%s*)[*+-] ", "%1")       -- remove bullet
-                                   :gsub("^(%s*)(.*)", "%1- [ ] %2") -- add open task
+                          :gsub("^(%s*)%d+%. ", "%1")         -- remove number
+                          :gsub("^(%s*)[*+-] ", "%1")         -- remove bullet
+                          :gsub("^(%s*)(.*)", "%1- [ ] %2")   -- add open task
                 end
         else
                 error(("Unknown type for `.cycle()`: `%s`"):format(type))
@@ -256,7 +255,7 @@ end
 function M.codeBlockFromClipboard()
         assert(bo.ft == "markdown", "Only for Markdown files.")
         -- dedent clipboard content
-        local code     = fn.getreg "+":gsub("%s*$", ""):gsub("^%s*\n", "")  -- trim, but not 1st indent
+        local code     = fn.getreg "+":gsub("%s*$", ""):gsub("^%s*\n", "") -- trim, but not 1st indent
         local dedented = vim.text.indent(0, code)
         local lines    = vim.split(dedented, "\n")
 
@@ -286,15 +285,15 @@ local function getTitleForUrl(url)
                         if err then return vim.notify(err, levels.ERROR) end
                         local title = vim.trim(out.body:match "<title.->(.-)</title>" or "")
                         title       = title -- cleanup
-                                   :gsub("[\n\r]+", " ")
-                                   :gsub("  +", " ")
-                                   :gsub("^GitHub %- ", "")
-                                   :gsub(" · GitHub$", "")
-                                   :gsub("&amp;", "&")
-                                   :gsub("&#x27;", "'")
-                                   :gsub("&#039;t", "'")
-                                   :gsub("%[", "\\[") -- escape for mdlink `[]()`
-                                   :gsub("%]", "\\]")
+                          :gsub("[\n\r]+", " ")
+                          :gsub("  +", " ")
+                          :gsub("^GitHub %- ", "")
+                          :gsub(" · GitHub$", "")
+                          :gsub("&amp;", "&")
+                          :gsub("&#x27;", "'")
+                          :gsub("&#039;t", "'")
+                          :gsub("%[", "\\[")   -- escape for mdlink `[]()`
+                          :gsub("%]", "\\]")
                         if title == "" then vim.notify "No title found." end
 
                         local lines = api.nvim_buf_get_lines(bufnr, 0, -1, false)
@@ -329,8 +328,8 @@ function M.addTitleToUrl()
 
         local url_start, url_end = line:find(url, nil, true) -- `find` has literal search, `gsub` does not
         local updated_line       = line:sub(1, url_start - 1)
-                   .. ("[%s](%s)"):format(placeholder, inner_url)
-                   .. line:sub(url_end + 1)
+          .. ("[%s](%s)"):format(placeholder, inner_url)
+          .. line:sub(url_end + 1)
         api.nvim_set_current_line(updated_line)
 end
 
@@ -346,10 +345,10 @@ function M.addTitleToUrlIfMarkdown(reg)
         if node and node:type() == "html_block" then return end
         local col               = api.nvim_win_get_cursor(0)[2]
         local char_under_cursor = api.nvim_get_current_line():sub(col + 1, col + 1)
-        if char_under_cursor:find "[()<>]" then return end  -- inserting into mdlink / bare link
+        if char_under_cursor:find "[()<>]" then return end -- inserting into mdlink / bare link
 
         local clipb = fn.getreg(reg)
-        local url   = clipb:match "^%l+://%S+$"  -- not ending with `)` to not match mdlinks
+        local url   = clipb:match "^%l+://%S+$" -- not ending with `)` to not match mdlinks
         if not url then return end
 
         local placeholder = getTitleForUrl(url)

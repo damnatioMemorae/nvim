@@ -15,9 +15,11 @@ end
 
 ---- OPTIONS -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-opt_l.shiftwidth    = 8
-opt_l.tabstop       = 8
-opt_l.commentstring = "<!-- %s -->" -- add spaces
+opt_l.shiftwidth     = 8
+opt_l.tabstop        = 8
+opt_l.commentstring  = "<!-- %s -->" -- add spaces
+opt_l.number         = false
+opt_l.relativenumber = false
 
 -- so two trailing spaces are highlighted, but not a single trailing space
 opt_l.listchars:remove "trail"

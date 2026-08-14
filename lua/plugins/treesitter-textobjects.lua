@@ -20,11 +20,11 @@ local function addDocstring()
                         if nilq(param_line) then return end
                         local params       = vim.split(param_line, ", ?")
                         local luadoc_lines = vim
-                                   .iter(params)
-                                   :map(function(param)
-                                           return ("%s---@param %s "):format(indent, param)
-                                   end)
-                                   :totable()
+                          .iter(params)
+                          :map(function(param)
+                                  return ("%s---@param %s "):format(indent, param)
+                          end)
+                          :totable()
                         api.nvim_buf_set_lines(0, line - 1, line - 1, false, luadoc_lines)
                         api.nvim_win_set_cursor(0, { line, #luadoc_lines[1] })
                         cmd.normal { '"_ciw', bang = true }
@@ -42,6 +42,7 @@ end
 
 local function gotoNode(obj, pos, dir)
         require "nvim-treesitter-textobjects.move"["goto_" .. dir .. "_start"]("@" .. obj .. "." .. pos, "textobjects")
+        cmd "norm zv"
 end
 
 local function swapNode(obj, pos, dir)
@@ -123,8 +124,5 @@ return {
                 },
 
         },
-        opts   = {
-                move   = { set_jumps = true },
-                select = { lookahead = true, include_surrounding_whitespace = false },
-        },
+        opts   = { move = { set_jumps = true }, select = { lookahead = true, include_surrounding_whitespace = false } },
 }
