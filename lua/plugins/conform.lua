@@ -7,7 +7,7 @@ return {
         "stevearc/conform.nvim",
         cmd  = "ConnformInfo",
         keys = { {
-                "<leader>f",
+                "=",
                 function() require "conform".format { async = true, timeout_ms = 1000 } end,
                 mode = { "n", "x" },
                 desc = "Format buffer",

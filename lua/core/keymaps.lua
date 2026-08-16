@@ -114,8 +114,8 @@ keyq { "<M-`>", [[wBi`<Esc>ea`<Esc>b]], desc = "Inline Code cword" }
 keyq { "<M-`>", "<Esc>`<i`<Esc>`>la`<Esc>", desc = "Inline Code selection", mode = x }
 keyq { "<M-`>", "``<Left>", desc = "Inline Code", mode = i }
 
+keyq { "+", "]<Space>", desc = "blank below", remap = true }
 keyq { "-", "[<Space>", desc = "blank above", remap = true }
-keyq { "=", "]<Space>", desc = "blank below", remap = true }
 
 ---- YANK & PASTE --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -227,6 +227,7 @@ keyq { "v", "<C-v>", desc = "`vv` starts visual block", mode = x }
 
 ---- CMDLINE -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+keyq { "<M-x>", ":" }
 keyq { "<M-left>", "<C-b>", desc = "Goto start of cmdline", mode = c }
 keyq { "<M-right>", "<C-e>", desc = "Goto end of cmdline", mode = c }
 keyq { "<up>", "<C-p>", desc = "Cmdline completion scroll up", mode = c }
