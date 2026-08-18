@@ -169,23 +169,23 @@ end
 ---- KEYMAP --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local mode = { "n", "x", "o" }
-vim.keymap.set( mode, "<S-Left>",  "zM",         { desc = "Folds close all" })
-vim.keymap.set( mode, "<S-Right>", "zR",         { desc = "Folds open all" })
-vim.keymap.set( mode, "<Left>",    "zc^",        { desc = "Fold close" })
-vim.keymap.set( mode, "<Right>",   "zo^",        { desc = "Fold open" })
-vim.keymap.set( mode, "<Down>",    "zj^",        { desc = "Fold next" })
-vim.keymap.set( mode, "<Up>",      gotoPrevFold, { desc = "Fold prev" })
-vim.keymap.set( mode, "<M-z>",     closeTopLvl,  { desc = "Close toplevel folds" })
-vim.keymap.set( mode, "<M-Z>",     openTopLvl,   { desc = "Open toplevel folds" })
-vim.keymap.set( mode, "zv",        "zv",         {})
+keyq { "<S-Left>", "zM", mode = mode, desc = "Folds close all" }
+keyq { "<S-Right>", "zR", mode = mode, desc = "Folds open all" }
+keyq { "<Left>", "zc^", mode = mode, desc = "Fold close" }
+keyq { "<Right>", "zo^", mode = mode, desc = "Fold open" }
+keyq { "<Down>", "zj^", mode = mode, desc = "Fold next" }
+keyq { "<Up>", gotoPrevFold, mode = mode, desc = "Fold prev" }
+keyq { "<M-z>", closeTopLvl, mode = mode, desc = "Close toplevel folds" }
+keyq { "<M-Z>", openTopLvl, mode = mode, desc = "Open toplevel folds" }
+keyq { "zv", "zv", desc = "Open to cursor" }
 
-vim.keymap.set( mode, "<M-,>", reduceFoldLvl,   {})
-vim.keymap.set( mode, "<M-.>", increaseFoldLvl, {})
+keyq { "<M-,>", reduceFoldLvl, desc = "Reduce Fold" }
+keyq { "<M-.>", increaseFoldLvl, desc = "Increase Fold" }
 
-vim.keymap.set(mode, "<Esc>", "<Esc>zv", { unique = false })
+keyq { "<Esc>", "<Esc>zv", mode = "i", unique = false }
 
 vim
     .iter { "1", "2", "3", "4", "5", "6", "7", "8", "9" }
     :each(function(key)
-            vim.keymap.set(mode, "<M-" .. key .. ">", function() setFoldLvl() end)
+            keyq { "<M-" .. key .. ">", function() setFoldLvl(tonumber(key) - 1) end }
     end)
