@@ -50,30 +50,30 @@ lsp.handlers["textDocument/rename"] = function(err, result, ctx, config)
         local changed_files, change_count = {}, 0
         if result.changes then
                 changed_files = vim
-                  .iter(vim.tbl_keys(result.changes))
-                  :map(function(uri)
-                          return "- " .. fs.basename(vim.uri_to_fname(uri))
-                  end)
-                  :totable()
+                    .iter(vim.tbl_keys(result.changes))
+                    :map(function(uri)
+                            return "- " .. fs.basename(vim.uri_to_fname(uri))
+                    end)
+                    :totable()
                 change_count  = vim
-                  .iter(result.changes)
-                  :fold(0, function(sum, _, ch)
-                          return sum + #(ch.edits or ch)
-                  end)
+                    .iter(result.changes)
+                    :fold(0, function(sum, _, ch)
+                            return sum + #(ch.edits or ch)
+                    end)
         elseif result.documentChanges then
                 changed_files = vim
-                  .iter(result.documentChanges)
-                  :map(function(file)
-                          local uri   = file.textDocument and file.textDocument.uri or file.newUri
-                          local extra = file.kind == "rename" and " (renamed)" or ""
-                          return "* " .. fs.basename(vim.uri_to_fname(uri)) .. extra
-                  end)
-                  :totable()
+                    .iter(result.documentChanges)
+                    :map(function(file)
+                            local uri   = file.textDocument and file.textDocument.uri or file.newUri
+                            local extra = file.kind == "rename" and " (renamed)" or ""
+                            return "* " .. fs.basename(vim.uri_to_fname(uri)) .. extra
+                    end)
+                    :totable()
                 change_count  = vim
-                  .iter(result.documentChanges)
-                  :fold(0, function(sum, ch)
-                          return sum + (ch.edits and #ch.edits or 1)
-                  end)
+                    .iter(result.documentChanges)
+                    :fold(0, function(sum, ch)
+                            return sum + (ch.edits and #ch.edits or 1)
+                    end)
         end
         assert(change_count > 0, "Unknown form of changes reported by LSP.")
 
@@ -100,26 +100,26 @@ where(function(_)
         lsp.buf.signature_help = function() return signature_help(_.hover) end ---@diagnostic disable-line: duplicate-set-field
         diag.open_float        = function() return open_float(_.float) end ---@diagnostic disable-line: duplicate-set-field
 end) {
-          hover = {
-                  anchor_bias = "above",
-                  border      = Border.Default.Normal,
-                  title       = "",
-                  title_pos   = "left",
-                  relative    = "cursor",
-                  wrap        = true,
-                  max_height  = math.floor(o.lines * 0.7),
-                  max_width   = math.floor(o.columns * 0.6),
-          },
-          float = {
-                  anchor_bias   = "below",
-                  border        = Border.Default.Normal,
-                  title         = "",
-                  title_pos     = "left",
-                  scope         = "cursor",
-                  severity_sort = true,
-                  source        = true,
-          },
-  }
+            hover = {
+                    anchor_bias = "above",
+                    border      = Border.Default.Normal,
+                    title       = "",
+                    title_pos   = "left",
+                    relative    = "cursor",
+                    wrap        = true,
+                    max_height  = math.floor(o.lines * 0.7),
+                    max_width   = math.floor(o.columns * 0.6),
+            },
+            float = {
+                    anchor_bias   = "below",
+                    border        = Border.Default.Normal,
+                    title         = "",
+                    title_pos     = "left",
+                    scope         = "cursor",
+                    severity_sort = true,
+                    source        = true,
+            },
+    }
 
 ---- AUTOCMDS ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -232,7 +232,7 @@ local function completion(client, buf)
                                 }
                         end,
                 })
-                compDoc(client, _compdoc_augroup, buf, 0)
+                -- compDoc(client, _compdoc_augroup, buf, 0)
         end
 end
 
@@ -348,8 +348,8 @@ auq "LspAttach" {
                 local client = assert(lsp.get_client_by_id(args.data.client_id))
 
                 vim
-                  .iter(opts)
-                  :each(function(func, enabled) if enabled then M[func](client, buf) end end)
+                    .iter(opts)
+                    :each(function(func, enabled) if enabled then M[func](client, buf) end end)
         end,
 }
 
@@ -407,4 +407,4 @@ keyq { "<LocalLeader>d", lsp.buf.definition, desc = "LSP Goto Definition", uniqu
 keyq { "<LocalLeader>r", lsp.buf.references, desc = "LSP Goto Reference", unique = false }
 keyq { "<LocalLeader>i", lsp.buf.implementation, desc = "LSP Goto Implementation", unique = false }
 keyq { "<LocalLeader>t", lsp.buf.type_definition, desc = "LSP Goto TypeDefinition", unique = false }
-keyq { "<LocalLeader>q", lsp.buf.code_action, desc = "LSP Code Action", mode = { "n", "x" } }
+keyq { "<LocalLeader>a", lsp.buf.code_action, desc = "LSP Code Action", mode = { "n", "x" } }

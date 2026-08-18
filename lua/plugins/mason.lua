@@ -1,24 +1,24 @@
 linq
 "Mason"
-  { "Error", "DiagnosticError" }
-  { "Muted", "Comment" }
-  { "Highlight", "DiagnosticError" }
-  { "HighlightSecondary", "Structure" }
-  { "Backdrop", "Backdrop" }
-  { "MutedBlock", "LspInlayHint" }
-  { "HighlightBlock", "CurSearch" }
-  { "HighlightBlockSecondary", "Search" }
-  { "Heading", "Directory" }
-  { "Doc", "Comment" }
-  { "Pod", "Comment" }
-  { "Header", "Border" }
-  { "MutedBlockBold", "LspInlayHint" }
-  { "HeaderSecondary", "Search" }
-  { "HighlightBlockBold", "CurSearch" }
-  { "Warning", "DiagnosticWarn" }
-  { "Link", "Special" }
-  { "HighlightBlockBoldSecondary", "Search" }
-  { "Normal", "Normal" }
+    { "Error", "DiagnosticError" }
+    { "Muted", "Comment" }
+    { "Highlight", "DiagnosticError" }
+    { "HighlightSecondary", "Structure" }
+    { "Backdrop", "Backdrop" }
+    { "MutedBlock", "LspInlayHint" }
+    { "HighlightBlock", "CurSearch" }
+    { "HighlightBlockSecondary", "Search" }
+    { "Heading", "Directory" }
+    { "Doc", "Comment" }
+    { "Pod", "Comment" }
+    { "Header", "Border" }
+    { "MutedBlockBold", "LspInlayHint" }
+    { "HeaderSecondary", "Search" }
+    { "HighlightBlockBold", "CurSearch" }
+    { "Warning", "DiagnosticWarn" }
+    { "Link", "Special" }
+    { "HighlightBlockBoldSecondary", "Search" }
+    { "Normal", "Normal" }
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -50,12 +50,9 @@ local ensure_installed = {
         ---- WEB ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
         "vtsls",
-        "css-lsp",
         "html-lsp",
         "json-lsp",
         "superhtml",
-        "emmet-language-server",
-        "css-variables-language-server",
         "intelephense",
         "prettier",
         "prettierd",
@@ -102,11 +99,11 @@ end
 local function enableLsps()
         local installed_packs  = require "mason-registry".get_installed_packages()
         local lsp_config_names = vim
-          .iter(installed_packs)
-          :fold({}, function(acc, pack)
-                  table.insert(acc, pack.spec.neovim and pack.spec.neovim.lspconfig)
-                  return acc
-          end)
+            .iter(installed_packs)
+            :fold({}, function(acc, pack)
+                    table.insert(acc, pack.spec.neovim and pack.spec.neovim.lspconfig)
+                    return acc
+            end)
         lsp.enable(lsp_config_names)
 end
 
@@ -137,37 +134,37 @@ local function syncPackages()
                 assert(ok, "Could not refresh mason registry.")
 
                 vim
-                  .iter(ensure_installed)
-                  :each(function(packName)
-                          if not mason_reg.has_package(packName) then
-                                  local msg = ("No package [%s] available."):format(packName)
-                                  vim.notify(msg, vim.log.levels.WARN, { title = "mason" })
-                                  return
-                          end
-                          local pack = mason_reg.get_package(packName)
-                          if pack:is_installed() then
-                                  local latest_version = pack:get_latest_version()
-                                  local version        = pack:get_installed_version()
-                                  if latest_version ~= version then installOrUpdate(pack, latest_version) end
-                          else
-                                  installOrUpdate(pack)
-                          end
-                  end)
+                    .iter(ensure_installed)
+                    :each(function(packName)
+                            if not mason_reg.has_package(packName) then
+                                    local msg = ("No package [%s] available."):format(packName)
+                                    vim.notify(msg, vim.log.levels.WARN, { title = "mason" })
+                                    return
+                            end
+                            local pack = mason_reg.get_package(packName)
+                            if pack:is_installed() then
+                                    local latest_version = pack:get_latest_version()
+                                    local version        = pack:get_installed_version()
+                                    if latest_version ~= version then installOrUpdate(pack, latest_version) end
+                            else
+                                    installOrUpdate(pack)
+                            end
+                    end)
 
                 assert(#ensure_installed > 10, "< 10 mason packages, aborting uninstalls.")
                 local installed_packages = mason_reg.get_installed_package_names()
 
                 vim
-                  .iter(installed_packages)
-                  :each(function(packName)
-                          if vim.tbl_contains(ensure_installed, packName) then return end
-                          mason_reg.get_package(packName):uninstall({}, function(success, error)
-                                  local lvl = success and "info" or "error"
-                                  local msg = success and ("[%s] uninstalled."):format(packName)
-                                    or ("[%s] failed to uninstall: %s"):format(packName, error)
-                                  notify(msg, lvl)
-                          end)
-                  end)
+                    .iter(installed_packages)
+                    :each(function(packName)
+                            if vim.tbl_contains(ensure_installed, packName) then return end
+                            mason_reg.get_package(packName):uninstall({}, function(success, error)
+                                    local lvl = success and "info" or "error"
+                                    local msg = success and ("[%s] uninstalled."):format(packName)
+                                        or ("[%s] failed to uninstall: %s"):format(packName, error)
+                                    notify(msg, lvl)
+                            end)
+                    end)
         end)
 end
 

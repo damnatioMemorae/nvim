@@ -1,15 +1,15 @@
 linq
 "Snacks"
-  { "Picker", "Normal" }
-  { "PickerBorder", "Border" }
-  { "PickerBoxBorder", "Border" }
-  { "PickerListBorder", "Border" }
-  { "PickerInputBorder", "Border" }
-  { "PickerPreviewBorder", "Border" }
-  { "PickerCursorLine", "PmenuSel" }
-  { "PickerListCursorLine", "PmenuSel" }
-  { "PickerPathIgnored", "Directory" }
-  { "PickerPathHidden", "Directory" }
+    { "Picker", "Normal" }
+    { "PickerBorder", "Border" }
+    { "PickerBoxBorder", "Border" }
+    { "PickerListBorder", "Border" }
+    { "PickerInputBorder", "Border" }
+    { "PickerPreviewBorder", "Border" }
+    { "PickerCursorLine", "PmenuSel" }
+    { "PickerListCursorLine", "PmenuSel" }
+    { "PickerPathIgnored", "Directory" }
+    { "PickerPathHidden", "Directory" }
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -184,7 +184,7 @@ local picker = {
                                         exclude = {
                                                 function(win)
                                                         return bo[vim.api.nvim_win_get_buf(win)].filetype ~=
-                                                          "snacks_picker_list"
+                                                            "snacks_picker_list"
                                                 end,
                                         },
                                 },

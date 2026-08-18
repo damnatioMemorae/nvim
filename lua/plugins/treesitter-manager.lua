@@ -1,37 +1,29 @@
-local o   = vim.o
-local v   = vim.v
-local fn  = vim.fn
-local ts  = vim.treesitter
-local lsp = vim.lsp
+local o  = vim.o
+local v  = vim.v
+local fn = vim.fn
+local ts = vim.treesitter
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-local function prevNode()
+local function node(nd)
         if ts.get_parser(nil, nil, { error = false }) then
-                require "vim.treesitter._select".select_parent(v.count1)
-        else
-                lsp.buf.selection_range(v.count1)
+                require "vim.treesitter._select"["select_" .. nd](v.count1)
         end
 end
-local function nextNode()
-        if ts.get_parser(nil, nil, { error = false }) then
-                require "vim.treesitter._select".select_child(v.count1)
-        else
-                lsp.buf.selection_range(-v.count1)
-        end
-end
+local parent = function() node "parent" end
+local child  = function() node "child" end
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 return {
         "romus204/tree-sitter-manager.nvim",
-        event  = "BufReadPost",
-        init   = function()
+        event = "BufReadPost",
+        init  = function()
                 o.foldmethod = "expr"
-                o.foldexpr   = "v:lua.ts.foldexpr()"
+                o.foldexpr   = [[v:lua.vim.treesitter.foldexpr()]]
         end,
-        keys   = { { "m", prevNode, mode = { "v", "x" } }, { "M", nextNode, mode = { "v", "x" } } },
-        opts   = {
+        keys  = { { "m", parent, mode = { "v" } }, { "M", child, mode = { "v" } } },
+        opts  = {
 
                 parser_dir       = fn.stdpath "data" .. "/site/parser",
                 query_dir        = fn.stdpath "data" .. "/site/queries",
@@ -47,7 +39,4 @@ return {
                 min_width        = 60,
                 min_height       = 40,
         },
-        config = function(_, opts)
-                require "tree-sitter-manager".setup(opts)
-        end,
 }

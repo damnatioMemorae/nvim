@@ -22,15 +22,15 @@ function M.bufferInfo()
 
         local clients      = lsp.get_clients { bufnr = 0 }
         local longest_name = vim
-          .iter(clients)
-          :fold(0, function(acc, client)
-                  return math.max(acc, #client.name)
-          end)
+            .iter(clients)
+            :fold(0, function(acc, client)
+                    return math.max(acc, #client.name)
+            end)
         local lsps         = vim.tbl_map(function(client)
                                                  local pad  = (" "):rep(math.min(longest_name - #client.name)) .. " "
                                                  local root = client.root_dir
-                                                   and client.root_dir:gsub("/Users/%w+", pseudo_tilde)
-                                                   or "*Single file mode*"
+                                                     and client.root_dir:gsub("/Users/%w+", pseudo_tilde)
+                                                     or "*Single file mode*"
                                                  return ("[%s]%s%s"):format(client.name, pad, root)
                                          end, clients)
 
@@ -135,13 +135,8 @@ function M.evalNvimLua()
                 }
         end
         match(fn.mode()) {
-                n = function()
-                        ui.input({ icon = "", prompt = "", win = { ft = "lua" } }, eval)
-                end,
-                _ = function()
-                        cmd.normal { '"zy', bang = true }
-                        eval(fn.getreg "z")
-                end,
+                n = function() ui.input({ icon = "", prompt = "", win = { ft = "lua" } }, eval) end,
+                _ = function() cmd.normal { '"zy', bang = true } eval(fn.getreg "z") end,
         }
 end
 

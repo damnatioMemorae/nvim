@@ -1,14 +1,14 @@
 linq
 "MiniDiff"
-  { "SignAdd", "DiffChanged" }
-  { "SignChange", "DiffChanged" }
-  { "SignDelete", "DiffRemoved" }
-  { "OverAdd", "DiffAdd" }
-  { "OverChange", "DiffChange" }
-  { "OverDelete", "DiffDelete" }
-  { "OverContext", "DiffText" }
-  { "OverChangeBuf", "DiffText" }
-  { "OverContextBuf", "DiffText" }
+    { "SignAdd", "DiffChanged" }
+    { "SignChange", "DiffChanged" }
+    { "SignDelete", "DiffRemoved" }
+    { "OverAdd", "DiffAdd" }
+    { "OverChange", "DiffChange" }
+    { "OverDelete", "DiffDelete" }
+    { "OverContext", "DiffText" }
+    { "OverChangeBuf", "DiffText" }
+    { "OverContextBuf", "DiffText" }
 
 local o = vim.o
 

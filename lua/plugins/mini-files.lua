@@ -1,11 +1,11 @@
 linq
 "MiniFiles"
-  { "TitleFocused", "Border" }
-  { "Title", "Border" }
-  { "Normal", "Normal" }
-  { "Border", "Normal" }
-  { "BorderModified", "Normal" }
-  { "CursorLine", "PmenuSel" }
+    { "TitleFocused", "Border" }
+    { "Title", "Border" }
+    { "Normal", "Normal" }
+    { "Border", "Normal" }
+    { "BorderModified", "Normal" }
+    { "CursorLine", "PmenuSel" }
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -24,7 +24,7 @@ local send  = require "functions.nano-plugins".teleSend "file"
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-local border_width  = 0
+local border_width  = 1
 local show_dotfiles = true
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -168,8 +168,8 @@ auq "User" { -- SPLITS AND MAPS
                 mapSplit(buf, "<C-t>", "tab")
                 keyq { lhs .. "~", setCwd, buf = buf, desc = "Set cwd" }
                 keyq { lhs .. "x", uiOpen, buf = buf, desc = "OS open" }
-                keyq { lhs .. "y", yankPath, buf = buf, desc = "Yank path" }
                 keyq { "@", yankPath, buf = buf, desc = "Yank path" }
+                keyq { ".", toggleDotfiles, buf = buf, desc = "Toggle hidden files" }
                 keyq { "S", function()
                         send((require "mini.files".get_fs_entry() or {}).path)
                 end, mode = { "n", "x" }, buf = buf, desc = "Telegram send" }
@@ -180,12 +180,12 @@ auq "User" { -- BORDER
         pattern  = "MiniFilesWindowOpen",
         callback = function(args)
                 match(border_width) {
-                        [1] = function()
-                                local win_id  = args.data.win_id
-                                local config  = api.nvim_win_get_config(win_id)
-                                config.border = Border.Default.Normal
-                                api.nvim_win_set_config(win_id, config)
-                        end }
+                        1, function()
+                        local win_id  = args.data.win_id
+                        local config  = api.nvim_win_get_config(win_id)
+                        config.border = Border.Default.Normal
+                        api.nvim_win_set_config(win_id, config)
+                end }
         end,
 }
 

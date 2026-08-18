@@ -1,9 +1,9 @@
 linq
 "TinyInlineDiagnosticVirtualText"
-  { "Error", "DiagnosticVirtualTextError" }
-  { "Warn", "DiagnosticVirtualTextWarn" }
-  { "Info", "DiagnosticVirtualTextInfo" }
-  { "Hint", "DiagnosticVirtualTextHint" }
+    { "Error", "DiagnosticVirtualTextError" }
+    { "Warn", "DiagnosticVirtualTextWarn" }
+    { "Info", "DiagnosticVirtualTextInfo" }
+    { "Hint", "DiagnosticVirtualTextHint" }
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

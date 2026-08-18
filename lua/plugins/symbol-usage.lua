@@ -5,17 +5,17 @@ local function smol(symbol)
         local cnt = symbol.stacked_count
 
         return vim
-          .iter {
-                  { "", icons.definiton, "Def" },
-                  { ref, "r", "Ref" },
-                  { cnt > 0 and ("+%d"):format(cnt), "", "@define" },
-          }
-          :filter(function(i) return i[1] end)
-          :fold({}, function(acc, i)
-                  if #acc > 0 then acc[#acc + 1] = { "", "NonText" } end
-                  acc[#acc + 1] = { " " .. i[2] .. i[1], i[3]:match "^@" and i[3] or "Symbol" .. i[3] }
-                  return acc
-          end)
+            .iter {
+                    { "", icons.definiton, "Def" },
+                    { ref, "r", "Ref" },
+                    { cnt > 0 and ("+%d"):format(cnt), "", "@define" },
+            }
+            :filter(function(i) return i[1] end)
+            :fold({}, function(acc, i)
+                    if #acc > 0 then acc[#acc + 1] = { "", "NonText" } end
+                    acc[#acc + 1] = { " " .. i[2] .. i[1], i[3]:match "^@" and i[3] or "Symbol" .. i[3] }
+                    return acc
+            end)
 end
 
 return {

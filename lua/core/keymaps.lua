@@ -6,6 +6,7 @@ local api  = vim.api
 local cmd  = vim.cmd
 local log  = vim.log
 local lsp  = vim.lsp
+local opt  = vim.opt
 local ts   = vim.treesitter
 local diag = vim.diagnostic
 
@@ -90,13 +91,13 @@ keyq { "X", function() -- `X` DELETE AT EOL
 end, desc = "Delete char at EoL" }
 
 vim -- Append to EoL
-  .iter { "(", ")", "[", "]", "{", "}", '"', "'", ",", ".", ";", ":", "\\", "?", "_" }
-  :each(function(char)
-          keyq { "<leader>" .. vim.trim(char), function()
-                  local updated_line = api.nvim_get_current_line() .. char
-                  api.nvim_set_current_line(updated_line)
-          end }
-  end)
+    .iter { "(", ")", "[", "]", "{", "}", '"', "'", ",", ".", ";", ":", "\\", "?", "_" }
+    :each(function(char)
+            keyq { "<leader>" .. vim.trim(char), function()
+                    local updated_line = api.nvim_get_current_line() .. char
+                    api.nvim_set_current_line(updated_line)
+            end }
+    end)
 
 keyq { "<M-t>", function() -- `M-t` TEMPLATE STRING
         require "functions.auto-template-str".insertTemplateStr()
@@ -114,8 +115,8 @@ keyq { "<M-`>", [[wBi`<Esc>ea`<Esc>b]], desc = "Inline Code cword" }
 keyq { "<M-`>", "<Esc>`<i`<Esc>`>la`<Esc>", desc = "Inline Code selection", mode = x }
 keyq { "<M-`>", "``<Left>", desc = "Inline Code", mode = i }
 
-keyq { "+", "]<Space>", desc = "blank below", remap = true }
-keyq { "-", "[<Space>", desc = "blank above", remap = true }
+keyq { "+", "[<Space>", desc = "blank above", remap = true }
+keyq { "-", "]<Space>", desc = "blank below", remap = true }
 
 ---- YANK & PASTE --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -181,17 +182,17 @@ local textobj_remaps = {
 }
 
 vim
-  .iter(textobj_remaps)
-  :each(function(value)
-          where(function(_)
-                  keyq { "i" .. _.remap, "i" .. _.orig, desc = "inner " .. _.label, mode = { o, x } }
-                  keyq { "a" .. _.remap, "a" .. _.orig, desc = "outer " .. _.label, mode = { o, x } }
-          end) {
-                    remap = value[1],
-                    orig  = value[2],
-                    label = value[3],
-            }
-  end)
+    .iter(textobj_remaps)
+    :each(function(value)
+            where(function(_)
+                    keyq { "i" .. _.remap, "i" .. _.orig, desc = "inner " .. _.label, mode = { o, x } }
+                    keyq { "a" .. _.remap, "a" .. _.orig, desc = "outer " .. _.label, mode = { o, x } }
+            end) {
+                        remap = value[1],
+                        orig  = value[2],
+                        label = value[3],
+                }
+    end)
 
 keyq { "J", "2j", mode = o }
 keyq { "d<Space>", '"_daw', desc = "delete word", mode = n }
@@ -221,29 +222,47 @@ end, desc = "indented i on empty line", expr = true }
 -- keyq { "v", "m'v" }
 -- keyq { "V", "m'V" }
 -- keyq { "<Esc>", "<Esc>''", mode = x }
+-- keyq { "v", "vo", { remap = true } }
 keyq { "<C-v>", "ggVG", desc = "select all" }
 keyq { "V", "j", desc = "repeated `V` selects more lines", mode = x }
 keyq { "v", "<C-v>", desc = "`vv` starts visual block", mode = x }
 
 ---- CMDLINE -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-keyq { "<M-x>", ":" }
+keyq { "<M-x>r", ":luafile " .. fn.stdpath "config" .. "/" }
+keyq { "<M-x>l", ":livegrep " }
+keyq { "<M-x>f", ":find " }
+keyq { "<M-x>c", function()
+        cmd "w"
+        cmd "silent make!"
+        -- cmd "copen"
+end }
+keyq { "<M-x>C", function()
+        local makeprg = fn.input "local makeprg: "
+        api.nvim_set_option_value("makeprg", makeprg, { scope = "local" })
+        if makeprg then cmd "silent make!" end
+end }
+
 keyq { "<M-left>", "<C-b>", desc = "Goto start of cmdline", mode = c }
 keyq { "<M-right>", "<C-e>", desc = "Goto end of cmdline", mode = c }
 keyq { "<up>", "<C-p>", desc = "Cmdline completion scroll up", mode = c }
 keyq { "<down>", "<C-n>", desc = "Cmdline completion scroll down", mode = c }
+-- keyq { "<left>", "<nop>", desc = "Cmdline  move left", mode = c }
+-- keyq { "<right>", "<nop>", desc = "Cmdline  move right", mode = c }
+keyq { "<left>", "<left>", desc = "Cmdline  move left", mode = c, unique = true }
+keyq { "<right>", "<right>", desc = "Cmdline  move right", mode = c, unique = true }
 
 keyq { "<C-v>", function() -- `C-v` PASTE CMDLINE
         fn.setreg("+", vim.trim(fn.getreg "+"))
         return "<C-r>+"
 end, desc = "Cmdline Paste", mode = c, expr = true }
-keyq { "<M-c>", function() -- `C-v` YANK CMDLINE
+keyq { "<M-c>", function() -- `M-c` YANK CMDLINE
         local cmdline = fn.getcmdline()
         if cmdline == "" then return vim.notify("Nothing to copy.", levels.WARN) end
         fn.setreg("+", cmdline)
-        vim.notify(cmdline, nil, { title = "Copied", icon = "󰅍" })
+        vim.notify(cmdline, nil, { title = "Copied" })
 end, desc = "Yank cmdline", mode = c }
-keyq { "<BS>", function() -- `M-c` TANK CMDLINE
+keyq { "<BS>", function() -- `BS` DISABLE BS ON EMPTY CMDLINE
         if fn.getcmdline() ~= "" then return "<BS>" end
 end, desc = "disable <BS> when cmdline is empty", mode = c, expr = true, unique = false }
 
@@ -319,12 +338,14 @@ end, desc = "Next Buffer" }
 
 where(function(_) -- MACROS
         fn.setreg(_.reg, "")
-        keyq { _.toggle_key, function() nano.startOrStopRecording(_.toggle_key, _.reg) end, desc = "Start/stop recording" }
+        keyq { _.toggle, function() nano.startOrStopRecording(_.toggle, _.reg) end, desc = "Start/stop recording" }
         keyq { "9", function() nano.playRecording(_.reg) end, desc = "Play recording" }
+        keyq { _.edit, function() nano.editMacro(_.reg) end, desc = "Edit recording" }
 end) {
-          reg        = "r",
-          toggle_key = "0",
-  }
+            reg    = "r",
+            edit   = "1",
+            toggle = "0",
+    }
 
 ---- REFACTORING ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

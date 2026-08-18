@@ -145,8 +145,8 @@ end
 
 local function pcmd(command)
         return function(fallback)
-                local success = pcall(vim.cmd, command) ---@diagnostic disable-line: param-type-mismatch
-                if not success then
+                local ok = pcall(vim.cmd, command) ---@diagnostic disable-line: param-type-mismatch
+                if not ok then
                         pcall(vim.cmd, fallback) ---@diagnostic disable-line: param-type-mismatch
                 end
         end

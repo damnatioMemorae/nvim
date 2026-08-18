@@ -1,4 +1,4 @@
-local fn     = vim.fn
+local g      = vim.g
 local api    = vim.api
 local cmd    = vim.cmd
 local lsp    = vim.lsp
@@ -118,16 +118,9 @@ local function semanticTokens()
         --]]
 end
 
-local nproc  = tonumber(fn.system { "nproc" })
-local jnproc = ""
-
-if nproc ~= 0 then
-        jnproc = "--j=" .. (nproc - 1)
-end
-
 local command = {
         "clangd",
-        jnproc,
+        "--j=" .. tostring(g.nproc - 1),
         "--all-scopes-completion=true",
         "--background-index",
         "--background-index-priority=background",

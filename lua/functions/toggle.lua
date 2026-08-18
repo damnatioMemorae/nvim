@@ -99,16 +99,17 @@ local function toggleConcealLvl()
         vim.notify(msg .. wo.conceallevel, levels.WARN)
 end
 
-local function toggleListMode()
-        match(g.qf_mode) {
-                l = function()
-                        g.qf_mode = "c"
-                        vim.notify("list: quickfix", levels.WARN)
-                end,
-                c = function()
-                        g.qf_mode = "l"
-                        vim.notify("list: location", levels.WARN)
-                end,
+local function toggleListMode(mode)
+        mode = mode or g.qf_mode
+        match(mode) {
+                { "quickfix", "c" }, function()
+                g.qf_mode = "l"
+                vim.notify("list: loclist", levels.WARN)
+        end,
+                { "loclist",  "l" }, function()
+                g.qf_mode = "c"
+                vim.notify("list: quickfix", levels.WARN)
+        end,
         }
 end
 

@@ -20,7 +20,7 @@ return {
                                                 languages = { "lua" },
                                                 when      = function(ctx)
                                                         return ctx.ts:matches_capture "string"
-                                                          or ctx.ts:matches_capture "string_content"
+                                                            or ctx.ts:matches_capture "string_content"
                                                 end,
                                         },
                                 },

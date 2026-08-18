@@ -1,14 +1,14 @@
 ---- PREDICATES ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-local eq = function(a) return function(b) return a == b end end
+local eq   = function(a) return function(b) return a == b end end
 local typq = function(a) return function(t) return type(a) == t end end
 
-local nilq = function(a) return a == nil end
-local tblq = function(a) return type(a) == "table" end
-local strq = function(a) return type(a) == "string" end
-local numq = function(a) return type(a) == "number" end
-local booq = function(a) return type(a) == "boolean" end
-local funq = function(a) return type(a) == "function" end
+local nilq = function(_) return _ == nil end
+local tblq = function(_) return type(_) == "table" end
+local strq = function(_) return type(_) == "string" end
+local numq = function(_) return type(_) == "number" end
+local booq = function(_) return type(_) == "boolean" end
+local funq = function(_) return type(_) == "function" end
 
 ---- PATTERN MATCHING ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -73,17 +73,6 @@ local function guard(args)
         end
 end
 
----@type fun(condition: any): fun(_then: function|any): fun(otherwise: function|any): function|any
-local function when(condition)
-        return function(_then)
-                if condition then
-                        return funq(_then)
-                          and _then()
-                          or _then
-                end
-        end
-end
-
 ---@type fun(expr: function): fun(bindings: table): function
 local function where(expr)
         return function(bindings)
@@ -100,15 +89,18 @@ end
 
 ---- LISTS ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-local function callIfNotEmpty(fun, stateX, ...)
-        if stateX == nil then return nil end
-        return stateX, fun(...)
+---@type fun(tbl: table): fun(idx: number): table|table
+local function ext(tbl)
+        return function(idx)
+                return tbl[idx] or tbl
+        end
 end
 
-local function each(fun, gen, param, state)
-        repeat
-                state = callIfNotEmpty(fun, gen(param, state))
-        until state == nil
+---@type fun(tbl: table): fun(idx: number): table|nil
+local function _ext(tbl)
+        return function(idx)
+                return tbl[idx] or nil
+        end
 end
 
 ---@type fun(t1: table): fun(t2: table): table
@@ -166,30 +158,18 @@ local function mapl(f)
 end
 
 ---@type fun(tbl: table, pred: function): fun(acc: table): fun(x: any): table
-local function filter(tbl, pred)
-        return foldl(function(acc)
-                return function(x)
-                        unless(pred(x))(fold(acc))
-                        return acc
-                end
-        end) {} (tbl)
+local function filter(tbl)
+        return function(pred)
+                return foldl(function(acc)
+                        return function(x)
+                                unless(pred(x))(fold(acc))
+                                return acc
+                        end
+                end) {} (tbl)
+        end
 end
 
 ---- OPERATORS -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
----@type fun(tbl: table): fun(idx: number): table|table
-local function ext(tbl)
-        return function(idx)
-                return tbl[idx] or tbl
-        end
-end
-
----@type fun(tbl: table): fun(idx: number): table|nil
-local function _ext(tbl)
-        return function(idx)
-                return tbl[idx] or nil
-        end
-end
 
 ---@type fun(sep: string): fun(head: string): fun(tail: string): string
 local function concat(sep)
@@ -199,28 +179,6 @@ local function concat(sep)
                         return head .. sep .. tail
                 end
         end
-end
-
----- PIPELINES -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-local function pipeline(...)
-        local funs = { ... }
-        return function(input)
-                return foldl(function(x)
-                        return function(f) return f(x) end
-                end)(input)(funs)
-        end
-end
-
-local function q(f)
-        local function step(acc)
-                return function(a)
-                        unless(nilq(a))(acc)
-                        f(a)
-                        return step(fold(acc)) ---@diagnostic disable-line: param-type-mismatch
-                end
-        end
-        return step {}
 end
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -245,10 +203,23 @@ M.predicates   = {
         _booq = not booq,
         _funq = not funq,
 }
-M.conditionals = { when = when, guard = guard, match = match, where = where, unless = unless, }
-M.lists        = { map = map, mapl = mapl, each = each, extl = extl, fold = fold, foldl = foldl, filter = filter, }
-M.operators    = { ext = ext, _ext = _ext, concat = concat, }
-M.pipelines    = { q = q, pipeline = pipeline, }
+M.lists        = {
+        ext    = ext,
+        _ext   = _ext,
+        extl   = extl,
+        map    = map,
+        mapl   = mapl,
+        fold   = fold,
+        foldl  = foldl,
+        filter = filter,
+        concat = concat,
+}
+M.conditionals = {
+        guard  = guard,
+        match  = match,
+        where  = where,
+        unless = unless,
+}
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

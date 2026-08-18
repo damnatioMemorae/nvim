@@ -95,14 +95,14 @@ function M.toggleWordCasing()
                 cmd.normal { _.command, bang = true }
                 api.nvim_win_set_cursor(0, _.prev_cursor)
         end) {
-                  prev_cursor = api.nvim_win_get_cursor(0),
-                  command     = match(fn.expand "<cword>") {
-                          function(_) return _:upper() end, "guiw",
-                          function(_) return _:lower() end, "guiwgUl",
-                          _ = "gUiw",
-                  },
+                    prev_cursor = api.nvim_win_get_cursor(0),
+                    command     = match(fn.expand "<cword>") {
+                            function(_) return _:upper() end, "guiw",
+                            function(_) return _:lower() end, "guiwgUl",
+                            _ = "gUiw",
+                    },
 
-          }
+            }
 end
 
 function M.toggleTitleCase()
@@ -110,12 +110,12 @@ function M.toggleTitleCase()
                 cmd.normal { _.cmd, bang = true }
                 api.nvim_win_set_cursor(0, _.cursor)
         end) {
-                  cursor = api.nvim_win_get_cursor(0),
-                  cmd    = match(fn.expand "<cword>") {
-                          function(_) return _:lower() end, "guiwgUl",
-                          _ = "guiw",
-                  },
-          }
+                    cursor = api.nvim_win_get_cursor(0),
+                    cmd    = match(fn.expand "<cword>") {
+                            function(_) return _:lower() end, "guiwgUl",
+                            _ = "guiw",
+                    },
+            }
 end
 
 ---- LSP CASE RENAME -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -129,14 +129,14 @@ function M.camelSnakeLspRename()
                         function() vim.notify(_.msg, _.level, { title = _.title }) end,
                 }
         end) {
-                  snake_pattern = "_(%w)",
-                  camel_pattern = "([%l%d])(%u)",
-                  snake_cased   = cword:gsub("([%l%d])(%u)", "%1_%2"):lower(),
-                  camel_cased   = cword:gsub("_(%w)", function(c1) return c1:upper() end),
-                  level         = levels.WARN,
-                  msg           = "Neither snake_case nor camelCase: " .. cword,
-                  title         = "LSP Rename",
-          }
+                    snake_pattern = "_(%w)",
+                    camel_pattern = "([%l%d])(%u)",
+                    snake_cased   = cword:gsub("([%l%d])(%u)", "%1_%2"):lower(),
+                    camel_cased   = cword:gsub("_(%w)", function(c1) return c1:upper() end),
+                    level         = levels.WARN,
+                    msg           = "Neither snake_case nor camelCase: " .. cword,
+                    title         = "LSP Rename",
+            }
 end
 
 ---- SMART DUPLICATE -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -148,29 +148,29 @@ function M.smartDuplicate()
                 api.nvim_buf_set_lines(0, _.row, _.row, false, { _.line })
                 api.nvim_win_set_cursor(0, { _.row + 1, _.target_col })
         end) {
-                  row        = cursor[1],
-                  target_col = ("---@param"):find "%-%-%-@%w+ " or line:find "[:=] " or cursor[2],
-                  line       = match(bo.filetype) {
-                          javascript = line:gsub("^(%s*)if(.+{)$", "%1} else if%2"),
-                          python     = line:gsub("^(%s*)if( .*:)$", "%1elif%2"),
-                          lua        = line:gsub("^(%s*)if( .* then)$", "%1elseif%2"),
-                          zsh        = line:gsub("^(%s*)if( .* then)$", "%1elif%2"),
-                          markdown   = line:gsub("^(%s*)(%d+)%. ", function(indent, num)
-                                  local increment = tonumber(num) + 1
-                                  return indent .. increment .. ". "
-                          end),
-                          css        = line:gsub("(%a+):", {
-                                  top    = "bottom:",
-                                  bottom = "top:",
-                                  right  = "left:",
-                                  left   = "right:",
-                                  light  = "dark:",
-                                  dark   = "light:",
-                                  width  = "height:",
-                                  height = "width:",
-                          }),
-                  },
-          }
+                    row        = cursor[1],
+                    target_col = ("---@param"):find "%-%-%-@%w+ " or line:find "[:=] " or cursor[2],
+                    line       = match(bo.filetype) {
+                            javascript = line:gsub("^(%s*)if(.+{)$", "%1} else if%2"),
+                            python     = line:gsub("^(%s*)if( .*:)$", "%1elif%2"),
+                            lua        = line:gsub("^(%s*)if( .* then)$", "%1elseif%2"),
+                            zsh        = line:gsub("^(%s*)if( .* then)$", "%1elif%2"),
+                            markdown   = line:gsub("^(%s*)(%d+)%. ", function(indent, num)
+                                    local increment = tonumber(num) + 1
+                                    return indent .. increment .. ". "
+                            end),
+                            css        = line:gsub("(%a+):", {
+                                    top    = "bottom:",
+                                    bottom = "top:",
+                                    right  = "left:",
+                                    left   = "right:",
+                                    light  = "dark:",
+                                    dark   = "light:",
+                                    width  = "height:",
+                                    height = "width:",
+                            }),
+                    },
+            }
 end
 
 ---- f & F ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -267,12 +267,12 @@ function M.scrollLspOrOtherWin(lines)
 
         if not winid then
                 local other_win = vim
-                  .iter(api.nvim_tabpage_list_wins(0))
-                  :find(function(win)
-                          local not_floating = api.nvim_win_get_config(win).relative == ""
-                          local not_this_win = api.nvim_get_current_win() ~= win
-                          return not_floating and not_this_win
-                  end)
+                    .iter(api.nvim_tabpage_list_wins(0))
+                    :find(function(win)
+                            local not_floating = api.nvim_win_get_config(win).relative == ""
+                            local not_this_win = api.nvim_get_current_win() ~= win
+                            return not_floating and not_this_win
+                    end)
 
                 winid = other_win
         end

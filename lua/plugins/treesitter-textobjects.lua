@@ -20,11 +20,11 @@ local function addDocstring()
                         if nilq(param_line) then return end
                         local params       = vim.split(param_line, ", ?")
                         local luadoc_lines = vim
-                          .iter(params)
-                          :map(function(param)
-                                  return ("%s---@param %s "):format(indent, param)
-                          end)
-                          :totable()
+                            .iter(params)
+                            :map(function(param)
+                                    return ("%s---@param %s "):format(indent, param)
+                            end)
+                            :totable()
                         api.nvim_buf_set_lines(0, line - 1, line - 1, false, luadoc_lines)
                         api.nvim_win_set_cursor(0, { line, #luadoc_lines[1] })
                         cmd.normal { '"_ciw', bang = true }
@@ -56,6 +56,8 @@ return {
         branch = "main",
         event  = "BufReadPost",
         keys   = {
+                { "<M-[>",        function() swapNode("function", "inner", "previous") end,    desc = "Swap function" },
+                { "<M-]>",        function() swapNode("function", "inner", "next") end,        desc = "Swap function" },
                 { "<M-{>",        function() swapNode("parameter", "inner", "previous") end,   desc = "Swap arg" },
                 { "<M-}>",        function() swapNode("parameter", "inner", "next") end,       desc = "Swap arg" },
                 { "<M-{>",        function() swapNode("md_section", "inner", "previous") end,  desc = "Swap arg",     ft = "markdown" },

@@ -1,8 +1,4 @@
-local cmd = vim.cmd
-local function toggle()
-        require "treesj".toggle()
-        cmd.normal "^"
-end
+local function toggle() require "treesj".toggle() end
 
 return {
         "Wansmer/treesj",

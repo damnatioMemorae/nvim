@@ -35,11 +35,11 @@ local function openNotif(idx)
         local height       = math.min(#lines + 2, math.ceil(o.lines * max_height))
         height             = math.max(height, min_height)
         local longest_line = vim
-          .iter(lines)
-          :fold(0, function(acc, line)
-                  local len = #(line:gsub("\t", "    "))
-                  return math.max(acc, len)
-          end)
+            .iter(lines)
+            :fold(0, function(acc, line)
+                    local len = #(line:gsub("\t", "    "))
+                    return math.max(acc, len)
+            end)
         longest_line       = math.max(longest_line, #title)
         local width        = math.min(longest_line + 3, math.ceil(o.columns * max_width))
 
@@ -72,7 +72,7 @@ local function openNotif(idx)
                         winfixbuf    = true,
                         fillchars    = "fold: ,eob: ",
                         -- foldmethod   = "expr",
-                        -- foldexpr     = "v:lua.vim.treesitter.foldexpr()",
+                        -- foldexpr     = [[v:lua.vim.treesitter.foldexpr()]],
                         winhighlight = winhighlights,
                 },
                 keys       = {

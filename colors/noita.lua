@@ -434,9 +434,9 @@ local groups = {
 }
 
 vim.iter(groups)
-  :each(function(group, opts)
-          vim.api.nvim_set_hl(0, group, opts)
-  end)
+    :each(function(group, opts)
+            vim.api.nvim_set_hl(0, group, opts)
+    end)
 vim.hl.priorities.syntax = 200
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

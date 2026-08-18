@@ -25,7 +25,7 @@ return {
         "folke/flash.nvim",
         keys = {
                 { "f", jump,   mode = { "n", "x", "o" }, desc = "Flash" },
-                { "F", first,   mode = { "n", "x", "o" }, desc = "Flash first" },
+                { "F", first,  mode = { "n", "x", "o" }, desc = "Flash first" },
                 { "R", remote, mode = "o",               desc = "Remote Flash" },
                 { "T", inc,    mode = "o",               desc = "Treesitter Search" },
         },
@@ -37,10 +37,10 @@ return {
                         matches  = true,
                         priority = 5000,
                         groups   = {
-                                match    = "LspInlayHint",
-                                current  = "NonText",
-                                backdrop = "NonText",
                                 label    = "IncSearch",
+                                match    = "LspInlayHint",
+                                current  = "LspInlayHint",
+                                backdrop = "NonText",
                         },
                 },
                 prompt    = {

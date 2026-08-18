@@ -1,14 +1,16 @@
+local g   = vim.g
 local o   = vim.o
 local fn  = vim.fn
 local api = vim.api
+local cmd = vim.cmd
 
 ---- HIGHLIGHTS ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 linq
 "Qf"
-  { "LineNr", "Special" }
-  { "Match", "IncSearch" }
-  { "Filename", "Directory" }
+    { "LineNr", "Special" }
+    { "Match", "IncSearch" }
+    { "Filename", "Directory" }
 
 ---- TEXT ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -40,11 +42,12 @@ local function applyHighlights(bufnr, ttt)
 end
 
 local type_hilights = {
-        E = "DiagnosticSignError",
-        W = "DiagnosticSignWarn",
-        I = "DiagnosticSignInfo",
-        N = "DiagnosticSignHint",
-        H = "DiagnosticSignHint",
+        E     = "DiagnosticSignError",
+        W     = "DiagnosticSignWarn",
+        I     = "DiagnosticSignInfo",
+        N     = "DiagnosticSignHint",
+        H     = "DiagnosticSignHint",
+        error = "DiagnosticSignError",
 }
 
 local function shortPath(path)
@@ -92,9 +95,13 @@ function _G.qfText(info)
                 local tt   = {}
                 local text = item.text:gsub("^%s+", "")
                 if item.bufnr == 0 then
-                        table.insert(tt, { text, "QfText" })
+                        local prefix = item.type .. ": "
+                        table.insert(tt, { prefix, type_hilights[item.type] })
+                        table.insert(tt, { item.lnum, "QfLineNr" })
+                        table.insert(tt, { " ", "Default" })
+                        table.insert(tt, { text, type_hilights[item.type] or "QfText" })
                 else
-                        local prefix = item.type .. " "
+                        local prefix = item.type .. ": "
                         local fname  = fn.bufname(item.bufnr)
                         fname        = shortPath(fname)
                         table.insert(tt, { prefix, type_hilights[item.type] })
@@ -139,4 +146,47 @@ function _G.qfText(info)
         return getLines(ttt)
 end
 
-o.quickfixtextfunc = "v:lua.qfText"
+---- KEYMAPS -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+local prev   = function() pcmd(g.qf_mode .. "prev")(g.qf_mode .. "last") end
+local next   = function() pcmd(g.qf_mode .. "next")(g.qf_mode .. "first") end
+local fprev  = function() pcmd(g.qf_mode .. "Nfile")(g.qf_mode .. "last") end
+local fnext  = function() pcmd(g.qf_mode .. "nfile")(g.qf_mode .. "first") end
+local remove = function() cmd(g.qf_mode .. "expr []") end
+local first  = function()
+        pcmd "lfirst" "cfirst"
+        cmd "wincmd p"
+end
+local last   = function()
+        pcmd "llast" "clast"
+        cmd "wincmd p"
+end
+local toggle = function()
+        match(g.qf_mode) {
+                c = function()
+                        local list_win_open = fn.getqflist { winid = true }.winid ~= 0
+                        cmd(list_win_open and "cclose" or "copen")
+                        cmd "wincmd p"
+                end,
+                l = function()
+                        local list_win_open = fn.getloclist(0, { winid = true }).winid ~= 0
+                        cmd(list_win_open and "lclose" or "lopen")
+                        cmd "wincmd p"
+                end,
+        }
+end
+
+bufq { "qq", first, desc = "List 1st" }
+bufq { "Q", last, desc = "List last" }
+keyq { "[", fprev, desc = "List file prev", unique = false, nowait = true }
+keyq { "]", fnext, desc = "List file next", unique = false, nowait = true }
+keyq { "(", prev, desc = "List item prev", unique = false }
+keyq { ")", next, desc = "List item next", unique = false }
+keyq { "qr", remove, desc = "List remove", unique = false }
+keyq { "<leader>q", toggle, desc = "List toggle", unique = false }
+keyq { "<LocalLeader>q", Toggle.qfMode, desc = "Toggle List mode", unique = false }
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+cmd "packadd cfilter"
+o.quickfixtextfunc = [[v:lua.qfText]]

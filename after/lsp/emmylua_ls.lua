@@ -24,7 +24,7 @@ return {
         cmd          = { "emmylua_ls" },
         filetypes    = { "lua" },
         root_markers = vim.fn.has "nvim-0.11.3" == 1 and { root_markers1, root_markers2, { ".git" } }
-          or vim.list_extend(vim.list_extend(root_markers1, root_markers2), { ".git" }),
+            or vim.list_extend(vim.list_extend(root_markers1, root_markers2), { ".git" }),
         settings     = {
                 emmylua = {
                         completion     = {

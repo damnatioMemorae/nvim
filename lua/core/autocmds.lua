@@ -16,21 +16,33 @@ local general = augroup("General Autocmds", { clear = true })
 ---- GENERAL -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 auq "CmdlineChanged" { -- CMDLINE FUZZY COMPLETION
-        pattern = { ":", "/", "?" },
+        pattern  = { ":", "/", "?" },
         callback = function() fn.wildtrigger() end,
 }
 
+auq "CmdlineChanged" { -- LIVE COLORSCHEME PREVIEW
+        pattern  = ":",
+        callback = function()
+                local orig_theme = g.colors_name
+                local cmdline    = fn.getcmdline()
+                local words      = vim.split(cmdline, " ", { trimempty = true })
+                if words[1] == "colorscheme" and #words > 1 then
+                        pcmd("colorscheme " .. words[2])()
+                end
+        end,
+}
+
 auq "CmdlineChanged" { -- QUICKFIX LIVE GREP
+        pattern  = ":",
         callback = function()
                 local cmdline = fn.getcmdline()
                 local words   = vim.split(cmdline, " ", { trimempty = true })
-
-                if words[1] == "lg" and #words > 1 then
-                        cmd("silent grep! " .. fn.escape(words[2], " "))
-                        cmd "cwindow"
+                if words[1] == "livegrep" and #words > 1 then
+                        o.grepprg = "rg --vimgrep -j " .. tostring(g.nproc - 1)
+                        cmd("silent lgrep! " .. fn.escape(words[2], " "))
+                        cmd "lwindow"
                 end
         end,
-        pattern  = ":",
 }
 
 auq "TextYankPost" { -- HIGHLIGHT ON YANK
@@ -178,24 +190,24 @@ auq "FocusGained" {
         callback = function()
                 local all_bufs       = fn.getbufinfo { buflisted = 1 }
                 local closed_buffers = vim
-                  .iter(all_bufs)
-                  :fold({}, function(acc, buf)
-                          if not api.nvim_buf_is_valid(buf.bufnr) then
-                                  return acc
-                          end
+                    .iter(all_bufs)
+                    :fold({}, function(acc, buf)
+                            if not api.nvim_buf_is_valid(buf.bufnr) then
+                                    return acc
+                            end
 
-                          local still_exists   = uv.fs_stat(buf.name) ~= nil
-                          local special_buffer = bo[buf.bufnr].buftype ~= ""
-                          local new_buffer     = buf.name == ""
+                            local still_exists   = uv.fs_stat(buf.name) ~= nil
+                            local special_buffer = bo[buf.bufnr].buftype ~= ""
+                            local new_buffer     = buf.name == ""
 
-                          if still_exists or special_buffer or new_buffer then
-                                  return acc
-                          end
+                            if still_exists or special_buffer or new_buffer then
+                                    return acc
+                            end
 
-                          table.insert(acc, vim.fs.basename(buf.name))
-                          api.nvim_buf_delete(buf.bufnr, { force = false })
-                          return acc
-                  end)
+                            table.insert(acc, vim.fs.basename(buf.name))
+                            api.nvim_buf_delete(buf.bufnr, { force = false })
+                            return acc
+                    end)
 
                 if #closed_buffers == 0 then
                         return

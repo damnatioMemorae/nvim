@@ -54,14 +54,14 @@ local function diagnose(args)
                                                 local previous = node:prev_sibling()
                                                 if previous and previous:type() ~= "ERROR" then
                                                         local previous_type = previous:named() and previous:type() or
-                                                          string.format("`%s`", previous:type())
+                                                            string.format("`%s`", previous:type())
                                                         diagnostic.message  = diagnostic.message ..
-                                                          " after " .. previous_type
+                                                            " after " .. previous_type
                                                 end
 
                                                 if parent and parent:type() ~= "ERROR" and (previous == nil or previous:type() ~= parent:type()) then
                                                         diagnostic.message = diagnostic.message ..
-                                                          " in " .. parent:type()
+                                                            " in " .. parent:type()
                                                 end
 
                                                 table.insert(diagnostics, diagnostic)

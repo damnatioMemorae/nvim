@@ -36,23 +36,29 @@ local function update(bufnr, lnum)
                 },
         }
 
-        lsp.buf_request_all(bufnr, "textDocument/codeAction", params, function(responses)
-                vim.schedule(function()
-                        if not api.nvim_buf_is_valid(bufnr) then return end
-                        if bufnr ~= api.nvim_get_current_buf() then return end
+        local clients = vim.lsp.get_clients { bufnr = 0 }
 
-                        local current_lnum = api.nvim_win_get_cursor(0)[1]
-                        if current_lnum ~= lnum then return end
+        for _, client in ipairs(clients) do
+                if client:supports_method "textDocument/codeAction" then
+                        lsp.buf_request_all(bufnr, "textDocument/codeAction", params, function(responses)
+                                vim.schedule(function()
+                                        if not api.nvim_buf_is_valid(bufnr) then return end
+                                        if bufnr ~= api.nvim_get_current_buf() then return end
 
-                        for _, response in pairs(responses) do
-                                if response.result and #response.result > 0 then
-                                        fn.sign_place(0, "CodeAction", "CodeAction", bufnr,
-                                                      { lnum = lnum, priority = 4000 })
-                                        return
-                                end
-                        end
-                end)
-        end)
+                                        local current_lnum = api.nvim_win_get_cursor(0)[1]
+                                        if current_lnum ~= lnum then return end
+
+                                        for _, response in pairs(responses) do
+                                                if response.result and #response.result > 0 then
+                                                        fn.sign_place(0, "CodeAction", "CodeAction", bufnr,
+                                                                      { lnum = lnum, priority = 4000 })
+                                                        return
+                                                end
+                                        end
+                                end)
+                        end)
+                end
+        end
 end
 
 local timer = uv.new_timer()

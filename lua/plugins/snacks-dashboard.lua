@@ -23,6 +23,8 @@ local function picker(pick)
         getPicker(pick, mode)
 end
 
+
+
 return {
         "folke/snacks.nvim",
         opts = {

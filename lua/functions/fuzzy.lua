@@ -1,8 +1,6 @@
 local fn  = vim.fn
 local opt = vim.opt
 
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 local ignore_patterns = {
         "node_modules",
         "%.git",
@@ -33,4 +31,4 @@ function _G.fuzzyFind(text, _)
         return fn.matchfuzzy(result, text)
 end
 
-opt.findfunc = "v:lua.fuzzyFind"
+opt.findfunc = [[v:lua.fuzzyFind]]

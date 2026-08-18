@@ -3,32 +3,35 @@ local levels = log.levels
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+local function format()
+        require "conform".format { async = true, timeout_ms = 1000 }
+end
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 return {
         "stevearc/conform.nvim",
         cmd  = "ConnformInfo",
-        keys = { {
-                "=",
-                function() require "conform".format { async = true, timeout_ms = 1000 } end,
-                mode = { "n", "x" },
-                desc = "Format buffer",
-        } },
+        keys = { { "=", format, mode = { "n", "x" }, desc = "Format buffer" } },
         opts = {
                 log_level           = levels.INFO,
                 default_format_opts = { lsp_format = "last" },
                 formatters          = {
-                        clang_format   = { args = { "--style=file" } },
-                        shfmt          = { args = { "-ln=bash", "-i=8", "-ci" } },
-                        shellcheck     = { args = "'$FILENAME' --format=diff --shell=bash | patch -p1 '$FILENAME'" },
-                        odinfmt        = { args = { "-stdin" }, stdin = true },
-                        ["shell-home"] = {
+                        clang_format       = { args = { "--style=file" } },
+                        shfmt              = { args = { "-ln=bash", "-i=8", "-ci" } },
+                        shellcheck         = { args = "'$FILENAME' --format=diff --shell=bash | patch -p1 '$FILENAME'" },
+                        odinfmt            = { args = { "-stdin" }, stdin = true },
+                        ["lua-assignment"] = function(_self, _ctx, lines, callback)
+
+                        end,
+                        ["shell-home"]     = {
                                 format = function(_self, _ctx, lines, callback)
                                         local updated = vim.tbl_map(
                                                 function(line)
                                                         return line:gsub("/Users/%a+",
                                                                          "$HOME"):gsub("([^/\\])~/", "%1$HOME/")
                                                 end,
-                                                lines
-                                        )
+                                                lines)
                                         callback(nil, updated)
                                 end,
                         },

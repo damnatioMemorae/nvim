@@ -102,43 +102,43 @@ local function checkForDuplicateKeys()
         local plugins        = require "lazy".plugins()
 
         vim
-          .iter(plugins)
-          :each(function(plugin)
-                  if not plugin.keys then
-                          return
-                  end
+            .iter(plugins)
+            :each(function(plugin)
+                    if not plugin.keys then
+                            return
+                    end
 
-                  vim
-                    .iter(plugin.keys)
-                    :filter(function(lazyKey)
-                            return lazyKey.ft == nil
-                    end)
-                    :each(function(lazyKey)
-                            local lhs   = lazyKey[1] or lazyKey
-                            local modes = lazyKey.mode or "n"
+                    vim
+                        .iter(plugin.keys)
+                        :filter(function(lazyKey)
+                                return lazyKey.ft == nil
+                        end)
+                        :each(function(lazyKey)
+                                local lhs   = lazyKey[1] or lazyKey
+                                local modes = lazyKey.mode or "n"
 
-                            if type(modes) ~= "table" then
-                                    modes = { modes } ---@diagnostic disable-line: cast-local-type
-                            end
+                                if type(modes) ~= "table" then
+                                        modes = { modes } ---@diagnostic disable-line: cast-local-type
+                                end
 
-                            vim
-                              .iter(modes)
-                              :each(function(mode)
-                                      if not already_mapped[mode] then
-                                              already_mapped[mode] = {}
-                                      end
+                                vim
+                                    .iter(modes)
+                                    :each(function(mode)
+                                            if not already_mapped[mode] then
+                                                    already_mapped[mode] = {}
+                                            end
 
-                                      if already_mapped[mode][lhs] then
-                                              local msg = ("Duplicate keymap: %s (%s)")
-                                                :format(lhs, mode)
-                                              vim.notify(msg, levels.WARN,
-                                                         { title = "lazy.nvim", timeout = 4000 })
-                                      else
-                                              already_mapped[mode][lhs] = true
-                                      end
-                              end)
-                    end)
-          end)
+                                            if already_mapped[mode][lhs] then
+                                                    local msg = ("Duplicate keymap: %s (%s)")
+                                                        :format(lhs, mode)
+                                                    vim.notify(msg, levels.WARN,
+                                                               { title = "lazy.nvim", timeout = 4000 })
+                                            else
+                                                    already_mapped[mode][lhs] = true
+                                            end
+                                    end)
+                        end)
+            end)
 end
 
 vim.defer_fn(checkForDuplicateKeys, 5000)

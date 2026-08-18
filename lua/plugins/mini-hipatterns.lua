@@ -1,12 +1,12 @@
 linq
 "MiniHipatterns"
-  { "Fixme", "@comment.error" }
-  { "Hack", "@comment.warning" }
-  { "Todo", "@comment.todo" }
-  { "Hint", "@comment.hint" }
-  { "Note", "@comment.note" }
-  { "Code", "@comment.code" }
-  { "Url", "@comment.url" }
+    { "Fixme", "@comment.error" }
+    { "Hack", "@comment.warning" }
+    { "Todo", "@comment.todo" }
+    { "Hint", "@comment.hint" }
+    { "Note", "@comment.note" }
+    { "Code", "@comment.code" }
+    { "Url", "@comment.url" }
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

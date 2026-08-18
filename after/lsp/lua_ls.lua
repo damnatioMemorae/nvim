@@ -47,7 +47,7 @@ local format        = {
         ["tab_width"]    = "4",
         ["quote_style"]  = "double",
 
-        ["continuation_indent.in_expr"]      = "2",
+        ["continuation_indent.in_expr"]      = "4",
         ["continuation_indent.in_table"]     = "4",
         ["continuation_indent.before_block"] = "4",
         ["max_line_length"]                  = "120",
@@ -165,7 +165,7 @@ return {
         cmd          = { "lua-language-server" },
         filetypes    = { "lua" },
         root_markers = fn.has "nvim-0.11.3" == 1 and { root_markers1, root_markers2, { ".git" } }
-          or vim.list_extend(vim.list_extend(root_markers1, root_markers2), { ".git" }),
+            or vim.list_extend(vim.list_extend(root_markers1, root_markers2), { ".git" }),
         settings     = {
                 Lua = {
                         completion    = {

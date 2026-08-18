@@ -1,12 +1,12 @@
 linq
 "Winshift"
-  { "Normal", "NormalFloat" }
-  { "FoldColumn", "NormalFloat" }
-  { "SignColumn", "NormalFloat" }
-  { "LineNr", "LineNr" }
-  { "LineNrAbove", "LineNr" }
-  { "LineNrBelow", "LineNr" }
-  { "CursorLneNr", "CursorLineNr" }
+    { "Normal", "NormalFloat" }
+    { "FoldColumn", "NormalFloat" }
+    { "SignColumn", "NormalFloat" }
+    { "LineNr", "LineNr" }
+    { "LineNrAbove", "LineNr" }
+    { "LineNrBelow", "LineNr" }
+    { "CursorLneNr", "CursorLineNr" }
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

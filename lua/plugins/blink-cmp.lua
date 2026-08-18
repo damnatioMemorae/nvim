@@ -1,45 +1,45 @@
 linq
 "BlinkCmp"
-  { "KindClass", "@lsp.type.class" }
-  { "KindColor", "DevIconDss" }
-  { "KindConstant", "@constant" }
-  { "KindConstructor", "@constructor" }
-  { "KindEnum", "@lsp.type.enum" }
-  { "KindEnumMember", "@lsp.type.enumMember" }
-  { "KindEvent", "@lsp.type.event" }
-  { "KindField", "@lsp.type.property" }
-  { "KindFile", "Comment" }
-  { "KindFolder", "Directory" }
-  { "KindFunction", "@lsp.type.function" }
-  { "KindInterface", "@lsp.type.interface" }
-  { "KindKeyword", "Todo" }
-  { "KindMethod", "@lsp.type.method" }
-  { "KindModule", "@module" }
-  { "KindOperator", "@lsp.type.operator" }
-  { "KindProperty", "@lsp.type.property" }
-  { "KindReference", "@lsp.type.function" }
-  { "KindSnippet", "@lsp.type.keyword" }
-  { "KindStruct", "@lsp.type.struct" }
-  { "KindText", "@string" }
-  { "KindTypeParameter", "@lsp.type.typeParameter" }
-  { "KindUnit", "@lsp.type.number" }
-  { "KindValue", "@lsp.type.number" }
-  { "KindVariable", "@lsp.type.variable" }
-  { "AbbrDeprecated", "DiagnosticDeprecated" }
-  { "LabelDescription", "Comment" }
-  { "LabelDetail", "Comment" }
-  { "LabelMatch", "PmenuMatch" }
-  { "Menu", "Pmenu" }
-  { "MenuBorder", "PmenuBorder" }
-  { "MenuSelection", "pmenuSel" }
-  { "Doc", "PmenuDoc" }
-  { "DocBorder", "BlinkCmpDoc" }
-  { "DocSeparator", "BlinkCmpDoc" }
-  { "SignatureHelp", "BlinkCmpDoc" }
-  { "SignatureHelpBorder", "BlinkCmpDoc" }
-  { "Source", "Comment" }
-  { "ScrollBarThumb", "PmenuThumb" }
-  { "ScrollBarGutter", "PmenuSbar" }
+    { "KindClass", "@lsp.type.class" }
+    { "KindColor", "DevIconDss" }
+    { "KindConstant", "@constant" }
+    { "KindConstructor", "@constructor" }
+    { "KindEnum", "@lsp.type.enum" }
+    { "KindEnumMember", "@lsp.type.enumMember" }
+    { "KindEvent", "@lsp.type.event" }
+    { "KindField", "@lsp.type.property" }
+    { "KindFile", "Comment" }
+    { "KindFolder", "Directory" }
+    { "KindFunction", "@lsp.type.function" }
+    { "KindInterface", "@lsp.type.interface" }
+    { "KindKeyword", "Todo" }
+    { "KindMethod", "@lsp.type.method" }
+    { "KindModule", "@module" }
+    { "KindOperator", "@lsp.type.operator" }
+    { "KindProperty", "@lsp.type.property" }
+    { "KindReference", "@lsp.type.function" }
+    { "KindSnippet", "@lsp.type.keyword" }
+    { "KindStruct", "@lsp.type.struct" }
+    { "KindText", "@string" }
+    { "KindTypeParameter", "@lsp.type.typeParameter" }
+    { "KindUnit", "@lsp.type.number" }
+    { "KindValue", "@lsp.type.number" }
+    { "KindVariable", "@lsp.type.variable" }
+    { "AbbrDeprecated", "DiagnosticDeprecated" }
+    { "LabelDescription", "Comment" }
+    { "LabelDetail", "Comment" }
+    { "LabelMatch", "PmenuMatch" }
+    { "Menu", "Pmenu" }
+    { "MenuBorder", "PmenuBorder" }
+    { "MenuSelection", "pmenuSel" }
+    { "Doc", "PmenuDoc" }
+    { "DocBorder", "BlinkCmpDoc" }
+    { "DocSeparator", "BlinkCmpDoc" }
+    { "SignatureHelp", "BlinkCmpDoc" }
+    { "SignatureHelpBorder", "BlinkCmpDoc" }
+    { "Source", "Comment" }
+    { "ScrollBarThumb", "PmenuThumb" }
+    { "ScrollBarGutter", "PmenuSbar" }
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -127,7 +127,7 @@ local sources    = {
                                 local chars_before = vim.api.nvim_get_current_line():sub(col - 2, col)
 
                                 local luadoc_but_not_comment = not chars_before:find "^%-%-?$"
-                                  and not chars_before:find "%s%-%-?"
+                                    and not chars_before:find "%s%-%-?"
                                 return luadoc_but_not_comment
                         end,
                         override     = {
@@ -169,7 +169,7 @@ local sources    = {
                         name         = "omni",
                         module       = "blink.cmp.sources.complete_func",
                         score_offset = 60,
-                        opts         = { disable_omnifunc = { "v:lua.vim.lsp.omnifunc" } },
+                        opts         = { disable_omnifunc = { [[v:lua.vim.lsp.omnifunc]] } },
                 },
                 ripgrep  = {
                         module       = "blink-cmp-rg",
@@ -192,7 +192,7 @@ local sources    = {
                                 end,
                                 get_prefix     = function(_context)
                                         return _context.line:sub(1, _context.cursor[2]):match "[%w_-]+$" or
-                                          ""
+                                            ""
                                 end,
                         },
                 },
