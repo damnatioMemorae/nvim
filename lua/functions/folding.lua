@@ -29,11 +29,11 @@ function _G.foldText()
             :gsub("\t", string.rep(" ", o.tabstop))
 
         local content = { first .. " ... ", "FoldText" }
-        return { { indent }, content }
-        -- return match(indent) {
-        --         [""] = { { indent }, content },
-        --         _    = { { indent }, content },
-        -- }
+
+        return match(indent) {
+                [""] = { { indent }, content },
+                _    = { { indent }, content },
+        }
 end
 
 o.foldtext = [[v:lua.foldText()]]
@@ -50,25 +50,19 @@ local function getMaxFoldLvl()
 end
 
 local function setFoldLvl(lvl)
-        if lvl >= range[1] then
-                wo.foldlevel = lvl
-        elseif lvl <= range[1] then
-                wo.foldlevel = lvl
-        end
+        guard { lvl >= range[1], function() wo.foldlevel = lvl end,
+                lvl <= range[1], function() wo.foldlevel = lvl end,
+        }
 end
 
 local function reduceFoldLvl()
         local lvl = tonumber(wo.foldlevel) or 0
-        if lvl > 0 then
-                wo.foldlevel = lvl - 1
-        end
+        guard { lvl > 0, function() wo.foldlevel = lvl - 1 end }
 end
 
 local function increaseFoldLvl()
         local lvl = tonumber(wo.foldlevel) or 0
-        if lvl < getMaxFoldLvl() then
-                wo.foldlevel = lvl + 1
-        end
+        guard { lvl < getMaxFoldLvl(), function() wo.foldlevel = lvl + 1 end }
 end
 
 local function closeTopLvl()
@@ -87,13 +81,11 @@ end
 ---@param f fun(): any
 ---@return any
 local function winCall(winid, f)
-        if winid == api.nvim_get_current_win() then
-                return f()
-        elseif winid == 0 then
-                return f()
-        else
-                api.nvim_win_call(winid, f)
-        end
+        return match(winid) {
+                [api.nvim_get_current_win()] = function() return f() end,
+                [0]                          = function() return f() end,
+                _                            = function() return api.nvim_win_call(winid, f) end,
+        }
 end
 
 ---@param winid number
@@ -177,23 +169,23 @@ end
 ---- KEYMAP --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local mode = { "n", "x", "o" }
-vim.keymap.set(mode, "<S-Left>",  "zM",         { desc = "Folds close all" })
-vim.keymap.set(mode, "<S-Right>", "zR",         { desc = "Folds open all" })
-vim.keymap.set(mode, "<Left>",    "zc^",        { desc = "Fold close" })
-vim.keymap.set(mode, "<Right>",   "zo^",        { desc = "Fold open" })
-vim.keymap.set(mode, "<Down>",    "zj^",        { desc = "Fold next" })
-vim.keymap.set(mode, "<Up>",      gotoPrevFold, { desc = "Fold prev" })
-vim.keymap.set(mode, "<M-z>",     closeTopLvl,  { desc = "Close toplevel folds" })
-vim.keymap.set(mode, "<M-Z>",     openTopLvl,   { desc = "Open toplevel folds" })
-vim.keymap.set(mode, "zv",        "zv",         { desc = "Open tocursor" })
+keyq { "<S-Left>", "zM", mode = mode, desc = "Folds close all" }
+keyq { "<S-Right>", "zR", mode = mode, desc = "Folds open all" }
+keyq { "<Left>", "zc^", mode = mode, desc = "Fold close" }
+keyq { "<Right>", "zo^", mode = mode, desc = "Fold open" }
+keyq { "<Down>", "zj^", mode = mode, desc = "Fold next" }
+keyq { "<Up>", gotoPrevFold, mode = mode, desc = "Fold prev" }
+keyq { "<M-z>", closeTopLvl, mode = mode, desc = "Close toplevel folds" }
+keyq { "<M-Z>", openTopLvl, mode = mode, desc = "Open toplevel folds" }
+keyq { "zv", "zv", desc = "Open tocursor" }
 
-vim.keymap.set(mode, "<M-,>", reduceFoldLvl,   { desc = "Reduce Fold" })
-vim.keymap.set(mode, "<M-.>", increaseFoldLvl, { desc = "Increase Fold" })
+keyq { "<M-,>", reduceFoldLvl, desc = "Reduce Fold" }
+keyq { "<M-.>", increaseFoldLvl, desc = "Increase Fold" }
 
-vim.keymap.set(mode, "<Esc>", "<Esc>zv", { unique = false })
+keyq { "<Esc>", "<Esc>zv", mode = "i", unique = false }
 
 vim
     .iter { "1", "2", "3", "4", "5", "6", "7", "8", "9" }
     :each(function(key)
-            vim.keymap.set(mode, "<M-" .. key .. ">", function() setFoldLvl() end)
+            keyq { "<M-" .. key .. ">", function() setFoldLvl(tonumber(key) - 1) end }
     end)
