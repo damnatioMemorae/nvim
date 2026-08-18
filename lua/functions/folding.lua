@@ -29,11 +29,11 @@ function _G.foldText()
             :gsub("\t", string.rep(" ", o.tabstop))
 
         local content = { first .. " ... ", "FoldText" }
-
-        return match(indent) {
-                [""] = { { indent }, content },
-                _    = { { indent }, content },
-        }
+        return { { indent }, content }
+        -- return match(indent) {
+        --         [""] = { { indent }, content },
+        --         _    = { { indent }, content },
+        -- }
 end
 
 o.foldtext = [[v:lua.foldText()]]
@@ -50,19 +50,25 @@ local function getMaxFoldLvl()
 end
 
 local function setFoldLvl(lvl)
-        guard { lvl >= range[1], function() wo.foldlevel = lvl end,
-                lvl <= range[1], function() wo.foldlevel = lvl end,
-        }
+        if lvl >= range[1] then
+                wo.foldlevel = lvl
+        elseif lvl <= range[1] then
+                wo.foldlevel = lvl
+        end
 end
 
 local function reduceFoldLvl()
         local lvl = tonumber(wo.foldlevel) or 0
-        guard { lvl > 0, function() wo.foldlevel = lvl - 1 end }
+        if lvl > 0 then
+                wo.foldlevel = lvl - 1
+        end
 end
 
 local function increaseFoldLvl()
         local lvl = tonumber(wo.foldlevel) or 0
-        guard { lvl < getMaxFoldLvl(), function() wo.foldlevel = lvl + 1 end }
+        if lvl < getMaxFoldLvl() then
+                wo.foldlevel = lvl + 1
+        end
 end
 
 local function closeTopLvl()
@@ -81,11 +87,13 @@ end
 ---@param f fun(): any
 ---@return any
 local function winCall(winid, f)
-        return match(winid) {
-                [api.nvim_get_current_win()] = function() return f() end,
-                [0]                          = function() return f() end,
-                _                            = function() return api.nvim_win_call(winid, f) end,
-        }
+        if winid == api.nvim_get_current_win() then
+                return f()
+        elseif winid == 0 then
+                return f()
+        else
+                api.nvim_win_call(winid, f)
+        end
 end
 
 ---@param winid number
