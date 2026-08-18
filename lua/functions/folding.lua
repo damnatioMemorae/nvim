@@ -169,18 +169,18 @@ end
 ---- KEYMAP --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local mode = { "n", "x", "o" }
-vim.keymap.set( mode, "<S-Left>",  "zM",         { desc = "Folds close all" })
-vim.keymap.set( mode, "<S-Right>", "zR",         { desc = "Folds open all" })
-vim.keymap.set( mode, "<Left>",    "zc^",        { desc = "Fold close" })
-vim.keymap.set( mode, "<Right>",   "zo^",        { desc = "Fold open" })
-vim.keymap.set( mode, "<Down>",    "zj^",        { desc = "Fold next" })
-vim.keymap.set( mode, "<Up>",      gotoPrevFold, { desc = "Fold prev" })
-vim.keymap.set( mode, "<M-z>",     closeTopLvl,  { desc = "Close toplevel folds" })
-vim.keymap.set( mode, "<M-Z>",     openTopLvl,   { desc = "Open toplevel folds" })
-vim.keymap.set( mode, "zv",        "zv",         {})
+vim.keymap.set(mode, "<S-Left>",  "zM",         { desc = "Folds close all" })
+vim.keymap.set(mode, "<S-Right>", "zR",         { desc = "Folds open all" })
+vim.keymap.set(mode, "<Left>",    "zc^",        { desc = "Fold close" })
+vim.keymap.set(mode, "<Right>",   "zo^",        { desc = "Fold open" })
+vim.keymap.set(mode, "<Down>",    "zj^",        { desc = "Fold next" })
+vim.keymap.set(mode, "<Up>",      gotoPrevFold, { desc = "Fold prev" })
+vim.keymap.set(mode, "<M-z>",     closeTopLvl,  { desc = "Close toplevel folds" })
+vim.keymap.set(mode, "<M-Z>",     openTopLvl,   { desc = "Open toplevel folds" })
+vim.keymap.set(mode, "zv",        "zv",         { desc = "Open tocursor" })
 
-vim.keymap.set( mode, "<M-,>", reduceFoldLvl,   {})
-vim.keymap.set( mode, "<M-.>", increaseFoldLvl, {})
+vim.keymap.set(mode, "<M-,>", reduceFoldLvl,   { desc = "Reduce Fold" })
+vim.keymap.set(mode, "<M-.>", increaseFoldLvl, { desc = "Increase Fold" })
 
 vim.keymap.set(mode, "<Esc>", "<Esc>zv", { unique = false })
 
