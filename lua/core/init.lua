@@ -12,15 +12,15 @@ end
 
 g.mapleader              = " "
 g.maplocalleader         = ","
-g.qf_mode                = "c"
 g.backdrop_wins          = { "dropbar_menu", "Glance", "rip-substitute", "terminal" }
 g.loaded_nvim_dir_plugin = 1
-g.nproc                  = tonumber(fn.system { "nproc" })
+g.nproc                  = tonumber(fn.system { "nproc" }) - 1
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 req
 "core"
+    "options"
     "lazy"
     { "commands", "CmdlineEnter" }
     { "keymaps", "BufReadPre" }

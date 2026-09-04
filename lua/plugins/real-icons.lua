@@ -16,6 +16,7 @@ return {
                 },
                 size         = { cols = 2, rows = 1, pixels = 128, padding = 6, trim = true },
                 integrations = {
+                        oil           = true,
                         fzf_lua       = true,
                         mini_files    = true,
                         snacks_picker = true,

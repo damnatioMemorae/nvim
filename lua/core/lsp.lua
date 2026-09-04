@@ -269,7 +269,8 @@ local function documentHighlight(client, buf)
                                 ---@cast timer uv.uv_timer_t
                                 timer:start(400, 0, vim.schedule_wrap(function()
                                         local pos  = api.nvim_win_get_cursor(0)
-                                        local node = ts.get_node { pos = { pos[1] - 1, pos[2] } }
+                                        -- local pos  = vim.pos.cursor(0)
+                                        local node = ts.get_node { pos = { pos[1], pos[2] } }
 
                                         local in_string = false
                                         while node do
@@ -389,22 +390,23 @@ local function lines()
         }
 end
 
-keyq { "<leader>k", lines, desc = "Diagnostic Lines" }
-keyq { "J", lsp.buf.signature_help, desc = "Signature Help" }
-keyq { "K", lsp.buf.hover, desc = "Hover Documentation", unique = false }
-keyq { "<M-D>", function() jump(-1) end, desc = "Diagnostic Prev", mode = { "n", "x" } }
-keyq { "<M-d>", function() jump(1) end, desc = "Diagnostic Next", mode = { "n", "x" } }
-
-keyq { "<M-j>", function() nano.scrollLspOrOtherWin(5) end, desc = "Scroll other win" }
-keyq { "<M-k>", function() nano.scrollLspOrOtherWin(-5) end, desc = "Scroll other win" }
-
-keyq { "<leader>d", diag.setloclist, desc = "Diagnostic loclist" }
-keyq { "<leader>D", diag.setqflist, desc = "Diagnostic quickfix" }
-
-keyq { "<LocalLeader>f", "gF", desc = ("LSP Goto ") .. "File" }
-keyq { "<LocalLeader>D", lsp.buf.declaration, desc = "LSP Goto Declaration", unique = false }
-keyq { "<LocalLeader>d", lsp.buf.definition, desc = "LSP Goto Definition", unique = false }
-keyq { "<LocalLeader>r", lsp.buf.references, desc = "LSP Goto Reference", unique = false }
-keyq { "<LocalLeader>i", lsp.buf.implementation, desc = "LSP Goto Implementation", unique = false }
-keyq { "<LocalLeader>t", lsp.buf.type_definition, desc = "LSP Goto TypeDefinition", unique = false }
-keyq { "<LocalLeader>a", lsp.buf.code_action, desc = "LSP Code Action", mode = { "n", "x" } }
+kq
+""
+    { "<leader>k", lines, desc = "Diagnostic Lines" }
+    { "J", lsp.buf.signature_help, desc = "Signature Help" }
+    { "K", lsp.buf.hover, desc = "Hover Documentation", unique = false }
+    { "<M-D>", function() jump(-1) end, desc = "Diagnostic Prev", mode = { "n", "x" } }
+    { "<M-d>", function() jump(1) end, desc = "Diagnostic Next", mode = { "n", "x" } }
+    { "<M-j>", function() nano.scrollLspOrOtherWin(5) end, desc = "Scroll other win" }
+    { "<M-k>", function() nano.scrollLspOrOtherWin(-5) end, desc = "Scroll other win" }
+    { "<leader>d", diag.setloclist, desc = "Diagnostic loclist" }
+    { "<leader>D", diag.setqflist, desc = "Diagnostic quickfix" }
+    { "<LocalLeader>f", "gF", desc = ("LSP Goto ") .. "File" }
+    { "<LocalLeader>D", lsp.buf.declaration, desc = "LSP Goto Declaration", unique = false }
+    { "<LocalLeader>d", lsp.buf.definition, desc = "LSP Goto Definition", unique = false }
+    { "<LocalLeader>r", lsp.buf.references, desc = "LSP Goto Reference", unique = false }
+    { "<LocalLeader>i", lsp.buf.implementation, desc = "LSP Goto Implementation", unique = false }
+    { "<LocalLeader>t", lsp.buf.type_definition, desc = "LSP Goto TypeDefinition", unique = false }
+    { "<LocalLeader>a", lsp.buf.code_action, desc = "LSP Code Action", mode = { "n", "x" } }
+    { "<LocalLeader>o", lsp.buf.document_symbol, desc = "LSP Symbols" }
+    { "<LocalLeader>O", lsp.buf.workspace_symbol, desc = "LSP Symbols" }

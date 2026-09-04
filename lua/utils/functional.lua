@@ -10,7 +10,72 @@ local numq = function(_) return type(_) == "number" end
 local booq = function(_) return type(_) == "boolean" end
 local funq = function(_) return type(_) == "function" end
 
+---- FUNCITONS -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+local function curry(f, n)
+        n = n or debug.getinfo(f, "u").nparams
+        local function curried(args, count)
+                return function(...)
+                        local argc     = select("#", ...)
+                        local new_args = { unpack(args) }
+                        for i = 1, argc do
+                                new_args[count + i] = select(i, ...)
+                        end
+                        local new_count = count + argc
+                        if new_count >= n then
+                                return f(unpack(new_args, 1, n))
+                        end
+                        return curried(new_args, new_count)
+                end
+        end
+        return curried({}, 0)
+end
+
+local function uncurry(f)
+        return function(...)
+                local args = { ... }
+                local result = f
+                for i = 1, #args do
+                        result = result(args[i])
+                end
+                return result
+        end
+end
+
+local function revq(f, n)
+        local function collect(args)
+                return function(...)
+                        local new_args = { unpack(args) }
+                        for i = 1, select("#", ...) do
+                                new_args[#new_args + 1] = select(i, ...)
+                        end
+                        if #new_args >= n then
+                                local reversed = {}
+                                for i = 1, n do
+                                        reversed[i] = new_args[n - i + 1]
+                                end
+                                local result = f
+                                for i = 1, n do
+                                        result = result(reversed[i])
+                                end
+                                return result
+                        end
+                        return collect(new_args)
+                end
+        end
+        return collect {}
+end
+
 ---- PATTERN MATCHING ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+local _gt    = function() return function(a) return function(_) return _ > a end end end
+local _lt    = function() return function(a) return function(_) return _ < a end end end
+local _eq    = function() return function(a) return function(_) return _ == a end end end
+local _neq   = function() return function(a) return function(_) return _ ~= a end end end
+local _gtq   = function() return function(a) return function(_) return _ >= a end end end
+local _ltq   = function() return function(a) return function(_) return _ <= a end end end
+local _lower = function() return function(_) return _:lower() end end
+local _upper = function() return function(_) return _:upper() end end
 
 local function matches(value, pattern)
         if type(pattern) == "function" then
@@ -34,20 +99,11 @@ local function execute(action, value)
         return action
 end
 
----@type fun(value: any): fun(cases: table): function
-function match(value)
+---@type fun(value: any): fun(cases: table): any
+local function match(value)
         return function(cases)
                 for pattern, action in pairs(cases) do
-                        if pattern ~= "_" and type(pattern) == "string" then
-                                if value == pattern then
-                                        return execute(action, value)
-                                end
-                        end
-                end
-                for i = 1, #cases, 2 do
-                        local pattern = cases[i]
-                        local action  = cases[i + 1]
-                        if matches(value, pattern) then
+                        if pattern ~= "_" and matches(value, pattern) then
                                 return execute(action, value)
                         end
                 end
@@ -88,20 +144,6 @@ local function unless(condition)
 end
 
 ---- LISTS ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
----@type fun(tbl: table): fun(idx: number): table|table
-local function ext(tbl)
-        return function(idx)
-                return tbl[idx] or tbl
-        end
-end
-
----@type fun(tbl: table): fun(idx: number): table|nil
-local function _ext(tbl)
-        return function(idx)
-                return tbl[idx] or nil
-        end
-end
 
 ---@type fun(t1: table): fun(t2: table): table
 local function extl(dst)
@@ -185,6 +227,11 @@ end
 local M = {}
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+M.combinator   = {
+        revq    = revq,
+        curry   = curry,
+        uncurry = uncurry,
+}
 M.predicates   = {
         eq    = eq,
         typq  = typq,
@@ -204,8 +251,6 @@ M.predicates   = {
         _funq = not funq,
 }
 M.lists        = {
-        ext    = ext,
-        _ext   = _ext,
         extl   = extl,
         map    = map,
         mapl   = mapl,
@@ -213,6 +258,14 @@ M.lists        = {
         foldl  = foldl,
         filter = filter,
         concat = concat,
+}
+M.matching     = {
+        _gt    = _gt,
+        _lt    = _lt,
+        _eq    = _eq,
+        _neq   = _neq,
+        _lower = _lower,
+        _upper = _upper,
 }
 M.conditionals = {
         guard  = guard,

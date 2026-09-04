@@ -16,7 +16,7 @@ local orig_set_pos = messages.set_pos
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local _targets = {
-        [""]         = "msg",
+        -- [""]         = "msg",
         empty        = "msg",
         bufwrite     = "msg",
         echo         = "msg",
@@ -48,11 +48,12 @@ local _targets = {
 require "vim._core.ui2".enable {
         enable = true,
         msg    = {
-                targets = "msg",
-                cmd     = { height = 0.5 },
-                dialog  = { height = 0.5 },
-                pager   = { height = 0.5 },
-                msg     = { height = 0.3, timeout = 1500 },
+                -- targets = "msg",
+                targets = _targets,
+                -- cmd     = { height = 0.5 },
+                -- dialog  = { height = 0.5 },
+                -- pager   = { height = 0.5 },
+                -- msg     = { height = 0.3, timeout = 1500 },
         },
 }
 

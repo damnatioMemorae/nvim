@@ -9,79 +9,62 @@ local fn      = vim.fn
 local uv      = vim.uv
 local wo      = vim.wo
 local api     = vim.api
+local iter    = vim.iter
 local augroup = vim.api.nvim_create_augroup
 
 local general = augroup("General Autocmds", { clear = true })
 
 ---- GENERAL -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-auq "CmdlineChanged" { -- CMDLINE FUZZY COMPLETION
-        pattern  = { ":", "/", "?" },
-        callback = function() fn.wildtrigger() end,
-}
-
-auq "CmdlineChanged" { -- LIVE COLORSCHEME PREVIEW
-        pattern  = ":",
-        callback = function()
-                local orig_theme = g.colors_name
-                local cmdline    = fn.getcmdline()
-                local words      = vim.split(cmdline, " ", { trimempty = true })
-                if words[1] == "colorscheme" and #words > 1 then
-                        pcmd("colorscheme " .. words[2])()
-                end
-        end,
-}
-
-auq "CmdlineChanged" { -- QUICKFIX LIVE GREP
-        pattern  = ":",
-        callback = function()
-                local cmdline = fn.getcmdline()
-                local words   = vim.split(cmdline, " ", { trimempty = true })
-                if words[1] == "livegrep" and #words > 1 then
-                        o.grepprg = "rg --vimgrep -j " .. tostring(g.nproc - 1)
-                        cmd("silent lgrep! " .. fn.escape(words[2], " "))
-                        cmd "lwindow"
-                end
-        end,
-}
-
-auq "TextYankPost" { -- HIGHLIGHT ON YANK
-        desc     = "User: Highlighted Yank",
+auq "TermOpen" { -- TERMINAL
         group    = general,
-        -- callback = function() vim.hl.hl_op() end,
-        callback = function() vim.hl.on_yank { higroup = "Visual", on_macro = true } end,
+        callback = function() o.statuscolumn = "" end,
 }
-
-auq "VimResized" { -- RESIZE SPLITS
-        desc    = "User: Automatically resize splits",
-        group   = general,
-        command = "wincmd =",
-}
-
-auq "WinScrolled" { -- SNIPPET
-        desc     = "User: Exit snippet on window scroll",
-        group    = general,
-        callback = function() vim.snippet.stop() end,
-}
-
 auq "BufEnter" { -- STOP COMMENT
         group    = general,
         callback = function()
                 opt.formatoptions:remove { "c", "r", "o" }
         end,
 }
-
-auq "BufWritePre" { -- TRAILING WHITESPACE
-        desc     = "User: Remove trailing whitespace",
-        group    = general,
+auq "FileType" { -- JSON
+        pattern = { "json", "jsonc", "json5" },
+        group   = general,
+        command = "setlocal conceallevel=0",
+}
+auq "FileType" { -- NOFILE
         pattern  = "*",
+        group    = general,
+        callback = function(args)
+                match(bo[args.buf].buftype) {
+                        nofile   = function()
+                                opt_l.number         = false
+                                opt_l.relativenumber = false
+                                opt_l.statuscolumn   = ""
+                                opt_l.signcolumn     = "no"
+                        end,
+                        terminal = function() cmd "resize 15" end,
+                }
+        end,
+}
+auq "VimResized" { -- RESIZE SPLITS
+        desc    = "User: Automatically resize splits",
+        group   = general,
+        command = "wincmd =",
+}
+auq "FocusGained" { -- CWD
+        desc     = "User: FIX `cwd` being not available when it is deleted outside nvim.",
+        group    = general,
         callback = function()
-                if bo.filetype ~= "markdown" then
-                        vim.cmd [[%s/\s\+$//e]]
+                if not uv.cwd() then
+                        uv.chdir "/"
                 end
         end,
 }
-
+auq "WinScrolled" { -- SNIPPET
+        desc     = "User: Exit snippet on window scroll",
+        group    = general,
+        callback = function() vim.snippet.stop() end,
+}
 auq "ModeChanged" { -- VIRTUAL EDIT
         pattern  = "*:*",
         group    = general,
@@ -98,53 +81,27 @@ auq "ModeChanged" { -- VIRTUAL EDIT
                 end
         end,
 }
-
-auq "FocusGained" { -- CWD
-        desc     = "User: FIX `cwd` being not available when it is deleted outside nvim.",
+auq "BufWritePre" { -- TRAILING WHITESPACE
+        desc     = "User: Remove trailing whitespace",
         group    = general,
-        callback = function()
-                if not uv.cwd() then
-                        uv.chdir "/"
-                end
-        end,
-}
-
-auq "FileType" { -- JSON
-        pattern = { "json", "jsonc", "json5" },
-        group   = general,
-        command = "setlocal conceallevel=0",
-}
-
-auq "FileType" { -- NOFILE
         pattern  = "*",
-        group    = general,
-        callback = function(args)
-                if bo[args.buf].buftype == "nofile" then
-                        opt_l.number         = false
-                        opt_l.relativenumber = false
-                        opt_l.statuscolumn   = ""
-                        opt_l.signcolumn     = "no"
+        callback = function()
+                if bo.filetype ~= "markdown" then
+                        vim.cmd [[%s/\s\+$//e]]
                 end
         end,
 }
-
+auq "TextYankPost" { -- HIGHLIGHT ON YANK
+        desc     = "User: Highlighted Yank",
+        group    = general,
+        callback = function() vim.hl.hl_op { higroup = "Visual", timeout = 150 } end,
+}
 auq { "FocusGained", "BufWinEnter", "FileType" } { -- BACKDROP
         desc     = "User: Add backdrop to floating windows",
         group    = general,
         pattern  = g.backdrop_wins,
         callback = function() require "utils.misc".addBackdrop() end,
 }
-
-auq { "FocusGained", "TermClose", "TermLeave" } { -- RELOAD ON CHANGE
-        desc     = "User: Reload files if they changed externaly",
-        group    = general,
-        callback = function()
-                if o.buftype ~= "nofile" then
-                        cmd.checktime()
-                end
-        end,
-}
-
 auq { "BufReadPost", "BufReadPre", "BufWinEnter" } { -- RESTORE CURSOR
         desc     = "User: Restore cursor position",
         group    = general,
@@ -156,6 +113,36 @@ auq { "BufReadPost", "BufReadPre", "BufWinEnter" } { -- RESTORE CURSOR
                         api.nvim_win_set_cursor(0, mark)
                 end
         end,
+}
+
+---- CMDLINE -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+auq "CmdlineChanged" { -- QUICKFIX LIVE GREP
+        group    = general,
+        pattern  = ":",
+        callback = function()
+                local cmdline = fn.getcmdline()
+                local words   = vim.split(cmdline, " ", { trimempty = true })
+                if words[1] == "livegrep" and #words > 1 then
+                        cmd("silent grep! " .. fn.escape(words[2], " "))
+                        cmd "cwindow"
+                end
+        end,
+}
+auq "CmdlineChanged" { -- LIVE COLORSCHEME PREVIEW
+        group    = general,
+        pattern  = ":",
+        callback = function()
+                local cmdline = fn.getcmdline()
+                local words   = vim.split(cmdline, " ", { trimempty = true })
+                if words[1] == "colorscheme" and #words > 1 then
+                        pcmd("colorscheme " .. words[2])()
+                end
+        end,
+}
+auq "CmdlineChanged" { -- CMDLINE FUZZY COMPLETION
+        pattern  = { ":", "/", "?", "v", "vimgrep" },
+        callback = function() fn.wildtrigger() end,
 }
 
 ---- `q` and `Esc` -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -179,7 +166,7 @@ auq "FileType" {
                 "terminal",
         },
         callback = function(args)
-                keyq { "<Esc>", "<cmd>q<CR>", buf = args.buf, silent = true }
+                keymapq { "<Esc>", "<cmd>q<CR>", buf = args.buf, silent = true }
         end,
 }
 
@@ -248,6 +235,7 @@ do
                 end
 
                 local row   = api.nvim_win_get_cursor(0)[1]
+                -- local row   = vim.pos.cursor(0)[1]
                 local count = fn.searchcount()
 
                 if vim.tbl_isempty(count) or count.total == 0 then
@@ -262,7 +250,7 @@ do
                 local margin         = { line_full and (" "):rep(config.scrollbarWidth) or "" }
 
                 api.nvim_buf_set_extmark(0, count_ns, row - 1, 0, {
-                        virt_text     = { { text, "IncSearch" }, margin },
+                        virt_text     = { { text, "CurSearch" }, margin },
                         virt_text_pos = line_full and "right_align" or "eol",
                         priority      = 4000,
                 })
@@ -293,7 +281,7 @@ do
                    end, api.nvim_create_namespace "autoNohlAndSearchCount")
 end
 
---[[ TEMPLATES -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---[[ TEMPLATES -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local template_config = {
         templateDir       = fn.stdpath "config" .. "/templates",
@@ -336,18 +324,18 @@ auq { "BufNewFile", "BufReadPost" } {
                                      local filepath = ctx.file
                                      local bufnr    = ctx.buf
                                      local conf     = template_config
-                                     local ignore   = vim.iter(conf.ignoreDirs)
-                                                :any(function(dir) return vim.startswith(filepath, dir) end)
+                                     local ignore   = iter(conf.ignoreDirs)
+                                         :any(function(dir) return vim.startswith(filepath, dir) end)
 
                                      if ignore then
                                              return
                                      end
 
-                                     local longest_matching_glob = vim.iter(conf.globToTemplateMap)
-                                                :filter(function(glob) return g.ob.to_lpeg(glob):match(filepath) end)
-                                                :fold("", function(longGlob, glob)
-                                                        return #longGlob < #glob and glob or longGlob
-                                                end)
+                                     local longest_matching_glob = iter(conf.globToTemplateMap)
+                                         :filter(function(glob) return g.ob.to_lpeg(glob):match(filepath) end)
+                                         :fold("", function(longGlob, glob)
+                                                 return #longGlob < #glob and glob or longGlob
+                                         end)
                                      if longest_matching_glob == "" then
                                              return
                                      end

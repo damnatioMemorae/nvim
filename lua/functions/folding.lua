@@ -1,27 +1,28 @@
-local o   = vim.o
-local v   = vim.v
-local fn  = vim.fn
-local wo  = vim.wo
-local api = vim.api
-local cmd = vim.cmd
+local o    = vim.o
+local v    = vim.v
+local fn   = vim.fn
+local wo   = vim.wo
+local api  = vim.api
+local cmd  = vim.cmd
+local iter = vim.iter
 
 local _levels = {}
-
 -- vim.api.nvim_create_autocmd("BufLeave", {
 --         callback = function(args)
 --                 _levels[args.buf] = vim.wo.foldlevel
 --         end,
 -- })
-
 -- vim.api.nvim_create_autocmd("BufEnter", {
 --         callback = function(args)
 --                 vim.wo.foldlevel = _levels[args.buf] or 0
 --         end,
 -- })
 
+_linq "LspInlayHint" "FoldText"
+
 ---- TEXT ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-function _G.foldText()
+o.foldtext = function()
         local start  = fn.getline(v.foldstart)
         local indent = start:match "^%s*" or ""
         local first  = start
@@ -36,15 +37,13 @@ function _G.foldText()
         }
 end
 
-o.foldtext = [[v:lua.foldText()]]
-
 ---- OPERATIONS ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local range = { 0, 9 }
 
 local function getMaxFoldLvl()
-        return vim
-            .iter(ipairs(fn.range(1, api.nvim_buf_line_count(0))))
+        return iter(fn.range(1, api.nvim_buf_line_count(0)))
+            :enumerate()
             :map(function(lnum) return fn.foldlevel(lnum) end)
             :fold(0, math.max)
 end
@@ -75,7 +74,7 @@ local function openTopLvl()
         cmd "%foldopen"
 end
 
----- MOVEMENT ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---- NAVIGATION ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ---@param winid number
 ---@param f fun(): any
@@ -114,6 +113,7 @@ end
 ---@return number
 local function getCurLnum()
         return api.nvim_win_get_cursor(0)[1]
+        -- return vim.pos.cursor(0)[1]
 end
 
 local function gotoPrevFold()
@@ -169,23 +169,18 @@ end
 ---- KEYMAP --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local mode = { "n", "x", "o" }
-keyq { "<S-Left>", "zM", mode = mode, desc = "Folds close all" }
-keyq { "<S-Right>", "zR", mode = mode, desc = "Folds open all" }
-keyq { "<Left>", "zc^", mode = mode, desc = "Fold close" }
-keyq { "<Right>", "zo^", mode = mode, desc = "Fold open" }
-keyq { "<Down>", "zj^", mode = mode, desc = "Fold next" }
-keyq { "<Up>", gotoPrevFold, mode = mode, desc = "Fold prev" }
-keyq { "<M-z>", closeTopLvl, mode = mode, desc = "Close toplevel folds" }
-keyq { "<M-Z>", openTopLvl, mode = mode, desc = "Open toplevel folds" }
-keyq { "zv", "zv", desc = "Open tocursor" }
+kq
+""
+    { "<S-Left>", "zM", mode = mode, desc = "Folds close all" }
+    { "<S-Right>", "zR", mode = mode, desc = "Folds open all" }
+    { "<Left>", "zc^", mode = mode, desc = "Fold close" }
+    { "<Right>", "zo^", mode = mode, desc = "Fold open" }
+    { "<Down>", "zj^", mode = mode, desc = "Fold next" }
+    { "<Up>", gotoPrevFold, mode = mode, desc = "Fold prev" }
+    { "<M-z>", "zv", mode = mode, desc = "Open to cursor" }
+    { "<M-,>", reduceFoldLvl, mode = mode, desc = "Reduce Fold" }
+    { "<M-.>", increaseFoldLvl, mode = mode, desc = "Increase Fold" }
+    { "<Esc>", "<Esc>zv", mode = "i", unique = false }
 
-keyq { "<M-,>", reduceFoldLvl, desc = "Reduce Fold" }
-keyq { "<M-.>", increaseFoldLvl, desc = "Increase Fold" }
-
-keyq { "<Esc>", "<Esc>zv", mode = "i", unique = false }
-
-vim
-    .iter { "1", "2", "3", "4", "5", "6", "7", "8", "9" }
-    :each(function(key)
-            keyq { "<M-" .. key .. ">", function() setFoldLvl(tonumber(key) - 1) end }
-    end)
+iter { "1", "2", "3", "4", "5", "6", "7", "8", "9" }
+    :each(function(_) keymapq { "<M-" .. _ .. ">", function() setFoldLvl(tonumber(_) - 1) end } end)

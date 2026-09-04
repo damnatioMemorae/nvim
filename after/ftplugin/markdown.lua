@@ -1,18 +1,10 @@
-local bo    = vim.bo
-local api   = vim.api
-local cmd   = vim.cmd
 local opt_l = vim.opt_local
 
-local md = require "functions.md-tools"
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-if bo[api.nvim_get_current_buf()].buftype == "help" then
-        opt_l.colorcolumn  = ""
-        opt_l.statuscolumn = ""
-        cmd "wincmd L"
-        return
+local function md(_)
+        return function(__)
+                return function() return require "functions.md-tools"[_](__) end
+        end
 end
-
 ---- OPTIONS -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 opt_l.shiftwidth     = 8
@@ -20,6 +12,9 @@ opt_l.tabstop        = 8
 opt_l.commentstring  = "<!-- %s -->" -- add spaces
 opt_l.number         = false
 opt_l.relativenumber = false
+opt_l.signcolumn     = "no"
+opt_l.colorcolumn    = ""
+opt_l.statuscolumn   = ""
 
 -- so two trailing spaces are highlighted, but not a single trailing space
 opt_l.listchars:remove "trail"
@@ -34,32 +29,21 @@ vim.schedule(function() opt_l.formatoptions:append "t" end)
 
 abbr "->" "→"
 
----- ADD TITLE TO URL ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---- KEYMAPS -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-bufq { "<leader>cu", md.addTitleToUrl, desc = "Add title to URL" }
-bufq { "p", function()
-        md.addTitleToUrlIfMarkdown "+"
-        return "]p"
-end, desc = "Paste (+ add title if URL)", expr = true }
+bufq { "<leader>cu", md "addTitleToUrl" (), desc = "Add title to URL" }
 
----- AUTO-BULLET ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+bufq { "o", md "autoBullet" "o", desc = "Auto-bullet o" }
+bufq { "O", md "autoBullet" "O", desc = "Auto-bullet O" }
+bufq { "<CR>", md "autoBullet" "<CR>", mode = "i", desc = "Auto-bullet <CR>" }
 
-bufq { "o", function() md.autoBullet "o" end, desc = "Auto-bullet o" }
-bufq { "O", function() md.autoBullet "O" end, desc = "Auto-bullet O" }
-bufq { "<CR>", function() md.autoBullet "<CR>" end, mode = "i", desc = "Auto-bullet <CR>" }
+-- bufq { "<C-Down>", "]]", desc = "Next heading", remap = true, silent = true }
+-- bufq { "<C-Up>", "[[", desc = "Prev heading", remap = true, silent = true }
 
----- FORMATTING ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-bufq { "<M-t>", function() md.cycle "list" end, mode = { "n", "x", "i" }, desc = "Cyclelist types" }
-bufq { "<C-a>", function() md.cycle "task" end, mode = { "n", "x", "i" }, desc = "Cycle  task states" }
-bufq { "<M-u>", function() md.wrap "mdlink" end, mode = { "n", "x", "i" }, desc = "Link" }
-bufq { "<M-s>", function() md.wrap "**" end, mode = { "n", "x", "i" }, desc = "Bold" }
-bufq { "<M-i>", function() md.wrap "_" end, mode = { "n", "x", "i" }, desc = "Italic" }
-bufq { "<M-e>", function() md.wrap "`" end, mode = { "n", "x", "i" }, desc = "Inline code" }
-
----- HEADINGS ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-bufq { "<C-j>", "]]", desc = "Next heading", remap = true, silent = true }
-bufq { "<C-k>", "[[", desc = "Prev heading", remap = true, silent = true }
-bufq { "<C-Down>", "]]", desc = "Next heading", remap = true, silent = true }
-bufq { "<C-Up>", "[[", desc = "Prev heading", remap = true, silent = true }
+local mode = { "n", "x", "i" }
+bufq { "<M-t>", md "cycle" "list", desc = "Cyclelist types", mode = mode }
+bufq { "<C-a>", md "cycle" "task", desc = "Cycle  task states", mode = mode }
+bufq { "<M-u>", md "wrap" "link", desc = "Link", mode = mode }
+bufq { "<M-s>", md "wrap" "**", desc = "Bold", mode = mode }
+bufq { "<M-i>", md "wrap" "_", desc = "Italic", mode = mode }
+bufq { "<M-e>", md "wrap" "`", desc = "Inline code", mode = mode }

@@ -37,8 +37,10 @@ local words = {
         ["colors.surface1"]  = "#45475a",
         ["colors.surface0"]  = "#313244",
         ["colors.base"]      = "#1e1e2e",
+        ["colors.mantle"]    = "#14141f",
         ["colors.mantle0"]   = "#191927",
         ["colors.mantle1"]   = "#14141f",
+        ["colors.crust"]     = "#11111b",
         ["colors.crust1"]    = "#11111b",
         ["colors.crust0"]    = "#0e0e16",
 

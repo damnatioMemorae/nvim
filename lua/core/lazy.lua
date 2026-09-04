@@ -12,7 +12,7 @@ local levels = log.levels
 
 local lazypath = fn.stdpath "data" .. "/lazy/lazy.nvim"
 if not uv.fs_stat(lazypath) then
-        local repo = "https://github.com/folke/lazy.ngit"
+        local repo = "https://github.com/folke/lazy.nvim.git"
         local args = { "git", "clone", "--filter=blob:none", "--branch=stable", repo, lazypath }
         local out  = vim.system(args):wait()
         if out.code ~= 0 then

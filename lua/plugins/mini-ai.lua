@@ -3,7 +3,15 @@ return {
         version = false,
         event   = "BufReadPost",
         opts    = {
-                custom_textobjects = {},
+                custom_textobjects = {
+                        b = { "%b()", "^.().*().$" },
+                        B = { "%(%(().-()%)%)", "%( %(().-()%) %)" },
+                        c = { "%b{}", "^.().*().$" },
+                        C = { "%{%{().-()%}%}", "%{ %{().-()%} %}" },
+                        r = { "%b[]", "^.().*().$" },
+                        R = { "%[%[().-()%]%]" },
+                        t = { "%b<>", "^.().*().$" },
+                },
                 n_lines            = 50,
                 search_method      = "cover_or_next",
                 silent             = false,

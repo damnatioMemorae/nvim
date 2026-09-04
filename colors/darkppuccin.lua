@@ -180,7 +180,7 @@ _linq
 
 ---- SEARCH --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 h "Search" { bg = colors.yellow_transparent }
-h "CurSearch" { fg = colors.yellow, reverse = true, bold = true }
+h "CurSearch" { fg = colors.crust0, bg = colors.yellow, bold = true }
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 _linq --> colors.yellow,
@@ -189,6 +189,7 @@ _linq --> colors.yellow,
     "Substitute"
 
 ---- GENERAL -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- h "MCursor" { link = "CurSearch" }
 h "Normal" { bg = colors.crust0 }
 h "NormalFloat" { bg = colors.mantle1 }
 h "NonText" { fg = colors.surface0 }
@@ -276,10 +277,6 @@ _linq --> NonText
 h "LspInlayHint" { fg = colors.surface2, bg = colors.base }
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-_linq --> colors.surface2 colors.mantle0
-"LspInlayHint"
-    "FoldText"
-
 _linq --> Visual
 "LspReferenceText"
     "LspReferenceRead"
@@ -290,7 +287,7 @@ _linq --> Visual
 ---- PMENU ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 h "Pmenu" { bg = colors.mantle1 }
 h "PmenuDoc" { bg = colors.base }
-h "PmenuMatch" { bold = true }
+h "PmenuMatch" { fg = colors.yellow }
 h "FloatShadow" { bg = colors.surface1, blend = 80 }
 h "FloatShadowThrough" { bg = colors.surface1, blend = 100 }
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -300,20 +297,15 @@ _linq --> colors.crust1
     "PmenuBorder"
     "PmenuExtra"
     "PmenuKind"
-    "PmenuSbar"
 
 _linq --> Visual
 "PmenuSel"
     "PmenuKindSel"
     "PmenuExtraSel"
 
-_linq --> bold
+_linq --> colors.yellow
 "PmenuMatch"
     "PmenuMatchSel"
-
-_linq --> Pmenu
-"PmenuSbar"
-    "PmenuThumb"
 
 _linq --> Pmenu
 "FloatShadow"

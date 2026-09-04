@@ -20,7 +20,7 @@ return {
         event = "BufReadPost",
         init  = function()
                 o.foldmethod = "expr"
-                o.foldexpr   = [[v:lua.vim.treesitter.foldexpr()]]
+                o.foldexpr   = vim.treesitter.foldexpr
         end,
         keys  = { { "m", parent, mode = { "v" } }, { "M", child, mode = { "v" } } },
         opts  = {
@@ -33,7 +33,13 @@ return {
                 noauto_install   = {},
                 highlight        = true,
                 nohighlight      = {},
-                languages        = {},
+                languages        = {
+                        lua_patterns = {
+                                install_info = {
+                                        url = "https://github.com/OXY2DEV/tree-sitter-lua_patterns",
+                                },
+                        },
+                },
                 nerdfont         = false,
                 border           = Border.Default.None,
                 min_width        = 60,

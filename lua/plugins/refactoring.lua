@@ -1,7 +1,17 @@
+local function r(_) return function() return require "refactoring"[_]() end end
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 return {
         "ThePrimeagen/refactoring.nvim",
         dependencies = { "lewis6991/async.nvim" },
-        event        = "BufReadPost",
+        keys         = {
+                { "<leader>ri",     r "inline_var",     expr = true, mode = { "n", "x" } },
+                { "<leader>rI",     r "inline_func",    expr = true, mode = { "n", "x" } },
+                { "<leader>re",     r "extract_var",    expr = true, mode = { "n", "x" } },
+                { "<leader>rE",     r "extract_func",   expr = true, mode = { "n", "x" } },
+                { "<LocalLeader>z", r "select_refactor" },
+        },
         opts         = {
                 prompt_func_return_type = {
                         go   = true,
@@ -25,20 +35,4 @@ return {
                 print_var_statements    = { cpp = { 'std::cout << "%s" << %s << "\\n";' } },
                 show_success_message    = true,
         },
-        config       = function()
-                local d = require "refactoring.debug"
-                local r = require "refactoring"
-
-                keyq { "<leader>fi", function() return r.inline_var() end, expr = true }
-                keyq { "<leader>fe", function() return r.extract_var() end, expr = true }
-                keyq { "<leader>fu", function() return r.extract_func() .. "_" end, expr = true }
-                keyq { "<leader>fU", function() return r.extract_func_to_file() end, expr = true }
-
-                keyq { "<leader>pv", function() return d.print_var { output_location = "below" } end, expr = true }
-                keyq { "<leader>pV", function() return d.print_var { output_location = "above" } end, expr = true }
-                -- k({ "n" }, "<leader>rp", function() return d.printf({ below = false }) end)
-                keyq { "<leader>pc", function() return d.cleanup { restore_view = true } end }
-
-                keyq { "<LocalLeader>z", function() return r.select_refactor() end }
-        end,
 }

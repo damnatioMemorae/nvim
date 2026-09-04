@@ -8,3 +8,4 @@ req
     { "lightbulb", "LspAttach" }
     { "fuzzy", "CmdlineEnter" }
     { "ui2", "UiEnter" }
+    { "sessions", "VimEnter" }

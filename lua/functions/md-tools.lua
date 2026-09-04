@@ -26,6 +26,7 @@ function M.wrap(startWrap, endWrap)
                 return
         end
         local row, col     = unpack(api.nvim_win_get_cursor(0))
+        -- local row, col     = unpack(vim.pos.cursor(0))
         local use_big_word = startWrap == "`"
 
         -- determine text
@@ -96,6 +97,7 @@ function M.autoBullet(key)
                 "`autoBullet()` only accepts `o`, `O`, or `<CR>`"
         )
         local row, col          = unpack(api.nvim_win_get_cursor(0))
+        -- local row, col          = unpack(vim.pos.cursor(0))
         local indent, continued = "", ""
         local ln                = row
         repeat
@@ -136,6 +138,7 @@ function M.followMdlinkOrWikilink()
         local wikilink_pattern = "%[%[.-]]"
         local url_pattern      = [[%l+://[^%s)%]}"'`>]+]]
         local row, col         = unpack(api.nvim_win_get_cursor(0))
+        -- local row, col         = unpack(vim.pos.cursor(0))
         local mdlink, wikilink, url
         local ln               = row
         local line             = api.nvim_get_current_line()
@@ -211,6 +214,7 @@ end
 ---@param type "list"|"task"
 function M.cycle(type)
         local lnum, col = unpack(api.nvim_win_get_cursor(0))
+        -- local lnum, col = unpack(vim.pos.cursor(0))
         local cur_line  = api.nvim_get_current_line()
         local updated
 
@@ -261,6 +265,7 @@ function M.codeBlockFromClipboard()
 
         -- insert
         local row = api.nvim_win_get_cursor(0)[1]
+        -- local row = vim.pos.cursor(0)[1]
         table.insert(lines, 1,     "```")
         table.insert(lines, "```")
         api.nvim_buf_set_lines(0, row - 1, row, false, lines)
@@ -344,6 +349,7 @@ function M.addTitleToUrlIfMarkdown(reg)
         if node and node:type() == "code_fence_content" then return end
         if node and node:type() == "html_block" then return end
         local col               = api.nvim_win_get_cursor(0)[2]
+        -- local col               = vim.pos.cursor(0)[2]
         local char_under_cursor = api.nvim_get_current_line():sub(col + 1, col + 1)
         if char_under_cursor:find "[()<>]" then return end -- inserting into mdlink / bare link
 

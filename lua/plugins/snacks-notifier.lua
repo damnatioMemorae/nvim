@@ -72,7 +72,7 @@ local function openNotif(idx)
                         winfixbuf    = true,
                         fillchars    = "fold: ,eob: ",
                         -- foldmethod   = "expr",
-                        -- foldexpr     = [[v:lua.vim.treesitter.foldexpr()]],
+                        -- foldexpr     = vim.treesitter.foldexpr,
                         winhighlight = winhighlights,
                 },
                 keys       = {

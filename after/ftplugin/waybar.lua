@@ -1,7 +1,7 @@
-vim.opt_local.makeprg = [[
+vim.o.makeprg = [[
 waybar.lua restart bottom &
 ]]
 
 auq "BufWritePost" {
-        command = "silent make",
+        command = "silent! make",
 }

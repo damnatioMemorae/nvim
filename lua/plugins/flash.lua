@@ -1,23 +1,7 @@
-local v  = vim.v
-local fn = vim.fn
-
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 local remote = function() require "flash".remote() end
 local jump   = function() require "flash".jump() end
 local inc    = function() require "flash".treesitter { actions = { ["m"] = "next", ["M"] = "prev" } } end
 local first  = function() require "flash".jump { search = { mode = function(str) return "\\<" .. str end } } end
-
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-auq "CmdlineLeave" {
-        callback = function()
-                local ev = v.event
-                if (ev.cmdtype == "?") and (not ev.abort) and (fn.searchcount().total > 1) then
-                        vim.schedule(function() jump() end)
-                end
-        end,
-}
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -37,7 +21,7 @@ return {
                         matches  = true,
                         priority = 5000,
                         groups   = {
-                                label    = "IncSearch",
+                                label    = "CurSearch",
                                 match    = "LspInlayHint",
                                 current  = "LspInlayHint",
                                 backdrop = "NonText",

@@ -147,7 +147,6 @@ local function makeGlob(libs)
                 return globs
         end
 end
-
 local function onInit(client)
         local path = uv.cwd()
 

@@ -73,7 +73,7 @@ function M.nodeAtCursor()
         end
         tree[#tree] = tree[#tree]:gsub("├", "└")
         local msg   = table.concat(tree, "\n")
-        vim.notify(msg, levels.DEBUG, { icon = "", title = "Node at cursor" })
+        vim.notify(msg, levels.DEBUG, { title = "Node at cursor" })
 
         local start_row, start_col = node:start()
         local end_row, end_col     = node:end_()
@@ -136,7 +136,10 @@ function M.evalNvimLua()
         end
         match(fn.mode()) {
                 n = function() ui.input({ icon = "", prompt = "", win = { ft = "lua" } }, eval) end,
-                _ = function() cmd.normal { '"zy', bang = true } eval(fn.getreg "z") end,
+                _ = function()
+                        cmd.normal { '"zy', bang = true }
+                        eval(fn.getreg "z")
+                end,
         }
 end
 

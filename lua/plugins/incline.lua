@@ -4,6 +4,7 @@ local fn   = vim.fn
 local uv   = vim.uv
 local api  = vim.api
 local diag = vim.diagnostic
+local iter = vim.iter
 
 local function getIcon(category, type)
         return require "utils.icons".makeIcon("real-icons", type, category)
@@ -11,12 +12,16 @@ end
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+local function macro()
+        local rec  = fn.reg_recording()
+        local icon = getIcon("extension", "bin")
+        return { rec ~= "" and (icon[1] .. " ") or "", group = icon[2] }
+end
 local function path(props)
         local relhead = fn.fnamemodify(api.nvim_buf_get_name(props.buf), ":~:.:h")
         local arrow   = " " .. Icon.Arrows.rightBig .. " "
         local parts   = vim.split(relhead, "/")
-        return vim
-            .iter(parts)
+        return iter(parts)
             :enumerate()
             :map(function(i, item)
                     return {
@@ -24,6 +29,17 @@ local function path(props)
                             { " " .. item,                        group = "Comment" },
                             { i < #parts and arrow or " ",        group = "Comment" },
                     }
+            end)
+            :totable()
+end
+local function diagnostics(props)
+        return iter { "error", "warn", "hint" }
+            :map(function(severity)
+                    local count = #diag.get(props.buf, { severity = diag.severity[string.upper(severity)] })
+                    if count == 0 then
+                            return { "0" .. " ", group = "DiagnosticSign" .. severity }
+                    end
+                    return { count .. " ", group = "DiagnosticSign" .. severity }
             end)
             :totable()
 end
@@ -37,23 +53,6 @@ local function ftType(props)
         local filetype = fn.fnamemodify(api.nvim_buf_get_name(props.buf), ":e")
         return { getIcon("extension", filetype)[1] .. " ", group = getIcon("extension", filetype)[2] }
 end
-local function diagnostics(props)
-        return vim
-            .iter { "error", "warn", "hint" }
-            :map(function(severity)
-                    local count = #diag.get(props.buf, { severity = diag.severity[string.upper(severity)] })
-                    if count == 0 then
-                            return { "0" .. " ", group = "DiagnosticSign" .. severity }
-                    end
-                    return { count .. " ", group = "DiagnosticSign" .. severity }
-            end)
-            :totable()
-end
-local function macro()
-        local rec  = fn.reg_recording()
-        local icon = getIcon("extension", "bin")
-        return { rec ~= "" and (icon[1] .. " ") or "", group = icon[2] }
-end
 local function render(props)
         return { { " " }, { macro() }, { path(props) }, { diagnostics(props) }, { ftType(props) }, { ftName(props) }, { " " } }
 end
@@ -63,7 +62,7 @@ return {
         event  = "BufReadPost",
         init   = function()
                 o.laststatus = 0
-                o.statusline = ""
+                o.statusline = " "
         end,
         opts   = {
                 debounce_threshold = 0,

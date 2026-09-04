@@ -21,6 +21,7 @@ abbr "fu" "function"
 ---@param sign "+"|"-"
 local function plusPlusMinusMinus(sign)
         local row, col           = unpack(api.nvim_win_get_cursor(0))
+        -- local row, col           = unpack(vim.pos.cursor(0))
         local text_before_cursor = api.nvim_get_current_line():sub(col - 1, col)
         if not text_before_cursor:find("%a%" .. sign) then
                 api.nvim_feedkeys(sign, "n", true)

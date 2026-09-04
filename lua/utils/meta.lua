@@ -59,7 +59,6 @@ end
 local function hl(a)
         local lhs = a[1]
         local rhs = a[2]
-
         if strq(rhs) then
                 api.nvim_set_hl(0, lhs, { link = rhs })
         elseif tblq(rhs) then
@@ -67,6 +66,30 @@ local function hl(a)
                 local bg = rhs[2] or nil
                 api.nvim_set_hl(0, lhs, { fg = fg, bg = bg })
         end
+end
+
+---- OPTIONS -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+local function option(scope)
+        return function(name)
+                return function(value)
+                        if name then
+                                vim[scope][name] = value
+                        end
+                end
+        end
+end
+
+---@type fun(dir: string): fun(value: string|table)
+local function optq(scope)
+        local function step(acc)
+                return function(value)
+                        unless(nilq(value))(acc)
+                        option(scope)(value[1])(value[2])
+                        return step(fold(acc))
+                end
+        end
+        return step {}
 end
 
 ---- KEYMAP --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -87,7 +110,7 @@ set("n", ".", function()
 ---@field ft? string | string[]
 
 ---@param keymap MyConfig.Keymap
-local function keyq(keymap)
+local function keymapq(keymap)
         local mode = keymap.mode or "n"
         local lhs  = keymap[1]
         local rhs  = keymap[2]
@@ -132,9 +155,20 @@ local function keyq(keymap)
         end
 end
 
+local function kq()
+        local function step(acc)
+                return function(km)
+                        unless(nilq(km))(acc)
+                        keymapq(km)
+                        return step(fold(acc))
+                end
+        end
+        return step {}
+end
+
 local function bufq(keymap)
         keymap.buf = 0
-        keyq(keymap)
+        keymapq(keymap)
 end
 
 local function bufAbbr(text)
@@ -195,15 +229,13 @@ end
 local function lazyReq(modname)
         return function(event)
                 return function(pattern)
-                        guard {
-                                event == nil, function() safeRequire(modname) end,
-                                function()
-                                        auq(event) {
-                                                pattern  = pattern,
-                                                once     = true,
-                                                callback = function() safeRequire(modname) end,
-                                        }
-                                end,
+                        if event == nil then
+                                return safeRequire(modname)
+                        end
+                        auq(event) {
+                                pattern  = pattern,
+                                once     = true,
+                                callback = function() safeRequire(modname) end,
                         }
                 end
         end
@@ -214,19 +246,7 @@ local function req(dir)
         local function step(acc)
                 return function(value)
                         unless(nilq(value))(acc)
-                        lazyReq(concat "." (dir)(ext(value)(1)))(_ext(value)(2))(_ext(value)(3))
-                        return step(fold(acc))
-                end
-        end
-        return step {}
-end
-
----@type fun(): fun(value: string|table)
-local function areq()
-        local function step(acc)
-                return function(value)
-                        unless(nilq(value))(acc)
-                        lazyReq(concat "." (dir)(ext(value)(1)))(_ext(value)(2))(_ext(value)(3))
+                        lazyReq(concat "." (dir)(value[1] or value))(value[2] or nil)(value[3] or nil)
                         return step(fold(acc))
                 end
         end
@@ -239,10 +259,10 @@ local M = {}
 
 M.autocmds   = { auq = auq }
 M.highlights = { hl = hl, linq = linq, _linq = _linq }
-M.keymaps    = { abbr = bufAbbr, bufq = bufq, keyq = keyq, pcmd = pcmd }
+M.options    = { optq = optq }
+M.keymaps    = { abbr = bufAbbr, bufq = bufq, keymapq = keymapq, pcmd = pcmd, kq = kq }
 M.modules    = {
         req         = req,
-        areq        = areq,
         lazyReq     = lazyReq,
         exporter    = exporter,
         safeRequire = safeRequire,

@@ -18,24 +18,31 @@ function M.setupReplaceModeHelpersForComments()
                 desc     = "User: uppercase the line when leaving replace mode on a comment",
                 pattern  = "r:*",
                 callback = function(ctx)
-                        if vim.list_contains(config.ignoreReplaceModeHelpers, bo[ctx.buf].ft) then return end
-                        local line      = api.nvim_get_current_line()
-                        local com_chars = vim.trim(bo.commentstring:format "")
-                        if vim.startswith(vim.trim(line), com_chars) then
-                                api.nvim_set_current_line(line:upper())
-                        end
+                        match(bo[ctx.buf].ft) {
+                                [config.ignoreReplaceModeHelpers] = function() end,
+                                _                                 = function()
+                                        local line      = api.nvim_get_current_line()
+                                        local com_chars = vim.trim(bo.commentstring:format "")
+                                        if vim.startswith(vim.trim(line), com_chars) then
+                                                api.nvim_set_current_line(line:upper())
+                                        end
+                                end,
+                        }
                 end,
         }
         auq "ModeChanged" {
                 desc     = "User: automatically enter replace mode at label position",
                 pattern  = "*:r",
                 callback = function(ctx)
-                        if vim.list_contains(config.ignoreReplaceModeHelpers, bo[ctx.buf].ft) then return end
-                        local line      = api.nvim_get_current_line()
-                        local com_chars = vim.trim(bo.commentstring:format "")
-                        if vim.startswith(vim.trim(line), com_chars) then
-                                cmd.normal { "^" .. #com_chars + 1 .. "l", bang = true }
-                        end
+                        match(bo[ctx.buf].ft) {
+                                [config.ignoreReplaceModeHelpers] = function() end,
+                                _                                 = function()
+                                        local line      = api.nvim_get_current_line()
+                                        local com_chars = vim.trim(bo.commentstring:format "")
+                                        if vim.startswith(vim.trim(line), com_chars) then
+                                                cmd.normal { "^" .. #com_chars + 1 .. "l", bang = true }
+                                        end
+                                end }
                 end,
         }
 end
@@ -46,6 +53,7 @@ end
 function M.commentHr(replaceModeLabel)
         assert(bo.commentstring ~= "", "Comment string not set for " .. bo.ft)
         local start_ln = api.nvim_win_get_cursor(0)[1]
+        -- local start_ln = vim.pos.cursor(0)[1]
 
         local ln = start_ln
         local line, indent
@@ -67,12 +75,14 @@ function M.commentHr(replaceModeLabel)
                 hr_with_comment = hr_with_comment:gsub(" ", config.hrChar)
         end
 
-        local full_line = indent .. hr_with_comment
-        if bo.ft == "markdown" then
-                full_line = "---"
-        end
+        where(function(_) api.nvim_buf_set_lines(0, _.ln, _.ln, true, { _.full }) end) {
+                ln   = start_ln,
+                full = match(bo.ft) {
+                        markdown = "---",
+                        _        = indent .. hr_with_comment,
+                },
+        }
 
-        api.nvim_buf_set_lines(0, start_ln, start_ln, true, { full_line })
         if not replaceModeLabel then
                 api.nvim_buf_set_lines(0, start_ln + 1, start_ln + 1, true, { "" })
         end
@@ -87,6 +97,7 @@ end
 function M.duplicateLineAsComment()
         assert(bo.commentstring ~= "", "Comment string not set for " .. bo.ft)
         local lnum, col       = unpack(api.nvim_win_get_cursor(0))
+        -- local lnum, col       = unpack(vim.pos.cursor(0))
         local cur_line        = api.nvim_get_current_line()
         local indent, content = cur_line:match "^(%s*)(.*)"
         local commented_line  = indent .. bo.commentstring:format(content)
@@ -97,14 +108,18 @@ end
 ---@param where? "eol"|"above"|"below"
 function M.addComment(where)
         assert(bo.commentstring ~= "", "Comment string not set for " .. bo.ft)
-        local lnum = api.nvim_win_get_cursor(0)[1]
+        local lnum = match(where) {
+                above = api.nvim_win_get_cursor(0)[1] - 1,
+                _     = api.nvim_win_get_cursor(0)[1],
+                -- above = vim.pos.cursor(0)[1] - 1,
+                -- _     = vim.pos.cursor(0)[1],
+        }
 
-        if where == "above" or where == "below" then
-                if where == "above" then lnum = lnum - 1 end
-                api.nvim_buf_set_lines(0, lnum, lnum, true, { "" })
-                lnum = lnum + 1
-                api.nvim_win_set_cursor(0, { lnum, 0 })
-        end
+        match(where) {
+                [{ "above", "below" }] = function()
+                        api.nvim_buf_set_lines(0, lnum, lnum, true, { "" })
+                        api.nvim_win_set_cursor(0, { lnum + 1, 0 })
+                end }
 
         local place_holder_at_end = bo.commentstring:find "%%s$" ~= nil
         local line                = api.nvim_get_current_line()

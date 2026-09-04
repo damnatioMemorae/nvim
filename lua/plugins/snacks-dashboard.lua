@@ -23,7 +23,7 @@ local function picker(pick)
         getPicker(pick, mode)
 end
 
-
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 return {
         "folke/snacks.nvim",
@@ -116,20 +116,7 @@ return {
                                                 { "]",                  hl = button },
                                         },
                                         key     = "s",
-                                        action  = [[<cmd> lua require("persistence").load({ last  = false }) <cr>]],
-                                        padding = 1,
-                                        align   = "center",
-                                },
-                                { -- CONFIG
-                                        text    = {
-                                                { misc.config .. "  ", hl = button },
-                                                { "Config",            hl = label, width = width },
-                                                { "[",                 hl = button },
-                                                { "c",                 hl = label },
-                                                { "]",                 hl = button },
-                                        },
-                                        key     = "c",
-                                        action  = function() Snacks.picker.files() end,
+                                        action  = "<cmd>SessionRestore<CR>",
                                         padding = 1,
                                         align   = "center",
                                 },

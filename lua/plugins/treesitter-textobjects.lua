@@ -15,6 +15,7 @@ local function addDocstring()
         match(bo.filetype) {
                 lua = function()
                         local line       = api.nvim_win_get_cursor(0)[1]
+                        -- local line       = vim.pos.cursor(0)[1]
                         local indent     = api.nvim_get_current_line():match "^%s*"
                         local param_line = api.nvim_get_current_line():match "function.*%((.*)%)$"
                         if nilq(param_line) then return end
@@ -53,9 +54,10 @@ end
 
 return {
         "nvim-treesitter/nvim-treesitter-textobjects",
-        branch = "main",
-        event  = "BufReadPost",
-        keys   = {
+        enabled = true,
+        branch  = "main",
+        event   = "BufReadPost",
+        keys    = {
                 { "<M-[>",        function() swapNode("function", "inner", "previous") end,    desc = "Swap function" },
                 { "<M-]>",        function() swapNode("function", "inner", "next") end,        desc = "Swap function" },
                 { "<M-{>",        function() swapNode("parameter", "inner", "previous") end,   desc = "Swap arg" },
@@ -115,6 +117,7 @@ return {
                         "dq",
                         function()
                                 local cursor_before = api.nvim_win_get_cursor(0)
+                                -- local cursor_before = vim.pos.cursor(0)
                                 local select_obj = require "nvim-treesitter-textobjects.select".select_textobject
                                 select_obj("@comment.outer", "textobjects")
                                 cmd.normal { "d", bang = true }
@@ -126,5 +129,5 @@ return {
                 },
 
         },
-        opts   = { move = { set_jumps = true }, select = { lookahead = true, include_surrounding_whitespace = false } },
+        opts    = { move = { set_jumps = true }, select = { lookahead = true, include_surrounding_whitespace = false } },
 }

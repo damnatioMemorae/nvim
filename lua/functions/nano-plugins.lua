@@ -1,12 +1,13 @@
-local b   = vim.b
-local v   = vim.v
-local bo  = vim.bo
-local fn  = vim.fn
-local ui  = vim.ui
-local cmd = vim.cmd
-local api = vim.api
-local log = vim.log
-local lsp = vim.lsp
+local b    = vim.b
+local v    = vim.v
+local bo   = vim.bo
+local fn   = vim.fn
+local ui   = vim.ui
+local cmd  = vim.cmd
+local api  = vim.api
+local log  = vim.log
+local lsp  = vim.lsp
+local iter = vim.iter
 
 local levels = log.levels
 
@@ -78,6 +79,7 @@ function M.camelSnakeToggle()
 
         local line = api.nvim_get_current_line()
         local col  = api.nvim_win_get_cursor(0)[2] + 1
+        -- local col  = vim.pos.cursor(0)[2] + 1
         local start, ending
 
         while true do
@@ -96,10 +98,11 @@ function M.toggleWordCasing()
                 api.nvim_win_set_cursor(0, _.prev_cursor)
         end) {
                     prev_cursor = api.nvim_win_get_cursor(0),
+                    -- prev_cursor = vim.pos.cursor(0),
                     command     = match(fn.expand "<cword>") {
-                            function(_) return _:upper() end, "guiw",
-                            function(_) return _:lower() end, "guiwgUl",
-                            _ = "gUiw",
+                            [_upper()] = "guiw",
+                            [_lower()] = "guiwgUl",
+                            _          = "gUiw",
                     },
 
             }
@@ -111,9 +114,10 @@ function M.toggleTitleCase()
                 api.nvim_win_set_cursor(0, _.cursor)
         end) {
                     cursor = api.nvim_win_get_cursor(0),
+                    -- cursor = vim.pos.cursor(0),
                     cmd    = match(fn.expand "<cword>") {
-                            function(_) return _:lower() end, "guiwgUl",
-                            _ = "guiw",
+                            [_lower()] = "guiwgUl",
+                            _          = "guiw",
                     },
             }
 end
@@ -143,6 +147,7 @@ end
 
 function M.smartDuplicate()
         local cursor = api.nvim_win_get_cursor(0)
+        -- local cursor = vim.pos.cursor(0)
         local line   = api.nvim_get_current_line()
         where(function(_)
                 api.nvim_buf_set_lines(0, _.row, _.row, false, { _.line })
@@ -169,6 +174,10 @@ function M.smartDuplicate()
                                     width  = "height:",
                                     height = "width:",
                             }),
+                            _          = line:gsub("^(%s*)(%d+)%. ", function(indent, num)
+                                    local increment = tonumber(num) + 1
+                                    return indent .. increment .. ". "
+                            end),
                     },
             }
 end
@@ -266,8 +275,7 @@ function M.scrollLspOrOtherWin(lines)
         local winid = b.lsp_floating_preview
 
         if not winid then
-                local other_win = vim
-                    .iter(api.nvim_tabpage_list_wins(0))
+                local other_win = iter(api.nvim_tabpage_list_wins(0))
                     :find(function(win)
                             local not_floating = api.nvim_win_get_config(win).relative == ""
                             local not_this_win = api.nvim_get_current_win() ~= win

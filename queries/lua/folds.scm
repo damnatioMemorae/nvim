@@ -22,5 +22,5 @@
                                         table: (identifier) @start
                                                 (#eq? @start "vim")))))
         (function_call
-                arguments: (arguments ))
+                arguments: (arguments))
  ] @fold

@@ -46,6 +46,7 @@ local function update(bufnr, lnum)
                                         if bufnr ~= api.nvim_get_current_buf() then return end
 
                                         local current_lnum = api.nvim_win_get_cursor(0)[1]
+                                        -- local current_lnum = vim.pos.cursor(0)[1]
                                         if current_lnum ~= lnum then return end
 
                                         for _, response in pairs(responses) do
@@ -71,8 +72,10 @@ local function debounce(bufnr, lnum)
 end
 
 auq "CursorMoved" { callback = function(args) debounce(args.buf, api.nvim_win_get_cursor(0)[1]) end }
+-- auq "CursorMoved" { callback = function(args) debounce(args.buf, vim.pos.cursor(0)[1]) end }
 auq "DiagnosticChanged" { callback = function(args)
         if args.buf ~= api.nvim_get_current_buf() then return end
         debounce(args.buf, api.nvim_win_get_cursor(0)[1])
+        -- debounce(args.buf, vim.pos.cursor(0)[1])
 end }
 auq "BufLeave" { callback = function(args) clear(args.buf) end }

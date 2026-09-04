@@ -1,18 +1,3 @@
-linq
-"Snacks"
-    { "Picker", "Normal" }
-    { "PickerBorder", "Border" }
-    { "PickerBoxBorder", "Border" }
-    { "PickerListBorder", "Border" }
-    { "PickerInputBorder", "Border" }
-    { "PickerPreviewBorder", "Border" }
-    { "PickerCursorLine", "PmenuSel" }
-    { "PickerListCursorLine", "PmenuSel" }
-    { "PickerPathIgnored", "Directory" }
-    { "PickerPathHidden", "Directory" }
-
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 local o   = vim.o
 local v   = vim.v
 local bo  = vim.bo
@@ -32,7 +17,22 @@ local kinds = Icon.Kinds
 local leader = "<leader><leader>"
 local none   = Border.Default.None
 
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---- HIGHLIGHTS ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+linq
+"Snacks"
+    { "Picker", "Normal" }
+    { "PickerBorder", "Border" }
+    { "PickerBoxBorder", "Border" }
+    { "PickerListBorder", "Border" }
+    { "PickerInputBorder", "Border" }
+    { "PickerPreviewBorder", "Border" }
+    { "PickerCursorLine", "PmenuSel" }
+    { "PickerListCursorLine", "PmenuSel" }
+    { "PickerPathIgnored", "Directory" }
+    { "PickerPathHidden", "Directory" }
+
+---- OPTIONS -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local picker = {
         prompt     = " > ",
@@ -224,6 +224,36 @@ local picker = {
                 end,
         },
         layouts    = {
+                ivy               = {
+                        layout = {
+                                box    = "vertical",
+                                row    = -1,
+                                height = 0.3,
+                                { win = "input", height = 1, border = none },
+                                {
+                                        box    = "vertical",
+                                        border = none,
+                                        title  = "",
+                                        { win = "list", border = none },
+                                },
+                        },
+                },
+                ivy_split         = {
+                        preview = "main",
+                        layout  = {
+                                box    = "vertical",
+                                row    = -1,
+                                height = 0.3,
+                                { win = "input", height = 1, border = none },
+                                {
+                                        box    = "vertical",
+                                        border = none,
+                                        title  = "",
+                                        { win = "list",    border = none },
+                                        { win = "preview", title = "{preview}", width = 0.6, border = none },
+                                },
+                        },
+                },
                 dropdown          = {
                         layout = {
                                 box    = "horizontal",
@@ -300,6 +330,8 @@ local picker = {
         },
         formatters = { file = { filename_list = true } },
 }
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 return {
         "folke/snacks.nvim",

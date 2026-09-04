@@ -32,6 +32,7 @@ local function updateNode(strNode, insertAtCursor, textTransformer, cursorMove, 
         end
         local node_row, node_start_col, _, node_end_col = strNode:range()
         local cursor_col                                = api.nvim_win_get_cursor(0)[2]
+        -- local cursor_col                                = vim.pos.cursor(0)[2]
 
         -- 1. `insertAtCursor`
         local pos_in_node = cursor_col - node_start_col
@@ -55,9 +56,10 @@ function FiletypeFuncs.lua(node)
         where(function(_) updateNode(_.node, "%s", _.transformer, "nodeEnd", 12) end) {
                 transformer = function(nodeText) return "(" .. nodeText .. "):format()" end,
                 node        = match(node.type()) {
-                        string          = node,
-                        escape_sequence = node.parent():parent(),
-                        node.type():find "^string_content", node:parent(),
+                        string                               = node,
+                        escape_sequence                      = node.parent():parent(),
+                        -- node.type():find "^string_", node:parent(),
+                        [node.type():find "^string_content"] = node:parent(),
                 },
         }
 end
@@ -67,9 +69,10 @@ function FiletypeFuncs.python(node)
         where(function(_) updateNode(_.node, "{}", _.transformer, nil, 2) end) {
                 transformer = function(nodeText) return "f" .. nodeText end,
                 node        = match(node.type()) {
-                        string          = node,
-                        escape_sequence = node.parent():parent(),
-                        node.type():find "^string_", node:parent(),
+                        string                        = node,
+                        escape_sequence               = node.parent():parent(),
+                        -- node.type():find "^string_", node:parent(),
+                        [node.type():find "^string_"] = node:parent(),
                 },
         }
 end
@@ -79,8 +82,8 @@ function FiletypeFuncs.javascript(node)
         where(function(_) updateNode(_.node, "${}", _.transformer, nil, 2) end) {
                 transformer = function(nodeText) return "`" .. nodeText:sub(2, -2) .. "`" end,
                 node        = match(node.type()) {
-                        { "string",          "template_string" }, node,
-                        { "string_fragment", "escape_sequence" }, node:parent(),
+                        [{ "string", "template_string" }]          = node,
+                        [{ "string_fragment", "escape_sequence" }] = node:parent(),
                 },
         }
 end

@@ -80,7 +80,7 @@ command("LspCapabilities", function(ctx)
                 api.nvim_buf_set_name(new_buf, client.name .. " capabilities")
                 bo[new_buf].filetype = "lua"
                 cmd.buffer(new_buf)
-                keyq { "n", "q", cmd.bdelete, buffer = new_buf }
+                keymapq { "n", "q", cmd.bdelete, buffer = new_buf }
         end, {
                 nargs    = 1,
                 complete = function()

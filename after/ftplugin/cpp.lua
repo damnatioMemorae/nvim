@@ -2,7 +2,6 @@ local api     = vim.api
 local command = api.nvim_create_user_command
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 -- local cmake = require "cmake-tools"
 
 command("CMakeRunPerf", function()

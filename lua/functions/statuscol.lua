@@ -16,12 +16,13 @@ end
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+local hl = "#FoldText#"
 local function numberLine()
         if v.virtnum ~= 0 then return "%=" end
         if fn.foldclosed(v.lnum) == v.lnum then
                 if line():match "^%S" then
                         local text = tostring(cnt())
-                        return "%#FoldText#%=" .. text .. "%#FoldText# "
+                        return "%" .. hl .. "%=" .. text .. "%" .. hl .. " "
                 end
         end
         local text = tostring(num())
