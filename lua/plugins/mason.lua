@@ -197,7 +197,7 @@ return {
         config = function(_, opts)
                 env.npm_config_cache = env.HOME .. "/.cache/npm"
                 require "mason".setup(opts)
-                enableLsps()
+                -- enableLsps()
                 vim.defer_fn(syncPackages, 1000)
         end,
 }

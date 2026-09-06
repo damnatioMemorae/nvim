@@ -9,7 +9,6 @@ local fn      = vim.fn
 local uv      = vim.uv
 local wo      = vim.wo
 local api     = vim.api
-local iter    = vim.iter
 local augroup = vim.api.nvim_create_augroup
 
 local general = augroup("General Autocmds", { clear = true })
@@ -18,7 +17,11 @@ local general = augroup("General Autocmds", { clear = true })
 
 auq "TermOpen" { -- TERMINAL
         group    = general,
-        callback = function() o.statuscolumn = "" end,
+        callback = function()
+                cmd "resize 15"
+                o.statuscolumn  = ""
+                opt_l.buflisted = false
+        end,
 }
 auq "BufEnter" { -- STOP COMMENT
         group    = general,
@@ -36,13 +39,12 @@ auq "FileType" { -- NOFILE
         group    = general,
         callback = function(args)
                 match(bo[args.buf].buftype) {
-                        nofile   = function()
+                        nofile = function()
                                 opt_l.number         = false
                                 opt_l.relativenumber = false
                                 opt_l.statuscolumn   = ""
                                 opt_l.signcolumn     = "no"
                         end,
-                        terminal = function() cmd "resize 15" end,
                 }
         end,
 }
@@ -114,6 +116,29 @@ auq { "BufReadPost", "BufReadPre", "BufWinEnter" } { -- RESTORE CURSOR
                 end
         end,
 }
+
+local last
+auq "CmdAtom" {
+        callback = function(ev)
+                local is_redo_or_undo = ev.data.changed and (ev.data.undoseq or 0) <= (vim.b[ev.buf].maxseq or 0)
+                vim.b[ev.buf].maxseq = math.max(vim.b[ev.buf].maxseq or 0, ev.data.undoseq or 0)
+                if ev.data.changed and not is_redo_or_undo and ev.data.lhs ~= "." then
+                        last = ev.data
+                end
+        end,
+}
+kq "" { ".", function() -- DOT REPEAT
+        local mc = api.nvim_create_namespace "nvim.multicursor"
+        if #api.nvim_buf_get_extmarks(0, mc, 0, -1, { limit = 1 }) > 0 then
+                api.nvim_feedkeys(".", "n", false)
+                return
+        end
+        vim.schedule(function()
+                if last then
+                        api.nvim_feedkeys(last.keys or last.lhs, last.keys and "n" or "m", false)
+                end
+        end)
+end, unique = false }
 
 ---- CMDLINE -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -281,7 +306,7 @@ do
                    end, api.nvim_create_namespace "autoNohlAndSearchCount")
 end
 
----[[ TEMPLATES -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--[[ TEMPLATES -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local template_config = {
         templateDir       = fn.stdpath "config" .. "/templates",

@@ -200,8 +200,6 @@ return {
                              symbolInfo(bufnr, client)
                      end, { desc = "Show symbol info" })
 
-                keymapq { "#", "<cmd>ClangdSwitchSourceHeader<CR>" }
-
                 semanticTokens()
         end,
 }

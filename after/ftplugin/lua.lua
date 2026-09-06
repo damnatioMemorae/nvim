@@ -58,7 +58,7 @@ bufq { "<leader>ym", function()
         local abs_path = api.nvim_buf_get_name(0)
         local rel_path = abs_path:sub(#(uv.cwd()) + 2)
         local module   = rel_path:gsub("%.lua$", ""):gsub("^lua/", ""):gsub("/", "."):gsub("%.init$", "")
-        local req      = ("require(%q)"):format(module)
-        fn.setreg("+", req)
-        vim.notify(req, nil, { icon = "󰅍", title = "Copied", ft = "lua" })
-end, mode = "n", desc = "󰢱 Module (require)" }
+        local reg      = ("require(%q)"):format(module)
+        fn.setreg("+", reg)
+        vim.notify(reg, nil, { icon = "󰅍", title = "Copied", ft = "lua" })
+end, mode = "n", desc = "Module (require)" }

@@ -3,10 +3,6 @@ return {
         build        = function() require "blink.pairs".build():pwait(60000) end,
         event        = "BufReadPost",
         dependencies = { "saghen/blink.lib" },
-        keys         = {
-                { "<M-i>", "a{<CR><down>,<up><esc>i", mode = "n", desc = "Open new scope", remap = true },
-                { "<M-i>", "{<CR>",                   mode = "i", desc = "open new scope", remap = true },
-        },
         opts         = {
                 mappings = {
                         enabled            = true,

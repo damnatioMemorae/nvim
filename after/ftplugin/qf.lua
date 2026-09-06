@@ -10,6 +10,7 @@ local opt_l = vim.opt_local
 opt_l.statuscolumn   = ""
 opt_l.signcolumn     = "no"
 opt_l.number         = false
+opt_l.buflisted      = false
 opt_l.relativenumber = false
 
 local height = function(percentage) return math.floor(o.lines * percentage * 0.01) end

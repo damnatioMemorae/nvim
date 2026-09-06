@@ -26,14 +26,20 @@ return {
         lazy     = false,
         priority = 1000,
         keys     = {
-                -- { "<M-b>",      "<cmd>b #<CR><cmd>edit<CR>",                desc = "Swap buffer" },
-                { "<M-b>",      "<cmd>b #<CR>",                             desc = "Swap buffer" },
+                { "<M-b>",      "<cmd>b #<CR><cmd>edit<CR>",                desc = "Swap buffer" },
+                -- { "<M-b>",      "<cmd>b #<CR>",                             desc = "Swap buffer" },
                 { "<leader>fr", function() Snacks.rename.rename_file() end, desc = "Rename File" },
+                { "<leader>pr", function() Snacks.profiler.scratch() end,   desc = "Rename File" },
         },
         opts     = {
                 quickfile = { enabled = true },
                 lazygit   = { enabled = true },
                 input     = { enabled = true, icon = "" },
+                profiler  = {
+                        autocmds = true,
+                        startup  = { event = "CmdlineLeave" },
+                        globals  = { "kq", "auq", "req", "linq", "_linq", "match" },
+                },
                 indent    = {
                         indent  = { enabled = false, char = "", only_scope = true },
                         animate = { enabled = false },

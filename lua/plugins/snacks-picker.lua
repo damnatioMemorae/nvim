@@ -17,7 +17,11 @@ local kinds = Icon.Kinds
 local leader = "<leader><leader>"
 local none   = Border.Default.None
 
----- HIGHLIGHTS ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+local function pick(picker)
+        return function()
+                return Snacks.picker[picker]()
+        end
+end
 
 linq
 "Snacks"
@@ -31,8 +35,6 @@ linq
     { "PickerListCursorLine", "PmenuSel" }
     { "PickerPathIgnored", "Directory" }
     { "PickerPathHidden", "Directory" }
-
----- OPTIONS -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local picker = {
         prompt     = " > ",
@@ -331,22 +333,18 @@ local picker = {
         formatters = { file = { filename_list = true } },
 }
 
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 return {
         "folke/snacks.nvim",
         keys = {
-                { leader .. "<leader>", function() Snacks.picker() end,                          desc = "Main Picker",             mode = { "n" } },
-                { leader .. "f",        function() Snacks.picker.files() end,                    desc = "File Picker",             mode = { "n" } },
-                { leader .. "b",        function() Snacks.picker.buffers() end,                  desc = "Buffer Picker",           mode = { "n" } },
-                { leader .. "w",        function() Snacks.picker.grep() end,                     desc = "Grep Picker",             mode = { "n" } },
-                { leader .. "W",        function() Snacks.picker.grep_word() end,                desc = "Grep Word",               mode = { "n", "x" } },
-                { leader .. "k",        function() Snacks.picker.keymaps { global = false } end, desc = "Keymap (buffer)",         mode = { "n" } },
-                { leader .. "K",        function() Snacks.picker.keymaps() end,                  desc = "Keymap (global)",         mode = { "n" } },
-                { leader .. "h",        function() Snacks.picker.highlights() end,               desc = "Highlight Picker",        mode = { "n" } },
-                { leader .. "H",        function() Snacks.picker.help() end,                     desc = "Help Picker",             mode = { "n" } },
-                { leader .. "d",        function() Snacks.picker.diagnostics_buffer() end,       desc = "Show Buffer Diagnostics", mode = { "n" } },
-                { leader .. "D",        function() Snacks.picker.diagnostics() end,              desc = "Show Workspace Symbols",  mode = { "n" } },
+                { leader .. "f", pick "files",              desc = "File Picker",             mode = { "n" } },
+                { leader .. "b", pick "buffers",            desc = "Buffer Picker",           mode = { "n" } },
+                { leader .. "w", pick "grep",               desc = "Grep Picker",             mode = { "n" } },
+                { leader .. "W", pick "grep_word",          desc = "Grep Word",               mode = { "n", "x" } },
+                { leader .. "k", pick "keymaps",            desc = "Keymap (global)",         mode = { "n" } },
+                { leader .. "h", pick "highlights",         desc = "Highlight Picker",        mode = { "n" } },
+                { leader .. "H", pick "help",               desc = "Help Picker",             mode = { "n" } },
+                { leader .. "d", pick "diagnostics_buffer", desc = "Show Buffer Diagnostics", mode = { "n" } },
+                { leader .. "D", pick "diagnostics",        desc = "Show Workspace Symbols",  mode = { "n" } },
                 {
                         leader .. "p",
                         function()
@@ -360,7 +358,7 @@ return {
                         end,
                         desc = "Import Lua Module",
                         mode = { "n" },
-                        ft   = "lua",
+                        ft = "lua"
                 },
         },
         opts = { picker = picker },

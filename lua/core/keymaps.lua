@@ -293,13 +293,12 @@ do -- TOGGLE TERMINAL
                         }
                 end
         end
-        iter { "t", "T" }
-            :each(function(_) kq "" { "<leader>" .. _, toggle(_, 30, 30), desc = "Toggle terminal" } end)
+        iter { "t", "T" }:each(function(_) kq "" { "<leader>" .. _, toggle(_, 30, 30), desc = "Toggle terminal" } end)
 end
 
 kq -- INSPECT
 ""
-    { "<leader>ii", cmd "Inspect", desc = "Inspect at cursor" }
+    { "<leader>ii", "<cmd>Inspect<CR>", desc = "Inspect at cursor" }
     { "<leader>it", ts.inspect_tree, desc = "TS tree" }
     { "<leader>iq", ts.query.edit, desc = "TS query" }
     { "<leader>in", eval.nodeAtCursor, desc = "Node at cursor" }
@@ -362,6 +361,26 @@ kq -- BUFFER
             if bo.buftype ~= "" then return end
             cmd.bnext()
     end, desc = "Next Buffer" }
+
+kq -- MULTICURSOR
+""
+    { "<M-i>", "]C" }
+    { "<M-I>", "[C" }
+    { "<C-g>", "g<C-A>" }
+    { "*", "Q*q=", unique = false }
+    { "#", "Q#q=", unique = false }
+    { "<LocalLeader><LocalLeader>", "q=" }
+    { "<C-c>", function() api.nvim_buf_clear_namespace(0, api.nvim_create_namespace "nvim.multicursor", 0, -1) end, mode = { n, x } }
+    { "<C-q>", function()
+            local m = api.nvim_win_get_cursor(0)
+            api.nvim_mcursor(0, { m[1], m[2] })
+    end, mode = { n, v } }
+    { "<M-y>", function()
+            local m = api.nvim_win_get_cursor(0)
+            api.nvim_mcursor(0, { m[1], m[2] })
+            api.nvim_win_set_cursor(0, { m[1] + 1, m[2] })
+    end }
+    { "<M-Y>", "[CQ" }
 
 where(function(_) -- MACROS
         fn.setreg(_.reg, "")

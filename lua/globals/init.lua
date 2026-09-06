@@ -1,1 +1,1 @@
-req "globals" "icons" "ui" 
+req "globals" "icons" "ui"

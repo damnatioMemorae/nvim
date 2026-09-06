@@ -1,12 +1,8 @@
-local fn     = vim.fn
-local fs     = vim.fs
-local hl     = vim.hl
-local ui     = vim.ui
-local uv     = vim.uv
-local api    = vim.api
-local cmd    = vim.cmd
-local log    = vim.log
-local levels = log.levels
+local fn  = vim.fn
+local hl  = vim.hl
+local ui  = vim.ui
+local api = vim.api
+local cmd = vim.cmd
 
 local function obj(_)
         return function(...)
@@ -17,8 +13,6 @@ local function obj(_)
         end
 end
 
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 return {
         "chrisgrieser/nvim-various-textobjs",
         enabled = true,
@@ -27,60 +21,38 @@ return {
                 { "<Space>",  obj "subword" "inner",                mode = { "o" },      desc = "inner subword" },
                 { "i<Space>", obj "subword" "outer",                mode = { "o", "x" }, desc = "outer subword" },
                 { "a<Space>", obj "subword" "outer",                mode = { "o", "x" }, desc = "outer subword" },
-
                 { "v",        obj "value" "inner",                  mode = { "o" },      desc = "inner value" },
                 { "iv",       obj "value" "inner",                  mode = { "o", "x" }, desc = "inner value" },
                 { "av",       obj "value" "outer",                  mode = { "o", "x" }, desc = "outer value" },
                 { "k",        obj "key" "inner",                    mode = { "o" },      desc = "inner key" },
                 { "ik",       obj "key" "inner",                    mode = { "o", "x" }, desc = "inner key" },
                 { "ak",       obj "key" "outer",                    mode = { "o", "x" }, desc = "outer key" },
-
                 { "n",        obj "nearEoL" (),                     mode = { "o", "x" }, desc = "near EoL" },
                 { "iQ",       obj "doubleSquareBrackets" "inner",   mode = { "o", "x" }, desc = "inner doubleSquareBrackets" },
                 { "aQ",       obj "doubleSquareBrackets" "outer",   mode = { "o", "x" }, desc = "outer doubleSquareBrackets" },
-
                 { "rp",       obj "restOfParagraph" (),             mode = { "o" },      desc = "rest of paragraph" },
                 { "ri",       obj "restOfIndentation" (),           mode = { "o" },      desc = "rest of indentation" },
                 { "rg",       "G",                                  mode = { "o" },      desc = "rest of buffer" },
-
                 { "L",        obj "url" (),                         mode = { "o" },      desc = "URL" },
                 { "#",        obj "cssColor" "outer",               mode = { "o", "x" }, desc = "outer color" },
                 { ".",        obj "emoji" (),                       mode = { "o", "x" }, desc = "outer color" },
-
-                -- { "in",       obj "number" "inner",                                           mode = { "x", "o" }, desc = "inner number" },
-                -- { "an",       obj "number" "outer",                                           mode = { "x", "o" }, desc = "outer number" },
-
                 { "ii",       obj "indentation" ("inner", "inner"), mode = { "o", "x" }, desc = "inner indent" },
                 { "ai",       obj "indentation" ("outer", "outer"), mode = { "o", "x" }, desc = "outer indent" },
                 { "aj",       obj "indentation" ("outer", "inner"), mode = { "o", "x" }, desc = "top-border indent" },
-                { "ig",       obj "greedyOuterIndentation" "inner", mode = { "o", "x" }, desc = "inner greedy indent" },
-                { "ag",       obj "greedyOuterIndentation" "outer", mode = { "o", "x" }, desc = "outer greedy indent" },
-
+                { "iI",       obj "greedyOuterIndentation" "inner", mode = { "o", "x" }, desc = "inner greedy indent" },
+                { "aI",       obj "greedyOuterIndentation" "outer", mode = { "o", "x" }, desc = "outer greedy indent" },
                 { "i.",       obj "chainMember" "inner",            mode = { "o", "x" }, desc = "inner chainMember" },
                 { "a.",       obj "chainMember" "outer",            mode = { "o", "x" }, desc = "outer chainMember" },
-
-                ---- PYTHON ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-
                 { "iy",       obj "pyTripleQuotes" "inner",         mode = { "o", "x" }, desc = "inner tripleQuotes",        ft = "python" },
                 { "ay",       obj "pyTripleQuotes" "outer",         mode = { "o", "x" }, desc = "outer tripleQuotes",        ft = "python" },
-
-                ---- MARKDOWN --------------------------------------------------------------------------------------------------------------------------------------------------------------
-
                 { "iE",       obj "mdFencedCodeBlock" "inner",      mode = { "o", "x" }, desc = "inner CodeBlock",           ft = "markdown" },
                 { "aE",       obj "mdFencedCodeBlock" "outer",      mode = { "o", "x" }, desc = "outer CodeBlock",           ft = "markdown" },
                 { "il",       obj "mdlink" "inner",                 mode = { "o", "x" }, desc = "inner md-link",             ft = "markdown" },
                 { "al",       obj "mdlink" "outer",                 mode = { "o", "x" }, desc = "outer md-link",             ft = "markdown" },
-
-                ---- CSS -------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
                 { "is",       obj "cssSelector" "inner",            mode = { "o", "x" }, desc = "inner selector",            ft = "css" },
                 { "as",       obj "cssSelector" "outer",            mode = { "o", "x" }, desc = "outer selector",            ft = "css" },
-
-                ---- SHELL -----------------------------------------------------------------------------------------------------------------------------------------------------------------
-
                 { "i|",       obj "shellPipe" "inner",              mode = "o",          desc = "inner pipe",                ft = "sh" },
                 { "a|",       obj "shellPipe" "outer",              mode = "o",          desc = "outer pipe",                ft = "sh" },
-
                 { -- DELETE SURROUNDING INDENTATION
                         "dsi",
                         function()

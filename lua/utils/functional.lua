@@ -139,7 +139,7 @@ end
 local function unless(condition)
         return function(value)
                 if not condition then return nil end
-                return funq(value) and value() or value
+                return type(value) == "function" and value() or value
         end
 end
 
@@ -155,13 +155,12 @@ local function extl(dst)
         end
 end
 
----@type fun(acc: table): fun(list: table): table
-local function fold(acc)
-        return function(list)
-                local new_acc         = acc
-                new_acc[#new_acc + 1] = list
-                return new_acc
-        end
+---@param pair { acc: table, val: any }
+local function fold(pair)
+        local acc     = pair[1]
+        local val     = pair[2]
+        acc[#acc + 1] = val
+        return acc
 end
 
 ---@type fun(f: function): fun(acc: table): fun(tbl: table): function
@@ -196,18 +195,6 @@ local function mapl(f)
                         res[i] = f(t[i])
                 end
                 return res
-        end
-end
-
----@type fun(tbl: table, pred: function): fun(acc: table): fun(x: any): table
-local function filter(tbl)
-        return function(pred)
-                return foldl(function(acc)
-                        return function(x)
-                                unless(pred(x))(fold(acc))
-                                return acc
-                        end
-                end) {} (tbl)
         end
 end
 
@@ -256,7 +243,6 @@ M.lists        = {
         mapl   = mapl,
         fold   = fold,
         foldl  = foldl,
-        filter = filter,
         concat = concat,
 }
 M.matching     = {

@@ -32,24 +32,24 @@ local function hlDynLink(name, link)
 end
 
 ---@type fun(key: string): fun(acc: table): fun(value: table)
-local function linq(key)
+local function linq(prefix)
         local function step(acc)
-                return function(value)
-                        unless(nilq(value))(acc)
-                        hlDynLink(concat "" (key)(value[1]), value[2])
-                        return step(fold(acc))
+                return function(link)
+                        unless(nilq(link))(acc)
+                        hlDynLink(concat "" (prefix)(link[1]), link[2])
+                        return step(fold { acc, link })
                 end
         end
         return step {}
 end
 
 ---@type fun(key: string): fun(acc: table): fun(value: table)
-local function _linq(key)
+local function _linq(link)
         local function step(acc)
-                return function(value)
-                        unless(nilq(value))(acc)
-                        hlDynLink(value, concat "" (key) "")
-                        return step(fold(acc))
+                return function(name)
+                        unless(nilq(name))(acc)
+                        hlDynLink(name, concat "" (link) "")
+                        return step(fold { acc, name })
                 end
         end
         return step {}
@@ -71,11 +71,9 @@ end
 ---- OPTIONS -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local function option(scope)
-        return function(name)
-                return function(value)
-                        if name then
-                                vim[scope][name] = value
-                        end
+        return function(opt)
+                if opt then
+                        vim[scope][opt[1]] = opt[2]
                 end
         end
 end
@@ -85,8 +83,8 @@ local function optq(scope)
         local function step(acc)
                 return function(value)
                         unless(nilq(value))(acc)
-                        option(scope)(value[1])(value[2])
-                        return step(fold(acc))
+                        option(scope) { value[1], value[2] }
+                        return step(fold { acc, value })
                 end
         end
         return step {}
@@ -137,12 +135,12 @@ local function keymapq(keymap)
                 local success, _ = pcall(set, mode, lhs, rhs, opts)
                 if success then return end
 
-                local modes = type(mode) == "table" and table.concat(mode, ", ") or mode
-                local msg   = ("[%s] %s %s"):format(modes, lhs, source)
+                -- local modes = type(mode) == "table" and table.concat(mode, ", ") or mode
+                -- local msg   = ("[%s] %s %s"):format(modes, lhs, source)
 
-                vim.defer_fn(function()
-                                     vim.notify(msg, levels.WARN, { title = "Duplicate keymap" })
-                             end, 1000)
+                -- vim.defer_fn(function()
+                --                      vim.notify(msg, levels.WARN, { title = "Duplicate keymap" })
+                --              end, 1000)
         else
                 auq "FileType" {
                         desc     = "User: plugin filetype-keymap",
@@ -160,7 +158,7 @@ local function kq()
                 return function(km)
                         unless(nilq(km))(acc)
                         keymapq(km)
-                        return step(fold(acc))
+                        return step(fold { acc, km })
                 end
         end
         return step {}
@@ -188,32 +186,6 @@ end
 
 ---- MODULES -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
----@param exports table
-local function exporter(exports)
-        return setmetatable(exports, {
-                __call = function(self, override)
-                        for _, group in pairs(self) do
-                                if type(group) == "table" then
-                                        for key, value in pairs(group) do
-                                                if rawget(_G, key) ~= nil then
-                                                        if override then
-                                                                print(("WARNING: global '%s' already exists. Overwritten.")
-                                                                        :format(key))
-                                                                rawset(_G, key, value)
-                                                        else
-                                                                print(("NOTICE: global '%s' already exists. Skipped.")
-                                                                        :format(key))
-                                                        end
-                                                else
-                                                        rawset(_G, key, value)
-                                                end
-                                        end
-                                end
-                        end
-                end,
-        })
-end
-
 ---@param modname string
 local function safeRequire(modname)
         local success, errmsg = pcall(require, modname)
@@ -225,29 +197,24 @@ local function safeRequire(modname)
         return errmsg
 end
 
----@type fun(modname: string): fun(event?: vim.api.keyset.events): fun(pattern?: string)
 local function lazyReq(modname)
-        return function(event)
-                return function(pattern)
-                        if event == nil then
-                                return safeRequire(modname)
-                        end
-                        auq(event) {
-                                pattern  = pattern,
-                                once     = true,
-                                callback = function() safeRequire(modname) end,
-                        }
-                end
+        return function(lazy)
+                if lazy[1] == nil then return safeRequire(modname) end
+                auq(lazy[1]) {
+                        pattern  = lazy[2],
+                        once     = true,
+                        callback = function() safeRequire(modname) end,
+                }
         end
 end
 
 ---@type fun(dir: string): fun(value: string|table)
 local function req(dir)
         local function step(acc)
-                return function(value)
-                        unless(nilq(value))(acc)
-                        lazyReq(concat "." (dir)(value[1] or value))(value[2] or nil)(value[3] or nil)
-                        return step(fold(acc))
+                return function(modname)
+                        unless(nilq(modname))(acc)
+                        lazyReq(concat "." (dir)(modname[1] or modname)) { modname[2], modname[3] }
+                        return step(fold { acc, modname })
                 end
         end
         return step {}
@@ -258,13 +225,12 @@ local M = {}
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 M.autocmds   = { auq = auq }
-M.highlights = { hl = hl, linq = linq, _linq = _linq }
 M.options    = { optq = optq }
+M.highlights = { hl = hl, linq = linq, _linq = _linq }
 M.keymaps    = { abbr = bufAbbr, bufq = bufq, keymapq = keymapq, pcmd = pcmd, kq = kq }
 M.modules    = {
         req         = req,
         lazyReq     = lazyReq,
-        exporter    = exporter,
         safeRequire = safeRequire,
 }
 

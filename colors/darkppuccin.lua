@@ -189,7 +189,7 @@ _linq --> colors.yellow,
     "Substitute"
 
 ---- GENERAL -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- h "MCursor" { link = "CurSearch" }
+h "MCursor" { link = "CurSearch" }
 h "Normal" { bg = colors.crust0 }
 h "NormalFloat" { bg = colors.mantle1 }
 h "NonText" { fg = colors.surface0 }

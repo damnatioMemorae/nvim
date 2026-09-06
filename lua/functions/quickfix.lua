@@ -177,12 +177,12 @@ bufq { "qq", first, desc = "List 1st", ft = "qf" }
 bufq { "Q", last, desc = "List last", ft = "qf" }
 kq
 ""
+    { "<C-o>", older, desc = "List older", ft = "qf" }
+    { "<C-i>", newer, desc = "List newer", ft = "qf" }
     { "[", fprev, desc = "List file prev", nowait = true }
     { "]", fnext, desc = "List file next", nowait = true }
     { "(", prev, desc = "List item prev" }
     { ")", next, desc = "List item next" }
-    { "<S-Tab>", older, desc = "List older" }
-    { "<Tab>", newer, desc = "List newer" }
     { "qd", remove, desc = "List clear" }
     { "<LocalLeader>q", Toggle.qfMode, desc = "Toggle List mode" }
 iter { "q", "Q" }

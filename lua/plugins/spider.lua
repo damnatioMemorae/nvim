@@ -1,33 +1,18 @@
-local modes = { "n", "v", "x", "o" }
+local nx  = { "n", "x" }
+local nxo = { "n", "x", "o" }
+
+local function move(motion)
+        return "<cmd>lua require('spider').motion('" .. motion .. "')<CR>"
+end
 
 return {
         "chrisgrieser/nvim-spider",
         event = "BufReadPost",
         keys  = {
-                { -- e
-                        "e",
-                        function() require "spider".motion "e" end,
-                        mode = modes,
-                        desc = "end of subword",
-                },
-                { -- w
-                        "w",
-                        function() require "spider".motion "w" end,
-                        mode = modes,
-                        desc = "end of subword",
-                },
-                { -- b
-                        "b",
-                        function() require "spider".motion "b" end,
-                        mode = { "n", "v", "x" },
-                        desc = "beginning of subword",
-                },
-                { -- W
-                        "W",
-                        function() require "spider".motion "ge" end,
-                        mode = modes,
-                        desc = "beginning of subword",
-                },
+                { "e", move "e",  mode = nxo, desc = "end of subword" },
+                { "w", move "w",  mode = nxo, desc = "end of subword" },
+                { "b", move "b",  mode = nx,  desc = "beginning of subword" },
+                { "W", move "ge", mode = nxo, desc = "beginning of subword" },
         },
         opts  = {
                 skipInsignificantPunctuation = false,

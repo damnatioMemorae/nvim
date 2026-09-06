@@ -23,6 +23,6 @@ req
     "options"
     "lazy"
     { "commands", "CmdlineEnter" }
-    { "keymaps", "BufReadPre" }
+    { "keymaps", "BufReadPost" }
     { "lsp", "BufReadPost" }
     "autocmds"

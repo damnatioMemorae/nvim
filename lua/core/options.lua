@@ -73,8 +73,6 @@ optq -- G
     { "inlayHints", true }
     { "indentLines", true }
 
--- vim.o.formatoptions = "jcroql"
-vim.opt.formatoptions:remove { "c", "r", "o" }
 optq -- O
 "o"
 -- { "formatoptions", "jcoql" }
@@ -112,6 +110,7 @@ optq -- O
     { "wildoptions", "exacttext,fuzzy,pum" }
     { "wrap", false }
     { "wrapmargin", 120 }
+    { "bufhidden", "wipe" }
     { "updatetime", 400 }
     { "redrawtime", 400 }
 

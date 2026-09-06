@@ -7,5 +7,5 @@ req
     { "folding", "BufReadPost" }
     { "lightbulb", "LspAttach" }
     { "fuzzy", "CmdlineEnter" }
-    { "ui2", "UiEnter" }
     { "sessions", "VimEnter" }
+    { "ui2", "UiEnter" }
