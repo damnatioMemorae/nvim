@@ -1,21 +1,18 @@
-local g  = vim.g
-local v  = vim.v
-local o  = vim.o
-local bo = vim.bo
-local fn = vim.fn
-local fs = vim.fs
-local uv = vim.uv
-local wo = vim.wo
-
-local api  = vim.api
-local cmd  = vim.cmd
-local lsp  = vim.lsp
-local log  = vim.log
-local diag = vim.diagnostic
-local ts   = vim.treesitter
-
+local g       = vim.g
+local v       = vim.v
+local o       = vim.o
+local bo      = vim.bo
+local fn      = vim.fn
+local fs      = vim.fs
+local ts      = vim.treesitter
+local uv      = vim.uv
+local wo      = vim.wo
+local api     = vim.api
+local cmd     = vim.cmd
+local lsp     = vim.lsp
+local diag    = vim.diagnostic
+local levels  = vim.log.levels
 local augroup = api.nvim_create_augroup
-local levels  = log.levels
 
 local nano = require "functions.nano-plugins"
 
@@ -92,34 +89,31 @@ end
 
 ---- POPUP ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-local hover          = lsp.buf.hover
-local signature_help = lsp.buf.signature_help
-local open_float     = diag.open_float
-where(function(_)
-        lsp.buf.hover          = function() return hover(_.hover) end ---@diagnostic disable-line: duplicate-set-field
-        lsp.buf.signature_help = function() return signature_help(_.hover) end ---@diagnostic disable-line: duplicate-set-field
-        diag.open_float        = function() return open_float(_.float) end ---@diagnostic disable-line: duplicate-set-field
-end) {
-            hover = {
-                    anchor_bias = "above",
-                    border      = Border.Default.Normal,
-                    title       = "",
-                    title_pos   = "left",
-                    relative    = "cursor",
-                    wrap        = true,
-                    max_height  = math.floor(o.lines * 0.7),
-                    max_width   = math.floor(o.columns * 0.6),
-            },
-            float = {
-                    anchor_bias   = "below",
-                    border        = Border.Default.Normal,
-                    title         = "",
-                    title_pos     = "left",
-                    scope         = "cursor",
-                    severity_sort = true,
-                    source        = true,
-            },
-    }
+local _hover           = lsp.buf.hover
+local _signature_help  = lsp.buf.signature_help
+local _open_float      = diag.open_float
+local hover            = {
+        anchor_bias = "above",
+        border      = Border.Default.Normal,
+        title       = "",
+        title_pos   = "left",
+        relative    = "cursor",
+        wrap        = true,
+        max_height  = math.floor(o.lines * 0.7),
+        max_width   = math.floor(o.columns * 0.6),
+}
+local float            = {
+        anchor_bias   = "below",
+        border        = Border.Default.Normal,
+        title         = "",
+        title_pos     = "left",
+        scope         = "cursor",
+        severity_sort = true,
+        source        = true,
+}
+lsp.buf.hover          = function() return _hover(hover) end ---@diagnostic disable-line: duplicate-set-field
+lsp.buf.signature_help = function() return _signature_help(hover) end ---@diagnostic disable-line: duplicate-set-field
+diag.open_float        = function() return _open_float(float) end ---@diagnostic disable-line: duplicate-set-field
 
 ---- AUTOCMDS ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -211,7 +205,6 @@ local function compDoc(client, _group, bufnr, debounce)
                 end,
         }
 end
-
 local function completion(client, buf)
         if client:supports_method "textDocument/completion" and not pcall(require, "blink.cmp") then
                 o.autocomplete  = true
@@ -235,7 +228,6 @@ local function completion(client, buf)
                 -- compDoc(client, _compdoc_augroup, buf, 0)
         end
 end
-
 local function inlayHints(client, buf)
         if fn.has "nvim-0.10" == 1 and g.inlayHints and client:supports_method "textDocument/inlayHint" then
                 auq { "CursorHold", "CursorMoved" } {
@@ -246,7 +238,6 @@ local function inlayHints(client, buf)
                 }
         end
 end
-
 local function documentColor(client, buf)
         if fn.has "nvim-0.12" == 1 and client:supports_method "textDocument/documentColor" then
                 auq { "CursorHold", "CursorMoved" } {
@@ -258,7 +249,6 @@ local function documentColor(client, buf)
                 }
         end
 end
-
 local function documentHighlight(client, buf)
         if fn.mode() ~= "i" and fn.has "nvim-0.11" == 1 and client:supports_method("textDocument/documentHighlight", 0) then
                 auq "CursorMoved" {
@@ -268,10 +258,8 @@ local function documentHighlight(client, buf)
                         callback = function()
                                 ---@cast timer uv.uv_timer_t
                                 timer:start(400, 0, vim.schedule_wrap(function()
-                                        local pos  = api.nvim_win_get_cursor(0)
-                                        -- local pos  = vim.pos.cursor(0)
-                                        local node = ts.get_node { pos = { pos[1], pos[2] } }
-
+                                        local pos       = api.nvim_win_get_cursor(0)
+                                        local node      = ts.get_node { pos = { pos[1] - 1, pos[2] } }
                                         local in_string = false
                                         while node do
                                                 if node:type() == "string" or node:type() == "string_content" then
@@ -291,7 +279,6 @@ local function documentHighlight(client, buf)
                 }
         end
 end
-
 local function onTypeFormat(client, buf)
         if fn.has "nvim-0.11" == 1 and client:supports_method("textDocument/documentHighlight", 0) then
                 auq "CursorMoved" {
@@ -375,11 +362,13 @@ auq "LspDetach" {
 
 ---- KEYMAPS -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-local function jump(count)
-        diag.jump { count = count, float = false }
+local scroll = function(_)
+        return function() return nano.scrollLspOrOtherWin(_) end
 end
-
-local function lines()
+local jump   = function(_)
+        return function() diag.jump { count = _, float = false } end
+end
+local line   = function()
         diag.config { virtual_lines = { current_line = true }, virtual_text = false }
         auq "CursorMoved" {
                 group    = augroup("line-diagnostics", { clear = true }),
@@ -392,13 +381,13 @@ end
 
 kq
 ""
-    { "<leader>k", lines, desc = "Diagnostic Lines" }
+    { "<leader>k", line, desc = "Diagnostic Lines" }
     { "J", lsp.buf.signature_help, desc = "Signature Help" }
     { "K", lsp.buf.hover, desc = "Hover Documentation", unique = false }
-    { "<M-D>", function() jump(-1) end, desc = "Diagnostic Prev", mode = { "n", "x" } }
-    { "<M-d>", function() jump(1) end, desc = "Diagnostic Next", mode = { "n", "x" } }
-    { "<M-j>", function() nano.scrollLspOrOtherWin(5) end, desc = "Scroll other win" }
-    { "<M-k>", function() nano.scrollLspOrOtherWin(-5) end, desc = "Scroll other win" }
+    { "<M-d>", jump(1), desc = "Diagnostic Next", mode = { "n", "x" } }
+    { "<M-D>", jump(-1), desc = "Diagnostic Prev", mode = { "n", "x" } }
+    { "<M-j>", scroll(5), desc = "Scroll other win" }
+    { "<M-k>", scroll(-5), desc = "Scroll other win" }
     { "<leader>d", diag.setloclist, desc = "Diagnostic loclist" }
     { "<leader>D", diag.setqflist, desc = "Diagnostic quickfix" }
     { "<LocalLeader>f", "gF", desc = ("LSP Goto ") .. "File" }

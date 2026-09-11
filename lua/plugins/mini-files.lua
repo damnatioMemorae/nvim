@@ -16,8 +16,7 @@ local fs     = vim.fs
 local ui     = vim.ui
 local api    = vim.api
 local cmd    = vim.cmd
-local log    = vim.log
-local levels = log.levels
+local levels = vim.log.levels
 
 local kinds = Icon.Kinds
 local send  = require "functions.nano-plugins".teleSend "file"
@@ -51,19 +50,16 @@ local function toggleDotfiles()
         require "mini.files".refresh { content = { filter = new_filter } }
 end
 local function mapSplit(buf, lhs, direction)
-        where(function(_) keymapq { _.lhs, _.rhs, buf = _.buf, desc = _.desc } end) {
-                lhs  = lhs,
-                rhs  = function()
-                        local cur_target = require "mini.files".get_explorer_state().target_window
-                        local new_target = api.nvim_win_call(cur_target, function()
-                                cmd(direction .. " split")
-                                return api.nvim_get_current_win()
-                        end)
-                        require "mini.files".set_target_window(new_target)
-                end,
-                buf  = buf,
-                desc = "Split " .. direction,
-        }
+        local desc = "Split " .. direction
+        local rhs  = function()
+                local cur_target = require "mini.files".get_explorer_state().target_window
+                local new_target = api.nvim_win_call(cur_target, function()
+                        cmd(direction .. " split")
+                        return api.nvim_get_current_win()
+                end)
+                require "mini.files".set_target_window(new_target)
+        end
+        keymapq { lhs, rhs, buf = buf, desc = desc }
 end
 local function setCwd()
         local path = (require "mini.files".get_fs_entry() or {}).path
@@ -149,17 +145,14 @@ auq "User" { -- MARKS
 auq "User" { -- BORDER
         pattern  = "MiniFilesWindowOpen",
         callback = function(args)
-                where(function(_)
-                        _.config.border = _.border
-                        api.nvim_win_set_config(_.win_id, _.config)
-                end) {
-                            win_id = args.data.win_id,
-                            config = api.nvim_win_get_config(args.data.win_id),
-                            border = match(border_width) {
-                                    [1] = Border.Default.Normal,
-                                    _   = Border.Default.None,
-                            },
-                    }
+                local win_id = args.data.win_id
+                local config = api.nvim_win_get_config(args.data.win_id)
+                local border = match(border_width) {
+                        [1] = Border.Default.Normal,
+                        _   = Border.Default.None,
+                }
+                config.border = border
+                api.nvim_win_set_config(win_id, config)
         end,
 }
 auq "User" { -- LAYOUT

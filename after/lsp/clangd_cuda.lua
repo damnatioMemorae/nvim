@@ -1,10 +1,7 @@
-local api = vim.api
-local cmd = vim.cmd
-local log = vim.log
-local lsp = vim.lsp
-
-local levels = log.levels
-local util   = lsp.util
+local api    = vim.api
+local cmd    = vim.cmd
+local lsp    = vim.lsp
+local levels = vim.log.levels
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -15,7 +12,7 @@ local function switchSourceHeader(bufnr)
                 return vim.notify(("method %s is not supported by any servers active on the current buffer"):format(
                         method_name))
         end
-        local params = util.make_text_document_params(bufnr)
+        local params = lsp.util.make_text_document_params(bufnr)
         ---@diagnostic disable-next-line: unknown-diag-code
         ---@diagnostic disable-next-line: param-type-not-match, param-type-mismatch
         client.request(method_name, params, function(err, result)
@@ -39,7 +36,7 @@ local function symbolInfo()
                 return vim.notify("Clangd client not found", levels.ERROR)
         end
         local win    = api.nvim_get_current_win()
-        local params = util.make_position_params(win, clangd_client.offset_encoding)
+        local params = lsp.util.make_position_params(win, clangd_client.offset_encoding)
         ---@diagnostic disable-next-line: unknown-diag-code
         ---@diagnostic disable-next-line: param-type-not-match, param-type-mismatch
         clangd_client.request("textDocument/symbolInfo", params, function(err, res)
@@ -49,7 +46,7 @@ local function symbolInfo()
                                       end
                                       local container = string.format("container: %s", res[1].containerName) ---@type string
                                       local name      = string.format("name: %s", res[1].name) ---@type string
-                                      util.open_floating_preview({ name, container }, "", {
+                                      lsp.util.open_floating_preview({ name, container }, "", {
                                               height    = 2,
                                               width     = math.max(string.len(name), string.len(container)),
                                               focusable = false,

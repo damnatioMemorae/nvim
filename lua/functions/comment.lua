@@ -53,7 +53,6 @@ end
 function M.commentHr(replaceModeLabel)
         assert(bo.commentstring ~= "", "Comment string not set for " .. bo.ft)
         local start_ln = api.nvim_win_get_cursor(0)[1]
-        -- local start_ln = vim.pos.cursor(0)[1]
 
         local ln = start_ln
         local line, indent
@@ -75,13 +74,11 @@ function M.commentHr(replaceModeLabel)
                 hr_with_comment = hr_with_comment:gsub(" ", config.hrChar)
         end
 
-        where(function(_) api.nvim_buf_set_lines(0, _.ln, _.ln, true, { _.full }) end) {
-                ln   = start_ln,
-                full = match(bo.ft) {
-                        markdown = "---",
-                        _        = indent .. hr_with_comment,
-                },
+        local full = match(bo.ft) {
+                markdown = "---",
+                _        = indent .. hr_with_comment,
         }
+        api.nvim_buf_set_lines(0, start_ln, start_ln, true, { full })
 
         if not replaceModeLabel then
                 api.nvim_buf_set_lines(0, start_ln + 1, start_ln + 1, true, { "" })
@@ -97,7 +94,6 @@ end
 function M.duplicateLineAsComment()
         assert(bo.commentstring ~= "", "Comment string not set for " .. bo.ft)
         local lnum, col       = unpack(api.nvim_win_get_cursor(0))
-        -- local lnum, col       = unpack(vim.pos.cursor(0))
         local cur_line        = api.nvim_get_current_line()
         local indent, content = cur_line:match "^(%s*)(.*)"
         local commented_line  = indent .. bo.commentstring:format(content)
@@ -111,8 +107,6 @@ function M.addComment(where)
         local lnum = match(where) {
                 above = api.nvim_win_get_cursor(0)[1] - 1,
                 _     = api.nvim_win_get_cursor(0)[1],
-                -- above = vim.pos.cursor(0)[1] - 1,
-                -- _     = vim.pos.cursor(0)[1],
         }
 
         match(where) {

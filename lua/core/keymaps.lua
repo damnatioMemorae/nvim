@@ -1,57 +1,43 @@
-local b    = vim.b
-local bo   = vim.bo
-local fn   = vim.fn
-local ui   = vim.ui
-local api  = vim.api
-local cmd  = vim.cmd
-local log  = vim.log
-local lsp  = vim.lsp
-local ts   = vim.treesitter
-local diag = vim.diagnostic
-local iter = vim.iter
+local b      = vim.b
+local bo     = vim.bo
+local fn     = vim.fn
+local ui     = vim.ui
+local api    = vim.api
+local cmd    = vim.cmd
+local lsp    = vim.lsp
+local ts     = vim.treesitter
+local diag   = vim.diagnostic
+local levels = vim.log.levels
+local iter   = vim.iter
 
-local levels = log.levels
+local c  = "c"
+local i  = "i"
+local o  = "o"
+local x  = "x"
+local nx = { "n", "x" }
+local ni = { "n", "i" }
 
-local n, i, c, v, o, x, _t = "n", "i", "c", "v", "o", "x", "t" ---@diagnostic disable-line unused-local
-
+local p    = require "utils.functional".predicates
+local mc   = require "functions.cursed"
 local com  = require "functions.comment"
+local mag  = require "functions.magnet"
 local eval = require "functions.inspect-and-eval"
 local nano = require "functions.nano-plugins"
 
-local send = nano.teleSend
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-local function spltis(mod)
-        local command   = fn.getcmdline()
-        local shell_cmd = command:match "^!%s*(.*)"
-        if shell_cmd then
-                command = string.format("%s terminal %s", mod, shell_cmd)
-        elseif not command:match("^%s*" .. vim.pesc(mod) .. "%s+") then
-                command = string.format("%s %s", mod, command)
-        end
-        return "<C-\\>e" .. fn.string(command) .. "<CR><CR>"
-end
-
-local function open(path)
-        ui.open(fn.stdpath(path))
-end
 
 kq -- META
 ""
     { "ZZ", function() cmd "qa" end, desc = "Quit" }
     { "ZR", "<cmd>restart!<CR>", desc = "Restart" }
     { "<C-s>", cmd.write, desc = "Save File" }
-    { "<LocalLeader>k", "<cmd>help!<CR>", desc = "Help", mode = { n, x } }
-    { "<leader>pl", function() open "log" end, desc = "Log dir" }
-    { "<leader>pd", function() open "data" end, desc = "Local data dir" }
-    { "<leader>S", function() send "file" end, desc = "Telegram send file" }
-    { "<leader>SS", function() send "text" end, desc = "Telegram send text" }
+    { "<LocalLeader>k", "<cmd>help!<CR>", desc = "Help", mode = nx }
 
 kq -- MOTIONS
 ""
     { "_", "0" }
-    { "j", "gj", mode = { n, x } }
-    { "k", "gk", mode = { n, x } }
+    { "j", "gj", mode = nx }
+    { "k", "gk", mode = nx }
     { "J", "6gj", mode = x }
     { "K", "6gk", mode = x }
 
@@ -60,7 +46,7 @@ kq -- SEARCH
     { "n", "n", desc = "Search next" }
     { "N", "N", desc = "Search previous" }
     { "\\", "<Esc>/\\%V", desc = "Search in sel", mode = x }
-    { "<esc>", "<cmd>nohlsearch<cr><esc>", desc = "Escape and Clear hlsearch", mode = { n, i }, silent = true }
+    { "<esc>", "<cmd>nohlsearch<cr><esc>", desc = "Escape and Clear hlsearch", mode = ni, silent = true, unique = false }
 
 kq -- UNDO
 ""
@@ -88,11 +74,10 @@ kq -- EDITING
     { "zl", function() -- SPELL SUGGESTIONS
             local suggestions = fn.spellsuggest(fn.expand "<cword>")
             suggestions       = vim.list_slice(suggestions, 1, 9)
-            ui.select(suggestions, { prompt = "Spelling suggestions" },
-                      function(selection)
-                              if not selection then return end
-                              cmd.normal { '"_ciw' .. selection, bang = true }
-                      end)
+            ui.select(suggestions, { prompt = "Spelling suggestions" }, function(selection)
+                    if not selection then return end
+                    cmd.normal { '"_ciw' .. selection, bang = true }
+            end)
     end, desc = "Spell suggestions" }
     { "<C-Space>", function() -- REPEATABLE SELECTION EDIT,
             assert(fn.mode() == "v", "Only visual (character) mode.")
@@ -134,12 +119,10 @@ kq -- YANK
     { "<C-y>", ":%y<CR>", desc = "Yank all", silent = true }
     { "y", function() -- STICKY
             b.preYankCursor = api.nvim_win_get_cursor(0)
-            -- b.preYankCursor = vim.pos.cursor(0)
             return "y"
-    end, mode = { n, x }, expr = true }
+    end, mode = nx, expr = true }
     { "Y", function() -- STICKY
             b.preYankCursor = api.nvim_win_get_cursor(0)
-            -- b.preYankCursor = vim.pos.cursor(0)
             return "y$"
     end, expr = true, unique = false }
 
@@ -158,11 +141,11 @@ do -- YANKRING
         }
 end
 
--- { "d", '"_d', mode = { n, x } }
+-- { "d", '"_d', mode = nx }
 kq -- REGISTERS
 ""
-    { "x", '"_x', mode = { n, x } }
-    { "c", '"_c', mode = { n, x } }
+    { "x", '"_x', mode = nx }
+    { "c", '"_c', mode = nx }
     { "C", '"_C' }
     { "p", "P", mode = x }
     { "p", "]p", desc = "Paste & indent" }
@@ -186,11 +169,11 @@ end, desc = "Paste charwise", mode = i, expr = true }
 kq -- TEXTOBJECTS
 ""
     { "J", "2j", mode = o }
-    { "d<Space>", '"_daw', desc = "delete word", mode = n }
+    { "d<Space>", '"_daw', desc = "delete word" }
 
 kq -- COMMENT OPERATOR
 ""
-    { "q", "gc", desc = "Comment operator", mode = { n, x }, remap = true }
+    { "q", "gc", desc = "Comment operator", mode = nx, remap = true }
     { "qq", "gcc", desc = "Comment line", remap = true }
 do -- MULTILINE COMMENT
         kq
@@ -210,9 +193,8 @@ do -- COMMENTS
         com.setupReplaceModeHelpersForComments()
 end
 
-kq "" { "i", function() -- INDENT I
-        local line_empty = vim.trim(api.nvim_get_current_line()) == ""
-        return line_empty and '"_cc' or "i"
+kq "" { "i", function() -- INDENT `i`
+        return (vim.trim(api.nvim_get_current_line()) == "") and '"_cc' or "i"
 end, desc = "indented i on empty line", expr = true }
 
 kq -- VISUAL MODE
@@ -221,8 +203,9 @@ kq -- VISUAL MODE
     { "V", "j", desc = "repeated `V` selects more lines", mode = x }
     { "v", "<C-v>", desc = "`vv` starts visual block", mode = x }
 
-kq -- CMDZ
+kq -- CMDX
 ""
+    { "<M-x>", "<cmd>@:<CR>" }
     { "<leader>r", ":luafile " .. fn.stdpath "config" .. "/" }
     { "<leader>l", ":livegrep " }
     { "<leader>f", ":find " }
@@ -266,34 +249,45 @@ kq -- CMD EDIT
             if fn.getcmdline() ~= "" then return "<BS>" end
     end, desc = "disable <BS> when cmdline is empty", mode = c, expr = true, unique = false }
 
+local function splti(mod)
+        return function()
+                local command   = fn.getcmdline()
+                local shell_cmd = command:match "^!%s*(.*)"
+                if shell_cmd then
+                        command = string.format("%s terminal %s", mod, shell_cmd)
+                elseif not command:match("^%s*" .. vim.pesc(mod) .. "%s+") then
+                        command = string.format("%s %s", mod, command)
+                end
+                return "<C-\\>e" .. fn.string(command) .. "<CR><CR>"
+        end
+end
+
 kq -- CMD SPLIT
 ""
-    { "<c-l>", function() return spltis "vertical" end, mode = c, expr = true }
-    { "<c-j>", function() return spltis "horizontal" end, mode = c, expr = true }
-    { "<c-CR>", function() return spltis "tab" end, mode = c, expr = true }
+    { "<c-l>", splti "vertical", mode = c, expr = true }
+    { "<c-j>", splti "horizontal", mode = c, expr = true }
+    { "<c-CR>", splti "tab", mode = c, expr = true }
 
 kq "" { "<M-Esc>", "<C-\\><C-n>", mode = "t" }
 do -- TOGGLE TERMINAL
-        local function toggle(key, h, w)
+        local function perc(_) return function(__) return math.floor(vim.o[_] * __ * 0.01) end end
+        local function toggle(_, h, w)
                 return function()
                         match(bo.buftype) {
                                 terminal = function() return cmd "bwipeout!" end,
                                 _        = function()
-                                        where(function(_)
-                                                cmd(_.split[1])
-                                                cmd "term"
-                                                api["nvim_win_set_" .. _.split[2]](0, _.split[3])
-                                        end) {
-                                                    split = match(key) {
-                                                            [_lower()] = { "new", "height", math.floor(vim.o.lines * (h or 50) * 0.01) },
-                                                            [_upper()] = { "vnew", "width", math.floor(vim.o.columns * (w or 50) * 0.01) },
-                                                    },
-                                            }
+                                        local split = match(_) {
+                                                [p.lower] = { "new", "height", perc "lines" (h or 50) },
+                                                [p.upper] = { "vnew", "width", perc "columns" (w or 50) },
+                                        }
+                                        cmd(split[1])
+                                        cmd "term"
+                                        api["nvim_win_set_" .. split[2]](0, split[3])
                                 end,
                         }
                 end
         end
-        iter { "t", "T" }:each(function(_) kq "" { "<leader>" .. _, toggle(_, 30, 30), desc = "Toggle terminal" } end)
+        iter { "t", "T" }:each(function(_) kq "" { "<leader>" .. _, toggle(_, 30, 40), desc = "Toggle terminal" } end)
 end
 
 kq -- INSPECT
@@ -326,19 +320,31 @@ kq -- EVAL
     { "<leader>iE", function() -- EVAL LUA EXPRESSION
             local selection = fn.mode() == "n" and "" or fn.getregion(fn.getpos ".", fn.getpos "v")[1]
             return ":lua  = " .. selection
-    end, desc = "Eval lua expr", mode = { n, x }, expr = true }
+    end, desc = "Eval lua expr", mode = nx, expr = true }
 
 kq -- WINDOW
 ""
     { "<M-Space>", "<C-w>w", desc = "Cycle windows" }
-    { "<M-m>", "<cmd>vsplit<CR>", desc = "Split altfile" }
-    { "<M-n>", "<cmd>vertical split #<CR>", desc = "Split altfile" }
     { "<M-W>", "<cmd>only<CR>", desc = "Close other windows" }
-    { "<C-n>", "<cmd>messages<CR>", desc = "Notification History" }
+    { "<M-n>", "<cmd>vertical split #<CR>", desc = "Split altfile" }
+    { "<C-n>", "<cmd>messages<CR>", desc = "Open messages window/pager" }
+
+    { "<C-up>", "<C-w>3-", desc = "Resize Up" }
+    { "<C-down>", "<C-w>3+", desc = "Resize Down" }
+    { "<C-left>", "<C-w>3<", desc = "Resize Left" }
+    { "<C-right>", "<C-w>3>", desc = "Resize Right" }
+
+    { "<C-k>", "<C-w>k", desc = "Jump Up" }
+    { "<C-j>", "<C-w>j", desc = "Jump Down" }
+    { "<C-h>", "<C-w>h", desc = "Jump Left" }
+    { "<C-l>", "<C-w>l", desc = "Jump Right", unique = false }
 
 kq -- BUFFER
 ""
+    { "&", "<C-^>", desc = "Toggle buffer", unique = false }
     { "<M-r>", cmd.edit, desc = "Reload buffer" }
+    { "<M-b>", mag.gotoAltFile, desc = "Alt file" }
+    { "<M-B>", mag.gotoMostChangedFile, desc = "Most changed file" }
     { "<M-w>", function() -- DELETE WINDOW/BUFFER
             cmd "silent! update"
             if bo.buftype == "terminal" then
@@ -364,36 +370,32 @@ kq -- BUFFER
 
 kq -- MULTICURSOR
 ""
-    { "<M-i>", "]C" }
-    { "<M-I>", "[C" }
-    { "<C-g>", "g<C-A>" }
-    { "*", "Q*q=", unique = false }
-    { "#", "Q#q=", unique = false }
-    { "<LocalLeader><LocalLeader>", "q=" }
-    { "<C-c>", function() api.nvim_buf_clear_namespace(0, api.nvim_create_namespace "nvim.multicursor", 0, -1) end, mode = { n, x } }
-    { "<C-q>", function()
-            local m = api.nvim_win_get_cursor(0)
-            api.nvim_mcursor(0, { m[1], m[2] })
-    end, mode = { n, v } }
-    { "<M-y>", function()
-            local m = api.nvim_win_get_cursor(0)
-            api.nvim_mcursor(0, { m[1], m[2] })
-            api.nvim_win_set_cursor(0, { m[1] + 1, m[2] })
-    end }
-    { "<M-Y>", "[CQ" }
+    { "*", "2q=*1q=" }
+    { "#", "2q=#1q=" }
+    { "<M-.>", mc.mcAdd(1), desc = "MCursor add below" }
+    { "<M-,>", mc.mcAdd(-1), desc = "MCursor add above" }
+    { "<M->>", mc.mcDel(1), desc = "MCursor delete below" }
+    { "<M-<>", mc.mcDel(-1), desc = "MCursor delete above" }
+    { "<LocalLeader><LocalLeader>", "q=", desc = "MCursor follow toggle", mode = nx }
+    { "<M-m>", "Q*1q=", desc = "MCursor next match", mode = nx }
+    { "<M-M>", "Q#1q=", desc = "MCursor prev match", mode = nx }
+    { "<M-i>", "]C", desc = "MCursor next", mode = nx }
+    { "<M-I>", "[C", desc = "MCursor prev", mode = nx }
+    { "<C-q>", "Q", desc = "MCursor toggle", mode = nx }
+    { "<C-g>", "g<C-A>", desc = "MCursor numbers" }
+    { "<C-c>", mc.mcClear, mode = nx }
 
-where(function(_) -- MACROS
-        fn.setreg(_.reg, "")
+do -- MACROS
+        local reg  = "r"
+        local rec  = "0"
+        local edit = "7"
+        local play = "9"
         kq
         ""
-            { _.toggle, function() nano.startOrStopRecording(_.toggle, _.reg) end, desc = "Start/stop recording" }
-            { "9", function() nano.playRecording(_.reg) end, desc = "Play recording" }
-            { _.edit, function() nano.editMacro(_.reg) end, desc = "Edit recording" }
-end) {
-            reg    = "r",
-            edit   = "1",
-            toggle = "0",
-    }
+            { rec, nano.startOrStopRecording(rec, reg), desc = "Start/stop recording" }
+            { play, nano.playRecording(reg), desc = "Play recording" }
+            { edit, nano.editMacro(reg), desc = "Edit macro" }
+end
 
 kq -- REFACTORING
 ""

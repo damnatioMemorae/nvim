@@ -1,15 +1,13 @@
-local bo  = vim.bo
-local fn  = vim.fn
-local ts  = vim.treesitter
-local uv  = vim.uv
-local ui  = vim.ui
-local wo  = vim.wo
-local api = vim.api
-local cmd = vim.cmd
-local log = vim.log
-local lsp = vim.lsp
-
-local levels = log.levels
+local bo     = vim.bo
+local fn     = vim.fn
+local ts     = vim.treesitter
+local uv     = vim.uv
+local ui     = vim.ui
+local wo     = vim.wo
+local api    = vim.api
+local cmd    = vim.cmd
+local lsp    = vim.lsp
+local levels = vim.log.levels
 
 require "utils.functional" ()
 
@@ -36,23 +34,21 @@ function M.bufferInfo()
 
         local indent_type   = bo.expandtab and "spaces" or "tabs"
         local indent_amount = bo.expandtab and bo.tabstop or bo.shiftwidth
-
-        where(function(_) vim.notify(table.concat(_.out, "\n"), _.level, _.opts) end) {
-                level = levels.DEBUG,
-                opts  = { title = "Inspect buffer", icon = "󰽙", timeout = 10000 },
-                out   = extl {
-                        "[bufnr]     " .. api.nvim_get_current_buf(),
-                        "[winid]     " .. api.nvim_get_current_win(),
-                        "[filetype]  " .. (bo.filetype == "" and '""' or bo.filetype),
-                        "[buftype]   " .. (bo.buftype == "" and '""' or bo.buftype),
-                        "[foldlevel] " .. (wo.foldlevel == "" and '""' or wo.foldlevel),
-                        ("[indent]    %s (%s)"):format(indent_type, indent_amount),
-                        "[cwd]       " .. (uv.cwd() or "nil"):gsub("/Users/%w+", pseudo_tilde),
-                        "",
-                } (guard { #lsps > 0, function() return { "Attached LSPs with root", unpack(lsps) } end,
-                        function() return { "No LSPs attached." } end,
-                }),
-        }
+        local level         = levels.DEBUG
+        local opts          = { title = "Inspect buffer", icon = "󰽙", timeout = 10000 }
+        local out           = extl {
+                "[bufnr]     " .. api.nvim_get_current_buf(),
+                "[winid]     " .. api.nvim_get_current_win(),
+                "[filetype]  " .. (bo.filetype == "" and '""' or bo.filetype),
+                "[buftype]   " .. (bo.buftype == "" and '""' or bo.buftype),
+                "[foldlevel] " .. (wo.foldlevel == "" and '""' or wo.foldlevel),
+                ("[indent]    %s (%s)"):format(indent_type, indent_amount),
+                "[cwd]       " .. (uv.cwd() or "nil"):gsub("/Users/%w+", pseudo_tilde),
+                "",
+        } (guard { #lsps > 0, function() return { "Attached LSPs with root", unpack(lsps) } end,
+                function() return { "No LSPs attached." } end,
+        })
+        vim.notify(table.concat(out, "\n"), level, opts)
 end
 
 function M.nodeAtCursor()
@@ -113,26 +109,24 @@ function M.lspCapabilities()
                           format_item = function(client) return client.name end,
                   }, function(client)
                           if not client then return end
-                          where(function(_) vim.notify(_.text, _.level, _.opts) end) {
-                                  level = levels.DEBUG,
-                                  opts  = { icon = "󱈄", title = client.name .. " capabilities", ft = "lua" },
-                                  text  = "-- for a full view, open in notification history\n" .. vim.inspect {
-                                          capabilities        = client.capabilities,
-                                          server_capabilities = client.server_capabilities,
-                                          config              = client.config,
-                                  },
+                          local level = levels.DEBUG
+                          local opts  = { icon = "󱈄", title = client.name .. " capabilities", ft = "lua" }
+                          local text  = "-- for a full view, open in notification history\n" .. vim.inspect {
+                                  capabilities        = client.capabilities,
+                                  server_capabilities = client.server_capabilities,
+                                  config              = client.config,
                           }
+                          vim.notify(text, level, opts)
                   end)
 end
 
 function M.evalNvimLua()
         local function eval(input)
                 if not input or input == "" then return end
-                where(function(_) vim.notify(vim.inspect(_.out), _.level, _.opts) end) {
-                        level = levels.DEBUG,
-                        opts  = { title = "Eval", icon = "", ft = "lua" },
-                        out   = fn.luaeval(input),
-                }
+                local level = levels.DEBUG
+                local opts  = { title = "Eval", icon = "", ft = "lua" }
+                local out   = fn.luaeval(input)
+                vim.notify(vim.inspect(out), level, opts)
         end
         match(fn.mode()) {
                 n = function() ui.input({ icon = "", prompt = "", win = { ft = "lua" } }, eval) end,

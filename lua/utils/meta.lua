@@ -1,13 +1,9 @@
-local v   = vim.v
-local fs  = vim.fs
-local api = vim.api
-local log = vim.log
-local set = vim.keymap.set
-
-local levels  = log.levels
-local autocmd = api.nvim_create_autocmd
-
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+local v       = vim.v
+local fs      = vim.fs
+local api     = vim.api
+local set     = vim.keymap.set
+local levels  = vim.log.levels
+local autocmd = vim.api.nvim_create_autocmd
 
 require "utils.functional" ()
 
@@ -35,7 +31,7 @@ end
 local function linq(prefix)
         local function step(acc)
                 return function(link)
-                        unless(nilq(link))(acc)
+                        unless(link == nil)(acc)
                         hlDynLink(concat "" (prefix)(link[1]), link[2])
                         return step(fold { acc, link })
                 end
@@ -47,7 +43,7 @@ end
 local function _linq(link)
         local function step(acc)
                 return function(name)
-                        unless(nilq(name))(acc)
+                        unless(name == nil)(acc)
                         hlDynLink(name, concat "" (link) "")
                         return step(fold { acc, name })
                 end
@@ -59,9 +55,9 @@ end
 local function hl(a)
         local lhs = a[1]
         local rhs = a[2]
-        if strq(rhs) then
+        if type(rhs) == "string" then
                 api.nvim_set_hl(0, lhs, { link = rhs })
-        elseif tblq(rhs) then
+        elseif type(rhs) == "table" then
                 local fg = rhs[1] or nil
                 local bg = rhs[2] or nil
                 api.nvim_set_hl(0, lhs, { fg = fg, bg = bg })
@@ -82,7 +78,7 @@ end
 local function optq(scope)
         local function step(acc)
                 return function(value)
-                        unless(nilq(value))(acc)
+                        unless(value == nil)(acc)
                         option(scope) { value[1], value[2] }
                         return step(fold { acc, value })
                 end
@@ -106,7 +102,6 @@ set("n", ".", function()
 ---@field [2] string | function
 ---@field mode? string | string[]
 ---@field ft? string | string[]
-
 ---@param keymap MyConfig.Keymap
 local function keymapq(keymap)
         local mode = keymap.mode or "n"
@@ -135,12 +130,12 @@ local function keymapq(keymap)
                 local success, _ = pcall(set, mode, lhs, rhs, opts)
                 if success then return end
 
-                -- local modes = type(mode) == "table" and table.concat(mode, ", ") or mode
-                -- local msg   = ("[%s] %s %s"):format(modes, lhs, source)
+                local modes = type(mode) == "table" and table.concat(mode, ", ") or mode
+                local msg   = ("[%s] %s %s"):format(modes, lhs, source)
 
-                -- vim.defer_fn(function()
-                --                      vim.notify(msg, levels.WARN, { title = "Duplicate keymap" })
-                --              end, 1000)
+                vim.defer_fn(function()
+                                     vim.notify(msg, levels.WARN, { title = "Duplicate keymap" })
+                             end, 1000)
         else
                 auq "FileType" {
                         desc     = "User: plugin filetype-keymap",
@@ -156,7 +151,7 @@ end
 local function kq()
         local function step(acc)
                 return function(km)
-                        unless(nilq(km))(acc)
+                        unless(km == nil)(acc)
                         keymapq(km)
                         return step(fold { acc, km })
                 end
@@ -212,7 +207,7 @@ end
 local function req(dir)
         local function step(acc)
                 return function(modname)
-                        unless(nilq(modname))(acc)
+                        unless(modname == nil)(acc)
                         lazyReq(concat "." (dir)(modname[1] or modname)) { modname[2], modname[3] }
                         return step(fold { acc, modname })
                 end

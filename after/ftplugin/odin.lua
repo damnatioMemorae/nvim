@@ -1,11 +1,9 @@
-local b   = vim.b
-local o   = vim.o
-local fn  = vim.fn
-local cmd = vim.cmd
-local log = vim.log
-local opt = vim.opt
-
-local levels = log.levels
+local b      = vim.b
+local o      = vim.o
+local fn     = vim.fn
+local cmd    = vim.cmd
+local opt    = vim.opt
+local levels = vim.log.levels
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

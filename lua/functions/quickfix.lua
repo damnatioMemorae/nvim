@@ -7,6 +7,8 @@ local cmd  = vim.cmd
 local iter = vim.iter
 g.mode     = "c"
 
+local p = require "utils.functional".predicates
+
 ---- HIGHLIGHTS ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 linq
@@ -91,103 +93,105 @@ local function shortPath(path)
 end
 
 o.quickfixtextfunc = function(info)
-        local list = where(function(_)
-                return match(info.quickfix) {
-                        [1] = fn.getqflist(_.what),
-                        _   = fn.getloclist(info.winid, _.what),
-                }
-        end) { what = { id = info.id, items = 1, qfbufnr = 1 } }
-
-        local prep = function(tt)
-                return where(function(_)
-                        return {
-                                { _.prefix, _.hl },
-                                _.fname,
-                                { _.lnum,   "QfLineNr" },
-                                { _.col,    "QfLineNr" },
-                                { " ",      "Default" },
-                                { _.text,   "QfText" },
-                        }
-                end) {
-                        hl     = type_hilights[tt.type],
-                        text   = tt.text:gsub("^%s+", ""),
-                        col    = tt.lnum > 0 and tt.col .. "" or "",
-                        lnum   = tt.lnum > 0 and tt.lnum .. ":" or "",
-                        prefix = tt.type ~= "" and tt.type .. ":" or "",
-                        fname  = tt.lnum > 0 and match(tt.bufnr) {
-                                [2] = { "[" .. shortPath(fn.bufname(tt.bufnr)) .. "]:", "Special" },
-                                _   = { shortPath(fn.bufname(tt.bufnr)) .. ":", type_hilights[tt.type] or "QfFilename" },
-                        } or nil,
+        local what = { id = info.id, items = 1, qfbufnr = 1 }
+        local list = match(info.quickfix) {
+                [1] = fn.getqflist(what),
+                _   = fn.getloclist(info.winid, what),
+        }
+        local prep = function(_)
+                local hl      = type_hilights[_.type]
+                local col     = _.lnum > 0 and _.col .. "" or ""
+                local text    = _.text:gsub("^%s+", "")
+                local lnum    = _.lnum > 0 and _.lnum .. ":" or ""
+                local prefix  = _.type ~= "" and _.type .. ":" or ""
+                local bufname = fn.bufname(_.bufnr)
+                local fname   = _.lnum > 0 and match(_.bufnr) {
+                        [2] = { "[" .. shortPath(bufname) .. "]:", "Special" },
+                        _   = { shortPath(bufname) .. ":", type_hilights[_.type] or "QfFilename" },
+                } or nil
+                return {
+                        { prefix, hl },
+                        fname,
+                        { lnum,   "QfLineNr" },
+                        { col,    "QfLineNr" },
+                        { " ",    "Default" },
+                        { text,   "QfText" },
                 }
         end
 
-        return where(function(_)
-                vim.schedule(function() applyHighlights(list.qfbufnr, _.ttt) end)
-                return getLines(_.ttt)
-        end) {
-                ttt = iter(list.items)
-                    :map(function(item) return prep(item) end)
-                    :totable(),
-        }
+        local ttt = iter(list.items)
+            :map(function(item) return prep(item) end)
+            :totable()
+        vim.schedule(function() applyHighlights(list.qfbufnr, ttt) end)
+        return getLines(ttt)
 end
 
 ---- KEYMAPS -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-local prev   = function() pcmd(g.mode .. "prev")(g.mode .. "last") end
-local next   = function() pcmd(g.mode .. "next")(g.mode .. "first") end
-local fprev  = function() pcmd(g.mode .. "Nfile")(g.mode .. "last") end
-local fnext  = function() pcmd(g.mode .. "nfile")(g.mode .. "first") end
-local older  = function() pcmd("silent! " .. "colder")("silent! " .. "lolder") end
-local newer  = function() pcmd("silent! " .. "cnewer")("silent! " .. "lnewer") end
+local older  = function() pcmd("noautocmd silent! " .. "colder")("noautocmd silent! " .. "lolder") end
+local newer  = function() pcmd("noautocmd silent! " .. "cnewer")("noautocmd silent! " .. "lnewer") end
 local remove = function() cmd(g.mode .. "expr []") end
 local first  = function()
         pcmd "lfirst" "cfirst"
+        cmd "normal! zv"
         cmd "wincmd p"
 end
 local last   = function()
         pcmd "llast" "clast"
+        cmd "normal! zv"
         cmd "wincmd p"
 end
+local prev   = function()
+        pcmd(g.mode .. "prev")(g.mode .. "last")
+        cmd "normal! zv"
+end
+local next   = function()
+        pcmd(g.mode .. "next")(g.mode .. "first")
+        cmd "normal! zv"
+end
+local fprev  = function()
+        pcmd(g.mode .. "Nfile")(g.mode .. "last")
+        cmd "normal! zv"
+end
+local fnext  = function()
+        pcmd(g.mode .. "nfile")(g.mode .. "first")
+        cmd "normal! zv"
+end
 local toggle = function(key, h, w)
+        local function perc(_) return function(__) return math.floor(o[_] * __ * 0.01) end end
         return function()
-                where(function(_)
-                        cmd(_.list_win and _.mode .. "close" or _.mode .. "open")
-                        match(bo.buftype) {
-                                quickfix = function()
-                                        cmd(_.split[1])
-                                        cmd(_.split[2])
-                                        cmd "wincmd p"
-                                end,
-                        }
-                end) {
-                            mode     = g.mode,
-                            list_win = match(g.mode) {
-                                    c = fn.getqflist { winid = true }.winid ~= 0,
-                                    l = fn.getloclist(0, { winid = true }).winid ~= 0,
-                            },
-                            split    = match(key) {
-                                    [_lower()] = { "", "resize " .. math.floor(o.lines * (h or 50) * 0.01) },
-                                    [_upper()] = { "wincmd L", "vertical resize " .. math.floor(o.columns * (w or 50) * 0.01) },
-                            },
-                    }
+                local split    = match(key) {
+                        [p.lower] = { "", "resize " .. perc "lines" (h or 50) },
+                        [p.upper] = { "wincmd L", "vertical resize " .. perc "columns" (w or 50) },
+                }
+                local list_win = match(g.mode) {
+                        c = fn.getqflist { winid = true }.winid ~= 0,
+                        l = fn.getloclist(0, { winid = true }).winid ~= 0,
+                }
+                cmd(list_win and g.mode .. "close" or g.mode .. "open")
+                match(bo.buftype) {
+                        quickfix = function()
+                                cmd(split[1])
+                                cmd(split[2])
+                                cmd "wincmd p"
+                        end,
+                }
         end
 end
 
 bufq { "qq", first, desc = "List 1st", ft = "qf" }
 bufq { "Q", last, desc = "List last", ft = "qf" }
+iter { "q", "Q" }:each(function(_) keymapq { "<leader>" .. _, toggle(_, 30, 25), desc = "Toggle List" } end)
 kq
 ""
-    { "<C-o>", older, desc = "List older", ft = "qf" }
-    { "<C-i>", newer, desc = "List newer", ft = "qf" }
+    { "<M-u>", older, desc = "List older" }
+    { "<M-U>", newer, desc = "List newer" }
     { "[", fprev, desc = "List file prev", nowait = true }
     { "]", fnext, desc = "List file next", nowait = true }
     { "(", prev, desc = "List item prev" }
     { ")", next, desc = "List item next" }
     { "qd", remove, desc = "List clear" }
     { "<LocalLeader>q", Toggle.qfMode, desc = "Toggle List mode" }
-iter { "q", "Q" }
-    :each(function(_) keymapq { "<leader>" .. _, toggle(_, 30, 25), desc = "Toggle List" } end)
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 cmd "packadd cfilter"

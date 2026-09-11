@@ -8,6 +8,7 @@ end
 
 return {
         "mrjones2014/smart-splits.nvim",
+        enabled = false,
         keys = {
                 { "<C-k>",     split "move_cursor" "up",    desc = "Jump Up" },
                 { "<C-j>",     split "move_cursor" "down",  desc = "Jump Down" },

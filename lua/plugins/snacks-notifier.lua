@@ -1,10 +1,8 @@
-local o   = vim.o
-local fn  = vim.fn
-local api = vim.api
-local cmd = vim.cmd
-local log = vim.log
-
-local levels = log.levels
+local o      = vim.o
+local fn     = vim.fn
+local api    = vim.api
+local cmd    = vim.cmd
+local levels = vim.log.levels
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

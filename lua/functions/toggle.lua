@@ -1,10 +1,8 @@
 local g          = vim.g
 local wo         = vim.wo
 local lsp        = vim.lsp
-local log        = vim.log
 local diagnostic = vim.diagnostic
-
-local levels = log.levels
+local levels     = vim.log.levels
 
 local misc  = Icon.Misc
 local diag  = Icon.Diagnostics

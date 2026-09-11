@@ -79,7 +79,6 @@ local sources    = {
                                 if vim.bo.ft ~= "lua" then return true end
 
                                 local col          = vim.api.nvim_win_get_cursor(0)[2]
-                                -- local col          = vim.pos.cursor(0)[2]
                                 local chars_before = vim.api.nvim_get_current_line():sub(col - 2, col)
 
                                 local luadoc_but_not_comment = not chars_before:find "^%-%-?$"

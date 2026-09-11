@@ -60,16 +60,12 @@ return {
                                 if not fn.mode() == "V" then return end
 
                                 cmd.normal { "<", bang = true }
-                                where(function(_)
-                                        cmd(_.end_border_ln .. " delete")
-                                        cmd(_.start_border_ln .. " delete")
-                                        vim.defer_fn(function() api.nvim_win_set_cursor(0, _.before) end, 1)
-                                end) {
-                                            start_border_ln = api.nvim_buf_get_mark(0, "<")[1],
-                                            end_border_ln   = api.nvim_buf_get_mark(0, ">")[1],
-                                            before          = api.nvim_win_get_cursor(0),
-                                            -- before          = vim.pos.cursor(0),
-                                    }
+                                local start_border_ln = api.nvim_buf_get_mark(0, "<")[1]
+                                local end_border_ln   = api.nvim_buf_get_mark(0, ">")[1]
+                                local before          = api.nvim_win_get_cursor(0)
+                                cmd(end_border_ln .. " delete")
+                                cmd(start_border_ln .. " delete")
+                                vim.defer_fn(function() api.nvim_win_set_cursor(0, before) end, 1)
                         end,
                         desc = "Delete surrounding indent",
                 },
@@ -77,27 +73,23 @@ return {
                         "ysii",
                         function()
                                 local start_pos = api.nvim_win_get_cursor(0)
-                                -- local start_pos = vim.pos.cursor(0)
                                 obj "indentation" ("outer", "outer")()
                                 if not fn.mode() == "V" then return end
                                 cmd.normal { "V", bang = true }
                                 api.nvim_win_set_cursor(0, start_pos)
 
-                                local start_ln = api.nvim_buf_get_mark(0, "<")[1] - 1
-                                local end_ln   = api.nvim_buf_get_mark(0, ">")[1] - 1
-                                where(function(_)
-                                        fn.setreg("+", _.start_line .. "\n" .. _.end_line .. "\n")
-                                        hl.range(_.bufnr, _.ns, "CurSearch", { _.start_n, 0 }, { _.start_n, -1 }, _.dur)
-                                        hl.range(_.bufnr, _.ns, "CurSearch", { _.end_n, 0 },   { _.end_n, -1 },   _.dur)
-                                end) {
-                                            dur        = { timeout = 500 },
-                                            bufnr      = api.nvim_get_current_buf(),
-                                            ns         = api.nvim_create_namespace "ysii",
-                                            start_n    = api.nvim_buf_get_mark(0, "<")[1] - 1,
-                                            end_n      = api.nvim_buf_get_mark(0, ">")[1] - 1,
-                                            start_line = api.nvim_buf_get_lines(0, start_ln, start_ln + 1, false)[1],
-                                            end_line   = api.nvim_buf_get_lines(0, end_ln, end_ln + 1, false)[1],
-                                    }
+                                local start_ln   = api.nvim_buf_get_mark(0, "<")[1] - 1
+                                local end_ln     = api.nvim_buf_get_mark(0, ">")[1] - 1
+                                local dur        = { timeout = 500 }
+                                local bufnr      = api.nvim_get_current_buf()
+                                local ns         = api.nvim_create_namespace "ysii"
+                                local start_n    = api.nvim_buf_get_mark(0, "<")[1] - 1
+                                local end_n      = api.nvim_buf_get_mark(0, ">")[1] - 1
+                                local start_line = api.nvim_buf_get_lines(0, start_ln, start_ln + 1, false)[1]
+                                local end_line   = api.nvim_buf_get_lines(0, end_ln, end_ln + 1, false)[1]
+                                fn.setreg("+", start_line .. "\n" .. end_line .. "\n")
+                                hl.range(bufnr, ns, "CurSearch", { start_n, 0 }, { start_n, -1 }, dur)
+                                hl.range(bufnr, ns, "CurSearch", { end_n, 0 },   { end_n, -1 },   dur)
                         end,
                         desc = "Delete surrounding indent",
                 },
@@ -106,7 +98,7 @@ return {
                         function()
                                 vim.keymap.del("n", "gx")
 
-                                obj "url" ()()
+                                obj "url" ()
 
                                 if fn.mode():find "v" then
                                         cmd.normal { '"zy', bang = true }

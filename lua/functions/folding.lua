@@ -49,9 +49,11 @@ local function getMaxFoldLvl()
 end
 
 local function setFoldLvl(lvl)
-        guard { lvl >= range[1], function() wo.foldlevel = lvl end,
-                lvl <= range[1], function() wo.foldlevel = lvl end,
-        }
+        return function()
+                guard { lvl >= range[1], function() wo.foldlevel = lvl end,
+                        lvl <= range[1], function() wo.foldlevel = lvl end,
+                }
+        end
 end
 
 local function reduceFoldLvl()
@@ -113,7 +115,6 @@ end
 ---@return number
 local function getCurLnum()
         return api.nvim_win_get_cursor(0)[1]
-        -- return vim.pos.cursor(0)[1]
 end
 
 local function gotoPrevFold()
@@ -168,19 +169,18 @@ end
 
 ---- KEYMAP --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-local mode = { "n", "x", "o" }
+local nxo = { "n", "x", "o" }
 kq
 ""
-    { "<S-Left>", "zM", mode = mode, desc = "Folds close all" }
-    { "<S-Right>", "zR", mode = mode, desc = "Folds open all" }
-    { "<Left>", "zc^", mode = mode, desc = "Fold close" }
-    { "<Right>", "zo^", mode = mode, desc = "Fold open" }
-    { "<Down>", "zj^", mode = mode, desc = "Fold next" }
-    { "<Up>", gotoPrevFold, mode = mode, desc = "Fold prev" }
-    { "<M-z>", "zv", mode = mode, desc = "Open to cursor" }
-    { "<M-,>", reduceFoldLvl, mode = mode, desc = "Reduce Fold" }
-    { "<M-.>", increaseFoldLvl, mode = mode, desc = "Increase Fold" }
-    { "<Esc>", "<Esc>zv", mode = "i", unique = false }
+    { "<S-Left>", "zM", desc = "Folds close all", mode = nxo }
+    { "<S-Right>", "zR", desc = "Folds open all", mode = nxo }
+    { "<Left>", "zc^", desc = "Fold close", mode = nxo }
+    { "<Right>", "zo^", desc = "Fold open", mode = nxo }
+    { "<Down>", "zj^", desc = "Fold next", mode = nxo }
+    { "<Up>", gotoPrevFold, desc = "Fold prev", mode = nxo }
+    { "<M-Z>", reduceFoldLvl, desc = "Reduce Fold", mode = nxo }
+    { "<M-z>", increaseFoldLvl, desc = "Increase Fold", mode = nxo }
+    { "<Esc>", "<Esc>zv", mode = "i" }
 
 iter { "1", "2", "3", "4", "5", "6", "7", "8", "9" }
-    :each(function(_) keymapq { "<M-" .. _ .. ">", function() setFoldLvl(tonumber(_) - 1) end } end)
+    :each(function(_) keymapq { "<M-" .. _ .. ">", setFoldLvl(tonumber(_) - 1) } end)

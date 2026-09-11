@@ -1,12 +1,10 @@
-local g   = vim.g
-local fn  = vim.fn
-local ui  = vim.ui
-local uv  = vim.uv
-local api = vim.api
-local log = vim.log
-local opt = vim.opt
-
-local levels = log.levels
+local g      = vim.g
+local fn     = vim.fn
+local ui     = vim.ui
+local uv     = vim.uv
+local api    = vim.api
+local opt    = vim.opt
+local levels = vim.log.levels
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

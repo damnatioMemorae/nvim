@@ -41,16 +41,15 @@ bufq { "g/", function()
         cmd.normal { '"zyi"vi"', bang = true }
 
         local flag_in_line = api.nvim_get_current_line():match "re%.([MIDSUA])"
-        where(function(_) require "rip-substitute.open-at-regex101".open(_.data) end) {
-                data = {
-                        regex        = fn.getreg "z",
-                        flags        = flag_in_line and "g" .. flag_in_line:gsub("D", "S"):lower() or "g",
-                        substitution = "", -- TODO
-                        delimiter    = '"',
-                        flavor       = "python",
-                        testString   = "",
-                },
+        local data = {
+                regex        = fn.getreg "z",
+                flags        = flag_in_line and "g" .. flag_in_line:gsub("D", "S"):lower() or "g",
+                substitution = "", -- TODO
+                delimiter    = '"',
+                flavor       = "python",
+                testString   = "",
         }
+        require "rip-substitute.open-at-regex101".open(data)
 end, mode = "n", desc = "Open in regex101" }
 bufq { "<M-s>", function()
         lsp.buf.code_action { context = { only = { "source.fixAll.ruff" } }, apply = true } ---@diagnostic disable-line: assign-type-mismatch,missing-fields

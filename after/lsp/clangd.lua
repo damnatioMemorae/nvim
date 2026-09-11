@@ -2,12 +2,11 @@ local g      = vim.g
 local api    = vim.api
 local cmd    = vim.cmd
 local lsp    = vim.lsp
-local log    = vim.log
-local levels = log.levels
+local levels = vim.log.levels
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-local function switchSourceHeader(bufnr, client)
+local function ourceHeader(bufnr, client)
         local method_name = "textDocument/switchSourceHeader"
         ---@diagnostic disable-next-line:param-type-mismatch
         if not client or not client:supports_method(method_name) then
@@ -190,16 +189,12 @@ return {
                         client.offset_encoding = initResult.offsetEncoding ---@diagnostic disable-line: undefined-field
                 end
         end,
-        on_attach       = function(client, bufnr)
+        on_attach       = function(client, buf)
                 local comm = api.nvim_buf_create_user_command
-
-                comm(bufnr, "ClangdSwitchSourceHeader", function()
-                             switchSourceHeader(bufnr, client)
-                     end, { desc = "Switch between source/header" })
-                comm(bufnr, "ClangdSymbolInfo", function()
-                             symbolInfo(bufnr, client)
-                     end, { desc = "Show symbol info" })
-
+                comm(buf, "ClangdSwitchSourceHeader", function() ourceHeader(buf, client) end,
+                     { desc = "Switch source/header" })
+                comm(buf, "ClangdSymbolInfo", function() symbolInfo(buf, client) end,
+                     { desc = "Show symbol info" })
                 semanticTokens()
         end,
 }

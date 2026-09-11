@@ -1,15 +1,3 @@
----- PREDICATES ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-local eq   = function(a) return function(b) return a == b end end
-local typq = function(a) return function(t) return type(a) == t end end
-
-local nilq = function(_) return _ == nil end
-local tblq = function(_) return type(_) == "table" end
-local strq = function(_) return type(_) == "string" end
-local numq = function(_) return type(_) == "number" end
-local booq = function(_) return type(_) == "boolean" end
-local funq = function(_) return type(_) == "function" end
-
 ---- FUNCITONS -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local function curry(f, n)
@@ -68,15 +56,6 @@ end
 
 ---- PATTERN MATCHING ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-local _gt    = function() return function(a) return function(_) return _ > a end end end
-local _lt    = function() return function(a) return function(_) return _ < a end end end
-local _eq    = function() return function(a) return function(_) return _ == a end end end
-local _neq   = function() return function(a) return function(_) return _ ~= a end end end
-local _gtq   = function() return function(a) return function(_) return _ >= a end end end
-local _ltq   = function() return function(a) return function(_) return _ <= a end end end
-local _lower = function() return function(_) return _:lower() end end
-local _upper = function() return function(_) return _:upper() end end
-
 local function matches(value, pattern)
         if type(pattern) == "function" then
                 return value == pattern(value)
@@ -126,13 +105,6 @@ local function guard(args)
         if n % 2 == 1 then
                 assert(type(args[n]) == "function", "cond otherwise must be a function")
                 return args[n]()
-        end
-end
-
----@type fun(expr: function): fun(bindings: table): function
-local function where(expr)
-        return function(bindings)
-                return expr(bindings)
         end
 end
 
@@ -204,7 +176,7 @@ end
 local function concat(sep)
         return function(head)
                 return function(tail)
-                        unless(nilq(head))(tail)
+                        unless(head == nil)(tail)
                         return head .. sep .. tail
                 end
         end
@@ -219,24 +191,6 @@ M.combinator   = {
         curry   = curry,
         uncurry = uncurry,
 }
-M.predicates   = {
-        eq    = eq,
-        typq  = typq,
-        nilq  = nilq,
-        tblq  = tblq,
-        numq  = numq,
-        strq  = strq,
-        booq  = booq,
-        funq  = funq,
-        _eq   = not eq,
-        _typq = not typq,
-        _nilq = not nilq,
-        _tblq = not tblq,
-        _numq = not numq,
-        _strq = not strq,
-        _booq = not booq,
-        _funq = not funq,
-}
 M.lists        = {
         extl   = extl,
         map    = map,
@@ -245,19 +199,25 @@ M.lists        = {
         foldl  = foldl,
         concat = concat,
 }
-M.matching     = {
-        _gt    = _gt,
-        _lt    = _lt,
-        _eq    = _eq,
-        _neq   = _neq,
-        _lower = _lower,
-        _upper = _upper,
-}
 M.conditionals = {
         guard  = guard,
-        match  = match,
-        where  = where,
         unless = unless,
+}
+M.predicates   = {
+        gt    = function(x) return function(_) return _ > x and _ end end,
+        lt    = function(x) return function(_) return _ < x and _ end end,
+        eq    = function(x) return function(_) return _ == x and _ end end,
+        neq   = function(x) return function(_) return _ ~= x and _ end end,
+        gtq   = function(x) return function(_) return _ >= x and _ end end,
+        ltq   = function(x) return function(_) return _ <= x and _ end end,
+        _nil  = function(_) return _ ~= nil and _ end,
+        nilq  = function(_) return _ == nil and _ end,
+        self  = function(_) return _ end,
+        lower = function(_) return _:lower() end,
+        upper = function(_) return _:upper() end,
+}
+M.matching     = {
+        match = match,
 }
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

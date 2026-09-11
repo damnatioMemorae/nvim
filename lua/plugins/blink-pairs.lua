@@ -1,6 +1,6 @@
 return {
         "saghen/blink.pairs",
-        build        = function() require "blink.pairs".build():pwait(60000) end,
+        build        = function() require "blink.pairs".download():pwait(60000) end,
         event        = "BufReadPost",
         dependencies = { "saghen/blink.lib" },
         opts         = {

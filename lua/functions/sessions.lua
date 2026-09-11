@@ -30,18 +30,16 @@ function M.restore()
         return true
 end
 
--- api.nvim_create_autocmd("VimEnter", {
---         nested   = true,
---         callback = function()
---                 if fn.argc() == 0 then
---                         M.restore()
---                 end
---         end,
--- })
+auq "VimEnter" {
+        nested   = true,
+        callback = function()
+                if fn.argc() == 0 then
+                        M.restore()
+                end
+        end,
+}
 
-api.nvim_create_autocmd("VimLeavePre", {
-        callback = M.save,
-})
+auq "VimLeavePre" { callback = M.save }
 
 api.nvim_create_user_command("SessionSave",    M.save,    {})
 api.nvim_create_user_command("SessionRestore", M.restore, {})

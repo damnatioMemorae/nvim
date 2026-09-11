@@ -1,16 +1,14 @@
-local b   = vim.b
-local bo  = vim.bo
-local fn  = vim.fn
-local ui  = vim.ui
-local ts  = vim.ts
-local api = vim.api
-local cmd = vim.cmd
-local log = vim.log
-local lsp = vim.lsp
-local opt = vim.opt
-local net = vim.net
-
-local levels = log.levels
+local b      = vim.b
+local bo     = vim.bo
+local fn     = vim.fn
+local ui     = vim.ui
+local ts     = vim.ts
+local api    = vim.api
+local cmd    = vim.cmd
+local lsp    = vim.lsp
+local opt    = vim.opt
+local net    = vim.net
+local levels = vim.log.levels
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 local M = {}
@@ -26,7 +24,6 @@ function M.wrap(startWrap, endWrap)
                 return
         end
         local row, col     = unpack(api.nvim_win_get_cursor(0))
-        -- local row, col     = unpack(vim.pos.cursor(0))
         local use_big_word = startWrap == "`"
 
         -- determine text
@@ -48,7 +45,7 @@ function M.wrap(startWrap, endWrap)
         local clipboard_url
         if startWrap == "mdlink" then
                 local clipb   = fn.getreg "+"
-                clipboard_url = clipb:match "^#[%w-]+$"        -- heading-link
+                clipboard_url = clipb:match "^#[%w-]+$"          -- heading-link
                     or clipb:match [[^%l%l%l+://[^%s)%]}"'`>]+]] -- url
                     or ""
                 insert        = ("[%s](%s)"):format(text, clipboard_url)
@@ -97,7 +94,6 @@ function M.autoBullet(key)
                 "`autoBullet()` only accepts `o`, `O`, or `<CR>`"
         )
         local row, col          = unpack(api.nvim_win_get_cursor(0))
-        -- local row, col          = unpack(vim.pos.cursor(0))
         local indent, continued = "", ""
         local ln                = row
         repeat
@@ -138,7 +134,6 @@ function M.followMdlinkOrWikilink()
         local wikilink_pattern = "%[%[.-]]"
         local url_pattern      = [[%l+://[^%s)%]}"'`>]+]]
         local row, col         = unpack(api.nvim_win_get_cursor(0))
-        -- local row, col         = unpack(vim.pos.cursor(0))
         local mdlink, wikilink, url
         local ln               = row
         local line             = api.nvim_get_current_line()
@@ -214,7 +209,6 @@ end
 ---@param type "list"|"task"
 function M.cycle(type)
         local lnum, col = unpack(api.nvim_win_get_cursor(0))
-        -- local lnum, col = unpack(vim.pos.cursor(0))
         local cur_line  = api.nvim_get_current_line()
         local updated
 
@@ -230,8 +224,8 @@ function M.cycle(type)
                 if updated == cur_line then -- none/heading/task -> bullet
                         updated = cur_line
                             :gsub("^(%s*)[*+-] %[[ x-]%] ", "%1") -- remove task
-                            :gsub("^#+ ", "")                   -- remove heading
-                            :gsub("^(%s*)(.*)", "%1- %2")       -- add bullet
+                            :gsub("^#+ ", "")                     -- remove heading
+                            :gsub("^(%s*)(.*)", "%1- %2")         -- add bullet
                 end
         elseif type == "task" then
                 updated = cur_line:gsub("^%s*[*+-] %[[ x-]%] ", function(task)
@@ -243,8 +237,8 @@ function M.cycle(type)
                 end)
                 if updated == cur_line then -- none/bullet/number -> task
                         updated = cur_line
-                            :gsub("^(%s*)%d+%. ", "%1")     -- remove number
-                            :gsub("^(%s*)[*+-] ", "%1")     -- remove bullet
+                            :gsub("^(%s*)%d+%. ", "%1")       -- remove number
+                            :gsub("^(%s*)[*+-] ", "%1")       -- remove bullet
                             :gsub("^(%s*)(.*)", "%1- [ ] %2") -- add open task
                 end
         else
@@ -265,7 +259,6 @@ function M.codeBlockFromClipboard()
 
         -- insert
         local row = api.nvim_win_get_cursor(0)[1]
-        -- local row = vim.pos.cursor(0)[1]
         table.insert(lines, 1,     "```")
         table.insert(lines, "```")
         api.nvim_buf_set_lines(0, row - 1, row, false, lines)
@@ -349,7 +342,6 @@ function M.addTitleToUrlIfMarkdown(reg)
         if node and node:type() == "code_fence_content" then return end
         if node and node:type() == "html_block" then return end
         local col               = api.nvim_win_get_cursor(0)[2]
-        -- local col               = vim.pos.cursor(0)[2]
         local char_under_cursor = api.nvim_get_current_line():sub(col + 1, col + 1)
         if char_under_cursor:find "[()<>]" then return end -- inserting into mdlink / bare link
 

@@ -1,10 +1,7 @@
-local function toggle() require "treesj".toggle() end
-
 return {
         "Wansmer/treesj",
-        dependencies = "nvim-treesitter",
-        keys         = { { "<LocalLeader>s", toggle, desc = "TreeSJ toggle split/join" } },
-        opts         = {
+        keys = { { "<LocalLeader>s", function() require "treesj".toggle() end, desc = "TreeSJ toggle split/join" } },
+        opts = {
                 use_default_keymaps = false,
                 check_syntax_error  = true,
                 max_join_length     = math.huge,

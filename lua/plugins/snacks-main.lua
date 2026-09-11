@@ -26,8 +26,6 @@ return {
         lazy     = false,
         priority = 1000,
         keys     = {
-                { "<M-b>",      "<cmd>b #<CR><cmd>edit<CR>",                desc = "Swap buffer" },
-                -- { "<M-b>",      "<cmd>b #<CR>",                             desc = "Swap buffer" },
                 { "<leader>fr", function() Snacks.rename.rename_file() end, desc = "Rename File" },
                 { "<leader>pr", function() Snacks.profiler.scratch() end,   desc = "Rename File" },
         },

@@ -18,7 +18,6 @@ local general = augroup("General Autocmds", { clear = true })
 auq "TermOpen" { -- TERMINAL
         group    = general,
         callback = function()
-                cmd "resize 15"
                 o.statuscolumn  = ""
                 opt_l.buflisted = false
         end,
@@ -98,7 +97,7 @@ auq "TextYankPost" { -- HIGHLIGHT ON YANK
         group    = general,
         callback = function() vim.hl.hl_op { higroup = "Visual", timeout = 150 } end,
 }
-auq { "FocusGained", "BufWinEnter", "FileType" } { -- BACKDROP
+auq { "BufWinEnter", "FileType" } { -- BACKDROP
         desc     = "User: Add backdrop to floating windows",
         group    = general,
         pattern  = g.backdrop_wins,
@@ -117,28 +116,28 @@ auq { "BufReadPost", "BufReadPre", "BufWinEnter" } { -- RESTORE CURSOR
         end,
 }
 
-local last
-auq "CmdAtom" {
-        callback = function(ev)
-                local is_redo_or_undo = ev.data.changed and (ev.data.undoseq or 0) <= (vim.b[ev.buf].maxseq or 0)
-                vim.b[ev.buf].maxseq = math.max(vim.b[ev.buf].maxseq or 0, ev.data.undoseq or 0)
-                if ev.data.changed and not is_redo_or_undo and ev.data.lhs ~= "." then
-                        last = ev.data
-                end
-        end,
-}
-kq "" { ".", function() -- DOT REPEAT
-        local mc = api.nvim_create_namespace "nvim.multicursor"
-        if #api.nvim_buf_get_extmarks(0, mc, 0, -1, { limit = 1 }) > 0 then
-                api.nvim_feedkeys(".", "n", false)
-                return
-        end
-        vim.schedule(function()
-                if last then
-                        api.nvim_feedkeys(last.keys or last.lhs, last.keys and "n" or "m", false)
-                end
-        end)
-end, unique = false }
+-- local last
+-- auq "CmdAtom" { -- DOT REPEAT
+--         callback = function(ev)
+--                 local is_redo_or_undo = ev.data.changed and (ev.data.undoseq or 0) <= (vim.b[ev.buf].maxseq or 0)
+--                 vim.b[ev.buf].maxseq = math.max(vim.b[ev.buf].maxseq or 0, ev.data.undoseq or 0)
+--                 if ev.data.changed and not is_redo_or_undo and ev.data.lhs ~= "." then
+--                         last = ev.data
+--                 end
+--         end,
+-- }
+-- kq "" { ".", function() -- DOT REPEAT
+--         local mc = api.nvim_create_namespace "nvim.multicursor"
+--         if #api.nvim_buf_get_extmarks(0, mc, 0, -1, { limit = 1 }) > 0 then
+--                 api.nvim_feedkeys(".", "n", false)
+--                 return
+--         end
+--         vim.schedule(function()
+--                 if last then
+--                         api.nvim_feedkeys(last.keys or last.lhs, last.keys and "n" or "m", false)
+--                 end
+--         end)
+-- end, unique = false }
 
 ---- CMDLINE -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -254,26 +253,20 @@ do
         local function searchCountIndicator(mode)
                 local count_ns = api.nvim_create_namespace "searchCounter"
                 api.nvim_buf_clear_namespace(0, count_ns, 0, -1)
-
                 if mode == "clear" then
                         return
                 end
-
                 local row   = api.nvim_win_get_cursor(0)[1]
-                -- local row   = vim.pos.cursor(0)[1]
                 local count = fn.searchcount()
-
                 if vim.tbl_isempty(count) or count.total == 0 then
                         return
                 end
-
                 local text           = (" %d/%d "):format(count.current, count.total)
                 local line           = api.nvim_get_current_line():gsub("\t", (" "):rep(bo.shiftwidth))
                 local signcolumn     = tonumber(wo.signcolumn:match "%d+" or "0") * 2
                 local viewport_width = api.nvim_win_get_width(0) - signcolumn - config.scrollbarWidth
                 local line_full      = #line + #text > viewport_width
                 local margin         = { line_full and (" "):rep(config.scrollbarWidth) or "" }
-
                 api.nvim_buf_set_extmark(0, count_ns, row - 1, 0, {
                         virt_text     = { { text, "CurSearch" }, margin },
                         virt_text_pos = line_full and "right_align" or "eol",
@@ -285,7 +278,6 @@ do
                            local ignore = vim.tbl_contains(config.ignoredPrevNormalModeKeys, prev_key)
                            prev_key     = typed
                            if ignore then return end
-
                            key                     = fn.keytrans(key)
                            local is_cmdline_search = fn.getcmdtype():find "[/?]" ~= nil
                            local is_normal_mode    = api.nvim_get_mode().mode == "n"
@@ -293,9 +285,7 @@ do
                            local search_confirmed  = (key == "<CR>" and is_cmdline_search)
                            local search_cancelled  = (key == "<Esc>" and is_cmdline_search)
                            if not (search_started or search_confirmed or search_cancelled or is_normal_mode) then return end
-
                            local search_movement = vim.tbl_contains({ "n", "N", "*", "#" }, key)
-
                            if search_cancelled or (not search_movement and not search_confirmed) then
                                    opt.hlsearch = false
                                    searchCountIndicator "clear"

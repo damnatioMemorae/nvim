@@ -4,7 +4,7 @@ return {
         event   = "BufReadPost",
         opts    = {
                 mappings = {
-                        start              = "&",
+                        start              = "sl",
                         start_with_preview = "<LocalLeader>&",
                 },
                 options = {

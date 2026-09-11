@@ -336,15 +336,15 @@ local picker = {
 return {
         "folke/snacks.nvim",
         keys = {
-                { leader .. "f", pick "files",              desc = "File Picker",             mode = { "n" } },
-                { leader .. "b", pick "buffers",            desc = "Buffer Picker",           mode = { "n" } },
-                { leader .. "w", pick "grep",               desc = "Grep Picker",             mode = { "n" } },
-                { leader .. "W", pick "grep_word",          desc = "Grep Word",               mode = { "n", "x" } },
-                { leader .. "k", pick "keymaps",            desc = "Keymap (global)",         mode = { "n" } },
-                { leader .. "h", pick "highlights",         desc = "Highlight Picker",        mode = { "n" } },
-                { leader .. "H", pick "help",               desc = "Help Picker",             mode = { "n" } },
-                { leader .. "d", pick "diagnostics_buffer", desc = "Show Buffer Diagnostics", mode = { "n" } },
-                { leader .. "D", pick "diagnostics",        desc = "Show Workspace Symbols",  mode = { "n" } },
+                { leader .. "f", pick "files",              desc = "File Picker" },
+                { leader .. "b", pick "buffers",            desc = "Buffer Picker" },
+                { leader .. "w", pick "grep",               desc = "Grep Picker" },
+                { leader .. "W", pick "grep_word",          desc = "Grep Word",              mode = { "n", "x" } },
+                { leader .. "k", pick "keymaps",            desc = "Keymap (global)" },
+                { leader .. "h", pick "highlights",         desc = "Highlight Picker" },
+                { leader .. "H", pick "help",               desc = "Help Picker" },
+                { leader .. "d", pick "diagnostics_buffer", desc = "Show Buffer Diagnostics" },
+                { leader .. "D", pick "diagnostics",        desc = "Show Workspace Symbols" },
                 {
                         leader .. "p",
                         function()
@@ -357,8 +357,7 @@ return {
                                 }
                         end,
                         desc = "Import Lua Module",
-                        mode = { "n" },
-                        ft = "lua"
+                        ft   = "lua",
                 },
         },
         opts = { picker = picker },

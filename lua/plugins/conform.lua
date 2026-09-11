@@ -1,29 +1,18 @@
-local log    = vim.log
-local levels = log.levels
-
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-local function format()
-        require "conform".format { async = true, timeout_ms = 1000 }
-end
-
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+local function format() require "conform".format { async = true, timeout_ms = 1000 } end
 
 return {
         "stevearc/conform.nvim",
         cmd  = "ConnformInfo",
         keys = { { "=", format, mode = { "n", "x" }, desc = "Format buffer" } },
         opts = {
-                log_level           = levels.INFO,
+                log_level           = vim.log.levels.INFO,
                 default_format_opts = { lsp_format = "last" },
                 formatters          = {
                         clang_format       = { args = { "--style=file" } },
                         shfmt              = { args = { "-ln=bash", "-i=8", "-ci" } },
                         shellcheck         = { args = "'$FILENAME' --format=diff --shell=bash | patch -p1 '$FILENAME'" },
                         odinfmt            = { args = { "-stdin" }, stdin = true },
-                        ["lua-assignment"] = function(_self, _ctx, lines, callback)
-
-                        end,
+                        ["lua-assignment"] = function(_self, _ctx, _lines, _callback) end,
                         ["shell-home"]     = {
                                 format = function(_self, _ctx, lines, callback)
                                         local updated = vim.tbl_map(
