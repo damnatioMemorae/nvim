@@ -3,5 +3,6 @@ lazyvim.json
 lazy-lock.json
 /lua/plugins/aboba.md
 /icons
+/ghidra
 /lua/core/icons.lua
 /icons

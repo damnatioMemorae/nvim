@@ -1,12 +1,19 @@
+local v     = vim.v
+local bo    = vim.bo
+local fn    = vim.fn
+local fs    = vim.fs
+local ui    = vim.ui
+local uv    = vim.uv
+local cmd   = vim.cmd
+local api   = vim.api
+local env   = vim.env
 local git   = Icon.Git
 local misc  = Icon.Misc
 local diag  = Icon.Diagnostics
 local kinds = Icon.Kinds
 
 local border = Border.Default.Normal
-local none   = Border.Default.NormalNone
-local top    = Border.Plain.Top
-local bot    = Border.Plain.Bottom
+local none   = Border.Default.None
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -19,55 +26,231 @@ if loaded then
         toggle.treesitter { name = "Treesitter Highlight" }:map "<leader>ot"
 end
 
+local prefix = "<leader><leader>"
+local function pick(picker)
+        return function()
+                return Snacks.picker[picker]()
+        end
+end
+
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+linq
+"SnacksPicker"
+    { "", "Normal" }
+    { "Col", "SnacksPickerRow" }
+    { "Dir", "Comment" }
+    { "Border", "Border" }
+    { "Prompt", "Special" }
+    { "BoxBorder", "Border" }
+    { "Match", "PmenuMatch" }
+    { "ListBorder", "Border" }
+    { "InputBorder", "Border" }
+    { "PreviewBorder", "Border" }
+    { "CursorLine", "PmenuSel" }
+    { "ListCursorLine", "PmenuSel" }
+    { "PathIgnored", "Directory" }
+    { "PathHidden", "Directory" }
+
+local picker = {
+        prompt     = " > ",
+        ui_select  = false,
+        hidden     = true,
+        ignored    = true,
+        formats    = { file = { filename_only = true } },
+        layout     = { preset = "dropdown" },
+        win        = {
+                preview = { ["<C-p>"] = { "toggle_preview", mode = { "i", "n" } } },
+                list    = { ["<C-p>"] = { "toggle_preview", mode = { "i", "n" } } },
+                input   = {
+                        keys = {
+                                ["<a-s>"] = { "flash", mode = { "n", "i" } },
+                                ["s"]     = { "flash" },
+                                ["<Esc>"] = { "close", mode = { "i", "n" } },
+                                ["h"]     = { "toggle_hidden", mode = { "n" } },
+                                ["l"]     = { "confirm", mode = { "n" } },
+                                ["J"]     = { "preview_scroll_down", mode = { "i", "n" } },
+                                ["K"]     = { "preview_scroll_up", mode = { "i", "n" } },
+                                ["H"]     = { "preview_scroll_left", mode = { "i", "n" } },
+                                ["L"]     = { "preview_scroll_right", mode = { "i", "n" } },
+                                ["<C-p>"] = { "toggle_preview", mode = { "i", "n" } },
+                        },
+                },
+        },
+        sources    = {
+                files      = {
+                        cmd     = "rg",
+                        follow  = true,
+                        args    = {
+                                "--files",
+                                "--sortr=modified",
+                                "--no-config",
+                                ("--ignore-file=" .. env.HOME .. "/.config/ripgrep/ignore"),
+                        },
+                        hidden  = true,
+                        matcher = { frecency = true },
+                        win     = { input = { keys = { [":"] = { "complete_and_add_colon", mode = "i" } } } },
+                        confirm = function(picker, item, action)
+                                local abs_path       = Snacks.picker.util.path(item) or ""
+                                local symlink_target = uv.fs_readlink(abs_path)
+                                if symlink_target then
+                                        local link_dir = fs.dirname(item._path)
+                                        local original = fs.normalize(link_dir .. "/" .. symlink_target)
+                                        assert(uv.fs_stat(original), "file does not exist: " .. original)
+                                        item._path = original
+                                end
+                                local binary_ext = { "pdf", "png", "webp", "docx" }
+                                local ext        = abs_path:match ".+%.([^.]+)$" or ""
+                                if vim.tbl_contains(binary_ext, ext) then
+                                        ui.open(abs_path)
+                                        picker:close()
+                                else
+                                        Snacks.picker.actions.confirm(picker, item, action)
+                                end
+                        end,
+                        actions = {
+                                complete_and_add_colon = function(picker)
+                                        local query = api.nvim_get_current_line()
+                                        local file  = picker:current().file
+                                        if not file or query:find ":" then
+                                                fn.feedkeys(":", "n")
+                                                return
+                                        end
+                                        api.nvim_set_current_line(file .. ":")
+                                        cmd.startinsert { bang = true }
+                                end,
+                        },
+                },
+                help       = {
+                        confirm = function(picker)
+                                picker:action "help"
+                                cmd.only()
+                        end,
+                },
+                keymaps    = {
+                        confirm = function(picker, item)
+                                if not item.file then return end
+                                picker:close()
+                                local lnum = item.pos[1]
+                                cmd(("edit +%d %s"):format(lnum, item.file))
+                        end,
+                },
+                highlights = {
+                        confirm = function(picker, item)
+                                fn.setreg("+", item.hl_group)
+                                Snacks.notify(item.hl_group, { title = "Copied", icon = "󰅍" })
+                                picker:close()
+                        end,
+                },
+        },
+        icons      = {
+                Diagnostics = diag,
+                kinds       = kinds,
+                tree        = { vertical = " ", middle = " ", last = " " },
+                files       = { enabled = true, dir = kinds.Folder, dir_open = misc.folderOpen, file = kinds.File },
+                ui          = { selected = diag.HINT .. " ", unselected = "" },
+                git         = {
+                        added     = git.Added,
+                        deleted   = git.Deleted,
+                        modified  = git.Modified,
+                        enabled   = true,
+                        commit    = "󰜘 ",
+                        staged    = "●",
+                        ignored   = " ",
+                        renamed   = "",
+                        unmerged  = " ",
+                        untracked = "?",
+                },
+        },
+        actions    = {
+                flash         = function(picker)
+                        local ok = pcall(require, "flash")
+                        if not ok then return end
+                        require "flash".jump {
+                                pattern = "^",
+                                label   = { after = { 0, 0 } },
+                                search  = {
+                                        mode    = "search",
+                                        exclude = {
+                                                function(win)
+                                                        return bo[vim.api.nvim_win_get_buf(win)]
+                                                            .filetype ~= "snacks_picker_list"
+                                                end,
+                                        },
+                                },
+                                action  = function(match)
+                                        local idx = picker.list:row2idx(match.pos[1])
+                                        picker.list:_move(idx, true, true)
+                                end,
+                        }
+                end,
+                yank          = function(picker, item, action)
+                        if not item then return end
+                        local reg   = action.reg or v.register
+                        local value = item[action.field] or item.data or item.text
+                        fn.setreg(reg, value)
+                        if action.notify ~= false then
+                                local buf = item.buf or api.nvim_win_get_buf(picker.main)
+                                local ft  = bo[buf].filetype
+                                vim.notify(value, nil, { icon = "󰅍", title = "Copied", ft = ft })
+                        end
+                end,
+                qflist_and_go = function(picker, _item, _action)
+                        local query = api.nvim_get_current_line()
+                        local title = picker.title .. (query and ": " .. query or "")
+                        picker:action "qflist"
+                        fn.setqflist({}, "a", { title = title })
+                        cmd.cclose()
+                        cmd "silent cfirst"
+                        cmd.normal { "zv", bang = true }
+                        api.nvim_exec_autocmds("QuickFixCmdPost", {})
+                end,
+        },
+        layouts    = {
+                dropdown = {
+                        layout = {
+                                backdrop = true,
+                                width    = 0.7,
+                                height   = 0.7,
+                                border   = none,
+                                box      = "vertical",
+                                {
+                                        box       = "vertical",
+                                        border    = none,
+                                        title     = "",
+                                        title_pos = "center",
+                                        { win = "input", border = Border.Plain.Top,  height = 1 },
+                                        { win = "list",  border = Border.Plain.NoTop },
+                                },
+                        },
+                },
+        },
+        formatters = { file = { filename_list = true } },
+}
 
 return {
         "folke/snacks.nvim",
-        lazy     = false,
-        priority = 1000,
-        keys     = {
-                { "<leader>fr", function() Snacks.rename.rename_file() end, desc = "Rename File" },
-                { "<leader>pr", function() Snacks.profiler.scratch() end,   desc = "Rename File" },
+        keys = {
+                { "<leader>fr",  Snacks.rename.rename_file, desc = "Rename File" },
+                { "<leader>pr",  Snacks.profiler.scratch,   desc = "Rename File" },
+                { prefix .. "f", pick "files",              desc = "File Picker" },
+                { prefix .. "b", pick "buffers",            desc = "Buffer Picker" },
+                { prefix .. "w", pick "grep",               desc = "Grep Picker" },
+                { prefix .. "W", pick "grep_word",          desc = "Grep Word",              mode = { "n", "x" } },
+                { prefix .. "k", pick "keymaps",            desc = "Keymap (global)" },
+                { prefix .. "h", pick "highlights",         desc = "Highlight Picker" },
+                { prefix .. "d", pick "diagnostics_buffer", desc = "Show Buffer Diagnostics" },
+                { prefix .. "D", pick "diagnostics",        desc = "Show Workspace Symbols" },
         },
-        opts     = {
+        opts = {
                 quickfile = { enabled = true },
                 lazygit   = { enabled = true },
                 input     = { enabled = true, icon = "" },
+                picker    = picker,
                 profiler  = {
                         autocmds = true,
                         startup  = { event = "CmdlineLeave" },
                         globals  = { "kq", "auq", "req", "linq", "_linq", "match" },
-                },
-                indent    = {
-                        indent  = { enabled = false, char = "", only_scope = true },
-                        animate = { enabled = false },
-                        chunk   = { enabled = false, only_current = false },
-                        scope   = { enabled = false, char = "▏", underline = true, only_current = true, hl = "Function" },
-                },
-                scope     = {
-                        enabled    = true,
-                        min_size   = 2,
-                        cursor     = false,
-                        siblings   = false,
-                        treesitter = {
-                                enabled      = true,
-                                injections   = true,
-                                field_blocks = { "local_declaration" },
-                                blocks       = {
-                                        enabled = true,
-                                        "function_declaration",
-                                        "function_definition",
-                                        "method_declaration",
-                                        "method_definition",
-                                        "class_declaration",
-                                        "class_definition",
-                                        "do_statement",
-                                        "while_statement",
-                                        "repeat_statement",
-                                        "if_statement",
-                                        "for_statement",
-                                },
-                        },
                 },
                 win       = {
                         border = border,
@@ -110,226 +293,6 @@ return {
                                 fg       = "markdown",
                                 bo       = { filetype = "Snacks.notif_history", modifiable = false },
                                 wo       = { winhighlight = "Normal:SnacksNotifierHistory,FloatBorder:SnacksNotifierHistoryBorder" },
-                        },
-                },
-                picker    = {
-                        prompt    = " > ",
-                        ui_select = false,
-                        hidden    = true,
-                        ignored   = true,
-                        formats   = { file = { filename_only = true } },
-                        layout    = { preset = "default" },
-                        win       = {
-                                input = {
-                                        keys = {
-                                                ["<Esc>"] = { "close", mode = { "i", "n" } },
-                                                ["h"]     = { "toggle_hidden", mode = { "n" } },
-                                                ["l"]     = { "confirm", mode = { "n" } },
-                                                ["J"]     = { "preview_scroll_down", mode = { "i", "n" } },
-                                                ["K"]     = { "preview_scroll_up", mode = { "i", "n" } },
-                                                ["H"]     = { "preview_scroll_left", mode = { "i", "n" } },
-                                                ["L"]     = { "preview_scroll_right", mode = { "i", "n" } },
-                                        },
-                                },
-                        },
-                        icons     = {
-                                Diagnostics = diag,
-                                kinds       = kinds,
-                                tree        = { vertical = " ", middle = " ", last = " " },
-                                files       = {
-                                        enabled  = true,
-                                        dir      = kinds.Folder,
-                                        dir_open = misc.folderOpen,
-                                        file     = kinds.File,
-                                },
-                                ui          = {
-                                        selected   = diag.HINT .. " ",
-                                        unselected = "",
-                                },
-                                git         = {
-                                        added     = git.Added,
-                                        deleted   = git.Deleted,
-                                        modified  = git.Modified,
-                                        enabled   = true,
-                                        commit    = "󰜘 ",
-                                        staged    = "●",
-                                        ignored   = " ",
-                                        renamed   = "",
-                                        unmerged  = " ",
-                                        untracked = "?",
-                                },
-                        },
-                        layouts   = {
-                                vscode   = {
-                                        preview = false,
-                                        layout  = {
-                                                backdrop  = true,
-                                                row       = 1,
-                                                width     = 0.3,
-                                                height    = 0.45,
-                                                min_width = 60,
-                                                border    = none,
-                                                box       = "vertical",
-                                                { win = "input",   height = 1,          border = border, title = "{title} {live} {flags}", title_pos = "center" },
-                                                { win = "list",    border = border },
-                                                { win = "preview", title = "{preview}", border = border },
-                                        },
-                                },
-                                select   = {
-                                        preview = false,
-                                        layout  = {
-                                                backdrop   = true,
-                                                width      = 0.5,
-                                                min_width  = 80,
-                                                height     = 0.4,
-                                                min_height = 10,
-                                                box        = "vertical",
-                                                border     = border,
-                                                title      = "{title}",
-                                                title_pos  = "center",
-                                                { win = "input",   height = 1,          border = bot },
-                                                { win = "list",    border = none },
-                                                { win = "preview", title = "{preview}", height = 0.4, border = top },
-                                        },
-                                },
-                                vertical = {
-                                        layout = {
-                                                backdrop   = true,
-                                                width      = 0.8,
-                                                height     = 0.95,
-                                                min_width  = 70,
-                                                min_height = 30,
-                                                box        = "vertical",
-                                                border     = border,
-                                                title      = "{title} {live} {flags}",
-                                                title_pos  = "center",
-                                                { win = "list",    border = none },
-                                                { win = "input",   height = 1,          border = bot },
-                                                { win = "preview", title = "{preview}", height = 0.6, border = top },
-                                        },
-                                },
-                                default  = {
-                                        layout = {
-                                                box       = "horizontal",
-                                                width     = 0.9,
-                                                min_width = 120,
-                                                height    = 0.9,
-                                                {
-                                                        box    = "vertical",
-                                                        border = border,
-                                                        title  = "{title} {live} {flags}",
-                                                        { win = "input", height = 1,   border = bot },
-                                                        { win = "list",  border = none },
-                                                },
-                                                { win = "preview", title = "{preview}", border = border, width = 0.7 },
-                                        },
-                                },
-                                dropdown = {
-                                        layout = {
-                                                backdrop  = true,
-                                                width     = 0.9,
-                                                height    = 0.9,
-                                                min_width = 80,
-                                                border    = none,
-                                                box       = "vertical",
-                                                {
-                                                        box       = "vertical",
-                                                        border    = border,
-                                                        title     = "{title} {live} {flags}",
-                                                        title_pos = "center",
-                                                        { win = "input", height = 1,   border = bot },
-                                                        { win = "list",  border = none },
-                                                        -- { win  = "preview", title  = "{preview}", height  = 0.6, border  = border },
-                                                },
-                                        },
-                                },
-                                sidebar  = {
-                                        preview = false,
-                                        layout  = {
-                                                backdrop  = true,
-                                                width     = 35,
-                                                min_width = 20,
-                                                height    = 0,
-                                                position  = "right",
-                                                border    = none,
-                                                box       = "vertical",
-                                                { win = "list",    border = none },
-                                                { win = "preview", title = "{preview}", height = 0.4, border = top },
-                                        },
-                                },
-                        },
-                },
-                image     = {
-                        enabled  = false,
-                        formats  = { "png", "jpg", "jpeg", "gif", "bmp", "webp", "tiff", "heic", "avif", "mp4", "mov", "avi", "mkv", "webm", "pdf" },
-                        force    = false,
-                        doc      = {
-                                enabled    = true,
-                                inline     = true,
-                                float      = true,
-                                max_width  = 80,
-                                max_height = 40,
-
-                                ---@diagnostic disable-next-line: unused-local
-                                conceal = function(lang, type)
-                                        return type == "math"
-                                end,
-                        },
-                        img_dirs = { "img", "images", "assets", "static", "public", "media", "attachments" },
-                        wo       = {
-                                wrap           = false,
-                                number         = false,
-                                relativenumber = false,
-                                cursorcolumn   = false,
-                                signcolumn     = "no",
-                                foldcolumn     = "0",
-                                list           = false,
-                                spell          = false,
-                                statuscolumn   = "",
-                        },
-                        cache    = vim.fn.stdpath "cache" .. "/Snacks.image",
-                        debug    = { request = false, convert = false, placement = false },
-                        icons    = { math = "󰪚 ", chart = "󰄧 ", image = " " },
-                        env      = {},
-                        convert  = {
-                                notify  = true,
-                                mermaid = function()
-                                        local theme = vim.o.background == "light" and "neutral" or "dark"
-                                        return { "-i", "{src}", "-o", "{file}", "-b", "transparent", "-t", theme,
-                                                "-s", "{scale}" }
-                                end,
-                                magick  = {
-                                        default = { "{src}[0]", "-scale", "1920x1080>" },
-                                        vector  = { "-density", 192, "{src}[0]" },
-                                        math    = { "-density", 192, "{src}[0]", "-trim" },
-                                        pdf     = { "-density", 192, "{src}[0]", "-background", "white", "-alpha", "remove", "-trim" },
-                                },
-                        },
-                        math     = {
-                                enabled = true,
-                                typst   = {
-                                        tpl = [[
-                                                        #set page(width: auto, height: auto, margin: (x: 2pt, y: 2pt))
-                                                        #show math.equation.where(block: false): set text(top-edge: "bounds", bottom-edge: "bounds")
-                                                        #set text(size: 12pt, fill: rgb("${color}"))
-                                                        ${header}
-                                                        ${content}
-                                                ]],
-                                },
-                                latex   = {
-                                        font_size = "Large",
-                                        packages  = { "amsmath", "amssymb", "amsfonts", "amscd", "mathtools" },
-                                        tpl       = [[
-                                                        \documentclass[preview,border=0pt,varwidth,12pt]{standalone}
-                                                        \usepackage{${packages}}
-                                                        \begin{document}
-                                                        ${header}
-                                                        { \${font_size} \selectfont
-                                                        \color[HTML]{${color}}
-                                                        ${content}}
-                                                        \end{document}
-                                                ]],
-                                },
                         },
                 },
         },

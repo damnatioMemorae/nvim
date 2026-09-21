@@ -11,7 +11,7 @@ opt_l.colorcolumn   = ""
 opt_l.statuscolumn  = ""
 opt_l.concealcursor = "n"
 
-bufq { "q", cmd.bwipeout, desc = "Quit" }
+bufq { "q", cmd.bwipeout, desc = "Quit", nowait = true }
 bufq { "<M-w>", cmd.bwipeout, desc = "Quit" }
 
 guard { fn.expand "%:e", function() bufq { "<LocalLeader>s", "gO", mode = "n", remap = true } end }

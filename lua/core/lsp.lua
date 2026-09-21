@@ -43,7 +43,6 @@ local OriginalRenameHandler         = lsp.handlers["textDocument/rename"]
 lsp.handlers["textDocument/rename"] = function(err, result, ctx, config)
         OriginalRenameHandler(err, result, ctx, config)
         if err or not result then return end
-
         local changed_files, change_count = {}, 0
         if result.changes then
                 changed_files = vim
@@ -73,7 +72,6 @@ lsp.handlers["textDocument/rename"] = function(err, result, ctx, config)
                     end)
         end
         assert(change_count > 0, "Unknown form of changes reported by LSP.")
-
         local s   = change_count > 1 and "s" or ""
         local msg = ("[%d] change%s"):format(change_count, s)
         if #changed_files > 1 then
@@ -81,7 +79,6 @@ lsp.handlers["textDocument/rename"] = function(err, result, ctx, config)
                 msg             = ("%s in [%d] files\n%s"):format(msg, #changed_files, file_list)
         end
         vim.notify(msg, levels.WARN, { title = "Renamed with LSP", icon = "󰑕" })
-
         if #changed_files > 1 then
                 cmd "silent! wall"
         end
@@ -362,13 +359,10 @@ auq "LspDetach" {
 
 ---- KEYMAPS -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-local scroll = function(_)
-        return function() return nano.scrollLspOrOtherWin(_) end
-end
-local jump   = function(_)
+local jump = function(_)
         return function() diag.jump { count = _, float = false } end
 end
-local line   = function()
+local line = function()
         diag.config { virtual_lines = { current_line = true }, virtual_text = false }
         auq "CursorMoved" {
                 group    = augroup("line-diagnostics", { clear = true }),
@@ -386,8 +380,8 @@ kq
     { "K", lsp.buf.hover, desc = "Hover Documentation", unique = false }
     { "<M-d>", jump(1), desc = "Diagnostic Next", mode = { "n", "x" } }
     { "<M-D>", jump(-1), desc = "Diagnostic Prev", mode = { "n", "x" } }
-    { "<M-j>", scroll(5), desc = "Scroll other win" }
-    { "<M-k>", scroll(-5), desc = "Scroll other win" }
+    { "<M-j>", nano.scrollLspOrOtherWin(5), desc = "Scroll other win", remap = true }
+    { "<M-k>", nano.scrollLspOrOtherWin(-5), desc = "Scroll other win", remap = true }
     { "<leader>d", diag.setloclist, desc = "Diagnostic loclist" }
     { "<leader>D", diag.setqflist, desc = "Diagnostic quickfix" }
     { "<LocalLeader>f", "gF", desc = ("LSP Goto ") .. "File" }

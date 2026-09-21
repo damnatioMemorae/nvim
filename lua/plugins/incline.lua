@@ -1,7 +1,6 @@
 local o    = vim.o
 local bo   = vim.bo
 local fn   = vim.fn
-local uv   = vim.uv
 local api  = vim.api
 local diag = vim.diagnostic
 local iter = vim.iter
@@ -9,8 +8,6 @@ local iter = vim.iter
 local function getIcon(category, type)
         return require "utils.icons".makeIcon("real-icons", type, category)
 end
-
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local function macro()
         local rec  = fn.reg_recording()
@@ -59,12 +56,12 @@ end
 
 return {
         "b0o/incline.nvim",
-        event  = "BufReadPost",
-        init   = function()
+        event = "BufReadPost",
+        init  = function()
                 o.laststatus = 0
                 o.statusline = " "
         end,
-        opts   = {
+        opts  = {
                 debounce_threshold = 0,
                 hide               = { only_win = false },
                 window             = {
@@ -81,16 +78,4 @@ return {
                 },
                 render             = render,
         },
-        config = function(_, opts)
-                require "incline".setup(opts)
-                local function debounce()
-                        local timer = uv.new_timer()
-                        ---@cast timer uv.uv_timer_t
-                        timer:stop()
-                        timer:start(0, 50, vim.schedule_wrap(function() ---@diagnostic disable-line: need-check-nil
-                                require "incline.manager".update { refresh = true }
-                        end))
-                end
-                auq "CursorMoved" { callback = function() debounce() end }
-        end,
 }

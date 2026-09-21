@@ -6,7 +6,9 @@ local api  = vim.api
 local cmd  = vim.cmd
 local iter = vim.iter
 
-local _levels = {}
+local T = require "utils.functional".matching.thunk
+
+-- local _levels = {}
 -- vim.api.nvim_create_autocmd("BufLeave", {
 --         callback = function(args)
 --                 _levels[args.buf] = vim.wo.foldlevel
@@ -23,14 +25,12 @@ _linq "LspInlayHint" "FoldText"
 ---- TEXT ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 o.foldtext = function()
-        local start  = fn.getline(v.foldstart)
-        local indent = start:match "^%s*" or ""
-        local first  = start
+        local start   = fn.getline(v.foldstart)
+        local indent  = start:match "^%s*" or ""
+        local first   = start
             :gsub("^%s*", "")
             :gsub("\t", string.rep(" ", o.tabstop))
-
         local content = { first .. " ... ", "FoldText" }
-
         return match(indent) {
                 [""] = { { indent }, content },
                 _    = { { indent }, content },
@@ -50,7 +50,8 @@ end
 
 local function setFoldLvl(lvl)
         return function()
-                guard { lvl >= range[1], function() wo.foldlevel = lvl end,
+                guard {
+                        lvl >= range[1], function() wo.foldlevel = lvl end,
                         lvl <= range[1], function() wo.foldlevel = lvl end,
                 }
         end
@@ -83,9 +84,9 @@ end
 ---@return any
 local function winCall(winid, f)
         return match(winid) {
-                [api.nvim_get_current_win()] = function() return f() end,
-                [0]                          = function() return f() end,
-                _                            = function() return api.nvim_win_call(winid, f) end,
+                [api.nvim_get_current_win()] = T(f),
+                [0]                          = T(f),
+                _                            = T(api.nvim_win_call, winid, f),
         }
 end
 
@@ -99,17 +100,13 @@ end
 ---@param lnum number
 ---@return number
 local function foldClosed(winid, lnum)
-        return winCall(winid, function()
-                return fn.foldclosed(lnum)
-        end)
+        return winCall(winid, function() return fn.foldclosed(lnum) end)
 end
 
 ---@param winid number
 ---@param view table
 local function restView(winid, view)
-        winCall(winid, function()
-                fn.winrestview(view)
-        end)
+        winCall(winid, function() fn.winrestview(view) end)
 end
 
 ---@return number
@@ -160,7 +157,6 @@ local function gotoPrevFold()
                         end
                 end
         end
-
         restView(0, view)
         if prev_lnum then
                 cmd(("norm! %dgg_"):format(prev_lnum))

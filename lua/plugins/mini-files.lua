@@ -1,14 +1,3 @@
-linq
-"MiniFiles"
-    { "TitleFocused", "Directory" }
-    { "Title", "Directory" }
-    { "Normal", "Normal" }
-    { "Border", "Normal" }
-    { "BorderModified", "Normal" }
-    { "CursorLine", "Visual" }
-
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 local o      = vim.o
 local v      = vim.v
 local fn     = vim.fn
@@ -18,13 +7,19 @@ local api    = vim.api
 local cmd    = vim.cmd
 local levels = vim.log.levels
 
-local kinds = Icon.Kinds
-local send  = require "functions.nano-plugins".teleSend "file"
-
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 local border_width  = 1
 local show_dotfiles = true
+
+---- HIGHLIGHT -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+linq
+"MiniFiles"
+    { "TitleFocused", "Directory" }
+    { "Title", "Directory" }
+    { "Normal", "Normal" }
+    { "Border", "Normal" }
+    { "BorderModified", "Normal" }
+    { "CursorLine", "Visual" }
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -76,7 +71,7 @@ local function uiOpen()
         ui.open(require "mini.files".get_fs_entry().path)
 end
 local function prefix(fsEntry)
-        local icon_dir = kinds.Folder .. " "
+        local icon_dir = Icon.kinds.Folder .. " "
         if fsEntry.fs_type == "directory" then
                 return icon_dir, "MiniFilesDirectory"
         end
@@ -88,24 +83,18 @@ end
 local function layout(args, width, height)
         local state   = require "mini.files".get_explorer_state() or {}
         local win_ids = vim.tbl_map(function(t) return t.win_id end, state.windows or {})
-
         local function idx(winId)
                 for i, id in ipairs(win_ids) do
-                        if id == winId then
-                                return i
-                        end
+                        if id == winId then return i end
                 end
         end
-
         local widths          = { width, width }
         local this_win_idx    = idx(args.data.win_id)
         local focused_win_idx = idx(api.nvim_get_current_win())
         local idx_offset      = this_win_idx - focused_win_idx
-
-        local i          = math.abs(idx_offset) + 1
-        local win_config = api.nvim_win_get_config(args.data.win_id)
-        win_config.width = i <= #widths and widths[i] or widths[#widths]
-
+        local i               = math.abs(idx_offset) + 1
+        local win_config      = api.nvim_win_get_config(args.data.win_id)
+        win_config.width      = i <= #widths and widths[i] or widths[#widths]
         if this_win_idx and focused_win_idx then
                 local offset = 0
                 for j = 1, math.abs(idx_offset), 1 do
@@ -117,7 +106,6 @@ local function layout(args, width, height)
                                 offset = offset - offset_new
                         end
                 end
-
                 win_config.height   = idx_offset == 0 and height or height
                 win_config.row      = math.floor(0.5 * (o.lines - win_config.height))
                 win_config.col      = math.floor(0.5 * (o.columns - win_config.width - win_config.width) + offset)
@@ -139,6 +127,7 @@ auq "User" { -- MARKS
                 setMark("t", fn.stdpath "data" .. "/mini.files/trash", "Trash directory")
                 setMark("l", fn.stdpath "data" .. "/lazy",             "Lazy directory")
                 setMark("h", fn.expand "~/.config/hypr",               "Hypr directory")
+                setMark("h", "~",                                      "Home directory")
                 setMark("~", "~",                                      "Home directory")
         end,
 }
@@ -168,17 +157,22 @@ auq "User" { -- KEYMAPS
         callback = function(args)
                 local buf = args.data.buf_id
                 local lhs = "<leader>"
-                mapSplit(buf, "<C-s>", "belowright horizontal")
-                mapSplit(buf, "<C-v>", "belowright vertical")
-                mapSplit(buf, "<C-t>", "tab")
+                mapSplit(buf, "<M-s>", "belowright horizontal")
+                mapSplit(buf, "<M-v>", "belowright vertical")
+                mapSplit(buf, "<M-t>", "tab")
                 kq
                 ""
                     { lhs .. "~", setCwd, buf = buf, desc = "Set cwd" }
                     { lhs .. "x", uiOpen, buf = buf, desc = "OS open" }
                     { "@", yankPath, buf = buf, desc = "Yank path" }
                     { ".", toggleDotfiles, buf = buf, desc = "Toggle hidden files" }
+                    { "<Up>", "<Up>", buf = buf, desc = "Move Up" }
+                    { "<Down>", "<Down>", buf = buf, desc = "Move Down" }
+                    { "<Left>", "<Left>", buf = buf, desc = "Move Left" }
+                    { "<Right>", "<Right>", buf = buf, desc = "Move Right" }
                     { "S", function()
-                            send((require "mini.files".get_fs_entry() or {}).path)
+                            require "functions.nano-plugins"
+                                .teleSend "file" ((require "mini.files".get_fs_entry() or {}).path)
                     end, mode = { "n", "x" }, buf = buf, desc = "Telegram send" }
         end,
 }
@@ -192,9 +186,9 @@ return {
                 content  = { filter = nil, highlight = nil, prefix = prefix, sort = nil },
                 mappings = {
                         close       = "q",
-                        go_in       = "l",
+                        go_in       = "L",
                         go_out      = "h",
-                        go_in_plus  = "L",
+                        go_in_plus  = "l",
                         go_out_plus = "H",
                         mark_goto   = "m",
                         mark_set    = '"',

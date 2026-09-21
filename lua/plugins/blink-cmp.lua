@@ -1,6 +1,10 @@
 local snippets   = {}
 -- local snippets   = { preset = "luasnip" }
-local cmdline    = { enabled = false, completion = { menu = { auto_show = true } } }
+local cmdline    = {
+        enabled    = false,
+        sources    = { "partial_completion" },
+        completion = { menu = { auto_show = true } },
+}
 local completion = {
         keyword       = { range = "full" },
         accept        = { auto_brackets = { enabled = true } },
@@ -192,19 +196,6 @@ local signature  = {
         window  = { direction_priority = { "n", "s" }, scrollbar = false, show_documentation = false },
 }
 
-local opts = {
-        snippets   = snippets,
-        cmdline    = cmdline,
-        completion = completion,
-        fuzzy      = fuzzy,
-        sources    = sources,
-        keymap     = keymap,
-        appearance = appearance,
-        signature  = signature,
-}
-
----- HIGHLIGHTS ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 linq
 "BlinkCmp"
     { "KindClass", "@lsp.type.class" }
@@ -248,14 +239,21 @@ linq
     { "ScrollBarThumb", "PmenuThumb" }
     { "ScrollBarGutter", "PmenuSbar" }
 
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 return {
         "saghen/blink.cmp",
         version      = "*",
         event        = { "InsertEnter", "CmdLineEnter" },
         dependencies = { "saghen/blink.lib", "niuiic/blink-cmp-rg.nvim" },
         build        = function() require "blink.cmp".download():wait(60000) end,
-        opts         = opts,
+        opts         = {
+                snippets   = snippets,
+                cmdline    = cmdline,
+                completion = completion,
+                fuzzy      = fuzzy,
+                sources    = sources,
+                keymap     = keymap,
+                appearance = appearance,
+                signature  = signature,
+        },
         opts_extend  = { "sources.default", "sources.completion.enabled_provider" },
 }

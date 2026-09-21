@@ -11,28 +11,32 @@ require "utils.functional" ()
 
 ---@type fun(event: vim.api.keyset.events): fun(opts: vim.api.keyset.create_autocmd)
 local function auq(event)
-        return function(opts)
-                return autocmd(event, opts)
-        end
+        return function(opts) return autocmd(event, opts) end
 end
 
 ---- HIGHLIGHT -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-local function hlLink(name, link)
-        api.nvim_set_hl(0, name, { link = link })
+---@param name string
+---@return fun(link: string)
+local function hlLink(name)
+        return function(link) api.nvim_set_hl(0, name, { link = link }) end
 end
 
-local function hlDynLink(name, link)
-        hlLink(name, link)
-        auq "ColorScheme" { callback = function() hlLink(name, link) end }
+---@param name string
+---@return fun(link: string)
+local function hlDynLink(name)
+        return function(link)
+                hlLink(name)(link)
+                auq "ColorScheme" { callback = function() hlLink(name)(link) end }
+        end
 end
 
 ---@type fun(key: string): fun(acc: table): fun(value: table)
 local function linq(prefix)
         local function step(acc)
                 return function(link)
-                        unless(link == nil)(acc)
-                        hlDynLink(concat "" (prefix)(link[1]), link[2])
+                        when(link == nil)(acc)
+                        hlDynLink(concat "" (prefix)(link[1]))(link[2])
                         return step(fold { acc, link })
                 end
         end
@@ -43,8 +47,8 @@ end
 local function _linq(link)
         local function step(acc)
                 return function(name)
-                        unless(name == nil)(acc)
-                        hlDynLink(name, concat "" (link) "")
+                        when(name == nil)(acc)
+                        hlDynLink(name)(concat "" (link) "")
                         return step(fold { acc, name })
                 end
         end
@@ -57,7 +61,8 @@ local function hl(a)
         local rhs = a[2]
         if type(rhs) == "string" then
                 api.nvim_set_hl(0, lhs, { link = rhs })
-        elseif type(rhs) == "table" then
+        end
+        if type(rhs) == "table" then
                 local fg = rhs[1] or nil
                 local bg = rhs[2] or nil
                 api.nvim_set_hl(0, lhs, { fg = fg, bg = bg })
@@ -66,21 +71,24 @@ end
 
 ---- OPTIONS -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+---@param scope "g"|"o"|"opt"
+---@return fun(opt: any)
 local function option(scope)
         return function(opt)
-                if opt then
-                        vim[scope][opt[1]] = opt[2]
-                end
+                unless(opt)()
+                vim[scope][opt[1]] = opt[2]
         end
 end
 
----@type fun(dir: string): fun(value: string|table)
+---@alias Opt { [1]: vim.Option, [2]: any }
+---@param scope "g"|"o"|"opt"
+---@return fun(value: Opt)
 local function optq(scope)
         local function step(acc)
-                return function(value)
-                        unless(value == nil)(acc)
-                        option(scope) { value[1], value[2] }
-                        return step(fold { acc, value })
+                return function(opt)
+                        when(opt == nil)(acc)
+                        option(scope) { opt[1], opt[2] }
+                        return step(fold { acc, opt })
                 end
         end
         return step {}
@@ -104,16 +112,13 @@ set("n", ".", function()
 ---@field ft? string | string[]
 ---@param keymap MyConfig.Keymap
 local function keymapq(keymap)
-        local mode = keymap.mode or "n"
-        local lhs  = keymap[1]
-        local rhs  = keymap[2]
-        local opts = vim.deepcopy(keymap)
-
+        local mode                           = keymap.mode or "n"
+        local lhs                            = keymap[1]
+        local rhs                            = keymap[2]
+        local opts                           = vim.deepcopy(keymap)
         opts.ft, opts.mode, opts[1], opts[2] = nil, nil, nil, nil
-
-        local caller = debug.getinfo(2, "Sl")
-        local source = fs.basename(caller.source) .. ":" .. caller.currentline
-
+        local caller                         = debug.getinfo(2, "Sl")
+        local source                         = fs.basename(caller.source) .. ":" .. caller.currentline
         if keymap[3] then
                 vim.defer_fn(function()
                                      local msg = ("%s %s"):format(lhs, source)
@@ -121,18 +126,14 @@ local function keymapq(keymap)
                              end, 1000)
                 return
         end
-
         if not keymap.ft then
                 if opts.unique == nil and opts.buf == nil then
                         opts.unique = true
                 end
-
                 local success, _ = pcall(set, mode, lhs, rhs, opts)
                 if success then return end
-
                 local modes = type(mode) == "table" and table.concat(mode, ", ") or mode
                 local msg   = ("[%s] %s %s"):format(modes, lhs, source)
-
                 vim.defer_fn(function()
                                      vim.notify(msg, levels.WARN, { title = "Duplicate keymap" })
                              end, 1000)
@@ -148,10 +149,11 @@ local function keymapq(keymap)
         end
 end
 
+---@return fun(km: MyConfig.Keymap)
 local function kq()
         local function step(acc)
                 return function(km)
-                        unless(km == nil)(acc)
+                        when(km == nil)(acc)
                         keymapq(km)
                         return step(fold { acc, km })
                 end
@@ -159,17 +161,20 @@ local function kq()
         return step {}
 end
 
+---@param keymap MyConfig.Keymap
 local function bufq(keymap)
         keymap.buf = 0
         keymapq(keymap)
 end
 
+---@param text string
+---@return fun(replace: string)
 local function bufAbbr(text)
-        return function(replace)
-                set("ia", text, replace, { buf = 0 })
-        end
+        return function(replace) set("ia", text, replace, { buf = 0 }) end
 end
 
+---@param command string
+---@return fun(fallback: string)
 local function pcmd(command)
         return function(fallback)
                 local ok = pcall(vim.cmd, command) ---@diagnostic disable-line: param-type-mismatch
@@ -182,6 +187,7 @@ end
 ---- MODULES -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ---@param modname string
+---@return any ...
 local function safeRequire(modname)
         local success, errmsg = pcall(require, modname)
         if success then return end
@@ -192,6 +198,9 @@ local function safeRequire(modname)
         return errmsg
 end
 
+---@alias LazyMod { [1]: vim.api.keyset.events, [2]: string|string[]? }
+---@param modname string
+---@return fun(lazy?: LazyMod)
 local function lazyReq(modname)
         return function(lazy)
                 if lazy[1] == nil then return safeRequire(modname) end
@@ -203,11 +212,13 @@ local function lazyReq(modname)
         end
 end
 
----@type fun(dir: string): fun(value: string|table)
+---@alias ReqModname string|{ [1]: string, [2]: vim.api.keyset.events, [3]: string|string[] }
+---@param dir string
+---@return fun(modname: ReqModname)
 local function req(dir)
         local function step(acc)
                 return function(modname)
-                        unless(modname == nil)(acc)
+                        when(modname == nil)(acc)
                         lazyReq(concat "." (dir)(modname[1] or modname)) { modname[2], modname[3] }
                         return step(fold { acc, modname })
                 end
@@ -221,7 +232,7 @@ local M = {}
 
 M.autocmds   = { auq = auq }
 M.options    = { optq = optq }
-M.highlights = { hl = hl, linq = linq, _linq = _linq }
+M.highlights = { hlDynLink = hlDynLink, hl = hl, linq = linq, _linq = _linq }
 M.keymaps    = { abbr = bufAbbr, bufq = bufq, keymapq = keymapq, pcmd = pcmd, kq = kq }
 M.modules    = {
         req         = req,

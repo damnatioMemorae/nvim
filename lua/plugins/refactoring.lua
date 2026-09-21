@@ -1,4 +1,8 @@
-local function r(_) return function() return require "refactoring"[_]() end end
+local function r(_)
+        return function()
+                return require "refactoring"[_]()
+        end
+end
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

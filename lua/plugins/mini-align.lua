@@ -5,7 +5,7 @@ return {
         opts    = {
                 mappings = {
                         start              = "sl",
-                        start_with_preview = "<LocalLeader>&",
+                        start_with_preview = "sL",
                 },
                 options = {
                         split_pattern   = "",

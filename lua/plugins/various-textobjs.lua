@@ -3,8 +3,8 @@ local hl  = vim.hl
 local ui  = vim.ui
 local api = vim.api
 local cmd = vim.cmd
-
-local function obj(_)
+local xo  = { "x", "o" }
+local function to(_)
         return function(...)
                 local args = { ... }
                 return function()
@@ -18,45 +18,44 @@ return {
         enabled = true,
         event   = "BufReadPost",
         keys    = {
-                { "<Space>",  obj "subword" "inner",                mode = { "o" },      desc = "inner subword" },
-                { "i<Space>", obj "subword" "outer",                mode = { "o", "x" }, desc = "outer subword" },
-                { "a<Space>", obj "subword" "outer",                mode = { "o", "x" }, desc = "outer subword" },
-                { "v",        obj "value" "inner",                  mode = { "o" },      desc = "inner value" },
-                { "iv",       obj "value" "inner",                  mode = { "o", "x" }, desc = "inner value" },
-                { "av",       obj "value" "outer",                  mode = { "o", "x" }, desc = "outer value" },
-                { "k",        obj "key" "inner",                    mode = { "o" },      desc = "inner key" },
-                { "ik",       obj "key" "inner",                    mode = { "o", "x" }, desc = "inner key" },
-                { "ak",       obj "key" "outer",                    mode = { "o", "x" }, desc = "outer key" },
-                { "n",        obj "nearEoL" (),                     mode = { "o", "x" }, desc = "near EoL" },
-                { "iQ",       obj "doubleSquareBrackets" "inner",   mode = { "o", "x" }, desc = "inner doubleSquareBrackets" },
-                { "aQ",       obj "doubleSquareBrackets" "outer",   mode = { "o", "x" }, desc = "outer doubleSquareBrackets" },
-                { "rp",       obj "restOfParagraph" (),             mode = { "o" },      desc = "rest of paragraph" },
-                { "ri",       obj "restOfIndentation" (),           mode = { "o" },      desc = "rest of indentation" },
-                { "rg",       "G",                                  mode = { "o" },      desc = "rest of buffer" },
-                { "L",        obj "url" (),                         mode = { "o" },      desc = "URL" },
-                { "#",        obj "cssColor" "outer",               mode = { "o", "x" }, desc = "outer color" },
-                { ".",        obj "emoji" (),                       mode = { "o", "x" }, desc = "outer color" },
-                { "ii",       obj "indentation" ("inner", "inner"), mode = { "o", "x" }, desc = "inner indent" },
-                { "ai",       obj "indentation" ("outer", "outer"), mode = { "o", "x" }, desc = "outer indent" },
-                { "aj",       obj "indentation" ("outer", "inner"), mode = { "o", "x" }, desc = "top-border indent" },
-                { "iI",       obj "greedyOuterIndentation" "inner", mode = { "o", "x" }, desc = "inner greedy indent" },
-                { "aI",       obj "greedyOuterIndentation" "outer", mode = { "o", "x" }, desc = "outer greedy indent" },
-                { "i.",       obj "chainMember" "inner",            mode = { "o", "x" }, desc = "inner chainMember" },
-                { "a.",       obj "chainMember" "outer",            mode = { "o", "x" }, desc = "outer chainMember" },
-                { "iy",       obj "pyTripleQuotes" "inner",         mode = { "o", "x" }, desc = "inner tripleQuotes",        ft = "python" },
-                { "ay",       obj "pyTripleQuotes" "outer",         mode = { "o", "x" }, desc = "outer tripleQuotes",        ft = "python" },
-                { "iE",       obj "mdFencedCodeBlock" "inner",      mode = { "o", "x" }, desc = "inner CodeBlock",           ft = "markdown" },
-                { "aE",       obj "mdFencedCodeBlock" "outer",      mode = { "o", "x" }, desc = "outer CodeBlock",           ft = "markdown" },
-                { "il",       obj "mdlink" "inner",                 mode = { "o", "x" }, desc = "inner md-link",             ft = "markdown" },
-                { "al",       obj "mdlink" "outer",                 mode = { "o", "x" }, desc = "outer md-link",             ft = "markdown" },
-                { "is",       obj "cssSelector" "inner",            mode = { "o", "x" }, desc = "inner selector",            ft = "css" },
-                { "as",       obj "cssSelector" "outer",            mode = { "o", "x" }, desc = "outer selector",            ft = "css" },
-                { "i|",       obj "shellPipe" "inner",              mode = "o",          desc = "inner pipe",                ft = "sh" },
-                { "a|",       obj "shellPipe" "outer",              mode = "o",          desc = "outer pipe",                ft = "sh" },
+                { "<Space>",  to "subword" "inner",                mode = "o", desc = "inner subword" },
+                { "i<Space>", to "subword" "outer",                mode = xo,  desc = "outer subword" },
+                { "a<Space>", to "subword" "outer",                mode = xo,  desc = "outer subword" },
+                -- { "v",        to "value" "inner",                  mode = "o", desc = "inner value" },
+                { "iv",       to "value" "inner",                  mode = xo,  desc = "inner value" },
+                { "av",       to "value" "outer",                  mode = xo,  desc = "outer value" },
+                { "ik",       to "key" "inner",                    mode = xo,  desc = "inner key" },
+                { "ak",       to "key" "outer",                    mode = xo,  desc = "outer key" },
+                { "n",        to "nearEoL" (),                     mode = xo,  desc = "near EoL" },
+                { "iQ",       to "doubleSquareBrackets" "inner",   mode = xo,  desc = "inner doubleSquareBrackets" },
+                { "aQ",       to "doubleSquareBrackets" "outer",   mode = xo,  desc = "outer doubleSquareBrackets" },
+                { "rp",       to "restOfParagraph" (),             mode = "o", desc = "rest of paragraph" },
+                { "ri",       to "restOfIndentation" (),           mode = "o", desc = "rest of indentation" },
+                { "rg",       "G",                                 mode = "o", desc = "rest of buffer" },
+                { "L",        to "url" (),                         mode = "o", desc = "URL" },
+                { "#",        to "cssColor" "outer",               mode = xo,  desc = "outer color" },
+                { ".",        to "emoji" (),                       mode = xo,  desc = "outer color" },
+                { "ii",       to "indentation" ("inner", "inner"), mode = xo,  desc = "inner indent" },
+                { "ai",       to "indentation" ("outer", "outer"), mode = xo,  desc = "outer indent" },
+                { "aj",       to "indentation" ("outer", "inner"), mode = xo,  desc = "top-border indent" },
+                { "iI",       to "greedyOuterIndentation" "inner", mode = xo,  desc = "inner greedy indent" },
+                { "aI",       to "greedyOuterIndentation" "outer", mode = xo,  desc = "outer greedy indent" },
+                { "i.",       to "chainMember" "inner",            mode = xo,  desc = "inner chainMember" },
+                { "a.",       to "chainMember" "outer",            mode = xo,  desc = "outer chainMember" },
+                { "iy",       to "pyTripleQuotes" "inner",         mode = xo,  desc = "inner tripleQuotes",        ft = "python" },
+                { "ay",       to "pyTripleQuotes" "outer",         mode = xo,  desc = "outer tripleQuotes",        ft = "python" },
+                { "iE",       to "mdFencedCodeBlock" "inner",      mode = xo,  desc = "inner CodeBlock",           ft = "markdown" },
+                { "aE",       to "mdFencedCodeBlock" "outer",      mode = xo,  desc = "outer CodeBlock",           ft = "markdown" },
+                { "il",       to "mdlink" "inner",                 mode = xo,  desc = "inner md-link",             ft = "markdown" },
+                { "al",       to "mdlink" "outer",                 mode = xo,  desc = "outer md-link",             ft = "markdown" },
+                { "is",       to "cssSelector" "inner",            mode = xo,  desc = "inner selector",            ft = "css" },
+                { "as",       to "cssSelector" "outer",            mode = xo,  desc = "outer selector",            ft = "css" },
+                { "i|",       to "shellPipe" "inner",              mode = "o", desc = "inner pipe",                ft = "sh" },
+                { "a|",       to "shellPipe" "outer",              mode = "o", desc = "outer pipe",                ft = "sh" },
                 { -- DELETE SURROUNDING INDENTATION
                         "dsi",
                         function()
-                                obj "indentation" ("outer", "outer")()
+                                to "indentation" ("outer", "outer")()
                                 if not fn.mode() == "V" then return end
 
                                 cmd.normal { "<", bang = true }
@@ -73,7 +72,7 @@ return {
                         "ysii",
                         function()
                                 local start_pos = api.nvim_win_get_cursor(0)
-                                obj "indentation" ("outer", "outer")()
+                                to "indentation" ("outer", "outer")()
                                 if not fn.mode() == "V" then return end
                                 cmd.normal { "V", bang = true }
                                 api.nvim_win_set_cursor(0, start_pos)
@@ -98,7 +97,7 @@ return {
                         function()
                                 vim.keymap.del("n", "gx")
 
-                                obj "url" ()
+                                to "url" ()
 
                                 if fn.mode():find "v" then
                                         cmd.normal { '"zy', bang = true }

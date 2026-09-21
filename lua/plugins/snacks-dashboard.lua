@@ -5,22 +5,8 @@ local button = "Function"
 local label  = "Comment"
 local width  = 46
 
-local function getPicker(picker, mode)
-        mode = mode or "snacks"
-
-        local fzf_lua = pcall(require, "fzf-lua")
-        local snacks  = pcall(require, "snacks")
-
-        if snacks then
-                return require(mode)[picker]()
-        elseif fzf_lua then
-                return require(mode)[picker]()
-        end
-end
-
-local mode = "snacks.picker"
-local function picker(pick)
-        getPicker(pick, mode)
+local function pick(source)
+        return function() require "mini.pick".builtin[source]() end
 end
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -76,7 +62,7 @@ return {
                                                 { "f",                   hl = label },
                                                 { "]",                   hl = button },
                                         },
-                                        action  = function() picker "files" end,
+                                        action  = pick "files",
                                         key     = "f",
                                         padding = 1,
                                         align   = "center",
@@ -89,7 +75,7 @@ return {
                                                 { "w",                   hl = label },
                                                 { "]",                   hl = button },
                                         },
-                                        action  = function() picker "grep" end,
+                                        action  = pick "grep_live",
                                         key     = "w",
                                         padding = 1,
                                         align   = "center",

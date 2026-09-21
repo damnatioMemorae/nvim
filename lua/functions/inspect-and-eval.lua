@@ -9,29 +9,21 @@ local cmd    = vim.cmd
 local lsp    = vim.lsp
 local levels = vim.log.levels
 
-require "utils.functional" ()
-
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-local M = {}
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-function M.bufferInfo()
-        local pseudo_tilde = "∼"
-
-        local clients      = lsp.get_clients { bufnr = 0 }
-        local longest_name = vim
+local function bufferInfo()
+        local pseudo_tilde  = "∼"
+        local clients       = lsp.get_clients { bufnr = 0 }
+        local longest_name  = vim
             .iter(clients)
             :fold(0, function(acc, client)
                     return math.max(acc, #client.name)
             end)
-        local lsps         = vim.tbl_map(function(client)
-                                                 local pad  = (" "):rep(math.min(longest_name - #client.name)) .. " "
-                                                 local root = client.root_dir
-                                                     and client.root_dir:gsub("/Users/%w+", pseudo_tilde)
-                                                     or "*Single file mode*"
-                                                 return ("[%s]%s%s"):format(client.name, pad, root)
-                                         end, clients)
-
+        local lsps          = vim.tbl_map(function(client)
+                                                  local pad  = (" "):rep(math.min(longest_name - #client.name)) .. " "
+                                                  local root = client.root_dir
+                                                      and client.root_dir:gsub("/Users/%w+", pseudo_tilde)
+                                                      or "*Single file mode*"
+                                                  return ("[%s]%s%s"):format(client.name, pad, root)
+                                          end, clients)
         local indent_type   = bo.expandtab and "spaces" or "tabs"
         local indent_amount = bo.expandtab and bo.tabstop or bo.shiftwidth
         local level         = levels.DEBUG
@@ -45,21 +37,20 @@ function M.bufferInfo()
                 ("[indent]    %s (%s)"):format(indent_type, indent_amount),
                 "[cwd]       " .. (uv.cwd() or "nil"):gsub("/Users/%w+", pseudo_tilde),
                 "",
-        } (guard { #lsps > 0, function() return { "Attached LSPs with root", unpack(lsps) } end,
+        } (guard {
+                #lsps > 0, function() return { "Attached LSPs with root", unpack(lsps) } end,
                 function() return { "No LSPs attached." } end,
         })
         vim.notify(table.concat(out, "\n"), level, opts)
 end
 
-function M.nodeAtCursor()
+local function nodeAtCursor()
         local config = { hlDuration = 1500, hlGroup = "Search", maxChildren = 4 }
-
         local ok, node = pcall(ts.get_node)
         if not (ok and node) then
-                vim.notify("No node under cursor", levels.DEBUG, { icon = "" })
+                vim.notify("No node under cursor", levels.DEBUG)
                 return
         end
-
         local parent = node:parent() and node:parent():type() or "."
         local tree   = { parent, "└── " .. node:type() }
         for childIdx = 1, config.maxChildren do
@@ -70,11 +61,9 @@ function M.nodeAtCursor()
         tree[#tree] = tree[#tree]:gsub("├", "└")
         local msg   = table.concat(tree, "\n")
         vim.notify(msg, levels.DEBUG, { title = "Node at cursor" })
-
         local start_row, start_col = node:start()
         local end_row, end_col     = node:end_()
         local ns                   = api.nvim_create_namespace "node-highlight"
-
         match(start_row) {
                 end_row = function()
                         api.nvim_buf_add_highlight(0, ns, config.hlGroup, start_row, start_col, end_col)
@@ -89,7 +78,6 @@ function M.nodeAtCursor()
                         api.nvim_buf_add_highlight(0, ns, config.hlGroup, end_row, 0, end_col)
                 end,
         }
-
         vim.defer_fn(function() api.nvim_buf_clear_namespace(0, ns, 0, -1) end, config.hlDuration)
         vim.defer_fn(function()
                              local count_ns = api.nvim_create_namespace "searchCounter"
@@ -97,7 +85,7 @@ function M.nodeAtCursor()
                      end, 1)
 end
 
-function M.lspCapabilities()
+local function lspCapabilities()
         local clients = lsp.get_clients { bufnr = 0 }
         if #clients == 0 then
                 vim.notify("No LSPs attached.", levels.WARN, { icon = "󱈄" })
@@ -120,7 +108,7 @@ function M.lspCapabilities()
                   end)
 end
 
-function M.evalNvimLua()
+local function evalNvimLua()
         local function eval(input)
                 if not input or input == "" then return end
                 local level = levels.DEBUG
@@ -137,7 +125,7 @@ function M.evalNvimLua()
         }
 end
 
-function M.runFile()
+local function runFile()
         cmd "silent update"
         local has_shebang = api.nvim_buf_get_lines(0, 0, 1, false)[1]:find "^#!"
         local filepath    = api.nvim_buf_get_name(0)
@@ -151,7 +139,6 @@ function M.runFile()
         else
                 vim.notify("File has no shebang.", levels.WARN, { title = "Run", icon = "󰜎" })
         end
-
         if bo.filetype == "sh" and filepath:find "nvim" then
                 cmd.source()
         elseif has_shebang then
@@ -162,7 +149,7 @@ function M.runFile()
         end
 end
 
-function M.inspectNodeAncestors()
+local function inspectNodeAncestors()
         local node = ts.get_node()
         if not node then
                 return vim.notify("No node under cursor.", levels.WARN)
@@ -176,5 +163,11 @@ function M.inspectNodeAncestors()
         vim.notify(out, nil, { title = "Node ancestors" })
 end
 
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-return M
+return {
+        bufferInfo           = bufferInfo,
+        nodeAtCursor         = nodeAtCursor,
+        lspCapabilities      = lspCapabilities,
+        evalNvimLua          = evalNvimLua,
+        runFile              = runFile,
+        inspectNodeAncestors = inspectNodeAncestors,
+}

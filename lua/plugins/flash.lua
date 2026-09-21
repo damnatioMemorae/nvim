@@ -8,7 +8,7 @@ return {
                 { "R", flash "remote" (),                                                          mode = "o", desc = "Remote Flash" },
                 { "f", flash "jump" (),                                                            mode = nxo, desc = "Flash" },
                 { "F", flash "jump" { search = { mode = function(str) return "\\<" .. str end } }, mode = nxo, desc = "Flash first" },
-                { "T", flash "inc" { actions = { ["m"] = "next", ["M"] = "prev" } },               mode = "o", desc = "Treesitter Search" },
+                { "T", flash "treesitter" { actions = { ["m"] = "next", ["M"] = "prev" } },        mode = "o", desc = "Treesitter Search" },
         },
         opts = {
                 jump      = { nohlsearch = true, autojump = true },

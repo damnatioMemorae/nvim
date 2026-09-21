@@ -8,6 +8,7 @@ local iter = vim.iter
 g.mode     = "c"
 
 local p = require "utils.functional".predicates
+local T = require "utils.functional".matching.thunk
 
 ---- HIGHLIGHTS ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -23,6 +24,14 @@ local ns = api.nvim_create_namespace "QfList"
 
 api.nvim_set_hl(0, "QfMatch", { link = "Removed", default = true })
 
+local type_hilights = {
+        E     = "DiagnosticSignError",
+        W     = "DiagnosticSignWarn",
+        I     = "DiagnosticSignInfo",
+        N     = "DiagnosticSignHint",
+        H     = "DiagnosticSignHint",
+        error = "DiagnosticSignError",
+}
 local function getLines(ttt)
         local lines = {}
         for _, tt in ipairs(ttt) do
@@ -34,7 +43,34 @@ local function getLines(ttt)
         end
         return lines
 end
-
+local function shortPath(path)
+        local sep    = string.sub(package.config, 1, 1);
+        local as_raw = { "nvim$" };
+        local fmod   = curry(fn.fnamemodify, 2)(path)
+        local name   = match(fmod ":.") {
+                [p.self] = T(fmod, ":~"),
+                _        = T(),
+        }
+        local function isRaw(str)
+                for _, pattern in ipairs(as_raw) do
+                        if string.match(str, pattern) then
+                                return true;
+                        end
+                end
+                return false;
+        end
+        local parts     = vim.split(name, sep, { trimempty = true });
+        local shortened = iter(parts)
+            :enumerate()
+            :map(function(_p, part)
+                    return guard {
+                            isRaw(part) or _p == 1 or _p == #parts, function() return part end,
+                            string.match(part, "^%."), function() return fn.strcharpart(part, 0, 2) end,
+                            function() return fn.strcharpart(part, 0, 1) end }
+            end)
+            :totable()
+        return table.concat(shortened, sep);
+end
 local function applyHighlights(bufnr, ttt)
         api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
         for i, tt in ipairs(ttt) do
@@ -45,58 +81,11 @@ local function applyHighlights(bufnr, ttt)
                 end
         end
 end
-
-local type_hilights = {
-        E     = "DiagnosticSignError",
-        W     = "DiagnosticSignWarn",
-        I     = "DiagnosticSignInfo",
-        N     = "DiagnosticSignHint",
-        H     = "DiagnosticSignHint",
-        error = "DiagnosticSignError",
-}
-
-local function shortPath(path)
-        local sep    = string.sub(package.config, 1, 1);
-        local as_raw = { "nvim$" };
-        local fmod   = curry(fn.fnamemodify, 2)(path)
-        local name   = match(path) {
-                [fmod ":."] = function() return fmod ":~" end,
-                _           = function() return fmod ":." end,
-        }
-
-        local function isRaw(str)
-                for _, pattern in ipairs(as_raw) do
-                        if string.match(str, pattern) then
-                                return true;
-                        end
-                end
-                return false;
-        end
-
-        local parts     = vim.split(name, sep, { trimempty = true });
-        local shortened = iter(parts)
-            :enumerate()
-            :map(function(p, part)
-                    return guard {
-                            isRaw(part) or p == 1 or p == #parts, function()
-                            return part
-                    end,
-                            string.match(part, "^%."), function()
-                            return fn.strcharpart(part, 0, 2)
-                    end, function()
-                            return fn.strcharpart(part, 0, 1)
-                    end }
-            end)
-            :totable()
-
-        return table.concat(shortened, sep);
-end
-
 o.quickfixtextfunc = function(info)
         local what = { id = info.id, items = 1, qfbufnr = 1 }
         local list = match(info.quickfix) {
-                [1] = fn.getqflist(what),
-                _   = fn.getloclist(info.winid, what),
+                [1] = T(fn.getqflist, what),
+                _   = T(fn.getloclist, info.winid, what),
         }
         local prep = function(_)
                 local hl      = type_hilights[_.type]
@@ -105,9 +94,12 @@ o.quickfixtextfunc = function(info)
                 local lnum    = _.lnum > 0 and _.lnum .. ":" or ""
                 local prefix  = _.type ~= "" and _.type .. ":" or ""
                 local bufname = fn.bufname(_.bufnr)
-                local fname   = _.lnum > 0 and match(_.bufnr) {
-                        [2] = { "[" .. shortPath(bufname) .. "]:", "Special" },
-                        _   = { shortPath(bufname) .. ":", type_hilights[_.type] or "QfFilename" },
+                local function curBuf(_)
+                        return function() api.nvim_get_current_buf() end
+                end
+                local fname = _.lnum > 0 and match(_.bufnr) {
+                        [curBuf()] = { "[" .. shortPath(bufname) .. "]:", "Special" },
+                        _          = { shortPath(bufname) .. ":", type_hilights[_.type] or "QfFilename" },
                 } or nil
                 return {
                         { prefix, hl },
@@ -128,9 +120,10 @@ end
 
 ---- KEYMAPS -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-local older  = function() pcmd("noautocmd silent! " .. "colder")("noautocmd silent! " .. "lolder") end
-local newer  = function() pcmd("noautocmd silent! " .. "cnewer")("noautocmd silent! " .. "lnewer") end
+local prefix = "silent " .. g.mode
 local remove = function() cmd(g.mode .. "expr []") end
+local older  = function() pcmd(prefix .. "older")() end
+local newer  = function() pcmd(prefix .. "newer")() end
 local first  = function()
         pcmd "lfirst" "cfirst"
         cmd "normal! zv"
@@ -141,21 +134,17 @@ local last   = function()
         cmd "normal! zv"
         cmd "wincmd p"
 end
-local prev   = function()
-        pcmd(g.mode .. "prev")(g.mode .. "last")
-        cmd "normal! zv"
+local qprev  = function(what)
+        return function()
+                pcmd(prefix .. what)(prefix .. "last")
+                cmd "normal! zv"
+        end
 end
-local next   = function()
-        pcmd(g.mode .. "next")(g.mode .. "first")
-        cmd "normal! zv"
-end
-local fprev  = function()
-        pcmd(g.mode .. "Nfile")(g.mode .. "last")
-        cmd "normal! zv"
-end
-local fnext  = function()
-        pcmd(g.mode .. "nfile")(g.mode .. "first")
-        cmd "normal! zv"
+local qnext  = function(what)
+        return function()
+                pcmd(prefix .. what)(prefix .. "first")
+                cmd "normal! zv"
+        end
 end
 local toggle = function(key, h, w)
         local function perc(_) return function(__) return math.floor(o[_] * __ * 0.01) end end
@@ -165,8 +154,8 @@ local toggle = function(key, h, w)
                         [p.upper] = { "wincmd L", "vertical resize " .. perc "columns" (w or 50) },
                 }
                 local list_win = match(g.mode) {
-                        c = fn.getqflist { winid = true }.winid ~= 0,
-                        l = fn.getloclist(0, { winid = true }).winid ~= 0,
+                        c = function() return fn.getqflist { winid = true }.winid ~= 0 end,
+                        l = function() return fn.getloclist(0, { winid = true }).winid ~= 0 end,
                 }
                 cmd(list_win and g.mode .. "close" or g.mode .. "open")
                 match(bo.buftype) {
@@ -184,13 +173,13 @@ bufq { "Q", last, desc = "List last", ft = "qf" }
 iter { "q", "Q" }:each(function(_) keymapq { "<leader>" .. _, toggle(_, 30, 25), desc = "Toggle List" } end)
 kq
 ""
-    { "<M-u>", older, desc = "List older" }
-    { "<M-U>", newer, desc = "List newer" }
-    { "[", fprev, desc = "List file prev", nowait = true }
-    { "]", fnext, desc = "List file next", nowait = true }
-    { "(", prev, desc = "List item prev" }
-    { ")", next, desc = "List item next" }
     { "qd", remove, desc = "List clear" }
+    { "<M-Y>", older, desc = "List older" }
+    { "<M-y>", newer, desc = "List newer" }
+    { "<M-U>", qprev "prev", desc = "List item prev" }
+    { "<M-u>", qnext "next", desc = "List item next" }
+    { "<M-I>", qprev "Nfile", desc = "List file prev" }
+    { "<M-i>", qnext "nfile", desc = "List file next" }
     { "<LocalLeader>q", Toggle.qfMode, desc = "Toggle List mode" }
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -1,14 +1,17 @@
-local o  = vim.o
-local v  = vim.v
-local fn = vim.fn
-local ts = vim.treesitter
+local o   = vim.o
+local v   = vim.v
+local fn  = vim.fn
+local ts  = vim.treesitter
+local cmd = vim.cmd
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local function node(nd)
         return function()
                 if ts.get_parser(nil, nil, { error = false }) then
+                        cmd "normal! o"
                         require "vim.treesitter._select"["select_" .. nd](v.count1)
+                        cmd "normal! o"
                 end
         end
 end
@@ -21,8 +24,8 @@ return {
                 o.foldexpr   = vim.treesitter.foldexpr
         end,
         keys  = {
-                { "m", node "parent", mode = { "v" } },
-                { "M", node "child",  mode = { "v" } },
+                { "m", node "parent", mode = "x" },
+                { "M", node "child",  mode = "x" },
         },
         opts  = {
 

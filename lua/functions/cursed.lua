@@ -3,21 +3,17 @@ local cmd   = vim.cmd
 local iter  = vim.iter
 local mc_ns = api.nvim_create_namespace "nvim.multicursor"
 
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-local M = {}
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 local function mcGet()
         return iter(api.nvim_buf_get_extmarks(0, mc_ns, 0, -1, {}))
             :map(function(mark) return { mark[2] + 1, mark[3] } end)
             :totable()
 end
 
-function M.mcClear()
+local function mcClear()
         api.nvim_buf_clear_namespace(0, mc_ns, 0, -1)
 end
 
-function M.mcAdd(_)
+local function mcAdd(_)
         return function()
                 local row_prime, col_prime = unpack(api.nvim_win_get_cursor(0))
                 local row_last             = row_prime
@@ -40,7 +36,7 @@ function M.mcAdd(_)
         end
 end
 
-function M.mcDel(_)
+local function mcDel(_)
         return function()
                 local row_prime, col_prime = unpack(api.nvim_win_get_cursor(0))
                 local cursors              = mcGet()
@@ -72,5 +68,8 @@ function M.mcDel(_)
         end
 end
 
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-return M
+return {
+        mcClear = mcClear,
+        mcAdd   = mcAdd,
+        mcDel   = mcDel,
+}

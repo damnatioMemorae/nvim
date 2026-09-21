@@ -10,9 +10,8 @@ local iter   = vim.iter
 local levels = vim.log.levels
 
 local p = require "utils.functional".predicates
+local I = require "utils.functional".combinator.I
 
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-local M = {}
 ---- HELPERS -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ---@param path string
@@ -35,7 +34,7 @@ local function fmtPathForStatusbar(path)
         local current = fs.basename(api.nvim_buf_get_name(0))
         local name    = match(fs.basename(path)) {
                 [current] = function(_) return fs.basename(fs.dirname(path)) .. "/" .. _ end,
-                _         = function(_) return _ end,
+                _         = I,
         }
         local max     = 30
         return #name > max and vim.trim(name:sub(1, max)) .. "…" or name
@@ -108,15 +107,15 @@ end
 
 ---- GOTO ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-function M.gotoAltFile()
+local function gotoAltFile()
         if bo.buftype ~= "" then return notify("Cannot do that in special buffer.", "warn") end
         match(getAltBuffer() or getAltOldfile()) {
-                [p._nil] = function(_) cmd.edit(_) end,
-                _        = function() notify("No alt-buffer or oldfile available.", "warn") end,
+                [p._nilq] = function(_) cmd.edit(_) end,
+                _         = function() notify("No alt-buffer or oldfile available.", "warn") end,
         }
 end
 
-function M.gotoMostChangedFile()
+local function gotoMostChangedFile()
         local tgt, errmsg = getMostChangedFile()
         if errmsg then return notify(errmsg, "warn") end
         match(tgt) {
@@ -136,23 +135,27 @@ auq { "BufEnter", "FocusGained" } {
 }
 
 ---@return  string
-function M.mostChangedFileStatusbar()
+local function mostChangedFileStatusbar()
         local tgt = b.magnetMostChangedFile
         if not tgt then return "" end
         match(tgt) {
-                [api.nvim_buf_get_name(0)]            = function() return "" end,
-                [{ getAltBuffer(), getAltOldfile() }] = function() return "" end,
+                [api.nvim_buf_get_name(0)]            = "",
+                [{ getAltBuffer(), getAltOldfile() }] = "",
         }
         return vim.trim(fmtPathForStatusbar(tgt))
 end
 
 ---@return  string
-function M.altFileStatusbar()
+local function altFileStatusbar()
         local alt_buf  = getAltBuffer()
         local alt_file = alt_buf or getAltOldfile()
         if not alt_file then return "" end
         return vim.trim(fmtPathForStatusbar(alt_file))
 end
 
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-return M
+return {
+        gotoAltFile              = gotoAltFile,
+        gotoMostChangedFile      = gotoMostChangedFile,
+        mostChangedFileStatusbar = mostChangedFileStatusbar,
+        altFileStatusbar         = altFileStatusbar,
+}

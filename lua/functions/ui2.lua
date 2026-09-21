@@ -1,16 +1,15 @@
 local o   = vim.o
 local api = vim.api
 
-local ui2        = require "vim._core.ui2"
-local messages   = require "vim._core.ui2.messages"
-local o_msg_show = messages.msg_show
-
 local last_title = nil
 local last_hl    = "Normal"
 local win_hl     = "PmenuDoc"
 local hl_str     = "Normal:" .. win_hl .. ",FloatBorder:" .. win_hl
 local border     = Border.Default.Normal
 
+local ui2          = require "vim._core.ui2"
+local messages     = require "vim._core.ui2.messages"
+local o_msg_show   = messages.msg_show
 local orig_set_pos = messages.set_pos
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -174,10 +173,10 @@ end
 messages.set_pos = function(tgt)
         orig_set_pos(tgt)
         match(tgt) {
-                pager  = function() overridePagerWin() end,
-                dialog = function() overrideDialogWin() end,
-                msg    = function() overrideMsgWin() end,
-                _      = function() overrideMsgWin() end,
+                pager  = overridePagerWin,
+                dialog = overrideDialogWin,
+                msg    = overrideMsgWin,
+                _      = overrideMsgWin,
         }
 end
 

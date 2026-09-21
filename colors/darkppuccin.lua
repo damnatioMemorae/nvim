@@ -4,6 +4,8 @@ local fn  = vim.fn
 local cmd = vim.cmd
 local api = vim.api
 
+---@param name string
+---@return fun(opts: vim.api.keyset.highlight)
 local function h(name)
         return function(opts)
                 api.nvim_set_hl(0, name, opts)
@@ -24,46 +26,36 @@ o.termguicolors = true
 g.colors_name   = "darkppuccin"
 
 M.colors = {
-        ivory     = "#dce0e8",
-        spark     = "#add8e6",
-        rosewater = "#f5e0dc",
-        flamingo  = "#f2cdcd",
-        pink      = "#f5c2e7",
-        mauve     = "#cba6f7",
-        red       = "#f38ba8",
-        maroon    = "#eba0ac",
-        peach     = "#fab387",
-        yellow    = "#f9e2af",
-        green     = "#a6e3a1",
-        teal      = "#94e2d5",
-        sky       = "#89dceb",
-        sapphire  = "#74c7ec",
-        blue      = "#89b4fa",
-        lavender  = "#b4befe",
-        text      = "#cdd6f4",
-        subtext1  = "#bac2de",
-        subtext0  = "#a6adc8",
-        overlay2  = "#9399b2",
-        overlay1  = "#7f849c",
-        overlay0  = "#6c7086",
-        surface2  = "#585b70",
-        surface1  = "#45475a",
-        surface0  = "#313244",
-        base      = "#1e1e2e",
-        mantle0   = "#191927",
-        mantle1   = "#14141f",
-        crust1    = "#11111b",
-        crust0    = "#0e0e16",
-        -- crust0    = "#0e0d0d",
-
-        -- green_transparent  = "#1d2324",
-        -- yellow_transparent = "#262325",
-        -- red_transparent    = "#251b25",
-
-        -- green_transparent  = "#3c4e40",
-        -- yellow_transparent = "#554e44",
-        -- red_transparent    = "#533342",
-
+        ivory              = "#dce0e8",
+        spark              = "#add8e6",
+        rosewater          = "#f5e0dc",
+        flamingo           = "#f2cdcd",
+        pink               = "#f5c2e7",
+        mauve              = "#cba6f7",
+        red                = "#f38ba8",
+        maroon             = "#eba0ac",
+        peach              = "#fab387",
+        yellow             = "#f9e2af",
+        green              = "#a6e3a1",
+        teal               = "#94e2d5",
+        sky                = "#89dceb",
+        sapphire           = "#74c7ec",
+        blue               = "#89b4fa",
+        lavender           = "#b4befe",
+        text               = "#cdd6f4",
+        subtext1           = "#bac2de",
+        subtext0           = "#a6adc8",
+        overlay2           = "#9399b2",
+        overlay1           = "#7f849c",
+        overlay0           = "#6c7086",
+        surface2           = "#585b70",
+        surface1           = "#45475a",
+        surface0           = "#313244",
+        base               = "#1e1e2e",
+        mantle0            = "#191927",
+        mantle1            = "#14141f",
+        crust1             = "#11111b",
+        crust0             = "#0e0e16",
         teal_transparent   = "#273741",
         sky_transparent    = "#29383c",
         green_transparent  = "#2c3932",
@@ -126,7 +118,7 @@ h "SymbolDef" { fg = colors.spark, bg = colors.crust0 }
 h "SymbolRef" { fg = colors.red, bg = colors.crust0 }
 h "SymbolImp" { fg = colors.teal, bg = colors.crust0 }
 
-h "DiagnosticUnnecessary" { link = "Comment" }
+h "DiagnosticUnnecessary" { link = "Dimmed" }
 h "DiagnosticDeprecated" { strikethrough = true }
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -193,8 +185,9 @@ h "MCursor" { link = "CurSearch" }
 h "Normal" { bg = colors.crust0 }
 h "NormalFloat" { bg = colors.mantle1 }
 h "NonText" { fg = colors.surface0 }
-h "Underlined" { underline = true }
 h "Dimmed" { dim = true }
+-- h "Dimmed" { fg = colors.surface0 }
+h "Underlined" { underline = true }
 h "Todo" { fg = colors.rosewater }
 h "Directory" { fg = colors.ivory }
 h "Visual" { bg = colors.surface0 }

@@ -5,6 +5,7 @@ return {
         opts    = {
                 evaluate = { prefix = "se" },
                 exchange = { prefix = "sx", reindent_linewise = true },
+                multiply = { prefix = "sw", reindent_linewise = true },
                 sort     = { prefix = "sy", reindent_linewise = true },
         },
 }

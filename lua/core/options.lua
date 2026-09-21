@@ -42,7 +42,7 @@ optq -- O
 
 optq -- OPT
 "opt"
-    { "guicursor", { "n-v-c-sm:block-Cursor", "i-ci-ve:ver25-Cursor", "r-cr-o:hor20-Cursor", "a:blinkwait500-blinkoff500-blinkon500" } }
+    { "guicursor", { "n-v-c-sm:block-Cursor", "i-ci:ver25-Cursor", "r-cr-o:hor20-Cursor", "a:blinkwait500-blinkoff500-blinkon500" } }
     { "fillchars", {
             fold      = " ",
             vert      = "│",
@@ -75,14 +75,13 @@ optq -- G
 
 optq -- O
 "o"
--- { "formatoptions", "jcoql" }
     { "autoread", true }
     { "makeprg", "" }
     { "backup", false }
     { "swapfile", false }
     { "writebackup", false }
     { "clipboard", "unnamedplus" }
-    { "completeopt", "fuzzy,menu,menuone,noselect" }
+    { "completeopt", "fuzzy,menu,menuone,noselect,popup,preview" }
     { "ignorecase", true }
     { "nrformats", "bin,hex,blank,unsigned" }
     { "smartcase", true }
@@ -90,13 +89,12 @@ optq -- O
     { "autowriteall", false }
     { "autowrite", false }
     { "confirm", true }
-    { "exrc", true }
+    { "exrc", false }
     { "grepformat", "%f:%l:%c:%m" }
     { "hidden", true }
     { "jumpoptions", "stack" }
     { "linebreak", false }
     { "list", true }
--- { "messagesopt", "history:500" }
     { "mouse", "a" }
     { "mousemoveevent", true }
     { "shell", "zsh" }
@@ -106,17 +104,17 @@ optq -- O
     { "undolevels", 10000 }
     { "whichwrap", "<>[]hl" }
     { "wildmenu", true }
-    { "wildmode", "noselect:longest" }
+    { "wildmode", "noinsert:longest" }
     { "wildoptions", "exacttext,fuzzy,pum" }
     { "wrap", false }
     { "wrapmargin", 120 }
     { "bufhidden", "wipe" }
-    { "updatetime", 400 }
-    { "redrawtime", 400 }
+    { "updatetime", 300 }
+    { "redrawtime", 300 }
+    { "selection", "inclusive" }
 
 optq -- OPT
 "opt"
--- { "formatoptions", vim.opt.formatoptions:remove { "c", "r", "o" } }
     { "iskeyword", vim.opt.iskeyword:append "@,48-57,_,-,192-255" }
     { "sessionoptions", { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp", "folds" } }
 

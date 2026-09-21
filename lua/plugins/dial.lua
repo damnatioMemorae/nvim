@@ -1,28 +1,26 @@
 ---@param increment boolean
 ---@param g? boolean
 local function dial(increment, g)
-        local mode      = vim.fn.mode(true)
-        local is_visual = mode == "v" or mode == "V" or mode == "\22"
-        local func      = (increment and "inc" or "dec") .. (g and "_g" or "_") .. (is_visual and "visual" or "normal")
-        local group     = vim.g.dials_by_ft[vim.bo.filetype] or "default"
-        return require "dial.map"[func](group)
+        return function()
+                local mode      = vim.fn.mode(true)
+                local is_visual = mode == "v" or mode == "V" or mode == "\22"
+                local func      = (increment and "inc" or "dec") ..
+                    (g and "_g" or "_") .. (is_visual and "visual" or "normal")
+                local group     = vim.g.dials_by_ft[vim.bo.filetype] or "default"
+                return require "dial.map"[func](group)
+        end
 end
 
 return {
         "monaqa/dial.nvim",
         keys   = {
-                { "<C-a>",  function() return dial(true) end,        expr = true, desc = "Increment", mode = { "n", "v" } },
-                { "<C-x>",  function() return dial(false) end,       expr = true, desc = "Decrement", mode = { "n", "v" } },
-                { "g<C-a>", function() return dial(true, true) end,  expr = true, desc = "Increment", mode = { "n", "v" } },
-                { "g<C-x>", function() return dial(false, true) end, expr = true, desc = "Decrement", mode = { "n", "v" } },
-                -- { "+",      function() return dial(true) end,        expr = true, desc = "Increment", mode = { "n", "v" } },
-                -- { "-",      function() return dial(false) end,       expr = true, desc = "Decrement", mode = { "n", "v" } },
-                -- { "g+",     function() return dial(true, true) end,  expr = true, desc = "Increment", mode = { "n", "v" } },
-                -- { "g-",     function() return dial(false, true) end, expr = true, desc = "Decrement", mode = { "n", "v" } },
+                { "<C-a>",  dial(true),        expr = true, desc = "Dial increment", mode = { "n", "x" } },
+                { "<C-x>",  dial(false),       expr = true, desc = "Dial decrement", mode = { "n", "x" } },
+                { "g<C-a>", dial(true, true),  expr = true, desc = "Dial increment", mode = { "n", "x" } },
+                { "g<C-x>", dial(false, true), expr = true, desc = "Dial decrement", mode = { "n", "x" } },
         },
         opts   = function()
-                local augend = require "dial.augend"
-
+                local augend                     = require "dial.augend"
                 local ordinal_numbers            = augend.constant.new {
                         elements = { "first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth" },
                         word     = false,
@@ -46,7 +44,6 @@ return {
                 local enable_disable             = augend.constant.new { elements = { "enable", "disable" }, word = true, cyclic = true }
                 local enable_disable_capitalized = augend.constant.new { elements = { "Enable", "Disable" }, word = true, cyclic = true }
                 -- local case                         = augend.case.new({ types = { "camelCase", "PascalCase", "kebab-case", "snake_case", "SCREAMING_SNAKE_CASE" }, cyclic = true })
-
                 return {
                         dials_by_ft = {
                                 css             = "css",

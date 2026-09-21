@@ -17,7 +17,7 @@ local command = api.nvim_create_user_command
 ---- SCRATCH BUFFER ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 command("Scratch", function()
-                cmd "rightb 10new"
+                cmd "rightb 30new"
                 local buf = api.nvim_get_current_buf()
                 iter { filetype = "scratch", buftype = "nofile", bufhidden = "wipe", swapfile = false, modifiable = true }
                     :enumerate()
@@ -30,12 +30,11 @@ command("LspCapabilities", function(ctx)
                 local client  = lsp.get_clients { name = ctx.args }[1]
                 local new_buf = api.nvim_create_buf(true, true)
                 local info    = {
+                        config              = client.config,
                         capabilities        = client.capabilities,
                         server_capabilities = client.server_capabilities,
-                        config              = client.config,
                 }
-                api.nvim_buf_set_lines(new_buf, 0, -1, false,
-                                       vim.split(vim.inspect(info), "\n"))
+                api.nvim_buf_set_lines(new_buf, 0, -1, false, vim.split(vim.inspect(info), "\n"))
                 api.nvim_buf_set_name(new_buf, client.name .. " capabilities")
                 bo[new_buf].filetype = "lua"
                 cmd.buffer(new_buf)

@@ -1,7 +1,5 @@
 return {
         "antosha417/nvim-lsp-file-operations",
+        event        = "LspAttach",
         dependencies = { "nvim-lua/plenary.nvim" },
-        config       = function()
-                require "lsp-file-operations".setup()
-        end,
 }
